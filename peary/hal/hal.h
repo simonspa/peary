@@ -2,10 +2,11 @@
 #define CARIBOU_HAL_H
 
 #include <vector>
+#include <cstdint>
 
 namespace caribou {
 
-  class CaribouHAL {
+  class caribouHAL {
 
   public:
     /** Default constructor for creating a new HAL instance

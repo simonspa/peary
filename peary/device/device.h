@@ -11,6 +11,10 @@
 
 namespace caribou {
 
+  /** Forward declaration of the hardware abstraction layer, not including the header file!
+   */
+  class caribouHAL;
+
   /** Caribou Device class definition
    *
    *  this is the central device class from which all device implementations inherit.
@@ -31,7 +35,7 @@ namespace caribou {
 
     /** Default destructor for Caribou devices
      */
-    ~caribouDevice() {};
+    ~caribouDevice();
 
     /** Return the software version string for reference
      */

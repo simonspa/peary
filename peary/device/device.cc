@@ -5,6 +5,8 @@
 #include "device.h"
 #include "hal.h"
 
+#include <string>
+
 using namespace caribou;
 
 caribouDevice::caribouDevice() {
@@ -15,8 +17,8 @@ caribouDevice::~caribouDevice() {
   delete _hal;
 }
 
-std::string caribouDevice::getVersion() { return PACKAGE_STRING; }
+std::string caribouDevice::getVersion() { return std::string(); }
 
 uint8_t caribouDevice::getDeviceID() { return _hal->getDeviceID(); }
 
-std::string caribouDevice::getDeviceName() { return string(); }
+std::string caribouDevice::getDeviceName() { return std::string(); }
