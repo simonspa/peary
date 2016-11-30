@@ -43,6 +43,16 @@ namespace caribou {
     daqStop() {};
 
   private:
-    
+
+    /* Routine to program the pixel matrix via the SPI interface
+     *
+     * This routine produces a bit matrix (using STL vector<bool>) which can
+     * directly be sent to the ASIC via the SPI interface in blocks of 8bit words.
+     * Interleaved flipflops for superpixels and column-end interfaces are
+     * accounted for.
+     * The endianness of the SPI interface is obeyed when sending the data and the
+     * columns are flipped accordingly.
+     */
+    void programMatrix();
   };
 
