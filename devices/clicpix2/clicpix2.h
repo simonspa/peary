@@ -24,23 +24,23 @@ namespace caribou {
 
     /** Initializer function for CLICpix2
      */
-    init() {};
+    void init() {};
 
     /** Turn on the power supply for the CLICpix2 chip
      */
-    powerOn() {};
+    void powerOn() {};
 
     /** Turn off the CLICpix2 power
      */
-    powerOff() {};
+    void powerOff() {};
 
     /** Start the data acquisition
      */
-    daqStart() {};
+    void daqStart() {};
 
     /** Stop the data acquisition
      */
-    daqStop() {};
+    void daqStop() {};
 
   private:
 
@@ -56,3 +56,6 @@ namespace caribou {
     void programMatrix();
   };
 
+} //namespace caribou
+
+#endif /* DEVICE_CLICPIX2_H */
