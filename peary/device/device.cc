@@ -4,12 +4,15 @@
 
 #include "device.h"
 #include "hal.h"
+#include "log.h"
 
 #include <string>
 
 using namespace caribou;
 
 caribouDevice::caribouDevice() {
+  LOG(logQUIET) << "New Caribou device instance for " << getVersion();
+
   _hal = new caribouHAL();
 }
 
