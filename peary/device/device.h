@@ -8,7 +8,6 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
-#include <map>
 
 namespace caribou {
 
@@ -54,7 +53,7 @@ namespace caribou {
      */
     daqStop() = 0;
 
-  private:
+  protected:
     /** Instance of the Caribou hardware abstraction layer library
      *
      *  All register and hardware access should go through this interface.
