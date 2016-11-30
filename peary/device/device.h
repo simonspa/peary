@@ -47,23 +47,23 @@ namespace caribou {
 
     /** Initializer function for Caribou devices
      */
-    init() = 0;
+    virtual void init() = 0;
 
     /** Turn on the power supply for the attached device
      */
-    powerOn() = 0;
+    virtual void powerOn() = 0;
 
     /** Turn off power for the attached device
      */
-    powerOff() = 0;
+    virtual void powerOff() = 0;
 
     /** Start the data acquisition
      */
-    daqStart() = 0;
+    virtual void daqStart() = 0;
 
     /** Stop the data acquisition
      */
-    daqStop() = 0;
+    virtual void daqStop() = 0;
 
   protected:
     /** Instance of the Caribou hardware abstraction layer library
