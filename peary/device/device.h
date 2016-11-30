@@ -32,7 +32,19 @@ namespace caribou {
     /** Default destructor for Caribou devices
      */
     ~caribouDevice() {};
-    
+
+    /** Return the software version string for reference
+     */
+    std::string getVersion();
+
+    /** Return the device identifier of the firmware currently loaded
+     */
+    uint8_t getDeviceID();
+
+    /** Return the human-readable device name of the firmware currently loaded
+     */
+    std::string getDeviceName();
+
     /** Initializer function for Caribou devices
      */
     init() = 0;
@@ -58,7 +70,7 @@ namespace caribou {
      *
      *  All register and hardware access should go through this interface.
      */
-    caribou::caribouHAL hal;
+    caribou::caribouHAL * _hal;
     
   }; //class caribouDevice
 
