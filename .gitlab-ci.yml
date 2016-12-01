@@ -1,3 +1,4 @@
+image: gitlab-registry.cern.ch/linuxsupport/cc7-base:20160111
 peary:
   script:
     - mkdir build
