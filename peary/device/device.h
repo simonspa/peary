@@ -5,6 +5,8 @@
 #ifndef CARIBOU_API_H
 #define CARIBOU_API_H
 
+#include "configuration.h"
+
 #include <stdint.h>
 #include <string>
 #include <vector>
@@ -31,7 +33,7 @@ namespace caribou {
     /** Default constructor for Caribou devices
      *
      */
-    caribouDevice();
+    caribouDevice(caribou::Configuration config);
 
     /** Default destructor for Caribou devices
      */
@@ -75,6 +77,10 @@ namespace caribou {
      *  All register and hardware access should go through this interface.
      */
     caribou::caribouHAL * _hal;
+
+    /** Device configuration object
+     */
+    caribou::Configuration _config;
     
   }; //class caribouDevice
 
