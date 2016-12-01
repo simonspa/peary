@@ -43,6 +43,10 @@ namespace caribou {
     
   private:
 
+    /** Sending a single SPI command and reading the return value
+     */
+    uint8_t SPI(uint8_t address, uint8_t data);
+    
   }; //class caribouHAL
 
 } //namespace caribou
