@@ -7,6 +7,8 @@ SET(LIB_SOURCE_FILES
   "device/device.cc"
   # hardware abstraction layer
   "hal/hal.cc"
+  # utilities
+  "utils/utils.cc"
   )
 
 ADD_LIBRARY(${PROJECT_NAME} SHARED ${LIB_SOURCE_FILES})
