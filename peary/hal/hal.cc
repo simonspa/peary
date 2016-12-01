@@ -30,7 +30,7 @@ uint8_t caribouHAL::SPI(uint8_t address, uint8_t data) {
   return 0;
 }
 
-uint8_t getDeviceID() {
+uint8_t caribouHAL::getDeviceID() {
 
   // FIXME: Implement reading of device identifier register
   return 0;
