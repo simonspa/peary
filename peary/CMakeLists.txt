@@ -9,6 +9,7 @@ SET(LIB_SOURCE_FILES
   "hal/hal.cc"
   # utilities
   "utils/utils.cc"
+  "utils/configuration.cc"
   )
 
 ADD_LIBRARY(${PROJECT_NAME} SHARED ${LIB_SOURCE_FILES})
