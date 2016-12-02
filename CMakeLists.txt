@@ -34,6 +34,8 @@ IF("${isSystemDir}" STREQUAL "-1")
    SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 ENDIF("${isSystemDir}" STREQUAL "-1")
 
+ADD_DEFINITIONS(-std=c++11)
+
 
 ##################################
 # Define build targets for peary #
