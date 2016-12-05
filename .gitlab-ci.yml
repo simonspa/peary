@@ -1,9 +1,16 @@
-image: ubuntu:latest
-
-before_script:
-    - apt-get update -qq && apt-get install -y -qq cmake build-essential
-
 peary:
+  image: ubuntu:latest
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq cmake build-essential
+  script:
+    - mkdir build
+    - cd build
+    - cmake ..
+    - make
+
+peary-zync:
+  tags:
+    - zync
   script:
     - mkdir build
     - cd build
