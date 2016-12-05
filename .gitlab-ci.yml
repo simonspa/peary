@@ -10,7 +10,7 @@ peary:
 
 peary-zync:
   tags:
-    - zync
+    - zynq
   script:
     - mkdir build
     - cd build
