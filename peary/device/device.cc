@@ -17,7 +17,7 @@ caribouDevice::caribouDevice(caribou::Configuration config) :
   _hal = new caribouHAL();
 }
 
-caribouDevice::~caribouDvice() {
+caribouDevice::~caribouDevice() {
   delete _hal;
 }
 
