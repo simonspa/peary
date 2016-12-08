@@ -59,3 +59,12 @@ ADD_SUBDIRECTORY(peary)
 # Include optional device support
 ADD_SUBDIRECTORY(devices)
 
+# Add target for the sample application
+ADD_EXECUTABLE(peary_app "exec/sample_application.cc")
+TARGET_LINK_LIBRARIES(peary_app ${PROJECT_NAME} )
+
+INSTALL(TARGETS peary_app
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib)
+
