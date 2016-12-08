@@ -5,8 +5,6 @@
 #ifndef DEVICE_CLICPIX2_H
 #define DEVICE_CLICPIX2_H
 
-#define DEVICE_NAME "CLCIpix2"
-
 #include "device.h"
 #include "configuration.h"
 #include <string>
