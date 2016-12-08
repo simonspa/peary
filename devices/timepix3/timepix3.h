@@ -19,7 +19,7 @@ namespace caribou {
   class timepix3 : public caribouDevice {
     
   public:
-  timepix3() : caribouDevice(caribou::Configuration()) {};
+  timepix3(caribou::Configuration config) : caribouDevice(config) {};
     ~timepix3() {};
 
     /** Initializer function for Timepix3
@@ -47,7 +47,7 @@ namespace caribou {
   };
 
   extern "C" {
-    caribouDevice * generator();
+    caribouDevice * generator(caribou::Configuration);
   }
 
 } //namespace caribou

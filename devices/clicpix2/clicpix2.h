@@ -20,7 +20,7 @@ namespace caribou {
   class clicpix2 : public caribouDevice {
     
   public:
-  clicpix2() : caribouDevice(caribou::Configuration()) {};
+  clicpix2(caribou::Configuration config) : caribouDevice(config) {};
     ~clicpix2() {};
 
     /** Initializer function for CLICpix2
@@ -58,7 +58,7 @@ namespace caribou {
   };
 
   extern "C" {
-    caribouDevice * generator();
+    caribouDevice * generator(caribou::Configuration);
   }
 
 } //namespace caribou

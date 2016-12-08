@@ -41,7 +41,7 @@ namespace caribou {
      *  be instanciated, the return value is the device ID
      *  assigned by the device manager
      */
-    size_t addDevice(std::string name);
+    size_t addDevice(std::string name, caribou::Configuration config);
 
   private:
 
