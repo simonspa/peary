@@ -6,6 +6,8 @@ DAQ framework for the Carioub DAQ System
 
 ## How to compile / install?
 
+The Peary library is compiled by simply running
+
 ```
 $ mkdir build && cd build/
 $ cmake ..
@@ -13,9 +15,15 @@ $ make
 $ make install
 ```
 
- The following is a first draft of the design guidelines chosen. Some
- first code can be found at
- https://gitlab.cern.ch/simonspa/peary
+In order to compile dive libraries for specific detectors, the building of the library has to be activated through CMake:
+
+```
+$ cmake -DBUILD_<device> ..
+$ make
+$ make install
+```
+
+where `<device>` is the device considered. For convenience, there is an example provided which can be activated with `-DBUILD_example`.
 
 
 ## Design and Implementaion Guidelines
