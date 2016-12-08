@@ -41,8 +41,8 @@ size_t caribouDeviceMgr::addDevice(std::string name, const caribou::Configuratio
   
   LOG(logINFO) << "Creating new instance of device \"" << name << "\".";
 		
-  // CMake prepends "lib" to the shared library name: "lib"+LibraryName.so
-  std::string libName = std:: string("lib").append(name);
+  // CMake prepends "lib" to the shared library name: "lib"+LibraryName+".so"
+  std::string libName = std:: string("lib").append(name).append(".so");
 		
   // Load shared library, be sure to export the path of the lib to LD_LIBRARY_PATH!
   void *hndl = dlopen(libName.c_str(), RTLD_NOW);
