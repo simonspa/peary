@@ -5,10 +5,12 @@
 #include "devicemgr.h"
 #include "device.h"
 #include "log.h"
+#include "utils.h"
 
 #include <string>
 #include <vector>
 #include <dlfcn.h>
+#include <algorithm>
 
 using namespace caribou;
 
@@ -17,7 +19,11 @@ caribouDeviceMgr::caribouDeviceMgr() :
   LOG(logDEBUG) << "New Caribou device manager";
 }
 
-caribouDeviceMgr::~caribouDeviceMgr() {};
+caribouDeviceMgr::~caribouDeviceMgr() {
+  LOG(logDEBUG) << "Deleting all Caribou devices.";
+
+  for_each(_deviceList.begin(), _deviceList.end(), DeleteVector<caribouDevice*>());
+};
 
 caribouDevice* caribouDeviceMgr::getDevice(size_t id) {
 
