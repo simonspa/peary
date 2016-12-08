@@ -32,7 +32,7 @@ void example::daqStop() {
   LOG(logINFO) << DEVICE_NAME << ": DAQ stopped.";
 }
 
-caribouDevice* caribou::generator(caribou::Configuration config) {
+caribouDevice* caribou::generator(const caribou::Configuration config) {
   LOG(logDEBUG) << "Generator: " << DEVICE_NAME;
   example* mDevice = new example(config);
   return dynamic_cast<caribouDevice*>(mDevice);

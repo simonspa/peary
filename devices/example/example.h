@@ -19,7 +19,7 @@ namespace caribou {
   class example : public caribouDevice {
     
   public:
-  example(caribou::Configuration config) : caribouDevice(config) {};
+  example(const caribou::Configuration config) : caribouDevice(config) {};
     ~example();
     
     /** Initializer function for Example
@@ -53,7 +53,7 @@ namespace caribou {
    *  for every class deriving from caribouDevice.
    */
   extern "C" {
-    caribouDevice * generator(caribou::Configuration);
+    caribouDevice * generator(const caribou::Configuration);
   }
 
 } //namespace caribou

@@ -10,7 +10,7 @@
 
 using namespace caribou;
 
-caribouDevice::caribouDevice(caribou::Configuration config) :
+caribouDevice::caribouDevice(const caribou::Configuration config) :
   _config(config) {
   LOG(logQUIET) << "New Caribou device instance for " << getVersion();
 

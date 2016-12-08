@@ -8,7 +8,7 @@
 
 using namespace caribou;
 
-caribouDevice* caribou::generator(caribou::Configuration config) {
+caribouDevice* caribou::generator(const caribou::Configuration config) {
   LOG(logDEBUG) << "Generator: " << DEVICE_NAME;
   timepix3* mDevice = new timepix3(config);
   return dynamic_cast<caribouDevice*>(mDevice);

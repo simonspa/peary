@@ -33,7 +33,7 @@ namespace caribou {
     /** Default constructor for Caribou devices
      *
      */
-    caribouDevice(caribou::Configuration config);
+    caribouDevice(const caribou::Configuration config);
 
     /** Default destructor for Caribou devices
      */

@@ -34,7 +34,7 @@ caribouDevice* caribouDeviceMgr::getDevice(size_t id) {
   else return _deviceList.at(id);
 }
 
-size_t caribouDeviceMgr::addDevice(std::string name, caribou::Configuration config) {
+size_t caribouDeviceMgr::addDevice(std::string name, const caribou::Configuration config) {
 
   caribouDevice* deviceptr = nullptr;
   size_t device_id = 0;
@@ -64,7 +64,7 @@ size_t caribouDeviceMgr::addDevice(std::string name, caribou::Configuration conf
       throw std::runtime_error("Symbol lookup failed");
     } else {
       // symbol found, its value is in "gen"
-      deviceptr = reinterpret_cast<caribouDevice*(*)(caribou::Configuration)>(gen)(config);
+      deviceptr = reinterpret_cast<caribouDevice*(*)(const caribou::Configuration)>(gen)(config);
     }
 
     device_id = _deviceList.size();
