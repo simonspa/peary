@@ -53,3 +53,9 @@ void clicpix2::programMatrix() {
   // Finally, send the data over the SPI interface:
   _hal->sendCommandSPI(0x4,spi_data);
 }
+
+caribouDevice* caribou::generator() {
+  LOG(logDEBUG) << "Generator: " << DEVICE_NAME;
+  clicpix2* mDevice = new clicpix2();
+  return dynamic_cast<caribouDevice*>(mDevice);
+}

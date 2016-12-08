@@ -22,8 +22,8 @@ namespace caribou {
   class clicpix2 : public caribouDevice {
     
   public:
-    clicpix2();
-    ~clicpix2();
+  clicpix2() : caribouDevice(caribou::Configuration()) {};
+    ~clicpix2() {};
 
     /** Initializer function for CLICpix2
      */
@@ -58,6 +58,10 @@ namespace caribou {
      */
     void programMatrix();
   };
+
+  extern "C" {
+    caribouDevice * generator();
+  }
 
 } //namespace caribou
 
