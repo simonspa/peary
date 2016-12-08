@@ -4,8 +4,13 @@
 
 #include "clicpix2.h"
 #include "hal.h"
+#include "log.h"
 
 using namespace caribou;
+
+void clicpix2::init() {
+  LOG(logDEBUG) << "Initializing " << DEVICE_NAME;
+}
 
 void clicpix2::programMatrix() {
 
