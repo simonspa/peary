@@ -37,7 +37,7 @@ namespace caribou {
 
     /** Default destructor for Caribou devices
      */
-    ~caribouDevice();
+    virtual ~caribouDevice();
 
     /** Return the software version string for reference
      */
