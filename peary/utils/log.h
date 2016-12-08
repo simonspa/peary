@@ -32,6 +32,20 @@ typedef unsigned int uint32_t;
 
 namespace caribou {
 
+  namespace color {
+    enum ColorCode {
+      RED      = 31,
+      GREEN    = 32,
+      YELLOW   = 33,
+      BLUE     = 34,
+      DEFAULT  = 39,
+    };
+
+    static std::ostream& operator<<(std::ostream& os, ColorCode code) {
+      return os << "\033[" << static_cast<int>(code) << "m";
+    };
+  }
+
   enum TLogLevel {
     logQUIET,
     logCRITICAL,
@@ -111,12 +125,20 @@ namespace caribou {
 
   template <typename T>
     std::ostringstream& caribouLog<T>::Get(TLogLevel level, std::string file, std::string function, uint32_t line) {
+    // Reset colors:
+    os << color::DEFAULT;
+
     os << "[" << NowTime() << "] ";
     if (logName().size() > 0) {
       os << "<" << logName() << "> ";
     }
+
+    // Add colors:
+    if (level == logERROR || level == logCRITICAL) os << color::RED;
+    if (level == logWARNING) os << color::YELLOW;
+
     os << std::setw(8) << ToString(level) << ": ";
-    
+
     // For debug levels we want also function name and line number printed:
     if (level != logINFO && level != logQUIET && level != logWARNING)
       os << "<" << file << "/" << function << ":L" << line << "> ";
