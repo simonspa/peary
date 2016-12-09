@@ -47,11 +47,10 @@ size_t caribouDeviceMgr::addDevice(std::string name, const caribou::Configuratio
   std::string libName = std:: string("lib").append(name).append(".so");
 		
   // Load shared library, be sure to export the path of the lib to LD_LIBRARY_PATH!
-  void *hndl;
+  void *hndl = nullptr;
 
   // Check if the library is loaded already
-  std::map<std::string, void*>::iterator it;
-  it = _deviceLibraries.find(name);
+  auto it = _deviceLibraries.find(name);
   if(it != _deviceLibraries.end()) {
     LOG(logDEBUG) << "Shared library \"" << libName << "\" already loaded";
     hndl = (*it).second;
@@ -59,7 +58,7 @@ size_t caribouDeviceMgr::addDevice(std::string name, const caribou::Configuratio
   else {
     LOG(logDEBUG) << "Loading shared library \"" << libName << "\"...";
     hndl = dlopen(libName.c_str(), RTLD_NOW);
-    if(hndl == NULL) {
+    if(!hndl) {
       LOG(logCRITICAL) << "Loading of " << libName << " failed:";
       LOG(logCRITICAL) << dlerror();
       throw std::runtime_error("dlopen could not open shared library");
