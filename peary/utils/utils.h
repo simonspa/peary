@@ -27,19 +27,7 @@ namespace caribou {
   /** Efficienctly reverse the bit order of 8-bit word
    */
   uint8_t reverseByte(uint8_t byte);
-
-  // Functor for deleting pointers in vector.
-  template<class T> class DeleteVector {
-  public:
-    // Overloaded () operator.
-    // This will be called by for_each() function.
-    bool operator()(T x) const {
-      // Delete pointer.
-      delete x;
-      return true;
-    }
-  };
-  
+ 
   /** Converts a string to any type.
    * \param x The string to be converted.
    * \param def The default value to be used in case of an invalid string,

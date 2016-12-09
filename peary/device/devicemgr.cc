@@ -22,7 +22,8 @@ caribouDeviceMgr::caribouDeviceMgr() :
 caribouDeviceMgr::~caribouDeviceMgr() {
   LOG(logDEBUG) << "Deleting all Caribou devices.";
 
-  for_each(_deviceList.begin(), _deviceList.end(), DeleteVector<caribouDevice*>());
+  // Call the destructor of the device instances
+  for(auto it : _deviceList) { delete it; };
 
   // Close the loaded libraries
   for(auto it : _deviceLibraries) { dlclose(it.second); }
