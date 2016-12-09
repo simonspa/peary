@@ -71,6 +71,72 @@ namespace caribou {
      */
     virtual void daqStop() = 0;
 
+    /** Function to reconfigure the Caribou device
+     */
+    // Previously "loadConfig"?
+    //virtual void reconfigure() {};
+    
+    /** Read the ID from the chip board if available
+     */
+    //virtual uint16_t getChipboardID() { return 0; };
+
+    
+    // Controlling the device
+    
+    // How to define registers? std::string and internal conversion?
+    // Overload to accept vector?
+    //virtual void setRegister() {};
+    // Separate function for DAC?
+    //virtual void setDAC() {};
+
+    /** Sending reset signal to the device
+     */
+    //virtual void reset() = 0;
+
+    // Setting the acquisition clock/device clock?
+    // Could be either the supplied clock from DAQ or internal clock divider...
+    //virtual void setClockFrequency();
+
+    
+    // Programming the pixel matrix
+
+    /** Configure the pixel matrix
+     */
+    // Provide functions both for the full matrix and single pixels?
+    // Sometimes, pixel configs will have to be cached by child classes since
+    // only programming of full matrix is supported by device...
+    //virtual void configureMatrix() = 0;
+    //virtual void configurePixel() = 0;
+
+    
+    // Voltage regulators
+    
+    // To set supply voltages, same question as above: how to define voltage names?
+    // Separate functions to set target voltage and activate?
+    // Purely virtual?
+    // Do they need to be virtual? Maybe implement in baseclass (always same for CaR)
+    // and only look up correct regulator according to name from child class dictionary?
+    //virtual void setVoltage();
+    //virtual void enableVoltage();
+    // Also add disableVoltage() or rather provide boolean parameter for on/off?
+    //virtual double measureColtage();
+    //virtual double measureCurrent();
+
+    //virtual double getTemperature();
+    //virtual double getADC();
+
+
+    // Retrieving data
+
+    // Two types:
+    //  * trigger based: "events" are returned
+    //  * shutter based: "frames" are returned
+    // Both contain pixel(s), timestamp(s)
+    //virtual std::vector<caribou::event> getData();
+    // If no data available, throw NoData exception instead of returning empty vector!
+    // Otherwise synchronization fo event-based detectors impossible
+
+
   protected:
     /** Instance of the Caribou hardware abstraction layer library
      *
