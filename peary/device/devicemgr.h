@@ -45,9 +45,9 @@ namespace caribou {
 
   private:
 
-    /** Map of the device library name and the actual pointer to the instance of it. 
+    /** Map of the device library name and the actual pointer to the loaded library 
      */
-    std::map<std::string, caribouDevice*> _deviceDescriptions;
+    std::map<std::string, void*> _deviceLibraries;
 
     /** List of instanciated devices, the position in the device vector represents
      *  their device ID
