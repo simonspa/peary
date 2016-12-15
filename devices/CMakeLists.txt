@@ -14,4 +14,5 @@ option(BUILD_alldevices "Build all devices?" OFF)
 optional_add_subdirectory(example)
 
 optional_add_subdirectory(clicpix2)
+optional_add_subdirectory(c3pd)
 optional_add_subdirectory(timepix3)
