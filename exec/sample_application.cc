@@ -49,6 +49,10 @@ int main(int argc, char* argv[]) {
     }
     const caribou::Configuration config(file);
 
+    // Demonstrate how to fetch a vector from the config file:
+    std::vector<int64_t> a = config.Get("myintvec",std::vector<int64_t>());
+    for(auto i : a) { LOG(logINFO) << i; }
+    
     // Spawn all devices
     for(auto d : devices) {
       // ...if we have a configuration for them
