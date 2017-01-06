@@ -33,6 +33,9 @@ namespace caribou {
     template <typename T> T Get(const std::string &key, T def) const {
       return caribou::from_string(Get(key, caribou::to_string(def)), def);
     }
+    template <typename T> std::vector<T> Get(const std::string &key, std::vector<T> def) const {
+      return split(Get(key,std::string()),def,',');
+    }
     int Get(const std::string &key, int def) const;
     template <typename T>
     T Get(const std::string &key, const std::string fallback,

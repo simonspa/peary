@@ -108,6 +108,19 @@ namespace caribou {
 
   inline std::string to_string(const char *x, int /*digits*/ = 0) { return x; }
 
+  /** Splits string s into elements at delimiter "delim" and returns them as vector
+   */
+  template <typename T>
+    std::vector<T> &split(const std::string &s, std::vector<T> &elems, char delim) {
+    std::stringstream ss(s);
+    std::string item;
+    T def;
+    while (std::getline(ss, item, delim)) {
+      elems.push_back(from_string(item, def));
+    }
+    return elems;
+  }
+
 } //namespace caribou
 
 #endif /* CARIBOU_UTILS_H */
