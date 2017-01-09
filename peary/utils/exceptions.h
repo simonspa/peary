@@ -28,9 +28,16 @@ namespace caribou {
    *   - missing (crucial) parameters
    *   - inconsistent or mismatched configuration sets
    */
-  class InvalidConfig : public caribouException {
+  class ConfigInvalid : public caribouException {
   public:
-  InvalidConfig(const std::string& what_arg) : caribouException(what_arg) {}
+  ConfigInvalid(const std::string& what_arg) : caribouException(what_arg) {}
+  };
+
+  /** Exception for missing but requested configuration keys
+   */
+  class ConfigMissingKey : public caribouException {
+  public:
+  ConfigMissingKey(const std::string& what_arg) : caribouException(what_arg) {}
   };
 
   

@@ -1,9 +1,9 @@
 #include "configuration.h"
+#include "exceptions.h"
 
 #include <fstream>
 #include <iostream>
 #include <cstdlib>
-#include <exception>
 
 using namespace caribou;
 
@@ -168,8 +168,7 @@ std::string Configuration::GetString(const std::string &key) const {
   if (i != m_cur->end()) {
     return i->second;
   }
-  throw std::exception();
-  //"Configuration: key not found");
+  throw caribou::ConfigMissingKey("Key \"" + key + "\" not found");
 }
 
 void Configuration::SetString(const std::string &key,
