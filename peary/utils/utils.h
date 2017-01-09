@@ -12,6 +12,8 @@
 #include <sstream>
 #include <iomanip>
 
+#include "exceptions.h"
+
 namespace caribou {
 
   /** Lookup table for bit order reversion
@@ -50,7 +52,7 @@ namespace caribou {
     char remain = '\0';
     s >> remain;
     if (remain)
-      throw std::invalid_argument("Invalid argument: " + x);
+      throw caribou::ConfigInvalid("Invalid argument: " + x);
     return ret;
   }
 

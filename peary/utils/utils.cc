@@ -2,6 +2,7 @@
 #include <cstdint>
 
 #include "utils.h"
+#include "exceptions.h"
 
 uint8_t caribou::reverseByte(uint8_t n) {
   /** Reverse the top and bottom nibble then swap them:
@@ -52,7 +53,7 @@ template <> int64_t caribou::from_string(const std::string &x, const int64_t &de
   }
   int64_t result = static_cast<int64_t>(std::stoll(start, &end, base));
   if (!x.substr(end).empty())
-    throw std::invalid_argument("Invalid argument: " + x);
+    throw caribou::ConfigInvalid("Invalid argument: " + x);
   return result;
 }
 
@@ -75,6 +76,6 @@ template <> uint64_t caribou::from_string(const std::string &x, const uint64_t &
   }
   uint64_t result = static_cast<uint64_t>(std::stoull(start, &end, base));
   if (!x.substr(end).empty())
-    throw std::invalid_argument("Invalid argument: " + x);
+    throw caribou::ConfigInvalid("Invalid argument: " + x);
   return result;
 }

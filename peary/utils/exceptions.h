@@ -23,7 +23,7 @@ namespace caribou {
     std::string ErrorMessage;
   };
 
-  /** Exception covering issues with the configuration found during runtime:
+  /** Exception covering critical issues with the configuration found during runtime:
    *   - out-of-range parameters
    *   - missing (crucial) parameters
    *   - inconsistent or mismatched configuration sets
