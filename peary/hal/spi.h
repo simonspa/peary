@@ -3,21 +3,32 @@
 
 #include <vector>
 #include <cstdint>
+#include <mutex>
 
 namespace caribou {
 
   /* SPI command interface class
    */
-  class spi {
+  class SPI {
+
+    /** Default constructor: private for singleton class
+     */
+    SPI() {};
 
   public:
-    /** Default constructor for creating a new SPI communicator
+    /** Get instance of the singleton SPI interface class
+     *  The below function is thread-safe in C++11 and can thus
+     *  be called from several HAL instances concurrently.
      */
-    spi() {};
+    static SPI * getInterface() {
+      static SPI instance;
+      return &instance;
+    }
 
-    /** Default destructor for SPI objects
+    /* Delete unwanted functions from singleton class (C++11)
      */
-    ~spi() {};
+    SPI(SPI const&)             = delete;
+    void operator=(SPI const&)  = delete;
 
     /** Send command via the SPI interface
      *
@@ -42,6 +53,10 @@ namespace caribou {
      */
     uint8_t sendCommand(uint8_t address, uint8_t data);
 
+    /** Private mutex to lock driver access
+     */
+    std::mutex mutex;
+    
   }; //class SPI
 
 } //namespace caribou

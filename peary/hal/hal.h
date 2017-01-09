@@ -24,10 +24,6 @@ namespace caribou {
      */
     uint8_t getDeviceID();
 
-    /* SPI command interface
-     */
-    caribou::spi * _spi;
-
   private:
     
   }; //class caribouHAL

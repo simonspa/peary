@@ -7,13 +7,11 @@
 
 using namespace caribou;
 
-caribouHAL::caribouHAL() {
-  _spi = new caribou::spi();
-};
+caribouHAL::caribouHAL() {};
 
 caribouHAL::~caribouHAL() {};
 
-std::vector<uint8_t> spi::sendCommand(uint8_t address, std::vector<uint8_t> data) {
+std::vector<uint8_t> SPI::sendCommand(uint8_t address, std::vector<uint8_t> data) {
 
   // Cache the return values
   std::vector<uint8_t> miso_values;
@@ -26,10 +24,13 @@ std::vector<uint8_t> spi::sendCommand(uint8_t address, std::vector<uint8_t> data
   return miso_values;
 }
 
-uint8_t spi::sendCommand(uint8_t address, uint8_t data) {
+uint8_t SPI::sendCommand(uint8_t address, uint8_t data) {
 
   LOG(logDEBUGHAL) << "SPI: Sending data \"" << static_cast<int>(data)
 		   << "\" to addr \"" <<  static_cast<int>(address) << "\"";
+
+  std::lock_guard<std::mutex> lock(mutex);
+
   // FIXME: Implement sending of the MOSI command
   // FIXME: Implement retrieval of MISO value
   return 0;
