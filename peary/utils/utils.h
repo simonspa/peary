@@ -67,14 +67,18 @@ namespace caribou {
     uint64_t from_string(const std::string &x, const uint64_t &def);
 
   template <>
-    inline int32_t
-    from_string(const std::string &x, const int32_t &def) {
+    inline int32_t from_string(const std::string &x, const int32_t &def) {
     return static_cast<int32_t>(from_string(x, (int64_t)def));
   }
 
   template <>
     inline uint32_t from_string(const std::string &x, const uint32_t &def) {
     return static_cast<uint32_t>(from_string(x, (uint64_t)def));
+  }
+
+  template <>
+    inline uint8_t from_string(const std::string &x, const uint8_t &def) {
+    return static_cast<uint8_t>(from_string(x, (int64_t)def));
   }
 
   
