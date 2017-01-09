@@ -6,6 +6,7 @@
 #include "device.h"
 #include "log.h"
 #include "utils.h"
+#include "exceptions.h"
 
 #include <string>
 #include <vector>
@@ -33,7 +34,7 @@ caribouDevice* caribouDeviceMgr::getDevice(size_t id) {
 
   if(_deviceList.size() < (id+1)) {
     LOG(logCRITICAL) << "Device ID " << id << " not known!";
-    throw std::runtime_error("Unknown device id");
+    throw caribou::DeviceException("Unknown device id");
   }
   else return _deviceList.at(id);
 }
@@ -61,7 +62,7 @@ size_t caribouDeviceMgr::addDevice(std::string name, const caribou::Configuratio
     if(!hndl) {
       LOG(logCRITICAL) << "Loading of " << libName << " failed:";
       LOG(logCRITICAL) << dlerror();
-      throw std::runtime_error("dlopen could not open shared library");
+      throw caribou::DeviceException("dlopen could not open shared library");
     }
     _deviceLibraries.insert( std::make_pair(name, hndl) );
     LOG(logDEBUG) << "Shared library successfully loaded.";
@@ -76,7 +77,7 @@ size_t caribouDeviceMgr::addDevice(std::string name, const caribou::Configuratio
     if ((err = dlerror()) != NULL) {
       // handle error, the symbol wasn't found
       LOG(logCRITICAL) << err;
-      throw std::runtime_error("Symbol lookup failed");
+      throw caribou::DeviceException("Symbol lookup failed");
     } else {
       // symbol found, its value is in "gen"
       deviceptr = reinterpret_cast<caribouDevice*(*)(const caribou::Configuration)>(gen)(config);
@@ -88,7 +89,7 @@ size_t caribouDeviceMgr::addDevice(std::string name, const caribou::Configuratio
   }
   catch(...) {
     LOG(logCRITICAL) << "Could not retrieve pointer to caribouDevice object, is the generator() function included w/o C++ name mangling?";
-    throw std::runtime_error("Retrieval of caribouDevice* failed");
+    throw caribou::DeviceException("Retrieval of caribouDevice* failed");
   }
 
   // FIXME initialize device here? requires configuration!
