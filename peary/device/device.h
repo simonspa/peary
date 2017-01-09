@@ -77,6 +77,9 @@ namespace caribou {
     //virtual void reconfigure() {};
     
     /** Read the ID from the chip board if available
+     *
+     *  Some chip boards feature an EPROM which stores a board ID and thus
+     *  allows identification of the attached chip board.
      */
     //virtual uint16_t getChipboardID() { return 0; };
 
@@ -133,8 +136,8 @@ namespace caribou {
     //  * shutter based: "frames" are returned
     // Both contain pixel(s), timestamp(s)
     //virtual std::vector<caribou::event> getData();
-    // If no data available, throw NoData exception instead of returning empty vector!
-    // Otherwise synchronization fo event-based detectors impossible
+    // If no data available, throw caribou::NoDataAvailable exception instead of returning empty vector!
+    // Otherwise synchronization of event-based detectors impossible
 
 
   protected:
