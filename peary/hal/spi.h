@@ -25,6 +25,8 @@ namespace caribou {
      *  a vector of data words to be sent (MOSI, master out slave in).
      *  All data is send to the same address.
      *
+     *  If the data vector is empty, no SPI command will be sent.
+     *
      *  The return value is the response retrieved from the SPI interface 
      *  (MISO, master in slave out)
      *  The responses from each individual SPI command are returned in the order

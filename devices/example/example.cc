@@ -14,6 +14,9 @@ example::~example() {
 
 void example::init() {
   LOG(logINFO) << DEVICE_NAME << ": Initialized.";
+
+  // Vectors can be read directly from the config and passed to an interface
+  _hal->_spi->sendCommand(12,_config.Get("some-spi-data",std::vector<uint8_t>()));
 }
 
 void example::powerOn() {
