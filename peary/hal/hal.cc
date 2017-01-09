@@ -2,6 +2,7 @@
  * Caribou HAL class implementation
  */
 
+#include "log.h"
 #include "hal.h"
 
 using namespace caribou;
@@ -27,6 +28,8 @@ std::vector<uint8_t> spi::sendCommand(uint8_t address, std::vector<uint8_t> data
 
 uint8_t spi::sendCommand(uint8_t address, uint8_t data) {
 
+  LOG(logDEBUGHAL) << "SPI: Sending data \"" << static_cast<int>(data)
+		   << "\" to addr \"" <<  static_cast<int>(address) << "\"";
   // FIXME: Implement sending of the MOSI command
   // FIXME: Implement retrieval of MISO value
   return 0;
