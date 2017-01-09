@@ -27,7 +27,11 @@ namespace caribou {
   /** Efficienctly reverse the bit order of 8-bit word
    */
   uint8_t reverseByte(uint8_t byte);
- 
+
+  /** Return the binary representation of a char as std::string
+   */
+  std::string bitstring(uint8_t data);
+
   /** Converts a string to any type.
    * \param x The string to be converted.
    * \param def The default value to be used in case of an invalid string,
