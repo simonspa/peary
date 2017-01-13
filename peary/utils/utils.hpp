@@ -12,7 +12,7 @@
 #include <sstream>
 #include <iomanip>
 
-#include "exceptions.h"
+#include "exceptions.hpp"
 
 namespace caribou {
 

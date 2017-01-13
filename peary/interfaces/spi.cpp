@@ -2,8 +2,8 @@
  * Caribou SPI interface class implementation
  */
 
-#include "log.h"
-#include "spi.h"
+#include "log.hpp"
+#include "spi.hpp"
 
 using namespace caribou;
 

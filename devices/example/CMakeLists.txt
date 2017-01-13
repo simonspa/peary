@@ -1,7 +1,7 @@
 SET(NAME "CaribouExampleDevice")
 
 SET(SOURCEFILES
-  example.cc)
+  example.cpp)
 
 INCLUDE_DIRECTORIES(.)
 

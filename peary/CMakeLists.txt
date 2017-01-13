@@ -4,16 +4,16 @@ INCLUDE_DIRECTORIES(interfaces)
 
 SET(LIB_SOURCE_FILES
   # device library
-  "device/device.cc"
-  "device/devicemgr.cc"
+  "device/device.cpp"
+  "device/devicemgr.cpp"
   # hardware abstraction layer
-  "hal/hal.cc"
+  "hal/hal.cpp"
   # interfaces
-  "interfaces/spi.cc"
-  "interfaces/i2c.cc"
+  "interfaces/spi.cpp"
+  "interfaces/i2c.cpp"
   # utilities
-  "utils/utils.cc"
-  "utils/configuration.cc"
+  "utils/utils.cpp"
+  "utils/configuration.cpp"
   )
 
 ADD_LIBRARY(${PROJECT_NAME} SHARED ${LIB_SOURCE_FILES})

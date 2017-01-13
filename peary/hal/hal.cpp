@@ -2,13 +2,13 @@
  * Caribou HAL class implementation
  */
 
-#include "exceptions.h"
-#include "constants.h"
-#include "log.h"
-#include "hal.h"
+#include "exceptions.hpp"
+#include "constants.hpp"
+#include "log.hpp"
+#include "hal.hpp"
 
-#include "spi.h"
-#include "i2c.h"
+#include "spi.hpp"
+#include "i2c.hpp"
 
 using namespace caribou;
 
@@ -40,8 +40,8 @@ std::vector<uint8_t> caribouHAL::sendCommand(uint8_t address, std::vector<uint8_
   }
   case IFACE::I2C : {
     LOG(logDEBUGHAL) << "Command to I2C";
-    caribou::iface_i2c * i2c = iface_i2c::getInterface();
-    i2c->sendCommand(address,data);
+    // caribou::iface_i2c * i2c = iface_i2c::getInterface();
+    // i2c->sendCommand(address,data);
     return std::vector<uint8_t>();
     break;
   }

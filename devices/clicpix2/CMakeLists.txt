@@ -1,7 +1,7 @@
 SET(NAME "CLICpix2")
 
 SET(SOURCEFILES
-  clicpix2.cc)
+  clicpix2.cpp)
 
 INCLUDE_DIRECTORIES(.)
 

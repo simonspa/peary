@@ -9,7 +9,7 @@
 #include <string>
 #include <map>
 
-#include "utils.h"
+#include "utils.hpp"
 
 namespace caribou {
 

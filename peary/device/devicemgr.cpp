@@ -2,11 +2,11 @@
  * Caribou Device Manager class implementation
  */
 
-#include "devicemgr.h"
-#include "device.h"
-#include "log.h"
-#include "utils.h"
-#include "exceptions.h"
+#include "devicemgr.hpp"
+#include "device.hpp"
+#include "log.hpp"
+#include "utils.hpp"
+#include "exceptions.hpp"
 
 #include <string>
 #include <vector>

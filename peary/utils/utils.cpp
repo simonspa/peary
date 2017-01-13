@@ -1,8 +1,8 @@
 
 #include <cstdint>
 
-#include "utils.h"
-#include "exceptions.h"
+#include "utils.hpp"
+#include "exceptions.hpp"
 
 uint8_t caribou::reverseByte(uint8_t n) {
   /** Reverse the top and bottom nibble then swap them:

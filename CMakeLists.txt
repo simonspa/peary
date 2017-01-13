@@ -70,11 +70,11 @@ ADD_SUBDIRECTORY(doc)
 # Define build targets for sample applications #
 ################################################
 
-ADD_EXECUTABLE(peary_app "exec/sample_application.cc")
+ADD_EXECUTABLE(peary_app "exec/sample_application.cpp")
 TARGET_LINK_LIBRARIES(peary_app ${PROJECT_NAME} )
 
 INCLUDE_DIRECTORIES(devices/example)
-ADD_EXECUTABLE(peary_direct "exec/direct_device.cc")
+ADD_EXECUTABLE(peary_direct "exec/direct_device.cpp")
 TARGET_LINK_LIBRARIES(peary_direct ${PROJECT_NAME} CaribouExampleDevice )
 
 INSTALL(TARGETS peary_app peary_direct

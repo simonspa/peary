@@ -1,9 +1,9 @@
 #include <iostream>
 #include <fstream>
 
-#include "configuration.h"
-#include "example.h"
-#include "log.h"
+#include "configuration.hpp"
+#include "devicemgr.hpp"
+#include "log.hpp"
 
 using namespace caribou;
 
@@ -18,6 +18,7 @@ int main(int argc, char* argv[]) {
       std::cout << "Help:" << std::endl;
       std::cout << "-v verbosity   verbosity level, default INFO" << std::endl;
       std::cout << "-c configfile  configuration file to be used" << std::endl;
+      std::cout << "All other arguments are interpreted as devices to be instanciated." << std::endl;
       return 0;
     }
     else if (!strcmp(argv[i],"-v")) {
@@ -28,7 +29,14 @@ int main(int argc, char* argv[]) {
       configfile = std::string(argv[++i]);
       continue;
     }
+    else {
+      std::cout << "Adding device " << argv[i] << std::endl;
+      devices.push_back(std::string(argv[i]));
+    }
   }
+  
+  // Create new Peary device manager
+  caribou::caribouDeviceMgr * manager = new caribouDeviceMgr();
   
   // Create all Caribou devices instance:
   try {
@@ -41,16 +49,31 @@ int main(int argc, char* argv[]) {
     }
     const caribou::Configuration config(file);
 
-    example *dev = new example(config);
+    // Demonstrate how to fetch a vector from the config file:
+    std::vector<int64_t> a = config.Get("myintvec",std::vector<int64_t>());
+    for(auto i : a) { LOG(logINFO) << i; }
 
-    // It's possible to call base class functions
-    dev->initialize();
-    dev->powerOn();
+    // Spawn all devices
+    for(auto d : devices) {
+      // ...if we have a configuration for them
+      if(config.SetSection(d)) {
+	size_t device_id = manager->addDevice(d,config);
+	LOG(logINFO) << "Manager returned device ID " << device_id << ", fetching device...";
 
-    // But now also functions of the specialized class are available:
-    dev->exampleCall();
+	// Get the device from the manager:
+	caribouDevice *dev = manager->getDevice(device_id);
+	dev->initialize();
+	dev->powerOn();
+
+	dev->daqStart();
+	dev->daqStop();
+      }
+      else { LOG(logERROR) << "No configuration found for device " << d; }
+
+    }
     
-    delete dev;
+    // And end that whole thing correcly:
+    delete manager;
     LOG(logINFO) << "Done. And thanks for all the fish.";
   }
   catch (...) {
