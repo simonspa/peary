@@ -16,9 +16,9 @@ caribouHAL::caribouHAL(IFACE interface) :
   _iface(interface) {
   
   LOG(logDEBUGHAL) << "Configured device requires typ-" << (int)interface << " interface.";
-};
+}
 
-caribouHAL::~caribouHAL() {};
+caribouHAL::~caribouHAL() {}
 
 uint8_t caribouHAL::getDeviceID() {
 

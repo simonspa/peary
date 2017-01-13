@@ -43,7 +43,7 @@ namespace caribou {
 
     static std::ostream& operator<<(std::ostream& os, ColorCode code) {
       return os << "\033[" << static_cast<int>(code) << "m";
-    };
+    }
   }
 
   enum TLogLevel {

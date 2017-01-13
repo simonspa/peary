@@ -34,7 +34,7 @@ caribouDeviceMgr::~caribouDeviceMgr() {
 
   // Close the loaded libraries
   for(auto it : _deviceLibraries) { dlclose(it.second); }
-};
+}
 
 caribouDevice* caribouDeviceMgr::getDevice(size_t id) {
 
