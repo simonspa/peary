@@ -9,26 +9,26 @@ namespace caribou {
 
   /* SPI command interface class
    */
-  class SPI {
+  class iface_spi {
 
     /** Default constructor: private for singleton class
      */
-    SPI() {};
+    iface_spi() {};
 
   public:
     /** Get instance of the singleton SPI interface class
      *  The below function is thread-safe in C++11 and can thus
      *  be called from several HAL instances concurrently.
      */
-    static SPI * getInterface() {
-      static SPI instance;
+    static iface_spi * getInterface() {
+      static iface_spi instance;
       return &instance;
     }
 
     /* Delete unwanted functions from singleton class (C++11)
      */
-    SPI(SPI const&)             = delete;
-    void operator=(SPI const&)  = delete;
+    iface_spi(iface_spi const&)             = delete;
+    void operator=(iface_spi const&)  = delete;
 
     /** Send command via the SPI interface
      *
@@ -57,7 +57,7 @@ namespace caribou {
      */
     std::mutex mutex;
     
-  }; //class SPI
+  }; //class iface_spi
 
 } //namespace caribou
 
