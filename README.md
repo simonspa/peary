@@ -62,4 +62,4 @@ Configuration files are provided by the user code via the constructor of the dev
 uint64_t myvar = _config.Get("key_of_myvar",1234);
 ```
 
-where the second parameter is a default value used in case the key is not present in the provided file. In device implementations, all default configuration parameters should be collected in a header file as demonstrated for [the example device](devices/example/example_defaults.h). This avoids scattering hard-coded values across the code while still always providing sane defaults whenever the device is operated.
+where the second parameter is a default value used in case the key is not present in the provided file. In device implementations, all default configuration parameters should be collected in a header file as demonstrated for [the example device](devices/example/example_defaults.hpp). This avoids scattering hard-coded values across the code while still always providing sane defaults whenever the device is operated.
