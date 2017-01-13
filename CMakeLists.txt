@@ -43,6 +43,9 @@ ENDIF("${isSystemDir}" STREQUAL "-1")
 
 ADD_DEFINITIONS(-std=c++11)
 
+IF(APPLE)
+  SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -stdlib=libstdc++" )
+ENDIF(APPLE)
 
 ##################################
 # Define build targets for peary #
