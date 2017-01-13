@@ -38,6 +38,16 @@ namespace caribou {
 
   private:
 
+    // analog power supply
+    // digital power supply
+
+    // hv bias
+
+    // I2C interface
+    // reset signal pin
+    // power enable pin
+
+    
   };
 
   /** Device generator
