@@ -11,7 +11,7 @@ namespace caribou {
   public:
     /** Default constructor for creating a new HAL instance
      */
-    caribouHAL();
+    caribouHAL(uint8_t interface);
 
     /** Default destructor for HAL objects
      */

@@ -52,7 +52,7 @@ int main(int argc, char* argv[]) {
     // Demonstrate how to fetch a vector from the config file:
     std::vector<int64_t> a = config.Get("myintvec",std::vector<int64_t>());
     for(auto i : a) { LOG(logINFO) << i; }
-    
+
     // Spawn all devices
     for(auto d : devices) {
       // ...if we have a configuration for them
@@ -62,7 +62,7 @@ int main(int argc, char* argv[]) {
 
 	// Get the device from the manager:
 	caribouDevice *dev = manager->getDevice(device_id);
-	dev->init();
+	dev->initialize();
 	dev->powerOn();
 
 	dev->daqStart();
