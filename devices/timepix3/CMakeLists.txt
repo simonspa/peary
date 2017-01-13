@@ -1,7 +1,7 @@
 SET(NAME "Timepix3")
 
 SET(SOURCEFILES
-  timepix3.cc)
+  timepix3.cpp)
 
 INCLUDE_DIRECTORIES(.)
 

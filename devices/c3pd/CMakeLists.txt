@@ -1,7 +1,7 @@
 SET(NAME "C3PD")
 
 SET(SOURCEFILES
-  c3pd.cc)
+  c3pd.cpp)
 
 INCLUDE_DIRECTORIES(.)
 

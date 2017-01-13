@@ -5,8 +5,8 @@
 #ifndef CARIBOU_API_H
 #define CARIBOU_API_H
 
-#include "configuration.h"
-#include "constants.h"
+#include "configuration.hpp"
+#include "constants.hpp"
 
 #include <stdint.h>
 #include <string>

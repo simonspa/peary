@@ -7,9 +7,9 @@
 #ifndef DEVICE_EXAMPLE_H
 #define DEVICE_EXAMPLE_H
 
-#include "device.h"
-#include "example_defaults.h"
-#include "constants.h"
+#include "device.hpp"
+#include "example_defaults.hpp"
+#include "constants.hpp"
 
 namespace caribou {
 

@@ -2,9 +2,9 @@
  * Caribou Example Device implementation
  */
 
-#include "example.h"
-#include "hal.h"
-#include "log.h"
+#include "example.hpp"
+#include "hal.hpp"
+#include "log.hpp"
 
 using namespace caribou;
 

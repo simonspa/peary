@@ -1,5 +1,5 @@
-#include "configuration.h"
-#include "exceptions.h"
+#include "configuration.hpp"
+#include "exceptions.hpp"
 
 #include <fstream>
 #include <iostream>

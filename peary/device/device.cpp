@@ -2,10 +2,10 @@
  * Caribou Device API class implementation
  */
 
-#include "device.h"
-#include "constants.h"
-#include "hal.h"
-#include "log.h"
+#include "device.hpp"
+#include "constants.hpp"
+#include "hal.hpp"
+#include "log.hpp"
 
 #include <string>
 
