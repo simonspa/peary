@@ -6,6 +6,7 @@
 #define CARIBOU_API_H
 
 #include "configuration.h"
+#include "constants.h"
 
 #include <stdint.h>
 #include <string>
@@ -149,7 +150,7 @@ namespace caribou {
 
     /** Return the required communication interface
      */
-    virtual uint8_t interface() = 0;
+    virtual IFACE interface() = 0;
 
 
     /** Device configuration object

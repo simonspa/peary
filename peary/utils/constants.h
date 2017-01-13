@@ -1,7 +1,5 @@
 /**
  * peary hardware constants
- * this file contains DAC definitions and other global constants such
- * as testboard register ids
  */
 
 #ifndef CARIBOU_CONSTANTS_H

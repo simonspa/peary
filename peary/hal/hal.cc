@@ -12,7 +12,7 @@
 
 using namespace caribou;
 
-caribouHAL::caribouHAL(uint8_t interface) :
+caribouHAL::caribouHAL(IFACE interface) :
   _iface(interface) {
   
   LOG(logDEBUGHAL) << "Configured device requires typ-" << (int)interface << " interface.";
