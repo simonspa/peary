@@ -14,5 +14,5 @@ peary-zync:
   script:
     - mkdir build
     - cd build
-    - cmake ..
+    - cmake -DBUILD_example=ON ..
     - make
