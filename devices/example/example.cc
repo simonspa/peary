@@ -15,6 +15,7 @@ example::~example() {
 void example::powerOn() {
   LOG(logINFO) << DEVICE_NAME << ": Power on.";
 
+  int test = _config.Get("test",EXAMPLE_DAC1);
   // Vectors can be read directly from the config and passed to an interface
   _hal->sendCommand(12,_config.Get("some-spi-data",std::vector<uint8_t>()));
 }

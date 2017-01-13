@@ -8,6 +8,7 @@
 #define DEVICE_EXAMPLE_H
 
 #include "device.h"
+#include "example_defaults.h"
 #include "constants.h"
 
 namespace caribou {
