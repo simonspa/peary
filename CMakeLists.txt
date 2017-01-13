@@ -59,6 +59,9 @@ ADD_SUBDIRECTORY(peary)
 # Include optional device support
 ADD_SUBDIRECTORY(devices)
 
+# Add targets for Doxygen code reference and LaTeX User manual
+ADD_SUBDIRECTORY(doc)
+
 
 ################################################
 # Define build targets for sample applications #
