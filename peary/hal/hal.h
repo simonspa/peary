@@ -21,7 +21,15 @@ namespace caribou {
      */
     uint8_t getDeviceID();
 
+    /** Send command to the device interface
+     */
+    std::vector<uint8_t> sendCommand(uint8_t address, std::vector<uint8_t> data);
+
   private:
+
+    /** Interface of the configured device
+     */
+    uint8_t _iface;
     
   }; //class caribouHAL
 
