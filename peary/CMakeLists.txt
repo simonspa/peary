@@ -10,6 +10,7 @@ SET(LIB_SOURCE_FILES
   "hal/hal.cc"
   # interfaces
   "interfaces/spi.cc"
+  "interfaces/i2c.cc"
   # utilities
   "utils/utils.cc"
   "utils/configuration.cc"
