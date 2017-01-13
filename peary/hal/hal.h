@@ -4,9 +4,6 @@
 #include <vector>
 #include <cstdint>
 
-#include "i2c.h"
-#include "spi.h"
-
 namespace caribou {
 
   class caribouHAL {
@@ -14,7 +11,7 @@ namespace caribou {
   public:
     /** Default constructor for creating a new HAL instance
      */
-    caribouHAL();
+    caribouHAL(uint8_t interface);
 
     /** Default destructor for HAL objects
      */

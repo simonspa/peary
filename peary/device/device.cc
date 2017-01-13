@@ -3,6 +3,7 @@
  */
 
 #include "device.h"
+#include "constants.h"
 #include "hal.h"
 #include "log.h"
 
@@ -13,8 +14,10 @@ using namespace caribou;
 caribouDevice::caribouDevice(const caribou::Configuration config) :
   _config(config) {
   LOG(logQUIET) << "New Caribou device instance, version " << getVersion();
+}
 
-  _hal = new caribouHAL();
+void caribouDevice::initialize() {
+  _hal = new caribouHAL(this->interface());
 }
 
 caribouDevice::~caribouDevice() {

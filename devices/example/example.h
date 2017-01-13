@@ -8,6 +8,7 @@
 #define DEVICE_EXAMPLE_H
 
 #include "device.h"
+#include "constants.h"
 
 namespace caribou {
 
@@ -22,10 +23,6 @@ namespace caribou {
   example(const caribou::Configuration config) : caribouDevice(config) {};
     ~example();
     
-    /** Initializer function for Example
-     */
-    void init();
-
     /** Turn on the power supply for the Example chip
      */
     void powerOn();
@@ -42,7 +39,14 @@ namespace caribou {
      */
     void daqStop();
 
+    /** Example function only available in this derived device class
+     */
+    void exampleCall();
+
   private:
+
+    //uint8_t interface() { return interface::I2C; }
+    uint8_t interface() { return interface::SPI; }
 
   };
 

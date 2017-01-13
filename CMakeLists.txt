@@ -59,11 +59,19 @@ ADD_SUBDIRECTORY(peary)
 # Include optional device support
 ADD_SUBDIRECTORY(devices)
 
-# Add target for the sample application
+
+################################################
+# Define build targets for sample applications #
+################################################
+
 ADD_EXECUTABLE(peary_app "exec/sample_application.cc")
 TARGET_LINK_LIBRARIES(peary_app ${PROJECT_NAME} )
 
-INSTALL(TARGETS peary_app
+INCLUDE_DIRECTORIES(devices/example)
+ADD_EXECUTABLE(peary_direct "exec/direct_device.cc")
+TARGET_LINK_LIBRARIES(peary_direct ${PROJECT_NAME} CaribouExampleDevice )
+
+INSTALL(TARGETS peary_app peary_direct
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib)

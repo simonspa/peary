@@ -51,8 +51,7 @@ void clicpix2::programMatrix() {
   }
 
   // Finally, send the data over the SPI interface:
-  caribou::SPI * spi = SPI::getInterface();
-  spi->sendCommand(0x4,spi_data);
+  //_hal->sendCommand(0x4,spi_data);
 }
 
 caribouDevice* caribou::generator(const caribou::Configuration config) {

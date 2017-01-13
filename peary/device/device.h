@@ -53,7 +53,7 @@ namespace caribou {
 
     /** Initializer function for Caribou devices
      */
-    virtual void init() = 0;
+    void initialize();
 
     /** Turn on the power supply for the attached device
      */
@@ -146,6 +146,11 @@ namespace caribou {
      *  All register and hardware access should go through this interface.
      */
     caribou::caribouHAL * _hal;
+
+    /** Return the required communication interface
+     */
+    virtual uint8_t interface() = 0;
+
 
     /** Device configuration object
      */

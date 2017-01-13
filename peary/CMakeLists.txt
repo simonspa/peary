@@ -1,6 +1,6 @@
 # Add source files for the peary caribou core library
 
-INCLUDE_DIRECTORIES(device utils hal driver)
+INCLUDE_DIRECTORIES(interfaces)
 
 SET(LIB_SOURCE_FILES
   # device library
@@ -8,6 +8,8 @@ SET(LIB_SOURCE_FILES
   "device/devicemgr.cc"
   # hardware abstraction layer
   "hal/hal.cc"
+  # interfaces
+  "interfaces/spi.cc"
   # utilities
   "utils/utils.cc"
   "utils/configuration.cc"

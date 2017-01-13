@@ -12,16 +12,12 @@ example::~example() {
   LOG(logINFO) << DEVICE_NAME << ": Shutdown, delete device.";
 }
 
-void example::init() {
-  LOG(logINFO) << DEVICE_NAME << ": Initialized.";
-
-  // Vectors can be read directly from the config and passed to an interface
-  caribou::SPI * spi = SPI::getInterface();
-  spi->sendCommand(12,_config.Get("some-spi-data",std::vector<uint8_t>()));
-}
-
 void example::powerOn() {
   LOG(logINFO) << DEVICE_NAME << ": Power on.";
+
+  // Vectors can be read directly from the config and passed to an interface
+  //_hal->sendCommand(12,_config.Get("some-spi-data",std::vector<uint8_t>()));
+
 }
 
 void example::powerOff() {
@@ -34,6 +30,10 @@ void example::daqStart() {
 
 void example::daqStop() {
   LOG(logINFO) << DEVICE_NAME << ": DAQ stopped.";
+}
+
+void example::exampleCall() {
+  LOG(logINFO) << DEVICE_NAME << ": exampleCall";
 }
 
 caribouDevice* caribou::generator(const caribou::Configuration config) {
