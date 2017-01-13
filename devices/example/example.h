@@ -39,6 +39,10 @@ namespace caribou {
      */
     void daqStop();
 
+    /** Example function only available in this derived device class
+     */
+    void exampleCall();
+
   private:
 
     //uint8_t interface() { return interface::I2C; }
