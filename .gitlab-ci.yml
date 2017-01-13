@@ -5,7 +5,7 @@ peary:
   script:
     - mkdir build
     - cd build
-    - cmake ..
+    - cmake -DBUILD_example=ON ..
     - make
 
 peary-zync:
