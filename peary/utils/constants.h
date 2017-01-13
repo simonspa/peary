@@ -11,7 +11,11 @@ namespace caribou {
 
   /** Interfaces
    */
-  enum interface { I2C, SPI };
+  enum IFACE {
+    NONE,
+    I2C,
+    SPI
+  };
 
 } // end namespace caribou
 
