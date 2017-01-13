@@ -13,7 +13,7 @@
 using namespace caribou;
 
 caribouHAL::caribouHAL(uint8_t interface) :
-  _iface(IFACE::NONE) {
+  _iface(interface) {
   
   LOG(logDEBUGHAL) << "Configured device requires typ-" << (int)interface << " interface.";
 };
@@ -28,14 +28,18 @@ uint8_t caribouHAL::getDeviceID() {
 
 std::vector<uint8_t> caribouHAL::sendCommand(uint8_t address, std::vector<uint8_t> data) {
 
+  LOG(logDEBUGHAL) << "Prepare sending command...";
+
   // Send the command to the selected interface:
   switch(_iface) {
   case IFACE::SPI : {
+    LOG(logDEBUGHAL) << "Command to SPI";
     caribou::iface_spi * cif = iface_spi::getInterface();
     return cif->sendCommand(address,data);
     break;
   }
   case IFACE::I2C : {
+    LOG(logDEBUGHAL) << "Command to I2C";
     caribou::iface_i2c * i2c = iface_i2c::getInterface();
     i2c->sendCommand(address,data);
     return std::vector<uint8_t>();

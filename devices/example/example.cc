@@ -16,8 +16,7 @@ void example::powerOn() {
   LOG(logINFO) << DEVICE_NAME << ": Power on.";
 
   // Vectors can be read directly from the config and passed to an interface
-  //_hal->sendCommand(12,_config.Get("some-spi-data",std::vector<uint8_t>()));
-
+  _hal->sendCommand(12,_config.Get("some-spi-data",std::vector<uint8_t>()));
 }
 
 void example::powerOff() {

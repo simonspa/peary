@@ -17,6 +17,7 @@ caribouDevice::caribouDevice(const caribou::Configuration config) :
 }
 
 void caribouDevice::initialize() {
+  LOG(logDEBUGAPI) << "Initializing Caribou device instance...";
   _hal = new caribouHAL(this->interface());
 }
 
