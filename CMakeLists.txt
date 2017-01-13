@@ -41,7 +41,8 @@ IF("${isSystemDir}" STREQUAL "-1")
    SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 ENDIF("${isSystemDir}" STREQUAL "-1")
 
-ADD_DEFINITIONS(-std=c++11)
+ADD_DEFINITIONS(-std=c++14)
+INCLUDE(cmake/Platform.cmake)
 
 
 ##################################
