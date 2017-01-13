@@ -4,6 +4,10 @@ DAQ framework for the Carioub DAQ System
 
 <https://en.wikipedia.org/wiki/Peary_caribou>
 
+## User manual
+
+The user manual for the Peary DAQ software can be found [here](doc/usermanual/manual.md)
+
 ## How to compile / install?
 
 The Peary library is compiled by simply running
