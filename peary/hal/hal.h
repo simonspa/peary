@@ -4,9 +4,6 @@
 #include <vector>
 #include <cstdint>
 
-#include "i2c.h"
-#include "spi.h"
-
 namespace caribou {
 
   class caribouHAL {
