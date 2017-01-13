@@ -26,7 +26,7 @@ $ make install
 where `<device>` is the device considered. For convenience, there is an example provided which can be activated with `-DBUILD_example`.
 
 
-## Design and Implementaion Guidelines
+## Design and Implementation Guidelines
 
 ### Repository & Continuous Integration
 
@@ -37,7 +37,7 @@ where `<device>` is the device considered. For convenience, there is an example 
   There are two compilation targets set up:
 
   * `peary` uses the latest Ubuntu LTS image from Dockerhub, installs the build dependencies and builds the software package
-  * `peary-zynq` uses Gitlab CI runners with the `zynq` tag attached which will execute the job on one of our configured Gitlab CI instances running on the ZC706 Zynq boards with Poky Linux. This job ensures, the project builds fine under the target architecture `armv7l` and on the Poku distribution used.
+  * `peary-zynq` uses Gitlab CI runners with the `zynq` tag attached which will execute the job on one of our configured Gitlab CI instances running on the ZC706 Zynq boards with Poky Linux. This job ensures, the project builds fine under the target architecture `armv7l` and on the Poky distribution used.
  
 
 ### General Considerations
@@ -48,3 +48,14 @@ where `<device>` is the device considered. For convenience, there is an example 
 
 * All code written should be well-documented, especially the function definitions in header files should always be accompanied by an explanation of what this function does, what the parameters are and what return is expected. Possible exceptions should be indicated.
 
+### Device Configuration
+
+Configuration is done via simple but flexible text files containing key-value pairs. The value can also be a comma-separated vector of any type.
+
+Configuration files are provided by the user code via the constructor of the device classes. Configuration can then be accessed e.g. via
+
+```
+uint64_t myvar = _config.Get("key_of_myvar",1234);
+```
+
+where the second parameter is a default value used in case the key is not present in the provided file. In device implementations, all default configuration parameters should be collected in a header file as demonstrated for [the example device](devices/example/example_defaults.h). This avoids scattering hard-coded values across the code while still always providing sane defaults whenever the device is operated.
