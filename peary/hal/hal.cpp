@@ -28,7 +28,7 @@ uint8_t caribouHAL::getDeviceID() {
 
 std::vector<uint8_t> caribouHAL::sendCommand(uint8_t address, std::vector<uint8_t> data) {
 
-  LOG(logDEBUGHAL) << "Prepare sending command...";
+  LOG(logDEBUGHAL) << "Prepare sending command to address " << static_cast<int>(address);
 
   // Send the command to the selected interface:
   switch(_iface) {
