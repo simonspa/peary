@@ -22,12 +22,12 @@ $ make install
 In order to compile dive libraries for specific detectors, the building of the library has to be activated through CMake:
 
 ```
-$ cmake -DBUILD_<device> ..
+$ cmake -DBUILD_<device>=ON/OFF ..
 $ make
 $ make install
 ```
 
-where `<device>` is the device considered. For convenience, there is an example provided which can be activated with `-DBUILD_example`.
+where `<device>` is the device considered. For convenience, there is an example provided which can be activated with `-DBUILD_example=ON` and which is built by default.
 
 
 ## Design and Implementation Guidelines
