@@ -19,7 +19,7 @@ $ make
 $ make install
 ```
 
-In order to compile dive libraries for specific detectors, the building of the library has to be activated through CMake:
+In order to compile device libraries for specific detectors, the building of the library has to be activated through CMake:
 
 ```
 $ cmake -DBUILD_<device>=ON/OFF ..
