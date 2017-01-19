@@ -1,3 +1,4 @@
 
 
-#define EXAMPLE_DAC1 5
+#define EXAMPLE_DAC_TEST 5
+#define EXAMPLE_DAC_VEC  1,3,5,7,9
