@@ -122,6 +122,12 @@ namespace caribou {
    */
   template <typename T>
     std::vector<T> &split(const std::string &s, std::vector<T> &elems, char delim) {
+
+    // If the input string is empty, simply return the default elements:
+    if (s.empty()) return elems;
+
+    // Else we have data, clear the default elements and chop the string:
+    elems.clear();
     std::stringstream ss(s);
     std::string item;
     T def;
