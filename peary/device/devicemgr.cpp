@@ -13,12 +13,6 @@
 #include <dlfcn.h>
 #include <algorithm>
 
-#ifdef __APPLE__
-#define SHARED_LIB ".dylib"
-#else
-#define SHARED_LIB ".so"
-#endif
-
 using namespace caribou;
 
 caribouDeviceMgr::caribouDeviceMgr() :
@@ -51,7 +45,7 @@ size_t caribouDeviceMgr::addDevice(std::string name, const caribou::Configuratio
   size_t device_id = 0;
   
   // CMake prepends "lib" to the shared library name: "lib"+LibraryName+".so"
-  std::string libName = std:: string("lib").append(name).append(SHARED_LIB);
+  std::string libName = std:: string("lib").append(name).append(SHARED_LIBRARY_SUFFIX);
 		
   // Load shared library, be sure to export the path of the lib to LD_LIBRARY_PATH!
   void *hndl = nullptr;
