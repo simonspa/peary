@@ -2,9 +2,9 @@
  * Caribou Device implementation for CLICpix2
  */
 
-#include "clicpix2.h"
-#include "hal.h"
-#include "log.h"
+#include "clicpix2.hpp"
+#include "hal.hpp"
+#include "log.hpp"
 
 using namespace caribou;
 

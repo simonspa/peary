@@ -5,7 +5,7 @@
 #ifndef DEVICE_TIMEPIX3_H
 #define DEVICE_TIMEPIX3_H
 
-#include "device.h"
+#include "device.hpp"
 #include <string>
 #include <vector>
 

@@ -2,9 +2,9 @@
  * Caribou implementation for the C3PD
  */
 
-#include "c3pd.h"
-#include "hal.h"
-#include "log.h"
+#include "c3pd.hpp"
+#include "hal.hpp"
+#include "log.hpp"
 
 using namespace caribou;
 

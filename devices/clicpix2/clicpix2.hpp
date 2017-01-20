@@ -5,8 +5,8 @@
 #ifndef DEVICE_CLICPIX2_H
 #define DEVICE_CLICPIX2_H
 
-#include "device.h"
-#include "configuration.h"
+#include "device.hpp"
+#include "configuration.hpp"
 #include <string>
 #include <vector>
 

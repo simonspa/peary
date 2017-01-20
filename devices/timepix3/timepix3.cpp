@@ -2,9 +2,9 @@
  * Caribou Device implementation for Timepix3
  */
 
-#include "timepix3.h"
-#include "hal.h"
-#include "log.h"
+#include "timepix3.hpp"
+#include "hal.hpp"
+#include "log.hpp"
 
 using namespace caribou;
 

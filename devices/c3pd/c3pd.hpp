@@ -5,7 +5,7 @@
 #ifndef DEVICE_C3PD_H
 #define DEVICE_C3PD_H
 
-#include "device.h"
+#include "device.hpp"
 
 namespace caribou {
   /** C3PD Device class definition
