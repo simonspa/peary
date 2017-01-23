@@ -3,14 +3,16 @@
 
 #include <vector>
 #include <cstdint>
-#include <mutex>
 #include <string>
+#include <mutex>
 
-#include "log.hpp"
+#include "exceptions.hpp"
 #include "interface_manager.hpp"
 
 namespace caribou {
 
+  
+  
   typedef uint16_t i2c_address_t;
   typedef uint8_t  i2c_data_t;
 
@@ -19,7 +21,23 @@ namespace caribou {
   private:
 
     //Default constructor: private (only created by interface_manager)
-    iface_i2c(std::string const & device_path) {};
+    //
+    //It can throw DeviceException
+    iface_i2c(std::string const & device_path);
+
+    //Set I2C address before read/write access
+    //
+    //It can throw CommunicationError
+    inline void setAddress(i2c_address_t const address);
+    
+    //Descriptor of the device
+    int i2cDesc;
+
+    //Path of the device
+    const std::string devicePath;
+
+    //Protects access to the bus
+    std::mutex mutex;
 
   public:
 
@@ -27,12 +45,23 @@ namespace caribou {
     iface_i2c()             = delete;
 
 
-    /** Send command via the I2C interface
+    /** Write access via the I2C interface
      *
      *  The function accepts the register address to be written to as well as
      *  a vector of data words to be sent. All data is send to the same address.
+     *
+     * It can throw CommunicationError
      */
-    void sendCommand(i2c_address_t address, std::vector<i2c_data_t> data);
+    void write(i2c_address_t const address, std::vector<i2c_data_t> & data);
+
+    /** Read access via the I2C interface
+     *
+     *  The function accepts the register address to be read to, a destination vector of
+     *  data words and number of read bytes. All data is read from the same address.
+     *
+     * It can throw CommunicationError.
+     */
+    void read(i2c_address_t const address,  std::vector<i2c_data_t> & data, const unsigned int length);
 
     
     //only this function can create the interface

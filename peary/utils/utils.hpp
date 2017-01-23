@@ -11,6 +11,7 @@
 #include <vector>
 #include <sstream>
 #include <iomanip>
+#include <string>
 
 #include "exceptions.hpp"
 
@@ -136,6 +137,17 @@ namespace caribou {
     }
     return elems;
   }
+
+  template< typename T >
+  std::string to_hex_string(const T i )
+  {
+    std::stringstream stream;
+    stream << std::hex << std::showbase
+	   << std::setfill ('0') << std::setw( std::numeric_limits<T>::digits/4  ) 
+	   << std::hex << i;
+    return stream.str();
+  }
+
 
 } //namespace caribou
 
