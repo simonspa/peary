@@ -5,15 +5,19 @@
 #include <cstdint>
 #include <mutex>
 
+#include "interface_manager.hpp"
+
 namespace caribou {
 
   /* SPI command interface class
    */
+  template <typename T = uint8_t>
   class iface_spi {
 
-    /** Default constructor: private for singleton class
-     */
-    iface_spi() {};
+  private:
+    //Default constructor: private (only created by interface_manager)
+    //It can throw DeviceException
+    iface_spi(std::string const & device_path) {};
 
   public:
     /** Get instance of the singleton SPI interface class

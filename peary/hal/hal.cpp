@@ -12,7 +12,7 @@
 
 using namespace caribou;
 
-caribouHAL::caribouHAL(IFACE interface) :
+caribouHAL::caribouHAL(IFACE interface, std::string device_path = "") :
   _iface(interface) {
   
   LOG(logDEBUGHAL) << "Configured device requires typ-" << (int)interface << " interface.";

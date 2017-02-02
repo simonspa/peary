@@ -67,3 +67,12 @@ void iface_i2c::read(i2c_address_t const address, std::vector<i2c_data_t> & data
 
 
 
+  virtual DATA_T& write(const ADDRESS_T& address,const DATA_T& data){
+    std::vector<DATA_T> data_v {data};
+    std::vector<DATA_T> ret = write(address, data_v);
+    switch( ret_size() ) {
+    case 0: return static_cast<DATA_T>( 0 );
+    case 1: return ret[0];
+    defualt:
+      throw  DataException( "For single access read more than 1 
+	}

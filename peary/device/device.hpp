@@ -52,10 +52,6 @@ namespace caribou {
      */
     std::string getDeviceName();
 
-    /** Initializer function for Caribou devices
-     */
-    void initialize();
-
     /** Turn on the power supply for the attached device
      */
     virtual void powerOn() = 0;
@@ -152,6 +148,9 @@ namespace caribou {
      */
     virtual IFACE interface() = 0;
 
+    /** Initializer function for Caribou devices
+     */
+    void initialize(std::string devpath);
 
     /** Device configuration object
      */

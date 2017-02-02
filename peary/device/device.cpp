@@ -16,9 +16,9 @@ caribouDevice::caribouDevice(const caribou::Configuration config) :
   LOG(logQUIET) << "New Caribou device instance, version " << getVersion();
 }
 
-void caribouDevice::initialize() {
+void caribouDevice::initialize(std::string devpath) {
   LOG(logDEBUGAPI) << "Initializing Caribou device instance...";
-  _hal = new caribouHAL(this->interface());
+  _hal = new caribouHAL(this->interface(),_config.Get("devpath",devpath);
 }
 
 caribouDevice::~caribouDevice() {

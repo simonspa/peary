@@ -62,7 +62,6 @@ int main(int argc, char* argv[]) {
 
 	// Get the device from the manager:
 	caribouDevice *dev = manager->getDevice(device_id);
-	dev->initialize();
 	dev->powerOn();
 
 	dev->daqStart();
