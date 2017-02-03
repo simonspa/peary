@@ -44,7 +44,6 @@ int main(int argc, char* argv[]) {
     example *dev = new example(config);
 
     // It's possible to call base class functions
-    dev->initialize();
     dev->powerOn();
 
     // But now also functions of the specialized class are available:

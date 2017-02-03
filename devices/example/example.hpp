@@ -21,7 +21,7 @@ namespace caribou {
   class example : public caribouDevice {
     
   public:
-    example(const caribou::Configuration config) : caribouDevice(config) { this->initialize(std::string(DEFAULT_DEVICEPATH))); };
+    example(const caribou::Configuration config) : caribouDevice(config) { this->initialize(std::string(DEFAULT_DEVICEPATH)); };
     ~example();
     
     /** Turn on the power supply for the Example chip

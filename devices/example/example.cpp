@@ -20,7 +20,7 @@ void example::powerOn() {
   LOG(logDEBUG) << DEVICE_NAME << " config sets DAC_TEST=" << dac_test;
   
   // Vectors can be read directly from the config and passed to an interface
-  _hal->sendCommand(12,_config.Get("sample-registers",std::vector<uint8_t>{EXAMPLE_DAC_VEC}));
+  //_hal->sendCommand(12,_config.Get("sample-registers",std::vector<uint8_t>{EXAMPLE_DAC_VEC}));
 }
 
 void example::powerOff() {
