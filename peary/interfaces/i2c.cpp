@@ -41,10 +41,13 @@ std::vector<i2c_t> iface_i2c::write(const i2c_t& address, const i2c_t& data ){
 
   if( i2c_smbus_write_byte( i2cDesc, data) )
     throw CommunicationError( "Failed to write slave (" + to_hex_string(address) + ") on " + devicePath + ": " + std::strerror(errno) );
+
+  return std::vector<i2c_t>();
 }
 
-std::vector<i2c_t> iface_i2c::write(const i2c_t& address, const std::vector<i2c_t>& data ){
+std::vector<i2c_t> iface_i2c::write(const i2c_t&, const std::vector<i2c_t>&){
   throw CommunicationError( "Block write operation is not possible to a device without internal registers" );
+  return std::vector<i2c_t>();
 }
 
 std::vector<i2c_t> iface_i2c::write(const i2c_t& address,const std::pair<i2c_t, i2c_t> & data){
@@ -59,6 +62,8 @@ std::vector<i2c_t> iface_i2c::write(const i2c_t& address,const std::pair<i2c_t, 
 
   if( i2c_smbus_write_byte_data( i2cDesc, data.first, data.second ) )
     throw CommunicationError( "Failed to write slave (" + to_hex_string(address) + ") on " + devicePath + ": " + std::strerror(errno) );
+
+  return std::vector<i2c_t>();
 }
   
 std::vector<i2c_t> iface_i2c::write(const i2c_t& address, const i2c_t & reg, const std::vector< i2c_t > & data){
@@ -75,10 +80,13 @@ std::vector<i2c_t> iface_i2c::write(const i2c_t& address, const i2c_t & reg, con
 
   if( i2c_smbus_write_block_data( i2cDesc, reg, data.size(), data.data() ) )
     throw CommunicationError( "Failed to block write slave (" + to_hex_string(address) + ") on " + devicePath + ": " + std::strerror(errno) );
+
+  return std::vector<i2c_t>();
 }
 
-std::vector<i2c_t> iface_i2c::write(const i2c_t& address,const std::vector< std::pair<i2c_t, i2c_t> > & data){
+std::vector<i2c_t> iface_i2c::write(const i2c_t&, const std::vector< std::pair<i2c_t, i2c_t> >&){
   throw CommunicationError( "Block write operation with different variate register address is not supported by ths I2C implementation" );
+  return std::vector<i2c_t>();
 }
 
 std::vector<i2c_t> iface_i2c::read(const i2c_t& address, const unsigned int& length) {
@@ -97,7 +105,8 @@ std::vector<i2c_t> iface_i2c::read(const i2c_t& address, const unsigned int& len
 
   LOG(logINTERFACE) << std::hex << "I2C (" << devicePath <<") address " << static_cast<int>(address) << ": Read data \"" << static_cast<int>(data[0])
 		    <<  "\"" << std::dec << std::endl;
-  
+
+  return data;
 }
 
 std::vector<i2c_t> iface_i2c::read(const i2c_t& address, const i2c_t reg, const unsigned int& length){
@@ -118,4 +127,5 @@ std::vector<i2c_t> iface_i2c::read(const i2c_t& address, const i2c_t reg, const 
     LOG(logINTERFACE) << static_cast<int>(i) << " ";
   LOG(logINTERFACE) << "\""<< std::dec << std::endl;
 
+  return data;
 }
