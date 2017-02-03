@@ -16,8 +16,9 @@ namespace caribou {
   template <typename ADDRESS_T = uint8_t, typename DATA_T = uint8_t, typename REG_T = DATA_T >
   class Interface {
 
+  protected:
     Interface( std::string devicePath) : devicePath(devicePath) {};
-  
+
     //Path of the device
     const std::string devicePath;
   

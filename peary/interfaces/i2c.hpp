@@ -51,8 +51,7 @@ namespace caribou {
     iface_i2c()             = delete;
 
     //only this function can create the interface
-    friend iface_i2c* interface_manager::getInterface< iface_i2c >(std::string const & );
-
+    friend iface_i2c& interface_manager::getInterface< iface_i2c >(std::string const & );
   };
   
 
