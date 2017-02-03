@@ -109,7 +109,7 @@ std::vector<i2c_t> iface_i2c::read(const i2c_t& address, const i2c_t reg, const 
     
   data.resize(length);
 
-  if( i2c_smbus_read_block_data( i2cDesc, reg, length, data.data() ) )
+  if(i2c_smbus_read_block_data(i2cDesc, reg, data.data()))
     throw CommunicationError( "Failed to read slave (" + to_hex_string(address) + ") on " + devicePath + ": " + std::strerror(errno) );
 
   LOG(logINTERFACE) << std::hex << "I2C (" << devicePath <<") address " << static_cast<int>(address) << ": Register \"" << static_cast<int>(reg)
