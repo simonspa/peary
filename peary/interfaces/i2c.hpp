@@ -15,6 +15,7 @@ namespace caribou {
   
   
   typedef uint8_t i2c_t;
+  typedef uint8_t i2c_address_t;
 
   class iface_i2c : public Interface<i2c_t, i2c_t>  {
 
