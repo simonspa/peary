@@ -3,37 +3,27 @@
 
 #include <vector>
 #include <cstdint>
+#include <string>
 #include <mutex>
 
+#include "exceptions.hpp"
 #include "interface_manager.hpp"
+#include "interface.hpp"
 
 namespace caribou {
 
+  typedef uint8_t spi_t;
+
   /* SPI command interface class
    */
-  template <typename T = uint8_t>
-  class iface_spi {
+  class iface_spi : public Interface<spi_t, spi_t> {
 
   private:
     //Default constructor: private (only created by interface_manager)
     //It can throw DeviceException
-    iface_spi(std::string const & device_path) {};
+    iface_spi(std::string const & device_path);
 
   public:
-    /** Get instance of the singleton SPI interface class
-     *  The below function is thread-safe in C++11 and can thus
-     *  be called from several HAL instances concurrently.
-     */
-    static iface_spi * getInterface() {
-      static iface_spi instance;
-      return &instance;
-    }
-
-    /* Delete unwanted functions from singleton class (C++11)
-     */
-    iface_spi(iface_spi const&)             = delete;
-    void operator=(iface_spi const&)  = delete;
-
     /** Send command via the SPI interface
      *
      *  The function accepts the register address to be written to as well as
@@ -49,7 +39,13 @@ namespace caribou {
      *  For SPI commands which do not correspond to a MISO output, the return
      *  vector is empty.
      */
-    std::vector<uint8_t> sendCommand(uint8_t address, std::vector<uint8_t> data);
+    std::vector<spi_t> write(const spi_t& address, const spi_t& data );
+    std::vector<spi_t> write(const spi_t& address, const std::vector<spi_t>& data );
+    std::vector<spi_t> write(const spi_t& address,const std::pair<spi_t, spi_t> & data);
+    std::vector<spi_t> write(const spi_t& address, const spi_t & reg, const std::vector< spi_t > & data);
+    std::vector<spi_t> write(const spi_t& address,const std::vector< std::pair<spi_t, spi_t> > & data);
+    std::vector<spi_t> read(const spi_t& address, const unsigned int& length);
+    std::vector<spi_t> read(const spi_t& address, const spi_t reg, const unsigned int& length = 1);
 
   private:
 
@@ -60,7 +56,9 @@ namespace caribou {
     /** Private mutex to lock driver access
      */
     std::mutex mutex;
-    
+
+    //only this function can create the interface
+    friend iface_spi& interface_manager::getInterface< iface_spi >(std::string const & );
   }; //class iface_spi
 
 } //namespace caribou

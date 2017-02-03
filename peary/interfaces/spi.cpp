@@ -7,27 +7,31 @@
 
 using namespace caribou;
 
-std::vector<uint8_t> iface_spi::sendCommand(uint8_t address, std::vector<uint8_t> data) {
+std::vector<spi_t> iface_spi::write(const spi_t& address, const spi_t& data) {
+  return std::vector<spi_t>();
+}
+
+std::vector<spi_t> iface_spi::write(const spi_t& address, const std::vector<spi_t>& data) {
 
   // Cache the return values
-  std::vector<uint8_t> miso_values;
+  std::vector<spi_t> miso_values;
 
-  for(uint8_t d : data) {
-    uint8_t retval = sendCommand(address, d);
-      miso_values.push_back(retval);
+  for(auto d : data) {
+    auto retval = write(address, d);
+    miso_values.insert(std::end(miso_values), std::begin(retval), std::end(retval));
   }
 
   return miso_values;
 }
 
-uint8_t iface_spi::sendCommand(uint8_t address, uint8_t data) {
+std::vector<spi_t> iface_spi::write(const spi_t& address,const std::pair<spi_t, spi_t> & data) {}
+std::vector<spi_t> iface_spi::write(const spi_t& address, const spi_t & reg, const std::vector< spi_t > & data) {}
+std::vector<spi_t> iface_spi::write(const spi_t& address,const std::vector< std::pair<spi_t, spi_t> > & data) {}
 
-  LOG(logINTERFACE) << "SPI: Sending data \"" << static_cast<int>(data)
-		   << "\" to addr \"" <<  static_cast<int>(address) << "\"";
+std::vector<spi_t> iface_spi::read(const spi_t& address, const unsigned int& length) {
+  throw NoDataAvailable("");
+}
 
-  std::lock_guard<std::mutex> lock(mutex);
-
-  // FIXME: Implement sending of the MOSI command
-  // FIXME: Implement retrieval of MISO value
-  return 0;
+std::vector<spi_t> iface_spi::read(const spi_t& address, const spi_t reg, const unsigned int& length) {
+  throw NoDataAvailable("");
 }
