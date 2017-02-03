@@ -27,7 +27,7 @@ namespace caribou {
     std::vector<uint8_t>& write(std::vector<uint8_t> address, std::vector<std::pair<uint8_t,uint8_t>> data);
 
     // Throw exception for SPI, read command for I2C
-    std::vector<uint8_t> read(address, length);
+    std::vector<uint8_t> read(uint8_t address, uint8_t length);
     
   private:
 
@@ -40,15 +40,3 @@ namespace caribou {
 } //namespace caribou
 
 #endif /* CARIBOU_HAL_H */
-
-
-
-
-write(6)
-6 = read()
-  drop 5
-
-
-  write(5)
-  write(1)
-  1 = read()
