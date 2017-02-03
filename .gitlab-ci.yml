@@ -1,7 +1,7 @@
 peary:
   image: ubuntu:latest
   before_script:
-    - apt-get update -qq && apt-get install -y -qq cmake build-essential
+    - apt-get update -qq && apt-get install -y -qq cmake build-essential libi2c-dev
   script:
     - mkdir build
     - cd build
