@@ -81,9 +81,9 @@ std::vector<i2c_t> iface_i2c::write(const i2c_t& address,const std::vector< std:
   throw CommunicationError( "Block write operation with different variate register address is not supported by ths I2C implementation" );
 }
 
-std::vector<<i2c_t> iface_i2c::read(const <i2c_t& address, const unsigned int& length) {
+std::vector<i2c_t> iface_i2c::read(const i2c_t& address, const unsigned int& length) {
   std::lock_guard<std::mutex> lock(mutex);
-  std::vector<<i2c_t> data;
+  std::vector<i2c_t> data;
 
   if(length != 1)
     throw CommunicationError( "Read operation of multiple data from the device without internal registers is not possible" );
@@ -100,10 +100,10 @@ std::vector<<i2c_t> iface_i2c::read(const <i2c_t& address, const unsigned int& l
   
 }
 
-std::vector<i2c_t> iface_i2c::read(const i2c_t& address, const i2c_t reg, const unsigned int& length = 1){
+std::vector<i2c_t> iface_i2c::read(const i2c_t& address, const i2c_t reg, const unsigned int& length){
 
   std::lock_guard<std::mutex> lock(mutex);
-  std::vector<<i2c_t> data;
+  std::vector<i2c_t> data;
 
   setAddress(address);
     
