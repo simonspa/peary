@@ -2,19 +2,37 @@
 
 INCLUDE_DIRECTORIES(interfaces)
 
+# Build flag for I2C interface implementation:
+OPTION(INTERFACE_I2C "Build Caribou I2C interface?" ON)
+# Build flag for SPI interface implementation:
+OPTION(INTERFACE_SPI "Build DTB USB interface?" OFF)
+
 SET(LIB_SOURCE_FILES
   # device library
   "device/device.cpp"
   "device/devicemgr.cpp"
   # hardware abstraction layer
   "hal/hal.cpp"
-  # interfaces
-  "interfaces/spi.cpp"
-  "interfaces/i2c.cpp"
   # utilities
   "utils/utils.cpp"
   "utils/configuration.cpp"
   )
+
+IF(INTERFACE_I2C)
+  # add I2C source files
+  SET(LIB_SOURCE_FILES ${LIB_SOURCE_FILES}
+    "interfaces/i2c.cpp"
+    )
+  MESSAGE(STATUS "Building Caribou I2C interface.")
+ENDIF(INTERFACE_I2C)
+
+IF(INTERFACE_SPI)
+  # add SPI source files
+  SET(LIB_SOURCE_FILES ${LIB_SOURCE_FILES}
+    "interfaces/spi.cpp"
+    )
+  MESSAGE(STATUS "Building Caribou SPI interface.")
+ENDIF(INTERFACE_SPI)
 
 ADD_LIBRARY(${PROJECT_NAME} SHARED ${LIB_SOURCE_FILES})
 TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${CMAKE_DL_LIBS})
