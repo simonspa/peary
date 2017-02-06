@@ -9,7 +9,12 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
-#include <linux/i2c-dev.h>
+
+#ifdef YOCTO_COMPILATION
+  #include <linux/i2c-dev-user.h>
+#else
+  #include <linux/i2c-dev.h>
+#endif
 
 #include "utils.hpp"
 #include "log.hpp"
