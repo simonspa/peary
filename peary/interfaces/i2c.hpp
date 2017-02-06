@@ -11,11 +11,13 @@
 #include "interface.hpp"
 
 namespace caribou {
-  
-  typedef uint8_t i2c_t;
-  typedef uint8_t i2c_address_t;
 
-  class iface_i2c : public Interface<i2c_t, i2c_t> {
+  typedef uint8_t i2c_address_t;
+  typedef uint8_t i2c_t;
+  typedef uint8_t i2c_reg_t;
+
+
+  class iface_i2c : public Interface<i2c_t, i2c_t, i2c_reg_t> {
 
   private:
 
@@ -39,13 +41,13 @@ namespace caribou {
 
   public:
 
-    std::vector<i2c_t> write(const i2c_t& address, const i2c_t& data );
+    i2c_t write(const i2c_t& address, const i2c_t& data );
     std::vector<i2c_t> write(const i2c_t& address, const std::vector<i2c_t>& data );
-    std::vector<i2c_t> write(const i2c_t& address, const std::pair<i2c_t, i2c_t> & data);
+    std::pair<i2c_reg_t, i2c_t> write(const i2c_t& address, const std::pair<i2c_reg_t, i2c_t> & data);
     std::vector<i2c_t> write(const i2c_t& address, const i2c_t & reg, const std::vector< i2c_t > & data);
-    std::vector<i2c_t> write(const i2c_t& address, const std::vector< std::pair<i2c_t, i2c_t> > & data);
+    std::vector< std::pair<i2c_reg_t, i2c_t> > write(const i2c_t& address, const std::vector< std::pair<i2c_reg_t, i2c_t> > & data);
     std::vector<i2c_t> read(const i2c_t& address, const unsigned int& length);
-    std::vector<i2c_t> read(const i2c_t& address, const i2c_t reg, const unsigned int& length = 1);
+    std::vector<i2c_t> read(const i2c_t& address, const i2c_reg_t reg, const unsigned int& length = 1);
 
     //Unused constructor
     iface_i2c()             = delete;

@@ -29,10 +29,7 @@ namespace caribou {
 
     //Write data to a device which does not contain internal register
     //If readout is intergralpart of write operations, the read values a returned by function. 
-    virtual std::vector<DATA_T> write(const ADDRESS_T& address,const DATA_T& data){
-      std::vector<DATA_T> data_v {data};
-      return write(address, data_v);
-    }
+    virtual DATA_T write(const ADDRESS_T& address,const DATA_T& data) = 0;
 
     //Write data to a device which does not contain internal register
     //If readout is intergralpart of write operations, the read values a returned by function. 
@@ -41,11 +38,8 @@ namespace caribou {
   
     //Write data to a device containing internal registers
     //If readout is intergralpart of write operations, the read values a returned by function. 
-    virtual std::vector<DATA_T> write(const ADDRESS_T& address,const std::pair<REG_T, DATA_T> & data){
-      std::vector<std::pair<REG_T, DATA_T> > data_v {data};
-      return write(address, data_v);
-    }
-
+    virtual std::pair<REG_T, DATA_T> write(const ADDRESS_T& address,const std::pair<REG_T, DATA_T> & data) = 0;
+    
     //Write data to a device containing internal registers
     //If readout is intergralpart of write operations, the read values a returned by function. 
     virtual std::vector<DATA_T> write(const ADDRESS_T& address, const REG_T& reg, const std::vector< DATA_T>& data) = 0;
@@ -53,7 +47,7 @@ namespace caribou {
   
     //Write data to a device containing internal registers
     //If readout is intergralpart of write operations, the read values a returned by function. 
-    virtual std::vector<DATA_T> write(const ADDRESS_T& address,const std::vector<std::pair<REG_T, DATA_T> >& data) = 0;
+    virtual std::vector<std::pair<REG_T, DATA_T> > write(const ADDRESS_T& address,const std::vector<std::pair<REG_T, DATA_T> >& data) = 0;
 
     //////////////////////
     // Read operations

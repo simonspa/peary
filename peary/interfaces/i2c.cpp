@@ -41,7 +41,7 @@ void iface_i2c::setAddress(i2c_address_t const address){
 			      ": " + std::strerror(errno) );
 }
 
-std::vector<i2c_t> iface_i2c::write(const i2c_t& address, const i2c_t& data ){
+i2c_t iface_i2c::write(const i2c_t& address, const i2c_t& data ){
   std::lock_guard<std::mutex> lock(mutex);
   
   setAddress(address);
@@ -52,7 +52,7 @@ std::vector<i2c_t> iface_i2c::write(const i2c_t& address, const i2c_t& data ){
   if( i2c_smbus_write_byte( i2cDesc, data) )
     throw CommunicationError( "Failed to write slave (" + to_hex_string(address) + ") on " + devicePath + ": " + std::strerror(errno) );
 
-  return std::vector<i2c_t>();
+  return 0;
 }
 
 std::vector<i2c_t> iface_i2c::write(const i2c_t&, const std::vector<i2c_t>&){
@@ -60,7 +60,7 @@ std::vector<i2c_t> iface_i2c::write(const i2c_t&, const std::vector<i2c_t>&){
   return std::vector<i2c_t>();
 }
 
-std::vector<i2c_t> iface_i2c::write(const i2c_t& address,const std::pair<i2c_t, i2c_t> & data){
+std::pair<i2c_reg_t, i2c_t> iface_i2c::write(const i2c_t& address,const std::pair<i2c_reg_t, i2c_t> & data){
 
   std::lock_guard<std::mutex> lock(mutex);
   
@@ -73,7 +73,7 @@ std::vector<i2c_t> iface_i2c::write(const i2c_t& address,const std::pair<i2c_t, 
   if( i2c_smbus_write_byte_data( i2cDesc, data.first, data.second ) )
     throw CommunicationError( "Failed to write slave (" + to_hex_string(address) + ") on " + devicePath + ": " + std::strerror(errno) );
 
-  return std::vector<i2c_t>();
+  return std::make_pair( 0, 0);
 }
   
 std::vector<i2c_t> iface_i2c::write(const i2c_t& address, const i2c_t & reg, const std::vector< i2c_t > & data){
@@ -94,9 +94,9 @@ std::vector<i2c_t> iface_i2c::write(const i2c_t& address, const i2c_t & reg, con
   return std::vector<i2c_t>();
 }
 
-std::vector<i2c_t> iface_i2c::write(const i2c_t&, const std::vector< std::pair<i2c_t, i2c_t> >&){
+std::vector< std::pair<i2c_reg_t, i2c_t> > iface_i2c::write(const i2c_t&, const std::vector< std::pair<i2c_reg_t, i2c_t> >&){
   throw CommunicationError( "Block write operation with different variate register address is not supported by ths I2C implementation" );
-  return std::vector<i2c_t>();
+  return std::vector< std::pair<i2c_reg_t, i2c_t> >();
 }
 
 std::vector<i2c_t> iface_i2c::read(const i2c_t& address, const unsigned int& length) {
