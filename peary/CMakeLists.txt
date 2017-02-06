@@ -5,7 +5,7 @@ INCLUDE_DIRECTORIES(interfaces)
 # Build flag for I2C interface implementation:
 OPTION(INTERFACE_I2C "Build Caribou I2C interface?" ON)
 # Build flag for SPI interface implementation:
-OPTION(INTERFACE_SPI "Build DTB USB interface?" OFF)
+OPTION(INTERFACE_SPI "Build Caribou SPI interface?" OFF)
 
 SET(LIB_SOURCE_FILES
   # device library
