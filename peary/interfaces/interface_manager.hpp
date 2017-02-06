@@ -4,7 +4,6 @@
 #include <vector>
 #include <mutex>
 #include <map>
-#include <memory>
 #include <string>
 
 #include "interface.hpp"
@@ -31,18 +30,18 @@ namespace caribou {
     template<typename T>
     static T& getInterface(std::string const & device_path) {
       static interface_manager instance;
-      static std::map<std::string, std::unique_ptr<T> > interfaces;
+      static std::map<std::string, T* > interfaces;
 
       std::lock_guard<std::mutex> lock(mutex);
       
       try{
-  	return interfaces.at(device_path);
+  	return *interfaces.at(device_path);
       }
       //such interface has not been opened yet
       catch(const std::out_of_range & ){
 	
-  	interfaces[device_path] = std::unique_ptr<T>( new T(device_path) );
-	return interfaces[device_path].get();
+  	interfaces[device_path] =  new T(device_path) ;
+	return *interfaces[device_path];
       }
 	
     }
