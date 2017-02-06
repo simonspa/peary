@@ -30,6 +30,11 @@ iface_i2c::iface_i2c(std::string const & device_path) : Interface( device_path )
   }
 }
 
+iface_i2c::~iface_i2c() {
+  close(i2cDesc);
+}
+
+
 void iface_i2c::setAddress(i2c_address_t const address){
   if( ioctl(i2cDesc, I2C_SLAVE, address) < 0)
     throw CommunicationError( "Failed to acquire bus access and/or talk to slave (" + to_hex_string(address) + ") on " + devicePath + 
