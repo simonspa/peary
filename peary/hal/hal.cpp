@@ -7,7 +7,8 @@
 #include "log.hpp"
 #include "hal.hpp"
 
-#include "spi.hpp"
+#include "interface_manager.hpp"
+#include "interface.hpp"
 #include "i2c.hpp"
 
 using namespace caribou;
@@ -26,3 +27,7 @@ uint8_t caribouHAL::getDeviceID() {
   return 0;
 }
 
+std::vector<uint8_t>& caribouHAL::write(std::vector<uint8_t> address, std::vector<uint8_t> data) {
+
+  Interface<i2c_t,i2c_t> myi2c = interface_manager::getInterface<iface_i2c>("/dev/null");
+}
