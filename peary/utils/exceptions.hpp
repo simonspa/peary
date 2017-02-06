@@ -40,6 +40,13 @@ namespace caribou {
   ConfigMissingKey(const std::string& what_arg) : caribouException(what_arg) {}
   };
 
+  /** Exception for missing but requested register information
+   */
+  class UndefinedRegister : public caribouException {
+  public:
+    UndefinedRegister(const std::string& what_arg) : caribouException(what_arg) {}
+  };
+
   
   /** Exception for issues occuring during device setup, management and initialization
    *
