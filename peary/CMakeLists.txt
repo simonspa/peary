@@ -11,6 +11,7 @@ SET(LIB_SOURCE_FILES
   # device library
   "device/device.cpp"
   "device/devicemgr.cpp"
+  "interfaces/interface_manager.cpp"
   # hardware abstraction layer
   "hal/hal.cpp"
   # utilities
