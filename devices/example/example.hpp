@@ -46,8 +46,7 @@ namespace caribou {
 
   private:
 
-    //uint8_t interface() { return interface::I2C; }
-    IFACE interface() { return IFACE::SPI; }
+    IFACE interface() { return IFACE::LOOPBACK; }
 
   };
 
