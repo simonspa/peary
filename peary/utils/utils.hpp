@@ -144,7 +144,8 @@ namespace caribou {
     std::stringstream stream;
     stream << std::hex << std::showbase
 	   << std::setfill ('0') << std::setw( std::numeric_limits<T>::digits/4  ) 
-	   << std::hex << i;
+	   << std::hex << i
+	   << std::dec;
     return stream.str();
   }
 
