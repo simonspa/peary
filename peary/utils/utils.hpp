@@ -149,7 +149,20 @@ namespace caribou {
     return stream.str();
   }
 
-
+  /** Helper function to return a printed list of an integer vector, used to shield
+   *  debug code from being executed if debug level is not sufficient
+   */
+  template <typename T>
+  std::string listVector(std::vector<T> vec, std::string separator = ", ", bool hex = false) {
+    std::stringstream os;
+    for(auto it : vec) {
+      if(hex) os << to_hex_string(it);
+      else os << static_cast<int>(it);
+      os << separator;
+    }
+    return os.str();
+  }
+  
 } //namespace caribou
 
 #endif /* CARIBOU_UTILS_H */
