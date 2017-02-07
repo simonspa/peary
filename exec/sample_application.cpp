@@ -2,6 +2,7 @@
 #include <fstream>
 
 #include "configuration.hpp"
+#include "exceptions.hpp"
 #include "devicemgr.hpp"
 #include "log.hpp"
 
@@ -74,6 +75,10 @@ int main(int argc, char* argv[]) {
     // And end that whole thing correcly:
     delete manager;
     LOG(logINFO) << "Done. And thanks for all the fish.";
+  }
+  catch (caribouException &e) {
+    LOG(logCRITICAL) << "This went wrong: " << e.what();
+    return -1;
   }
   catch (...) {
     LOG(logCRITICAL) << "Something went terribly wrong.";
