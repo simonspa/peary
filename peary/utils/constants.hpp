@@ -11,6 +11,7 @@ namespace caribou {
    */
   enum IFACE {
     NONE,
+    LOOPBACK,
     I2C,
     SPI
   };

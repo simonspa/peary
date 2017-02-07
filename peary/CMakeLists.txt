@@ -6,6 +6,8 @@ INCLUDE_DIRECTORIES(interfaces)
 OPTION(INTERFACE_I2C "Build Caribou I2C interface?" ON)
 # Build flag for SPI interface implementation:
 OPTION(INTERFACE_SPI "Build Caribou SPI interface?" OFF)
+# Build flag for dummy loopback interface implementation:
+OPTION(INTERFACE_LOOP "Build Caribou Loopback interface?" OFF)
 
 SET(LIB_SOURCE_FILES
   # device library
@@ -38,6 +40,14 @@ IF(INTERFACE_SPI)
     )
   MESSAGE(STATUS "Building Caribou SPI interface.")
 ENDIF(INTERFACE_SPI)
+
+IF(INTERFACE_LOOP)
+  # add LOOP source files
+  SET(LIB_SOURCE_FILES ${LIB_SOURCE_FILES}
+    "interfaces/loopback.cpp"
+    )
+  MESSAGE(STATUS "Building Caribou Loopback interface.")
+ENDIF(INTERFACE_LOOP)
 
 ADD_LIBRARY(${PROJECT_NAME} SHARED ${LIB_SOURCE_FILES})
 TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${CMAKE_DL_LIBS})

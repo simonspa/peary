@@ -9,7 +9,9 @@
 
 #include "interface_manager.hpp"
 #include "interface.hpp"
+
 #include "i2c.hpp"
+#include "loopback.hpp"
 
 using namespace caribou;
 
