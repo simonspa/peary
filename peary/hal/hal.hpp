@@ -34,7 +34,11 @@ namespace caribou {
     /** Interface of the configured device
      */
     uint8_t _iface;
-    
+
+    /** Device path of the configured device
+     */
+    std::string _devpath;
+
   }; //class caribouHAL
 
 } //namespace caribou
