@@ -39,11 +39,11 @@ namespace caribou {
      *  For SPI commands which do not correspond to a MISO output, the return
      *  vector is empty.
      */
-    std::vector<spi_t> write(const spi_t& address, const spi_t& data );
+    spi_t write(const spi_t& address, const spi_t& data );
     std::vector<spi_t> write(const spi_t& address, const std::vector<spi_t>& data );
-    std::vector<spi_t> write(const spi_t& address,const std::pair<spi_t, spi_t> & data);
+    std::pair<spi_t, spi_t> write(const spi_t& address,const std::pair<spi_t, spi_t> & data);
     std::vector<spi_t> write(const spi_t& address, const spi_t & reg, const std::vector< spi_t > & data);
-    std::vector<spi_t> write(const spi_t& address,const std::vector< std::pair<spi_t, spi_t> > & data);
+    std::vector<std::pair<spi_t,spi_t> > write(const spi_t& address,const std::vector< std::pair<spi_t, spi_t> > & data);
     std::vector<spi_t> read(const spi_t& address, const unsigned int& length);
     std::vector<spi_t> read(const spi_t& address, const spi_t reg, const unsigned int& length = 1);
 
