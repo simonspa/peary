@@ -28,6 +28,7 @@ iface_i2c::iface_i2c(std::string const & device_path) : Interface( device_path )
   if ( (i2cDesc = open( devicePath.c_str(), O_RDWR) ) < 0  ){
     throw DeviceException("Open " + device_path + " device failed. " + std::strerror(i2cDesc) );
   }
+  LOG(logINTERFACE) << "Opened I2C device at " << device_path;
 }
 
 iface_i2c::~iface_i2c() {
@@ -39,6 +40,8 @@ void iface_i2c::setAddress(i2c_address_t const address){
   if( ioctl(i2cDesc, I2C_SLAVE, address) < 0)
     throw CommunicationError( "Failed to acquire bus access and/or talk to slave (" + to_hex_string(address) + ") on " + devicePath + 
 			      ": " + std::strerror(errno) );
+
+  LOG(logINTERFACE) << "Talking to I2C slave at address " << static_cast<int>(address);
 }
 
 i2c_t iface_i2c::write(const i2c_t& address, const i2c_t& data ){
