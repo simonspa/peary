@@ -11,6 +11,7 @@
 #include "interface.hpp"
 
 #include "i2c.hpp"
+#include "spi.hpp"
 #include "loopback.hpp"
 
 using namespace caribou;
@@ -34,12 +35,14 @@ std::vector<uint8_t>& caribouHAL::write(uint8_t address, std::vector<uint8_t> da
   switch(_iface) {
   case IFACE::SPI : {
     LOG(logDEBUGHAL) << "Command to SPI";
+    iface_spi & myspi = interface_manager::getInterface<iface_spi>(_devpath);
+    myspi.write(address,data);
     break;
   }
   case IFACE::I2C : {
     LOG(logDEBUGHAL) << "Command to I2C";
-    Interface<uint8_t, uint8_t> & myi2c = interface_manager::getInterface<iface_i2c>(_devpath);
-    myi2c.write(0x0,address,data);
+    iface_i2c & myi2c = interface_manager::getInterface<iface_i2c>(_devpath);
+    myi2c.write(address,data);
     break;
   }
   case IFACE::LOOPBACK : {

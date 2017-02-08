@@ -46,7 +46,7 @@ namespace caribou {
 
   private:
 
-    IFACE interface() { return IFACE::LOOPBACK; }
+    IFACE interface() { return IFACE::SPI; }
 
   };
 
