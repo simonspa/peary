@@ -12,51 +12,44 @@
 
 namespace caribou {
 
+  typedef uint8_t spi_address_t; //is ignored
   typedef uint8_t spi_t;
+  typedef uint8_t spi_reg_t;
 
   /* SPI command interface class
    */
-  class iface_spi : public Interface<spi_t, spi_t> {
+  class iface_spi : public Interface<spi_address_t, spi_reg_t, spi_t> {
 
   private:
     //Default constructor: private (only created by interface_manager)
     //It can throw DeviceException
     iface_spi(std::string const & device_path);
 
-  public:
-    /** Send command via the SPI interface
-     *
-     *  The function accepts the register address to be written to as well as
-     *  a vector of data words to be sent (MOSI, master out slave in).
-     *  All data is send to the same address.
-     *
-     *  If the data vector is empty, no SPI command will be sent.
-     *
-     *  The return value is the response retrieved from the SPI interface 
-     *  (MISO, master in slave out)
-     *  The responses from each individual SPI command are returned in the order
-     *  of the command execution.
-     *  For SPI commands which do not correspond to a MISO output, the return
-     *  vector is empty.
-     */
-    spi_t write(const spi_t& address, const spi_t& data );
-    std::vector<spi_t> write(const spi_t& address, const std::vector<spi_t>& data );
-    std::pair<spi_t, spi_t> write(const spi_t& address,const std::pair<spi_t, spi_t> & data);
-    std::vector<spi_t> write(const spi_t& address, const spi_t & reg, const std::vector< spi_t > & data);
-    std::vector<std::pair<spi_t,spi_t> > write(const spi_t& address,const std::vector< std::pair<spi_t, spi_t> > & data);
-    std::vector<spi_t> read(const spi_t& address, const unsigned int& length);
-    std::vector<spi_t> read(const spi_t& address, const spi_t reg, const unsigned int& length = 1);
+    ~iface_spi();
+    
+    //Descriptor of the device
+    int spiDesc;
 
-  private:
-
-    /** Sending a single SPI command and reading the return value
-     */
-    uint8_t sendCommand(uint8_t address, uint8_t data);
-
-    /** Private mutex to lock driver access
-     */
+    //Protects access to the bus
     std::mutex mutex;
 
+    //Maximum speed in Hz
+    //Default: 100 MHz
+    const uint32_t speed = 100000000;
+
+  public:
+
+    spi_t write(const spi_address_t& address, const spi_t& data );
+    std::vector<spi_t> write(const spi_address_t& address, const std::vector<spi_t>& data );
+    std::pair<spi_reg_t, spi_t> write(const spi_address_t& address, const std::pair<spi_reg_t, spi_t> & data);
+    std::vector<spi_t> write(const spi_address_t& address, const spi_t & reg, const std::vector< spi_t > & data);
+    std::vector< std::pair<spi_reg_t, spi_t> > write(const spi_address_t& address, const std::vector< std::pair<spi_reg_t, spi_t> > & data);
+    std::vector<spi_t> read(const spi_address_t& address, const unsigned int length = 1);
+    std::vector<spi_t> read(const spi_address_t& address, const spi_reg_t reg, const unsigned int length = 1);
+
+    //Unused constructor
+    iface_spi()             = delete;
+    
     //only this function can create the interface
     friend iface_spi& interface_manager::getInterface< iface_spi >(std::string const & );
   }; //class iface_spi
