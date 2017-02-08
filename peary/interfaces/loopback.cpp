@@ -74,7 +74,7 @@ std::vector< std::pair<uint8_t, uint8_t> > iface_loopback::write(const uint8_t& 
   return data;
 }
 
-std::vector<uint8_t> iface_loopback::read(const uint8_t& address, const unsigned int& length) {
+std::vector<uint8_t> iface_loopback::read(const uint8_t& address, const unsigned int length) {
   std::lock_guard<std::mutex> lock(mutex);
   std::vector<uint8_t> data;
 
@@ -85,7 +85,7 @@ std::vector<uint8_t> iface_loopback::read(const uint8_t& address, const unsigned
   return data;
 }
 
-std::vector<uint8_t> iface_loopback::read(const uint8_t& address, const uint8_t reg, const unsigned int& length){
+std::vector<uint8_t> iface_loopback::read(const uint8_t& address, const uint8_t reg, const unsigned int length){
   
   std::lock_guard<std::mutex> lock(mutex);
   std::vector<uint8_t> data;
