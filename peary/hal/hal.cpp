@@ -30,25 +30,25 @@ uint8_t caribouHAL::getDeviceID() {
   return 0;
 }
 
-std::vector<uint8_t>& caribouHAL::write(uint8_t address, std::vector<uint8_t> data) {
+std::vector<uint8_t> caribouHAL::write(uint8_t address, std::vector<uint8_t> data) {
 
   switch(_iface) {
   case IFACE::SPI : {
     LOG(logDEBUGHAL) << "Command to SPI";
     iface_spi & myspi = interface_manager::getInterface<iface_spi>(_devpath);
-    myspi.write(address,data);
+    return myspi.write(address,data);
     break;
   }
   case IFACE::I2C : {
     LOG(logDEBUGHAL) << "Command to I2C";
     iface_i2c & myi2c = interface_manager::getInterface<iface_i2c>(_devpath);
-    myi2c.write(address,data);
+    return myi2c.write(address,data);
     break;
   }
   case IFACE::LOOPBACK : {
     LOG(logDEBUGHAL) << "Command to LOOPBACK interface";
     Interface<uint8_t, uint8_t> & loop = interface_manager::getInterface<iface_loopback>(_devpath);
-    loop.write(0x0,address,data);
+    return loop.write(0x0,address,data);
     break;
   }
 
