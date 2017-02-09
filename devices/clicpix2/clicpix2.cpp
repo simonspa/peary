@@ -12,6 +12,10 @@ void clicpix2::init() {
   LOG(logDEBUG) << "Initializing " << DEVICE_NAME;
 }
 
+clicpix2::~clicpix2() {
+  LOG(logINFO) << DEVICE_NAME << ": Shutdown, delete device.";
+}
+
 void clicpix2::programMatrix() {
 
   // Use a boolean vector to construct full matrix data array:

@@ -6,6 +6,7 @@
 #define DEVICE_CLICPIX2_H
 
 #include "device.hpp"
+#include "clicpix2_defaults.hpp"
 #include "configuration.hpp"
 #include <string>
 #include <vector>
@@ -20,8 +21,10 @@ namespace caribou {
   class clicpix2 : public caribouDevice {
     
   public:
-  clicpix2(const caribou::Configuration config) : caribouDevice(config) {};
-    ~clicpix2() {};
+  clicpix2(const caribou::Configuration config) : caribouDevice(config) {
+    this->initialize(std::string(DEFAULT_DEVICEPATH));
+  };
+    ~clicpix2();
 
     /** Initializer function for CLICpix2
      */
