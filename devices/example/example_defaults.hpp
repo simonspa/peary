@@ -1,15 +1,37 @@
+#ifndef DEVICE_EXAMPLE_DEFAULTS_H
+#define DEVICE_EXAMPLE_DEFAULTS_H
 
 #include "dictionary.hpp"
 
 namespace caribou {
 
+  /** Default device path for this device
+   *
+   *  Usually this is a parameter dependent only on the layout of the chip board
+   *  and there should not be a necessity to change this. However, it is possible
+   *  to overwrite this via the configuration using "devicepath" as key.
+   */
+#define DEFAULT_DEVICEPATH "/dev/null"
+
+  /** Definition of default values for the different DAC settings of the device
+   *
+   *  These values will be used when the configuration object does not contain
+   *  the key in question, e.g.
+   *  int mysetting = _config.Get("mysetting",EXAMPLE_MYSETTING);
+   *  returns either the value configured or EXAMPLE_MYSETTING when not specified
+   */
 #define EXAMPLE_DAC_TEST 5
 #define EXAMPLE_DAC_VEC  1,3,5,7,9
 
-#define DEFAULT_DEVICEPATH "/dev/i2c-0"
-
+  /** Dictionary for register name lookup for this device
+   *
+   *  This class derives from caribou::dictionary using CRTP in order to
+   *  create a static object of the registers member. Add the definitions 
+   *  for register addresses and range here and do the name lookup like
+   *  int adr = exampleDict::getAddress("threshold");
+   *  in order to resolve human-readable register names to their addresses.
+   */
   class exampleDict : public dictionary<exampleDict> {};
-
   template<>
   std::map<std::string,registerConfig> dictionary<exampleDict>::_registers = {
       {"vthreshold", registerConfig(5,255)},
@@ -17,4 +39,6 @@ namespace caribou {
       {"vadc", registerConfig(6,255)}
     };
 
-}
+} //namespace caribou
+
+#endif /* DEVICE_EXAMPLE_DEFAULTS_H */
