@@ -15,7 +15,7 @@ uint8_t caribou::reverseByte(uint8_t n) {
    *   V       V        V     V V       V
    *  (lookup[n&0b1111] << 4) | lookup[n>>4]
    */
-   return (lookup[n&0b1111] << 4) | lookup[n>>4];
+  return (caribou::lookup[n&0b1111] << 4) | caribou::lookup[n>>4];
 }
 
 std::string caribou::trim(const std::string &s) {
