@@ -34,8 +34,8 @@ namespace caribou {
     std::pair<uint8_t, uint8_t> write(const uint8_t& address, const std::pair<uint8_t, uint8_t> & data);
     std::vector<uint8_t> write(const uint8_t& address, const uint8_t & reg, const std::vector< uint8_t > & data);
     std::vector< std::pair<uint8_t, uint8_t> > write(const uint8_t& address, const std::vector< std::pair<uint8_t, uint8_t> > & data);
-    std::vector<uint8_t> read(const uint8_t& address, const unsigned int& length);
-    std::vector<uint8_t> read(const uint8_t& address, const uint8_t reg, const unsigned int& length = 1);
+    std::vector<uint8_t> read(const uint8_t& address, const unsigned int length = 1);
+    std::vector<uint8_t> read(const uint8_t& address, const uint8_t reg, const unsigned int length = 1);
 
     // Unused constructor
     iface_loopback()             = delete;

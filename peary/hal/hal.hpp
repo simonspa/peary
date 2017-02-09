@@ -23,8 +23,8 @@ namespace caribou {
 
     /** Send command to the device interface
      */
-    std::vector<uint8_t>& write(std::vector<uint8_t> address, std::vector<uint8_t> data);
-    std::vector<uint8_t>& write(uint8_t address, std::vector<uint8_t> data);
+    std::vector<uint8_t> write(std::vector<uint8_t> address, std::vector<uint8_t> data);
+    std::vector<uint8_t> write(uint8_t address, std::vector<uint8_t> data);
 
     // Throw exception for SPI, read command for I2C
     std::vector<uint8_t> read(uint8_t address, uint8_t length);

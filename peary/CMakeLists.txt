@@ -5,9 +5,9 @@ INCLUDE_DIRECTORIES(interfaces)
 # Build flag for I2C interface implementation:
 OPTION(INTERFACE_I2C "Build Caribou I2C interface?" ON)
 # Build flag for SPI interface implementation:
-OPTION(INTERFACE_SPI "Build Caribou SPI interface?" OFF)
+OPTION(INTERFACE_SPI "Build Caribou SPI interface?" ON)
 # Build flag for dummy loopback interface implementation:
-OPTION(INTERFACE_LOOP "Build Caribou Loopback interface?" OFF)
+OPTION(INTERFACE_LOOP "Build Caribou Loopback interface?" ON)
 
 SET(LIB_SOURCE_FILES
   # device library

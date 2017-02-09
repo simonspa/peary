@@ -19,8 +19,7 @@
 #include "utils.hpp"
 #include "log.hpp"
 
-
-#include <i2c.hpp>
+#include "i2c.hpp"
 
 using namespace caribou;
 
@@ -69,8 +68,8 @@ std::pair<i2c_reg_t, i2c_t> iface_i2c::write(const i2c_t& address,const std::pai
   
   setAddress(address);
   
-  LOG(logINTERFACE) << std::hex << "I2C (" << devicePath <<") address " << static_cast<int>(address) << ": Register \"" << static_cast<int>(data.first)
-		    << "\" Writing data \"" << static_cast<int>(data.second) <<  "\"" << std::dec << std::endl;
+  LOG(logINTERFACE) << std::hex << "I2C (" << devicePath <<") address " << static_cast<int>(address) << ": Register " << static_cast<int>(data.first)
+		    << " Writing data \"" << static_cast<int>(data.second) <<  "\"" << std::dec << std::endl;
 
 
   if( i2c_smbus_write_byte_data( i2cDesc, data.first, data.second ) )
@@ -85,8 +84,8 @@ std::vector<i2c_t> iface_i2c::write(const i2c_t& address, const i2c_t & reg, con
     
   setAddress(address);
 
-  LOG(logINTERFACE) << std::hex << "I2C (" << devicePath <<") address " << static_cast<int>(address) << ": Register \"" << static_cast<int>(reg)
-		    << "\" Writing block data: \"";
+  LOG(logINTERFACE) << std::hex << "I2C (" << devicePath <<") address " << static_cast<int>(address) << ": Register " << static_cast<int>(reg)
+		    << " Writing block data: \"";
   for( auto i : data)
     LOG(logINTERFACE) << static_cast<int>(i) << " ";
   LOG(logINTERFACE) << "\""<< std::dec << std::endl;
@@ -102,7 +101,7 @@ std::vector< std::pair<i2c_reg_t, i2c_t> > iface_i2c::write(const i2c_t&, const 
   return std::vector< std::pair<i2c_reg_t, i2c_t> >();
 }
 
-std::vector<i2c_t> iface_i2c::read(const i2c_t& address, const unsigned int& length) {
+std::vector<i2c_t> iface_i2c::read(const i2c_t& address, const unsigned int length) {
   std::lock_guard<std::mutex> lock(mutex);
   std::vector<i2c_t> data;
 
@@ -122,7 +121,7 @@ std::vector<i2c_t> iface_i2c::read(const i2c_t& address, const unsigned int& len
   return data;
 }
 
-std::vector<i2c_t> iface_i2c::read(const i2c_t& address, const i2c_t reg, const unsigned int& length){
+std::vector<i2c_t> iface_i2c::read(const i2c_t& address, const i2c_t reg, const unsigned int length){
 
   std::lock_guard<std::mutex> lock(mutex);
   std::vector<i2c_t> data;
@@ -134,8 +133,8 @@ std::vector<i2c_t> iface_i2c::read(const i2c_t& address, const i2c_t reg, const 
   if(i2c_smbus_read_block_data(i2cDesc, reg, data.data()))
     throw CommunicationError( "Failed to read slave (" + to_hex_string(address) + ") on " + devicePath + ": " + std::strerror(errno) );
 
-  LOG(logINTERFACE) << std::hex << "I2C (" << devicePath <<") address " << static_cast<int>(address) << ": Register \"" << static_cast<int>(reg)
-		    << "\" Read block data \"";
+  LOG(logINTERFACE) << std::hex << "I2C (" << devicePath <<") address " << static_cast<int>(address) << ": Register " << static_cast<int>(reg)
+		    << " Read block data \"";
   for( auto i : data)
     LOG(logINTERFACE) << static_cast<int>(i) << " ";
   LOG(logINTERFACE) << "\""<< std::dec << std::endl;
