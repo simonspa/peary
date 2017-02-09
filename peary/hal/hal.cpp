@@ -26,8 +26,15 @@ caribouHAL::~caribouHAL() {}
 
 uint8_t caribouHAL::getDeviceID() {
 
-  // FIXME: Implement reading of device identifier register
-  return 0;
+  LOG(logDEBUGHAL) << "Reading device ID from EEPROM";
+  iface_i2c & myi2c = interface_manager::getInterface<iface_i2c>(I2C0);
+
+  // Read one word from memory address on the EEPROM:
+  // FIXME register address not set!
+  std::vector<uint8_t> data =  myi2c.wordread(ADDR_EEPROM,0x0,1);
+
+  if(data.empty()) throw CommunicationError("No data returned");
+  return data.front();
 }
 
 std::vector<uint8_t> caribouHAL::write(uint8_t address, std::vector<uint8_t> data) {
