@@ -26,7 +26,7 @@ namespace caribou {
     //It can throw DeviceException
     iface_i2c(std::string const & device_path);
 
-    ~iface_i2c();
+    virtual ~iface_i2c();
     
     //Set I2C address before read/write access
     //

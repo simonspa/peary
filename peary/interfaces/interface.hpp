@@ -20,6 +20,8 @@ namespace caribou {
   protected:
     Interface( std::string devicePath) : devicePath(devicePath) {};
 
+    virtual ~Interface(){};
+
     //Path of the device
     const std::string devicePath;
   

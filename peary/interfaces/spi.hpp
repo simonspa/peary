@@ -25,7 +25,7 @@ namespace caribou {
     //It can throw DeviceException
     iface_spi(std::string const & device_path);
 
-    ~iface_spi();
+    virtual ~iface_spi();
     
     //Descriptor of the device
     int spiDesc;
