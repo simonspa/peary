@@ -51,6 +51,13 @@
 #define ADDR_DAC_6 0x4F
 
 
+/** TMP101 Thermometer Registers Addresses
+ */
+#define REG_TEMP_TEMP 0x00
+#define REG_TEMP_CONF 0x01
+#define REG_TEMP_LOW  0x02
+#define REG_TEMP_HIGH 0x03
+
 
 namespace caribou {
 

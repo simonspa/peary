@@ -63,3 +63,20 @@ std::vector<uint8_t> caribouHAL::write(uint8_t address, std::vector<uint8_t> dat
     throw caribou::CommunicationError("No device interface configured!");
   }
 }
+
+double caribouHAL::readTemperature() {
+
+  // Two bytes must be read, containing 12bit of temperature information plus 4bit 0.
+  // Negative numbers are represented in binary twos complement format.
+  
+  LOG(logDEBUGHAL) << "Reading temperature from TMP101";
+  iface_i2c & myi2c = interface_manager::getInterface<iface_i2c>(I2C0);
+
+  // Read the two temperature bytes from the TMP101:
+  std::vector<uint8_t> data =  myi2c.read(ADDR_TEMP,REG_TEMP_TEMP,2);
+  if(data.size() != 2) throw CommunicationError("No data returned");
+
+  // FIXME correctly handle 2's complement for negative temperatures!
+  int16_t temp = ((data.front() << 8) | data.back()) >> 4;
+  return temp*0.0625;
+}

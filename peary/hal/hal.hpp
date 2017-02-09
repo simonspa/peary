@@ -21,13 +21,21 @@ namespace caribou {
      */
     uint8_t getDeviceID();
 
-    /** Send command to the device interface
+    /** Send command to the managed device interface
      */
     std::vector<uint8_t> write(std::vector<uint8_t> address, std::vector<uint8_t> data);
     std::vector<uint8_t> write(uint8_t address, std::vector<uint8_t> data);
 
-    // Throw exception for SPI, read command for I2C
+    /** Read data from managed device interface
+     */
     std::vector<uint8_t> read(uint8_t address, uint8_t length);
+
+    
+    /** Read the temperature from the TMP101 device
+     *
+     *  Returns temperature in degree Celsius with a precision of 0.0625degC
+     */
+    double readTemperature();
     
   private:
 
