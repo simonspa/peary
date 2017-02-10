@@ -33,6 +33,11 @@ namespace caribou {
     //Protects access to the bus
     std::mutex mutex;
 
+    //SPI mode.
+    //Default: 0 (SPI_CPHA = 0, SPI_CPOL = 0)
+    const uint32_t mode = 0x0;
+
+    
     //Maximum speed in Hz
     //Default: 100 MHz
     const uint32_t speed = 100000000;

@@ -27,10 +27,7 @@ iface_spi::iface_spi(std::string const & device_path) : Interface( device_path )
     throw DeviceException("Open " + device_path + " device failed. " + std::strerror(spiDesc) );
   }
 
-  //Set mode
-  //SPI_CPHA = 0
-  //SPI_CPOL = 0
-  if( ioctl( spiDesc, SPI_IOC_WR_MODE32 , 0x0) == -1 ){
+  if( ioctl( spiDesc, SPI_IOC_WR_MODE32 , &mode) == -1 ){
     throw DeviceException("Set mode for " + device_path + " device failed. " + std::strerror(spiDesc) );
   }
   if( ioctl( spiDesc,  SPI_IOC_WR_MAX_SPEED_HZ, &speed) == -1 ){
