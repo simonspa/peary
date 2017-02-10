@@ -30,7 +30,7 @@ uint8_t caribouHAL::getDeviceID() {
   return 0;
 }
 
-std::vector<uint8_t> caribouHAL::write(uint8_t address, std::vector<uint8_t> data) {
+std::vector<uint8_t> caribouHAL::write(const uint8_t address, const std::vector<uint8_t>& data) {
 
   switch(_iface) {
   case IFACE::SPI : {
