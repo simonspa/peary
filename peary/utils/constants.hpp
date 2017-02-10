@@ -26,14 +26,14 @@
 
 /** Devices on I2C1
  */
-#define ADDR_MONITOR_1 0x40 // INA226 MONITOR PWR/CURR BIDIR
-#define ADDR_MONITOR_2 0x41
-#define ADDR_MONITOR_3 0x42
-#define ADDR_MONITOR_4 0x43
-#define ADDR_MONITOR_5 0x44
-#define ADDR_MONITOR_6 0x45
-#define ADDR_MONITOR_7 0x46
-#define ADDR_MONITOR_8 0x4A
+#define ADDR_MONITOR_U53 0x40 // INA226 MONITOR PWR/CURR BIDIR
+#define ADDR_MONITOR_U52 0x41
+#define ADDR_MONITOR_U55 0x42
+#define ADDR_MONITOR_U54 0x43
+#define ADDR_MONITOR_U57 0x44
+#define ADDR_MONITOR_U56 0x45
+#define ADDR_MONITOR_U59 0x46
+#define ADDR_MONITOR_U58 0x4A
 
 /** Devices on I2C2
  */
@@ -41,14 +41,14 @@
 
 /** Devices on I2C3
  */
-#define ADDR_ADC   0x48 // ADS7828 ADC 12BIT 50KSPS 8CH, Analog input range 0-4V
-#define ADDR_DAC_0 0x49 // DAC7678 DAC 12BIT I2C OCTAL 24VQFN
-#define ADDR_DAC_1 0x4A
-#define ADDR_DAC_2 0x4B
-#define ADDR_DAC_3 0x4C
-#define ADDR_DAC_4 0x4D
-#define ADDR_DAC_5 0x4E
-#define ADDR_DAC_6 0x4F
+#define ADDR_ADC     0x48 // ADS7828 ADC 12BIT 50KSPS 8CH, Analog input range 0-4V
+#define ADDR_DAC_U50 0x49 // DAC7678 DAC 12BIT I2C OCTAL 24VQFN
+#define ADDR_DAC_U44 0x4A
+#define ADDR_DAC_U47 0x4B
+#define ADDR_DAC_U46 0x4C
+#define ADDR_DAC_U45 0x4D
+#define ADDR_DAC_U48 0x4E
+#define ADDR_DAC_U49 0x4F
 
 
 /** TMP101 Thermometer Registers Addresses
