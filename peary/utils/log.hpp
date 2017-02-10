@@ -29,6 +29,7 @@ typedef unsigned int uint32_t;
 #include <cstdio>
 #include <string.h>
 
+// FIXME fix probelem with formatting of logs from SPI and I2C interfaces (it add new lines where it not supposed to)
 
 namespace caribou {
 
