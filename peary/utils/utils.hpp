@@ -141,11 +141,10 @@ namespace caribou {
   template< typename T >
   std::string to_hex_string(const T i )
   {
-    std::stringstream stream;
+    std::ostringstream stream;
     stream << std::hex << std::showbase
 	   << std::setfill ('0') << std::setw( std::numeric_limits<T>::digits/4  ) 
-	   << std::hex << i
-	   << std::dec;
+	   << std::hex << static_cast<unsigned long long>(i);
     return stream.str();
   }
 
