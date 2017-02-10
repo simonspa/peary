@@ -24,6 +24,9 @@ void example::powerOn() {
   for(auto i : names) {
     LOG(logDEBUG) << i;
   }
+  
+  // Vectors can be read directly from the config and passed to an interface
+  _hal->write(exampleDict::getAddress("vthreshold"),_config.Get("sample-registers",std::vector<uint8_t>{EXAMPLE_DAC_VEC}));
 }
 
 void example::powerOff() {

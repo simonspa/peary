@@ -13,36 +13,37 @@ namespace caribou {
    *  Contains register address, size of the register
    *  @param 
    */
+  template<typename T = uint8_t>
   class registerConfig {
   public:
     registerConfig() {};
-    registerConfig(uint8_t address, uint8_t size) : _address(address), _size(size) {};
-    uint8_t _address;
-    uint8_t _size;
+    registerConfig(T address, T size) : _address(address), _size(size) {};
+    T _address;
+    T _size;
   };
   
   /** Dictionary class for generic register name lookup
    *  All register names are lower case, register selection is case-insensitive.
    *  Singleton class, only one object of this floating around.
    */
-  template <typename T>
+  template <typename DICT_T, typename REG_T = uint8_t>
   class dictionary {
   public:
     dictionary() {};
     ~dictionary() {};
 
     // Return the register address for the name in question:
-    static inline uint8_t getAddress(const std::string name) {
+    static inline REG_T getAddress(const std::string name) {
       return _registers.find(name)->second._address;
     }
 
     // Return the register size for the register in question:
-    static inline uint8_t getSize(const std::string name) {
+    static inline REG_T getSize(const std::string name) {
       return _registers.find(name)->second._size;
     }
 
     // Return the register size for the register in question:
-    static inline uint8_t getSize(const uint8_t address) {
+    static inline REG_T getSize(const REG_T address) {
       for(auto reg : _registers) {
 	if(reg.second._address == address) {
 	  return reg.second._size;
@@ -52,7 +53,7 @@ namespace caribou {
     }
 
     // Return the register name for the register in question:
-    static inline std::string getName(const uint8_t address) {
+    static inline std::string getName(const REG_T address) {
       for(auto reg : _registers) {
 	if(reg.second._address == address) {
 	  return reg.first;
@@ -71,10 +72,10 @@ namespace caribou {
     }
 
   protected:
-    static std::map<std::string,registerConfig> _registers;
+    static std::map<std::string,registerConfig<REG_T> > _registers;
   };
 
-  template <typename T> std::map<std::string,registerConfig> dictionary<T>::_registers;
+  template <typename DICT_T, typename REG_T> std::map<std::string,registerConfig<REG_T> > dictionary<DICT_T, REG_T>::_registers;
 } //namespace caribou
 
 #endif /* CARIBOU_DICT_H */

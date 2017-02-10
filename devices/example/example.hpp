@@ -8,20 +8,30 @@
 #define DEVICE_EXAMPLE_H
 
 #include "device.hpp"
-#include "example_defaults.hpp"
 #include "constants.hpp"
+#include "example_defaults.hpp"
 
 namespace caribou {
 
   /** Example Device class definition
    *
-   *  this class implements all purely virtual functions of caribou::caribouDevice.
-   *  Applications can then control this device via the Caribou device class interface.
+   *  This class implements all purely virtual functions of caribou::caribouDevice.
+   *  Applications can then control this device via the Caribou device class interface
+   *  by using the device manager to instanciate the device object.
    */
   class example : public caribouDevice {
     
   public:
-    example(const caribou::Configuration config) : caribouDevice(config) { this->initialize(std::string(DEFAULT_DEVICEPATH)); };
+    /** Device constructor
+     *
+     *  The constructor must call the device::initialize() function in order to properly
+     *  initialize the HAL and other components of the device. This cannot be implemented
+     *  in the device class constructor since the interface type is only known once the
+     *  child object (of this class) exists.
+     */
+    example(const caribou::Configuration config) : caribouDevice(config) {
+      this->initialize(std::string(DEFAULT_DEVICEPATH));
+    };
     ~example();
     
     /** Turn on the power supply for the Example chip
@@ -46,7 +56,12 @@ namespace caribou {
 
   private:
 
-    IFACE interface() { return IFACE::SPI; }
+    /** Device interface
+     *
+     *  Specifies the device hardware interface to be instanciated by the HAL.
+     *  Returns a value of type caribou::IFACE.
+     */
+    IFACE interface() { return IFACE::LOOPBACK; }
 
   };
 

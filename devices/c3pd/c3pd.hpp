@@ -6,6 +6,7 @@
 #define DEVICE_C3PD_H
 
 #include "device.hpp"
+#include "c3pd_defaults.hpp"
 
 namespace caribou {
   /** C3PD Device class definition
@@ -13,7 +14,9 @@ namespace caribou {
   class C3PD : public caribouDevice {
     
   public:
-  C3PD(const caribou::Configuration config) : caribouDevice(config) {};
+    C3PD(const caribou::Configuration config) : caribouDevice(config) {
+      this->initialize(std::string(DEFAULT_DEVICEPATH));
+    };
     ~C3PD();
     
     /** Initializer function for C3PD

@@ -49,6 +49,9 @@ namespace caribou {
     std::vector<i2c_t> read(const i2c_t& address, const unsigned int length = 1);
     std::vector<i2c_t> read(const i2c_t& address, const i2c_reg_t reg, const unsigned int length = 1);
 
+    // Special functions to read/write to devices with up to 16bit register
+    std::vector<i2c_t> wordwrite(const i2c_t& address, const uint16_t & reg, const std::vector< i2c_t > & data);
+    std::vector<i2c_t> wordread(const i2c_t& address, const uint16_t reg, const unsigned int length = 1);
     //Unused constructor
     iface_i2c()             = delete;
 

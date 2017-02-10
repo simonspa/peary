@@ -12,13 +12,13 @@
 using namespace caribou;
 
 caribouDevice::caribouDevice(const caribou::Configuration config) :
-  _config(config) {
+  _hal(nullptr), _config(config) {
   LOG(logQUIET) << "New Caribou device instance, version " << getVersion();
 }
 
 void caribouDevice::initialize(std::string devpath) {
   LOG(logDEBUGAPI) << "Initializing Caribou device instance...";
-  _hal = new caribouHAL(this->interface(),_config.Get("devpath",devpath));
+  _hal = new caribouHAL(this->interface(),_config.Get("devicepath",devpath));
 }
 
 caribouDevice::~caribouDevice() {

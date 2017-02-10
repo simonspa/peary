@@ -1,4 +1,6 @@
 peary:
+  tags:
+    - docker
   image: ubuntu:latest
   before_script:
     - apt-get update -qq && apt-get install -y -qq cmake build-essential libi2c-dev
@@ -8,11 +10,11 @@ peary:
     - cmake -DBUILD_example=ON ..
     - make
 
-peary-zync:
-  tags:
-    - zynq
-  script:
-    - mkdir build
-    - cd build
-    - cmake -DBUILD_example=ON ..
-    - make
+# peary-zync:
+#  tags:
+#    - zynq
+#  script:
+#    - mkdir build
+#    - cd build
+#    - cmake -DBUILD_example=ON ..
+#    - make
