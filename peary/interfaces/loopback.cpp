@@ -80,7 +80,7 @@ std::vector<uint8_t> iface_loopback::read(const uint8_t& address, const unsigned
 
   LOG(logINTERFACE) << std::hex << "LOOPBACK (" << devicePath <<") address " << static_cast<int>(address) << ": Read data  - returning address." << std::dec;
 
-  for(int i = 0; i < length; i++)
+  for(unsigned int i = 0; i < length; i++)
     data.push_back(address);
   return data;
 }
@@ -92,7 +92,7 @@ std::vector<uint8_t> iface_loopback::read(const uint8_t& address, const uint8_t 
 
   LOG(logINTERFACE) << std::hex << "LOOPBACK (" << devicePath <<") address " << static_cast<int>(address) << ": Read data from register " << static_cast<int>(reg) << " - returning address." << std::dec;
 
-  for(int i = 0; i < length; i++)
+  for(unsigned int i = 0; i < length; i++)
     data.push_back(address);
   return data;
 }

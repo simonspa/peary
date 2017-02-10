@@ -38,7 +38,7 @@ namespace caribou {
    *         that is not valid then the value of def.
    */
   template <typename T>
-    inline T from_string(const std::string &x, const T &def = 0) {
+  inline T from_string(const std::string &x, const T &def = 0) {
     if (x == "")
       return def;
     T ret = def;
@@ -52,29 +52,28 @@ namespace caribou {
   }
 
   template <>
-    inline std::string
-    from_string(const std::string &x, const std::string &def) {
+  inline std::string from_string(const std::string &x, const std::string &def) {
     return x == "" ? def : x;
   }
 
   template <>
-    int64_t from_string(const std::string &x, const int64_t &def);
+  int64_t from_string(const std::string &x, const int64_t &def);
 
   template <>
-    uint64_t from_string(const std::string &x, const uint64_t &def);
+  uint64_t from_string(const std::string &x, const uint64_t &def);
 
   template <>
-    inline int32_t from_string(const std::string &x, const int32_t &def) {
+  inline int32_t from_string(const std::string &x, const int32_t &def) {
     return static_cast<int32_t>(from_string(x, (int64_t)def));
   }
 
   template <>
-    inline uint32_t from_string(const std::string &x, const uint32_t &def) {
+  inline uint32_t from_string(const std::string &x, const uint32_t &def) {
     return static_cast<uint32_t>(from_string(x, (uint64_t)def));
   }
 
   template <>
-    inline uint8_t from_string(const std::string &x, const uint8_t &def) {
+  inline uint8_t from_string(const std::string &x, const uint8_t &def) {
     return static_cast<uint8_t>(from_string(x, (int64_t)def));
   }
 
@@ -84,14 +83,14 @@ namespace caribou {
    * \return A string representing the passed in parameter.
    */
   template <typename T>
-    inline std::string to_string(const T &x, int digits = 0) {
+  inline std::string to_string(const T &x, int digits = 0) {
     std::ostringstream s;
     s << std::setfill('0') << std::setw(digits) << x;
     return s.str();
   }
 
   template <typename T>
-    inline std::string to_string(const std::vector<T> &x, const std::string &sep,
+  inline std::string to_string(const std::vector<T> &x, const std::string &sep,
 				 int digits = 0) {
     std::ostringstream s;
     if (x.size() > 0)
@@ -103,7 +102,7 @@ namespace caribou {
   }
 
   template <typename T>
-    inline std::string to_string(const std::vector<T> &x, int digits = 0) {
+  inline std::string to_string(const std::vector<T> &x, int digits = 0) {
     return to_string(x, ",", digits);
   }
 
@@ -116,7 +115,7 @@ namespace caribou {
   /** Splits string s into elements at delimiter "delim" and returns them as vector
    */
   template <typename T>
-    std::vector<T> &split(const std::string &s, std::vector<T> &elems, char delim) {
+  std::vector<T> &split(const std::string &s, std::vector<T> &elems, char delim) {
 
     // If the input string is empty, simply return the default elements:
     if (s.empty()) return elems;
@@ -125,7 +124,7 @@ namespace caribou {
     elems.clear();
     std::stringstream ss(s);
     std::string item;
-    T def;
+    T def = T();
     while (std::getline(ss, item, delim)) {
       elems.push_back(from_string(item, def));
     }
