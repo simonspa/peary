@@ -27,7 +27,7 @@ caribouHAL::~caribouHAL() {}
 uint8_t caribouHAL::getDeviceID() {
 
   LOG(logDEBUGHAL) << "Reading device ID from EEPROM";
-  iface_i2c & myi2c = interface_manager::getInterface<iface_i2c>(I2C0);
+  iface_i2c & myi2c = interface_manager::getInterface<iface_i2c>(BUS_I2C0);
 
   // Read one word from memory address on the EEPROM:
   // FIXME register address not set!
@@ -70,7 +70,7 @@ double caribouHAL::readTemperature() {
   // Negative numbers are represented in binary twos complement format.
   
   LOG(logDEBUGHAL) << "Reading temperature from TMP101";
-  iface_i2c & myi2c = interface_manager::getInterface<iface_i2c>(I2C0);
+  iface_i2c & myi2c = interface_manager::getInterface<iface_i2c>(BUS_I2C0);
 
   // Read the two temperature bytes from the TMP101:
   std::vector<uint8_t> data =  myi2c.read(ADDR_TEMP,REG_TEMP_TEMP,2);
