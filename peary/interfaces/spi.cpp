@@ -49,7 +49,7 @@ spi_t iface_spi::write(const spi_t& address, const spi_t& data) {
   spi_ioc_transfer tr = spi_ioc_transfer();
   tr.tx_buf = (unsigned long)  & data;
   tr.rx_buf = (unsigned long) &rx;
-  tr.len = 1;
+  tr.len = sizeof(spi_t);
   tr.bits_per_word = sizeof(spi_t) * CHAR_BIT;
 
   if( ioctl(spiDesc, SPI_IOC_MESSAGE(1), &tr) < 1 ){
@@ -72,7 +72,7 @@ std::vector<spi_t> iface_spi::write(const spi_address_t& address, const std::vec
   for( auto i = 0; i< data.size(); ++i) {
     tr[i].tx_buf = (unsigned long) &data[i];
     tr[i].rx_buf = (unsigned long) &rx[i];
-    tr[i].len = 1;
+    tr[i].len = sizeof(spi_t);
     tr[i].bits_per_word = sizeof(spi_t) * CHAR_BIT;
   }
 
