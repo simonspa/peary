@@ -33,11 +33,11 @@ namespace caribou {
    */
   class exampleDict : public dictionary<exampleDict> {};
   template<>
-  std::map<std::string,registerConfig> dictionary<exampleDict>::_registers = {
-      {"vthreshold", registerConfig(5,255)},
-      {"vkrum", registerConfig(6,255)},
-      {"vadc", registerConfig(6,255)}
-    };
+  std::map<std::string,registerConfig<> > dictionary<exampleDict>::_registers = {
+    {"vthreshold", registerConfig<>(5,255)},
+    {"vkrum",      registerConfig<>(6,255)},
+    {"vadc",       registerConfig<>(6,255)}
+  };
 
 } //namespace caribou
 
