@@ -80,3 +80,22 @@ double caribouHAL::readTemperature() {
   int16_t temp = ((data.front() << 8) | data.back()) >> 4;
   return temp*0.0625;
 }
+
+void caribouHAL::setVoltage(uint8_t address, double voltage) {
+
+  // Control voltages using DAC7678 with QFN packaging
+
+  // All DAC voltage regulators on the CaR board are on the BUS_I2C3:  
+  LOG(logDEBUGHAL) << "Setting voltage on DAC7678 with address " << to_hex_string(address);
+  iface_i2c & myi2c = interface_manager::getInterface<iface_i2c>(BUS_I2C3);
+
+  // FIXME need to correctly configure the DAC7678 (D_in coding)
+
+  // FIXME need to convert voltage to binary code:
+  // internal ref voltage: v_out = d_in/4096*2*v_refout
+  //  -> d_in = v_out/v_refout * 4096/2
+  // external ref voltage: v_out = d_in/4096*v_refin
+  //  -> d_in = v_out/v_refin * 4096
+
+  // FIXME add I2C write command
+}

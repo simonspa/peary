@@ -36,6 +36,12 @@ namespace caribou {
      *  Returns temperature in degree Celsius with a precision of 0.0625degC
      */
     double readTemperature();
+
+    /** Set output voltage on a DAC7678 voltage regulator
+     *
+     *  The input parameter should be provided in SI Volts
+     */
+    void setVoltage(uint8_t address, double voltage);
     
   private:
 
