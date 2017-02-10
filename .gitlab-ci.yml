@@ -10,11 +10,11 @@ peary:
     - cmake -DBUILD_example=ON ..
     - make
 
-peary-zync:
-  tags:
-    - zynq
-  script:
-    - mkdir build
-    - cd build
-    - cmake -DBUILD_example=ON ..
-    - make
+# peary-zync:
+#  tags:
+#    - zynq
+#  script:
+#    - mkdir build
+#    - cd build
+#    - cmake -DBUILD_example=ON ..
+#    - make
