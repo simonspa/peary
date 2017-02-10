@@ -10,6 +10,9 @@ namespace caribou {
    */
 #define DEFAULT_DEVICEPATH BUS_I2C2
 
+  /** Default I2C address for standalone-C3PD board with unconnected I2C address lines
+   */
+#define C3PD_DEFAULT_I2C 0x50
 
   /** Definition of default values for the different DAC settings for C3PD
    */
@@ -25,6 +28,26 @@ namespace caribou {
 #define C3PD_VBLSOFF  0x02
 #define C3PD_VBTP     0x00
 
+  /** C3PD Routing 
+   *
+   *  C3PD_VDDD -> SEAF F1/F2 -> (ADDR_MONITOR_U52) -> ADDR_DAC_U50 (VOUTC)
+   *  C3PD_VDDA -> SEAF D5/D6 -> (ADDR_MONITOR_U56) -> ADDR_DAC_U50 (VOUTD)
+   *
+   *  C3PD_REF -> SEAF B1 -> ADDR_DAC_U44 (VOUTC)
+   *
+   *  C3PD_RSTN -> SEAF G19 -> FMC/CMOS_OUT_7
+   *  C3PD_PWRE -> SEAF H18 -> FMC/CMOS_OUT_6
+   *  C3PD_TPS -> SEAF H17 -> FMC/CMOS_OUT_5
+   *
+   *  C3PD_AOUT -> SEAF D18 -> ADDR_ADC (CH1)
+   *  C3PD_AIN -> SEAF A3 -> ADDR_DAC_U44 (VOUTA)
+   *
+   *  C3PD_HV -> SEAF A23 -> LEMO_RA J10
+   *  C3PD_PIX0 -> (unconnected on CLICpix2 board) 
+   *  C3PD_PIX1 -> (unconnected on CLICpix2 board) 
+   *  C3PD_PIX2 -> (unconnected on CLICpix2 board) 
+   *  C3PD_PIX3 -> (unconnected on CLICpix2 board) 
+   */
 
 
   /** Dictionary for register address/name lookup for C3PD
