@@ -1,4 +1,6 @@
 peary:
+  tags:
+    - docker
   image: ubuntu:latest
   before_script:
     - apt-get update -qq && apt-get install -y -qq cmake build-essential libi2c-dev
