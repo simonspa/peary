@@ -44,9 +44,20 @@ namespace caribou {
      */
     std::string getVersion();
 
-    /** Return the device identifier of the firmware currently loaded
+    /** Return the identifier of the firmware currently loaded
      */
-    uint8_t getDeviceID();
+    uint8_t getFirmwareID();
+
+    /** Return the board identifier of the CaR board installed
+     */
+    uint8_t getCaRBoardID();
+
+    /** Read the ID from the chip board if available
+     *
+     *  Some chip boards feature an EPROM which stores a board ID and thus
+     *  allows identification of the attached chip board.
+     */
+    uint16_t getChipID() { return 0; };
 
     /** Return the human-readable device name of the firmware currently loaded
      */
@@ -73,12 +84,6 @@ namespace caribou {
     // Previously "loadConfig"?
     //virtual void reconfigure() {};
     
-    /** Read the ID from the chip board if available
-     *
-     *  Some chip boards feature an EPROM which stores a board ID and thus
-     *  allows identification of the attached chip board.
-     */
-    //virtual uint16_t getChipboardID() { return 0; };
 
     
     // Controlling the device

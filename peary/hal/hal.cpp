@@ -25,9 +25,9 @@ caribouHAL::caribouHAL(IFACE interface, std::string device_path = "") :
 
 caribouHAL::~caribouHAL() {}
 
-uint8_t caribouHAL::getDeviceID() {
+uint8_t caribouHAL::getCaRBoardID() {
 
-  LOG(logDEBUGHAL) << "Reading device ID from EEPROM";
+  LOG(logDEBUGHAL) << "Reading board ID from CaR EEPROM";
   iface_i2c & myi2c = interface_manager::getInterface<iface_i2c>(BUS_I2C0);
 
   // Read one word from memory address on the EEPROM:

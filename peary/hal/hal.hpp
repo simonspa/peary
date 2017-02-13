@@ -19,7 +19,7 @@ namespace caribou {
 
     /** Read and return the device identifier from the firmware
      */
-    uint8_t getDeviceID();
+    uint8_t getCaRBoardID();
 
     /** Send command to the managed device interface
      */

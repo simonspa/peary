@@ -27,6 +27,6 @@ caribouDevice::~caribouDevice() {
 
 std::string caribouDevice::getVersion() { return std::string(); }
 
-uint8_t caribouDevice::getDeviceID() { return _hal->getDeviceID(); }
+uint8_t caribouDevice::getCaRBoardID() { return _hal->getCaRBoardID(); }
 
 std::string caribouDevice::getDeviceName() { return std::string(); }
