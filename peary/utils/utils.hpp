@@ -149,12 +149,23 @@ namespace caribou {
     std::stringstream os;
     for(auto it : vec) {
       if(hex) os << to_hex_string(it);
-      else os << static_cast<int>(it);
+      else os << static_cast<unsigned int>(it);
       os << separator;
     }
     return os.str();
   }
-  
+
+  template <typename T1, typename T2>
+  std::string listVector(std::vector<std::pair<T1, T2> > vec, std::string separator = ", ", bool hex = false) {
+    std::stringstream os;
+    for(auto it : vec) {
+      if(hex) os << to_hex_string(it.first) << ":" << to_hex_string(it.second);
+      else os << static_cast<unsigned int>(it.first) << ":" << static_cast<unsigned int>(it.second);
+      os << separator;
+    }
+    return os.str();
+  }
+
 } //namespace caribou
 
 #endif /* CARIBOU_UTILS_H */
