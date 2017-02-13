@@ -29,4 +29,6 @@ std::string caribouDevice::getVersion() { return std::string(); }
 
 uint8_t caribouDevice::getCaRBoardID() { return _hal->getCaRBoardID(); }
 
+uint8_t caribouDevice::getFirmwareID() { return _hal->getFirmwareRegister(ADDR_FW_ID); }
+
 std::string caribouDevice::getDeviceName() { return std::string(); }

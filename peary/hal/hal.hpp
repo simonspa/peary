@@ -21,6 +21,12 @@ namespace caribou {
      */
     uint8_t getCaRBoardID();
 
+    /** Read value from a firmware register
+     *
+     *  @param address : address of the register to be read
+     */
+    uint32_t getFirmwareRegister(uint16_t address);
+    
     /** Send command to the managed device interface
      */
     std::vector<uint8_t> write(std::vector<uint8_t> address, std::vector<uint8_t> data);

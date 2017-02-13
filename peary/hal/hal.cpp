@@ -25,6 +25,10 @@ caribouHAL::caribouHAL(IFACE interface, std::string device_path = "") :
 
 caribouHAL::~caribouHAL() {}
 
+uint32_t caribouHAL::getFirmwareRegister(uint16_t address) {
+  throw FirmwareException("Functionality not implemented.");
+}
+
 uint8_t caribouHAL::getCaRBoardID() {
 
   LOG(logDEBUGHAL) << "Reading board ID from CaR EEPROM";
