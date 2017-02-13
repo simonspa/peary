@@ -48,8 +48,7 @@ i2c_t iface_i2c::write(const i2c_t& address, const i2c_t& data ){
   
   setAddress(address);
   
-  LOG(logINTERFACE) << std::hex << "I2C (" << devicePath <<") address " << static_cast<int>(address) << ": Writing data \"" << static_cast<int>(data)
-		    <<  "\"" << std::dec << std::endl;
+  LOG(logINTERFACE) << "I2C (" << devicePath <<") address " << to_hex_string(address) << ": Writing data \"" << to_hex_string(data) <<  "\"";
 
   if( i2c_smbus_write_byte( i2cDesc, data) )
     throw CommunicationError( "Failed to write slave (" + to_hex_string(address) + ") on " + devicePath + ": " + std::strerror(errno) );
@@ -68,8 +67,8 @@ std::pair<i2c_reg_t, i2c_t> iface_i2c::write(const i2c_t& address,const std::pai
   
   setAddress(address);
   
-  LOG(logINTERFACE) << std::hex << "I2C (" << devicePath <<") address " << static_cast<int>(address) << ": Register " << static_cast<int>(data.first)
-		    << " Writing data \"" << static_cast<int>(data.second) <<  "\"" << std::dec << std::endl;
+  LOG(logINTERFACE) << "I2C (" << devicePath <<") address " << to_hex_string(address) << ": Register " << to_hex_string(data.first)
+		    << " Writing data \"" << to_hex_string(data.second) <<  "\"";
 
 
   if( i2c_smbus_write_byte_data( i2cDesc, data.first, data.second ) )
@@ -84,11 +83,8 @@ std::vector<i2c_t> iface_i2c::write(const i2c_t& address, const i2c_t & reg, con
     
   setAddress(address);
 
-  LOG(logINTERFACE) << std::hex << "I2C (" << devicePath <<") address " << static_cast<int>(address) << ": Register " << static_cast<int>(reg)
-		    << " Writing block data: \"";
-  for( auto i : data)
-    LOG(logINTERFACE) << static_cast<int>(i) << " ";
-  LOG(logINTERFACE) << "\""<< std::dec << std::endl;
+  LOG(logINTERFACE) << "I2C (" << devicePath <<") address " << to_hex_string(address) << ": Register " << to_hex_string(reg)
+		    << "\n\t Writing block data: \"" << listVector(data, ", ", true) << "\"";
 
   if( i2c_smbus_write_block_data( i2cDesc, reg, data.size(), data.data() ) )
     throw CommunicationError( "Failed to block write slave (" + to_hex_string(address) + ") on " + devicePath + ": " + std::strerror(errno) );
@@ -115,8 +111,7 @@ std::vector<i2c_t> iface_i2c::read(const i2c_t& address, const unsigned int leng
   if( i2c_smbus_read_byte( i2cDesc ) )
     throw CommunicationError( "Failed to read slave (" + to_hex_string(address) + ") on " + devicePath + ": " + std::strerror(errno) );
 
-  LOG(logINTERFACE) << std::hex << "I2C (" << devicePath <<") address " << static_cast<int>(address) << ": Read data \"" << static_cast<int>(data[0])
-		    <<  "\"" << std::dec << std::endl;
+  LOG(logINTERFACE) << "I2C (" << devicePath <<") address " << to_hex_string(address) << ": Read data \"" << to_hex_string(data[0]) <<  "\"";
 
   return data;
 }
@@ -133,11 +128,8 @@ std::vector<i2c_t> iface_i2c::read(const i2c_t& address, const i2c_t reg, const 
   if(i2c_smbus_read_block_data(i2cDesc, reg, data.data()))
     throw CommunicationError( "Failed to read slave (" + to_hex_string(address) + ") on " + devicePath + ": " + std::strerror(errno) );
 
-  LOG(logINTERFACE) << std::hex << "I2C (" << devicePath <<") address " << static_cast<int>(address) << ": Register " << static_cast<int>(reg)
-		    << " Read block data \"";
-  for( auto i : data)
-    LOG(logINTERFACE) << static_cast<int>(i) << " ";
-  LOG(logINTERFACE) << "\""<< std::dec << std::endl;
+  LOG(logINTERFACE) << "I2C (" << devicePath <<") address " << to_hex_string(address) << ": Register " << to_hex_string(reg)
+		    << "\n\t Read block data \"" << listVector( data, ", ", true) << "\"";
 
   return data;
 }

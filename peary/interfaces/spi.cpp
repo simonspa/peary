@@ -56,8 +56,8 @@ spi_t iface_spi::write(const spi_t& address, const spi_t& data) {
     throw CommunicationError( "Failed to access (" + to_hex_string(address) + ") on " + devicePath + ": " + std::strerror(errno) );
   }
 
-  LOG(logINTERFACE) << std::hex << "SPI (" << devicePath <<") address " << static_cast<unsigned int>(address) << ": Wrote data \"" << static_cast<unsigned int>(data)
-		    <<  "\" Read data \"" << static_cast<unsigned int>(rx) <<  "\"" << std::dec << std::endl;
+  LOG(logINTERFACE) << "SPI (" << devicePath <<") address " << to_hex_string( address ) << ": Wrote data \"" << to_hex_string(data)
+		    <<  "\" Read data \"" << to_hex_string(rx) <<  "\"";
 
   return rx;
 }
@@ -80,13 +80,8 @@ std::vector<spi_t> iface_spi::write(const spi_address_t& address, const std::vec
       throw CommunicationError( "Failed to access (" + to_hex_string(address) + ") on " + devicePath + ": " + std::strerror(errno) );
   }
 
-  LOG(logINTERFACE) << std::hex << "SPI (" << devicePath <<") address " << static_cast<unsigned int>(address) << ": Wrote data \"";
-  for( auto i : data)
-    LOG(logINTERFACE) << static_cast<unsigned int>(i) << " ";
-  LOG(logINTERFACE) <<  "\"\n\t Read data \"";
-  for( auto i : rx)
-    LOG(logINTERFACE) << static_cast<unsigned int>(i) << " ";
-  LOG(logINTERFACE) << "\"" << std::dec << std::endl;
+  LOG(logINTERFACE) << "SPI (" << devicePath <<") address " << to_hex_string(address) << "\n\t Wrote block data: \""
+		    << listVector( data, ", ", true) << "\"\n\t Read  block data: \"" <<  listVector( rx, ", ", true) << "\"";
 
   return rx;
 }
@@ -111,8 +106,8 @@ std::pair<spi_reg_t, spi_t> iface_spi::write(const spi_address_t& address, const
 
   std::pair<spi_reg_t, spi_t> rx (* static_cast<spi_reg_t* >( _data.data() + sizeof(spi_t) ), * static_cast<spi_t* >( _data.data()  ) );
 
-  LOG(logINTERFACE) << std::hex << "SPI (" << devicePath <<") address " << static_cast<int>(address) << ": Register " << static_cast<int>(data.first)
-		    << " Wrote data \"" << static_cast<int>(data.second) << "\" Read data \"" << static_cast<unsigned int>(rx.second) << std::dec << std::endl;
+  LOG(logINTERFACE) << "SPI (" << devicePath <<") address " << to_hex_string(address) << ": Register " << to_hex_string(data.first)
+		    << " Wrote data \"" << to_hex_string(data.second) << "\" Read data \"" << to_hex_string(rx.second) << "\"";
 
   return rx;
 }
@@ -167,13 +162,8 @@ std::vector< std::pair<spi_reg_t, spi_t> > iface_spi::write(const spi_address_t&
 				  * static_cast<spi_t*>( _data.data() + loop.pos ) ));
   }
   
-  LOG(logINTERFACE) << std::hex << "SPI (" << devicePath <<") address " << static_cast<int>(address) << " Wrote block data (Reg: data): " << std::endl;
-  for( auto i : data)
-    LOG(logINTERFACE) << static_cast<unsigned int>( i.first ) << ": \"" << static_cast<unsigned int>(i.second) << "\" ";
-  LOG(logINTERFACE) << " Read block data (Reg: data):" << std::endl;
-  for( auto i : rx)
-    LOG(logINTERFACE) << static_cast<unsigned int>( i.first ) << ": \"" << static_cast<unsigned int>(i.second) << "\" ";
-  LOG(logINTERFACE) <<  std::dec << std::endl;
+  LOG(logINTERFACE) << "SPI (" << devicePath <<") address " << to_hex_string(address) << "\n\t Wrote block data (Reg: data): \""
+		    << listVector( data, ", ", true) << "\"\n\t Read  block data (Reg: data): \"" <<  listVector( rx, ", ", true) << "\"";
   
   return rx;
 }
@@ -195,10 +185,8 @@ std::vector<spi_t> iface_spi::read(const spi_address_t& address, const unsigned 
     throw CommunicationError( "Failed to access (" + to_hex_string(address) + ") on " + devicePath + ": " + std::strerror(errno) );
   }
 
-  LOG(logINTERFACE) << std::hex << "SPI (" << devicePath <<") address " << static_cast<int>(address) << " Read block data: \"" << std::endl;
-  for( auto i : rx)
-    LOG(logINTERFACE) << static_cast<unsigned int>( i ) << " ";
-  LOG(logINTERFACE) << "\"" <<  std::dec << std::endl;
+  LOG(logINTERFACE) << "SPI (" << devicePath <<") address " << to_hex_string(address) << " Red block data: \""
+		    << listVector( rx, ", ", true) << "\"";
 
   return rx;
 }
