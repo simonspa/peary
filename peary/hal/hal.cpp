@@ -4,6 +4,7 @@
 
 #include "exceptions.hpp"
 #include "constants.hpp"
+#include "utils.hpp"
 #include "log.hpp"
 #include "hal.hpp"
 
