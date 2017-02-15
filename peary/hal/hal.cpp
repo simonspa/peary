@@ -26,7 +26,7 @@ caribouHAL::caribouHAL(IFACE interface, std::string device_path = "") :
 
 caribouHAL::~caribouHAL() {}
 
-uint32_t caribouHAL::getFirmwareRegister(uint16_t address) {
+uint32_t caribouHAL::getFirmwareRegister(uint16_t) {
   throw FirmwareException("Functionality not implemented.");
 }
 

@@ -12,6 +12,11 @@
 #define BUS_I2C2 "/dev/i2c-8"
 #define BUS_I2C3 "/dev/i2c-9"
 
+/** Reference voltages
+ */
+#define CAR_VREF_4P0  4.096 // via TI REF5040
+
+
 /** Devices on I2C0
  */
 #define ADDR_BRIDGE  0x28 // SC18IS602B BRIDGE SPI/I2C
