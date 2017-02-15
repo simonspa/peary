@@ -67,6 +67,14 @@
 #define REG_DAC_MODE_STATIC    0x80 // Internal reference (static mode)
 #define REG_DAC_MODE_FLEX      0x90 // Internal reference (flexible mode)
 
-#define REG_DAC_VOUT
+#define REG_DAC_CHANNEL_VOUTA  0x00
+#define REG_DAC_CHANNEL_VOUTB  0x01
+#define REG_DAC_CHANNEL_VOUTC  0x02
+#define REG_DAC_CHANNEL_VOUTD  0x03
+#define REG_DAC_CHANNEL_VOUTE  0x04
+#define REG_DAC_CHANNEL_VOUTF  0x05
+#define REG_DAC_CHANNEL_VOUTG  0x06
+#define REG_DAC_CHANNEL_VOUTH  0x07
+#define REG_DAC_CHANNEL_ALL    0x0F
 
 #endif /* CARIBOU_CARBOARD_H */
