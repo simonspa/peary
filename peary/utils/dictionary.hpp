@@ -30,10 +30,11 @@ namespace caribou {
    */
   template <typename DICT_T, typename REG_T = uint8_t>
   class dictionary {
-  public:
+  private:
     dictionary() {};
     ~dictionary() {};
 
+  public:
     // Return the register object for the name in question:
     static inline registerConfig<REG_T> getRegister(const std::string name) {
       return _registers.find(name)->second;
