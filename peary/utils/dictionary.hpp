@@ -1,6 +1,8 @@
 #ifndef CARIBOU_DICT_H
 #define CARIBOU_DICT_H
 
+#include <initializer_list>
+
 #include "exceptions.hpp"
 #include "log.hpp"
 
@@ -26,32 +28,37 @@ namespace caribou {
   
   /** Dictionary class for generic register name lookup
    *  All register names are lower case, register selection is case-insensitive.
-   *  Singleton class, only one object of this floating around.
    */
-  template <typename DICT_T, typename REG_T = uint8_t>
+  template <typename REG_T = uint8_t>
   class dictionary {
-  private:
+  public:
     dictionary() {};
+    dictionary(std::map<std::string,registerConfig<REG_T, REG_T, REG_T> > reg) { _registers = reg; };
+    dictionary(std::initializer_list<std::pair<std::string const,registerConfig<REG_T, REG_T, REG_T> > > reg) : _registers(reg) {};
     ~dictionary() {};
 
-  public:
     // Return the register object for the name in question:
-    static inline registerConfig<REG_T> getRegister(const std::string name) {
+    registerConfig<REG_T, REG_T, REG_T> getRegister(const std::string name) const {
       return _registers.find(name)->second;
     }
 
+    // Return all registerConfig objects stored by the dictionary:
+    std::map<std::string,registerConfig<REG_T, REG_T, REG_T> > getRegisters() const {
+      return _registers;
+    }
+
     // Return the register address for the name in question:
-    static inline REG_T getAddress(const std::string name) {
+    REG_T getAddress(const std::string name) const {
       return _registers.find(name)->second._address;
     }
 
     // Return the register size for the register in question:
-    static inline REG_T getSize(const std::string name) {
+    REG_T getSize(const std::string name) const {
       return _registers.find(name)->second._size;
     }
 
     // Return the register size for the register in question:
-    static inline REG_T getSize(const REG_T address) {
+    REG_T getSize(const REG_T address) const {
       for(auto reg : _registers) {
 	if(reg.second._address == address) {
 	  return reg.second._size;
@@ -61,7 +68,7 @@ namespace caribou {
     }
 
     // Return the register name for the register in question:
-    static inline std::string getName(const REG_T address) {
+    std::string getName(const REG_T address) const {
       for(auto reg : _registers) {
 	if(reg.second._address == address) {
 	  return reg.first;
@@ -71,7 +78,7 @@ namespace caribou {
     }
 
     // Return all register names for the type in question:
-    static inline std::vector<std::string> getNames() {
+    std::vector<std::string> getNames() const {
       std::vector<std::string> names;
       for(auto reg : _registers) {
 	  names.push_back(reg.first);
@@ -79,11 +86,17 @@ namespace caribou {
       return names;
     }
 
+    // Allow merging another dictionary 
+    dictionary<REG_T>& operator += (const dictionary<REG_T> &obj) {
+      std::map<std::string,registerConfig<REG_T, REG_T, REG_T> > reg = obj.getRegisters();
+      _registers.insert(reg.begin(), reg.end());
+      return (*this) ;
+    }
+
   protected:
-    static std::map<std::string,registerConfig<REG_T> > _registers;
+    std::map<std::string,registerConfig<REG_T, REG_T, REG_T> > _registers;
   };
 
-  template <typename DICT_T, typename REG_T> std::map<std::string,registerConfig<REG_T> > dictionary<DICT_T, REG_T>::_registers;
 } //namespace caribou
 
 #endif /* CARIBOU_DICT_H */
