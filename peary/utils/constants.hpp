@@ -63,6 +63,20 @@
 #define REG_TEMP_LOW  0x02
 #define REG_TEMP_HIGH 0x03
 
+/** DAC7678 Registers Addresses
+ */
+#define REG_DAC_WRITE_CHANNEL  0x00 // Set DAC; last four bit indicate the channel number
+#define REG_DAC_UPDATE_CHANNEL 0x10 // Update DAC; last four bit indicate the channel number
+#define REG_DAC_LDAC_CHANNEL   0x20 // Set DAC & update all; last four bit indicate the channel number
+#define REG_DAC_WRUP_CHANNEL   0x30 // Set & update DAC; last four bit indicate the channel number
+#define REG_DAC_POWER          0x40 // Power on/off DAC
+#define REG_DAC_CLEAR          0x50 // Write to clear code reg
+#define REG_DAC_LDAC           0x60 // Write to LDAC reg
+#define REG_DAC_RESET          0x70 // Software reset
+#define REG_DAC_MODE_STATIC    0x80 // Internal reference (static mode)
+#define REG_DAC_MODE_FLEX      0x90 // Internal reference (flexible mode)
+
+#define REG_DAC_VOUT
 
 namespace caribou {
 
