@@ -90,9 +90,7 @@ namespace caribou {
     
     // How to define registers? std::string and internal conversion?
     // Overload to accept vector?
-    //virtual void setRegister() {};
-    // Separate function for DAC?
-    //virtual void setDAC() {};
+    //virtual void setRegister(std::string name, uint32_t value) {};
 
     /** Sending reset signal to the device
      */
@@ -121,16 +119,20 @@ namespace caribou {
     // Purely virtual?
     // Do they need to be virtual? Maybe implement in baseclass (always same for CaR)
     // and only look up correct regulator according to name from child class dictionary?
-    //virtual void setVoltage();
-    //virtual void enableVoltage();
+    void setVoltage(std::string name, double voltage);
+    // void enableVoltage();
     // Also add disableVoltage() or rather provide boolean parameter for on/off?
-    //virtual double measureColtage();
+    //virtual double measureVoltage();
     //virtual double measureCurrent();
 
     //virtual double getTemperature();
     //virtual double getADC();
+    
+    // CaR CMOS signals
+    // void enableSignal();
+    // void disableSignal();
 
-
+    
     // Retrieving data
 
     // Two types:
@@ -160,7 +162,7 @@ namespace caribou {
     /** Device configuration object
      */
     caribou::Configuration _config;
-    
+
   }; //class caribouDevice
 
 } //namespace caribou
