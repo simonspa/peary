@@ -87,21 +87,32 @@ double caribouHAL::readTemperature() {
   return temp*0.0625;
 }
 
-void caribouHAL::setVoltage(uint8_t address, double voltage) {
+void caribouHAL::setVoltage(uint8_t device, uint8_t address, double voltage) {
 
   // Control voltages using DAC7678 with QFN packaging
+  // All DAc7678 use straight binary encoding since the TWOC pins are pulled low
 
   // All DAC voltage regulators on the CaR board are on the BUS_I2C3:  
-  LOG(logDEBUGHAL) << "Setting voltage on DAC7678 with address " << to_hex_string(address);
+  LOG(logDEBUGHAL) << "Setting voltage " << voltage << "V "
+		   << "on DAC7678 at " << to_hex_string(device)
+		   << " channel " << to_hex_string(address);
   iface_i2c & myi2c = interface_manager::getInterface<iface_i2c>(BUS_I2C3);
 
-  // FIXME need to correctly configure the DAC7678 (D_in coding)
+  // Per default, the internal reference is switched off,
+  // with external reference we have: voltage = d_in/4096*v_refin
+  uint16_t d_in = voltage/CAR_VREF_4P0*4096;
 
-  // FIXME need to convert voltage to binary code:
-  // internal ref voltage: v_out = d_in/4096*2*v_refout
-  //  -> d_in = v_out/v_refout * 4096/2
-  // external ref voltage: v_out = d_in/4096*v_refin
-  //  -> d_in = v_out/v_refin * 4096
+  // with internal reference of 2.5V we have: voltage = d_in/4096*2*2.5
+  //  -> d_in = voltage/2.5 * 4096/2
+  
+  std::vector<uint8_t> payload = {
+    static_cast<uint8_t>((d_in >> 8)&0xFF),
+    static_cast<uint8_t>(d_in&0xFF)
+  };
 
-  // FIXME add I2C write command
+  // Set DAC and update: combine command with channel via Control&Access byte:
+  uint8_t reg = REG_DAC_WRUP_CHANNEL | address;
+  
+  // Send I2C write command
+  myi2c.write(device,reg,payload);
 }

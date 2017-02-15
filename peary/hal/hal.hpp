@@ -47,7 +47,7 @@ namespace caribou {
      *
      *  The input parameter should be provided in SI Volts
      */
-    void setVoltage(uint8_t address, double voltage);
+    void setVoltage(uint8_t device, uint8_t address, double voltage);
     
   private:
 
