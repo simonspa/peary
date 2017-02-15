@@ -1,7 +1,7 @@
 #ifndef DEVICE_C3PD_DEFAULTS_H
 #define DEVICE_C3PD_DEFAULTS_H
 
-#include "constants.hpp"
+#include "carboard.hpp"
 #include "dictionary.hpp"
 
 namespace caribou {
