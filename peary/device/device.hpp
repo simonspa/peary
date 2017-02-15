@@ -6,6 +6,7 @@
 #define CARIBOU_API_H
 
 #include "configuration.hpp"
+#include "dictionary.hpp"
 #include "constants.hpp"
 
 #include <stdint.h>
@@ -157,11 +158,15 @@ namespace caribou {
 
     /** Initializer function for Caribou devices
      */
-    void initialize(std::string devpath);
+    void initialize(std::string devpath, caribou::dictionary<uint8_t> periphery);
 
     /** Device configuration object
      */
     caribou::Configuration _config;
+
+    /** Static periphery dictionary for all devices to access CaR components:
+     */
+    static caribou::dictionary<uint8_t> _periphery;
 
   }; //class caribouDevice
 

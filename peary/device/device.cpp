@@ -3,6 +3,7 @@
  */
 
 #include "device.hpp"
+#include "dictionary.hpp"
 #include "constants.hpp"
 #include "hal.hpp"
 #include "log.hpp"
@@ -11,14 +12,19 @@
 
 using namespace caribou;
 
+dictionary<uint8_t> caribouDevice::_periphery;
+
 caribouDevice::caribouDevice(const caribou::Configuration config) :
   _hal(nullptr), _config(config) {
   LOG(logQUIET) << "New Caribou device instance, version " << getVersion();
 }
 
-void caribouDevice::initialize(std::string devpath) {
+void caribouDevice::initialize(std::string devpath, caribou::dictionary<uint8_t> periphery) {
   LOG(logDEBUGAPI) << "Initializing Caribou device instance...";
   _hal = new caribouHAL(this->interface(),_config.Get("devicepath",devpath));
+
+  // Supplement the periphery dictionary with local names and definitions:
+  _periphery += periphery;
 }
 
 caribouDevice::~caribouDevice() {
