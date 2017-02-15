@@ -2,6 +2,7 @@
 #define DEVICE_EXAMPLE_DEFAULTS_H
 
 #include "dictionary.hpp"
+#include "carboard.hpp"
 
 namespace caribou {
 
@@ -23,21 +24,26 @@ namespace caribou {
 #define EXAMPLE_DAC_TEST 5
 #define EXAMPLE_DAC_VEC  1,3,5,7,9
 
-  /** Dictionary for register name lookup for this device
+  /** Local dictionary for register name lookup for this device
    *
-   *  This class derives from caribou::dictionary using CRTP in order to
-   *  create a static object of the registers member. Add the definitions 
-   *  for register addresses and range here and do the name lookup like
-   *  int adr = exampleDict::getAddress("threshold");
+   *  Add the definitions for register addresses and range here and 
+   *  do the name lookup like
+   *  int adr = exampleDict.getAddress("threshold");
    *  in order to resolve human-readable register names to their addresses.
    */
-  class exampleDict : public dictionary<exampleDict> {};
-  template<>
-  std::map<std::string,registerConfig<> > dictionary<exampleDict>::_registers = {
-    {"vthreshold", registerConfig<>(5,255)},
-    {"vkrum",      registerConfig<>(6,255)},
-    {"vadc",       registerConfig<>(6,255)}
-  };
+#define C3PD_DICT \
+  {						\
+    {"vthreshold", registerConfig<>(5,255)},	\
+    {"vkrum",      registerConfig<>(6,255)},	\
+    {"vadc",       registerConfig<>(6,255)}	\
+  }
+
+
+#define C3PD_PERIPHERY \
+  {									\
+    {"va", registerConfig<>(ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTC,16)},	\
+    {"vd", registerConfig<>(ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTD,16)},	\
+  }
 
 } //namespace caribou
 

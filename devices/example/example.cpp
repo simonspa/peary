@@ -19,14 +19,14 @@ void example::powerOn() {
   uint32_t dac_test = _config.Get("dac_test",static_cast<uint32_t>(EXAMPLE_DAC_TEST));
   LOG(logDEBUG) << DEVICE_NAME << " config sets DAC_TEST=" << dac_test;
 
-  LOG(logINFO) << "ADDR from dict: " << (int)exampleDict::getAddress("vthreshold");
-  std::vector<std::string> names = exampleDict::getNames();
+  LOG(logINFO) << "ADDR from dict: " << (int)exampleDict.getAddress("vthreshold");
+  std::vector<std::string> names = exampleDict.getNames();
   for(auto i : names) {
     LOG(logDEBUG) << i;
   }
   
   // Vectors can be read directly from the config and passed to an interface
-  _hal->write(exampleDict::getAddress("vthreshold"),_config.Get("sample-registers",std::vector<uint8_t>{EXAMPLE_DAC_VEC}));
+  _hal->write(exampleDict.getAddress("vthreshold"),_config.Get("sample-registers",std::vector<uint8_t>{EXAMPLE_DAC_VEC}));
 }
 
 void example::powerOff() {

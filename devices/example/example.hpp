@@ -29,8 +29,9 @@ namespace caribou {
      *  in the device class constructor since the interface type is only known once the
      *  child object (of this class) exists.
      */
-    example(const caribou::Configuration config) : caribouDevice(config) {
-      this->initialize(std::string(DEFAULT_DEVICEPATH));
+    example(const caribou::Configuration config) : caribouDevice(config), exampleDict(C3PD_DICT) {
+      // Initialize the device and HAL object:
+      this->initialize(std::string(DEFAULT_DEVICEPATH), caribou::dictionary<uint8_t>(C3PD_PERIPHERY));
     };
     ~example();
     
@@ -63,6 +64,7 @@ namespace caribou {
      */
     IFACE interface() { return IFACE::LOOPBACK; }
 
+    dictionary<> exampleDict;
   };
 
   /** Device generator
