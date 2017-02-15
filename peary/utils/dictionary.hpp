@@ -39,7 +39,12 @@ namespace caribou {
 
     // Return the register object for the name in question:
     registerConfig<REG_T, REG_T, REG_T> getRegister(const std::string name) const {
-      return _registers.find(name)->second;
+      try {
+	return _registers.at(name);
+      }
+      catch(...) {
+	throw UndefinedRegister("Register not found");
+      }      
     }
 
     // Return all registerConfig objects stored by the dictionary:
@@ -47,14 +52,34 @@ namespace caribou {
       return _registers;
     }
 
+    // Return the device for the name in question:
+    REG_T getDevice(const std::string name) const {
+      try {
+	return _registers.at(name)._device;
+      }
+      catch(...) {
+	throw UndefinedRegister("Register not found");
+      }      
+    }
+
     // Return the register address for the name in question:
     REG_T getAddress(const std::string name) const {
-      return _registers.find(name)->second._address;
+      try {
+	return _registers.at(name)._address;
+      }
+      catch(...) {
+	throw UndefinedRegister("Register not found");
+      }      
     }
 
     // Return the register size for the register in question:
     REG_T getSize(const std::string name) const {
-      return _registers.find(name)->second._size;
+      try {
+	return _registers.at(name)._size;
+      }
+      catch(...) {
+	throw UndefinedRegister("Register not found");
+      }      
     }
 
     // Return the register size for the register in question:
