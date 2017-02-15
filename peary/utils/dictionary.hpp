@@ -13,13 +13,15 @@ namespace caribou {
    *  Contains register address, size of the register
    *  @param 
    */
-  template<typename T = uint8_t>
+  template<typename DEV_T = uint8_t, typename ADDR_T = uint8_t, typename SIZE_T = uint8_t>
   class registerConfig {
   public:
     registerConfig() {};
-    registerConfig(T address, T size) : _address(address), _size(size) {};
-    T _address;
-    T _size;
+    registerConfig(DEV_T device, ADDR_T address, SIZE_T size) : _device(device), _address(address), _size(size) {};
+    registerConfig(ADDR_T address, SIZE_T size) : _device(DEV_T()), _address(address), _size(size) {};
+    DEV_T _device;
+    ADDR_T _address;
+    SIZE_T _size;
   };
   
   /** Dictionary class for generic register name lookup
@@ -31,6 +33,11 @@ namespace caribou {
   public:
     dictionary() {};
     ~dictionary() {};
+
+    // Return the register object for the name in question:
+    static inline registerConfig<REG_T> getRegister(const std::string name) {
+      return _registers.find(name)->second;
+    }
 
     // Return the register address for the name in question:
     static inline REG_T getAddress(const std::string name) {
