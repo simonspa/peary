@@ -28,6 +28,10 @@ namespace caribou {
 #define C3PD_VBLSOFF  0x02
 #define C3PD_VBTP     0x00
 
+#define C3PD_VDDD     1.8
+#define C3PD_VDDD     1.8
+#define C3PD_REF      1.0
+
   /** C3PD Routing 
    *
    *  C3PD_VDDD -> SEAF F1/F2 -> (ADDR_MONITOR_U52) -> ADDR_DAC_U50 (VOUTC)

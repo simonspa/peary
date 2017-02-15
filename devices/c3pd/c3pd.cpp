@@ -17,7 +17,13 @@ void C3PD::init() {
 }
 
 void C3PD::powerOn() {
-  LOG(logINFO) << DEVICE_NAME << ": Power on.";
+  LOG(logINFO) << DEVICE_NAME << ": Powering up";
+  LOG(logDEBUG) << " Reference voltage";
+  setVoltage("c3pd_ref",C3PD_REF);
+  LOG(logDEBUG) << " VDDD";
+  setVoltage("c3pd_vddd",_config.Get("vddd",C3PD_VDDD));
+  LOG(logDEBUG) << " VDDA";
+  setVoltage("c3pd_vdda",_config.Get("vdda",C3PD_VDDD));
 }
 
 void C3PD::powerOff() {
