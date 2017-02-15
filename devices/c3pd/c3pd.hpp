@@ -15,7 +15,7 @@ namespace caribou {
     
   public:
     C3PD(const caribou::Configuration config) : caribouDevice(config) {
-      this->initialize(std::string(DEFAULT_DEVICEPATH));
+      this->initialize(std::string(DEFAULT_DEVICEPATH),caribou::dictionary<uint8_t>(C3PD_PERIPHERY));
     };
     ~C3PD();
     

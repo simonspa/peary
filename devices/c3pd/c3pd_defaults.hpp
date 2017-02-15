@@ -52,25 +52,34 @@ namespace caribou {
 
   /** Dictionary for register address/name lookup for C3PD
    */
-  class c3pdDict : public dictionary<c3pdDict> {};
-  template<>
-  std::map<std::string,registerConfig<> > dictionary<c3pdDict>::_registers = {
-    {"gcr",      registerConfig<>(0x00,255)},
-    {"isg",      registerConfig<>(0x01,255)},
-    {"ani",      registerConfig<>(0x02,255)},
-    {"ano",      registerConfig<>(0x03,255)},
-    {"vbpre",    registerConfig<>(0x04,255)},
-    {"vbpcas",   registerConfig<>(0x05,255)},
-    {"vboalf",   registerConfig<>(0x06,255)},
-    {"vboahf",   registerConfig<>(0x07,255)},
-    {"vbls",     registerConfig<>(0x08,255)},
-    {"vbfbk",    registerConfig<>(0x09,255)},
-    {"vbs",      registerConfig<>(0x0A,255)},
-    {"vbsp",     registerConfig<>(0x0B,255)},
-    {"vbpreoff", registerConfig<>(0x0C,255)},
-    {"vblsoff",  registerConfig<>(0x0D,255)},
-    {"vbtp",     registerConfig<>(0x0E,255)}
-  };
+#define C3PD_DICT			      \
+  {					      \
+    {"gcr",      registerConfig<>(0x00,255)}, \
+    {"isg",      registerConfig<>(0x01,255)}, \
+    {"ani",      registerConfig<>(0x02,255)}, \
+    {"ano",      registerConfig<>(0x03,255)}, \
+    {"vbpre",    registerConfig<>(0x04,255)}, \
+    {"vbpcas",   registerConfig<>(0x05,255)}, \
+    {"vboalf",   registerConfig<>(0x06,255)}, \
+    {"vboahf",   registerConfig<>(0x07,255)}, \
+    {"vbls",     registerConfig<>(0x08,255)}, \
+    {"vbfbk",    registerConfig<>(0x09,255)}, \
+    {"vbs",      registerConfig<>(0x0A,255)}, \
+    {"vbsp",     registerConfig<>(0x0B,255)}, \
+    {"vbpreoff", registerConfig<>(0x0C,255)}, \
+    {"vblsoff",  registerConfig<>(0x0D,255)}, \
+    {"vbtp",     registerConfig<>(0x0E,255)}, \
+  }
+
+  /** Periphery CaR components for C3PD
+   */
+#define C3PD_PERIPHERY							\
+  {									\
+    {"c3pd_vddd", registerConfig<>(ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTC,16)}, \
+    {"c3pd_vdda", registerConfig<>(ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTD,16)}, \
+    {"c3pd_ref",  registerConfig<>(ADDR_DAC_U44, REG_DAC_CHANNEL_VOUTC,16)}, \
+    {"c3pd_ain",  registerConfig<>(ADDR_DAC_U44, REG_DAC_CHANNEL_VOUTA,16)}, \
+  }
 
 } //namespace caribou
 
