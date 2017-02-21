@@ -21,6 +21,14 @@ namespace caribou {
     SPI
   };
 
+  /** Types of register configurations
+   */
+  enum REGTYPE {
+    UNDEFINED,
+    VOLTAGE_SET,
+    VOLTAGE_GET,
+  };
+
 } // end namespace caribou
 
 #endif /* CARIBOU_CONSTANTS_H */
