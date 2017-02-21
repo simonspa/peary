@@ -2,11 +2,13 @@
 #define CARIBOU_DICT_H
 
 #include <initializer_list>
+#include <iostream>
+#include <vector>
+#include <map>
 
 #include "exceptions.hpp"
+#include "constants.hpp"
 #include "log.hpp"
-
-#include <vector>
 
 namespace caribou {
 
@@ -19,13 +21,27 @@ namespace caribou {
   class registerConfig {
   public:
     registerConfig() {};
-    registerConfig(DEV_T device, ADDR_T address, SIZE_T size) : _device(device), _address(address), _size(size) {};
-    registerConfig(ADDR_T address, SIZE_T size) : _device(DEV_T()), _address(address), _size(size) {};
+    registerConfig(DEV_T device, ADDR_T address, SIZE_T size, REGTYPE type = UNDEFINED) : _device(device), _address(address), _size(size), _type(type) {};
+    registerConfig(ADDR_T address, SIZE_T size) : _device(DEV_T()), _address(address), _size(size), _type(UNDEFINED) {};
     DEV_T _device;
     ADDR_T _address;
     SIZE_T _size;
+    REGTYPE _type;
+
+    template<typename T>
+    friend std::ostream& operator<<(std::ostream& os, const registerConfig<T, T, T>& rg);
   };
+
+  template<typename T>
+  std::ostream& operator<<(std::ostream& os, const caribou::registerConfig<T, T, T>& rg) {  
+    os << to_hex_string(rg._device) << ":"
+       << to_hex_string(rg._address) << ", "
+       << static_cast<int>(rg._size) << ", "
+       << static_cast<int>(rg._type);  
+    return os;  
+  }
   
+
   /** Dictionary class for generic register name lookup
    *  All register names are lower case, register selection is case-insensitive.
    */
