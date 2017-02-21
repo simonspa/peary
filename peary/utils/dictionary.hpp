@@ -134,6 +134,12 @@ namespace caribou {
       return (*this) ;
     }
 
+    void dump(const TLogLevel level = logINFO, const REGTYPE = UNDEFINED) {
+      for(auto reg : _registers) {
+	LOG(level) << reg.first << ": " << reg.second;
+      }
+    }
+
   protected:
     std::map<std::string,registerConfig<REG_T, REG_T, REG_T> > _registers;
   };
