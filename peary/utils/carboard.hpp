@@ -73,6 +73,11 @@
 #define REG_DAC_MODE_STATIC    0x80 // Internal reference (static mode)
 #define REG_DAC_MODE_FLEX      0x90 // Internal reference (flexible mode)
 
+#define REG_DAC_POWERUP        0x00 // Power up DAC(s)
+#define REG_DAC_POWERDOWN_1K   0x20 // Power down DAC(s) with 1KOhm to GND
+#define REG_DAC_POWERDOWN_100K 0x40 // Power down DAC(s) with 100KOhm to GND
+#define REG_DAC_POWERDOWN_HZ   0x60 // Power down DAC(s), Vout is High-Z
+
 #define REG_DAC_CHANNEL_VOUTA  0x00
 #define REG_DAC_CHANNEL_VOUTB  0x01
 #define REG_DAC_CHANNEL_VOUTC  0x02
