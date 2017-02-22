@@ -27,9 +27,9 @@ int main(int argc, char* argv[]) {
 
     while(1) {
       std::string cmd = "";
-      std::cout << "Select voltage output to configure (\"exit\" to quit): ";
+      std::cout << "Select voltage output to configure (\"q\" to quit): ";
       std::cin >> cmd;
-      if(cmd == "exit") break;
+      if(cmd == "q") break;
 
       double v;
       std::cout << "Select voltage (in V): ";
@@ -38,6 +38,10 @@ int main(int argc, char* argv[]) {
       try {
 	// Program voltage regulator
 	dev->voltageSet(cmd,v);
+	// Turn voltage on:
+	dev->voltageOn(cmd);
+	// Turn voltage off:
+	dev->voltageOff(cmd);
       }
       catch (UndefinedRegister &e) { LOG(logWARNING) << e.what(); }
     }
