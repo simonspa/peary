@@ -6,6 +6,8 @@
 #define DEVICE_TIMEPIX3_H
 
 #include "device.hpp"
+#include "timepix3_defaults.hpp"
+
 #include <string>
 #include <vector>
 
@@ -19,7 +21,9 @@ namespace caribou {
   class timepix3 : public caribouDevice {
     
   public:
-  timepix3(const caribou::Configuration config) : caribouDevice(config) {};
+  timepix3(const caribou::Configuration config) : caribouDevice(config) {
+    this->initialize(std::string(DEFAULT_DEVICEPATH),caribou::dictionary<uint8_t>(TIMEPIX3_PERIPHERY));
+  };
     ~timepix3() {};
 
     /** Initializer function for Timepix3

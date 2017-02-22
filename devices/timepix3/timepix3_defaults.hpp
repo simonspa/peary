@@ -1,4 +1,16 @@
-// Default register values for Timepix3 chips
+#ifndef DEVICE_TIMEPIX3_DEFAULTS_H
+#define DEVICE_TIMEPIX3_DEFAULTS_H
+
+#include "carboard.hpp"
+#include "dictionary.hpp"
+
+namespace caribou {
+
+    /** Default device path for this device: SPI interface
+   */
+#define DEFAULT_DEVICEPATH BUS_I2C2
+
+  // Default register values for Timepix3 chips
 
 #define TPX3_VPREAMP_NCAS     128
 #define TPX3_IBIAS_IKRUM       10
@@ -16,3 +28,12 @@
 #define TPX3_VTP_FINE         256
 #define TPX3_IBIAS_CP_PLL     128
 #define TPX3_PLL_VCNTRL       128
+
+
+#define TIMEPIX3_PERIPHERY						\
+  {									\
+  }
+  
+} //namespace caribou
+
+#endif /* DEVICE_TIMEPIX3_DEFAULTS_H */

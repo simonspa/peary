@@ -22,7 +22,7 @@ namespace caribou {
     
   public:
   clicpix2(const caribou::Configuration config) : caribouDevice(config) {
-    this->initialize(std::string(DEFAULT_DEVICEPATH));
+    this->initialize(std::string(DEFAULT_DEVICEPATH),caribou::dictionary<uint8_t>(CLICPIX2_PERIPHERY));
   };
     ~clicpix2();
 

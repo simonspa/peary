@@ -10,7 +10,9 @@ namespace caribou {
    */
 #define DEFAULT_DEVICEPATH "/dev/spi-0"
 
-  
+#define CLICPIX2_PERIPHERY							\
+  {									\
+  }
   
 } //namespace caribou
 
