@@ -5,6 +5,7 @@
 #include "device.hpp"
 #include "dictionary.hpp"
 #include "constants.hpp"
+#include "carboard.hpp"
 #include "hal.hpp"
 #include "log.hpp"
 
@@ -12,7 +13,9 @@
 
 using namespace caribou;
 
-dictionary<uint8_t> caribouDevice::_periphery;
+// Add generic CaR board component names to the periphery dictionary,
+// Components are identified via schematic names
+dictionary<uint8_t> caribouDevice::_periphery(CAR_COMPONENTS);
 
 caribouDevice::caribouDevice(const caribou::Configuration config) :
   _hal(nullptr), _config(config) {

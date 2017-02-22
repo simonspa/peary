@@ -43,13 +43,13 @@
 /** Devices on I2C3
  */
 #define ADDR_ADC     0x48 // ADS7828 ADC 12BIT 50KSPS 8CH, Analog input range 0-4V
-#define ADDR_DAC_U50 0x49 // DAC7678 DAC 12BIT I2C OCTAL 24VQFN
-#define ADDR_DAC_U44 0x4A
-#define ADDR_DAC_U47 0x4B
-#define ADDR_DAC_U46 0x4C
+#define ADDR_DAC_U44 0x4A // DAC7678 DAC 12BIT I2C OCTAL 24VQFN
 #define ADDR_DAC_U45 0x4D
+#define ADDR_DAC_U46 0x4C
+#define ADDR_DAC_U47 0x4B
 #define ADDR_DAC_U48 0x4E
 #define ADDR_DAC_U49 0x4F
+#define ADDR_DAC_U50 0x49
 
 
 /** TMP101 Thermometer Registers Addresses
@@ -58,6 +58,7 @@
 #define REG_TEMP_CONF 0x01
 #define REG_TEMP_LOW  0x02
 #define REG_TEMP_HIGH 0x03
+
 
 /** DAC7678 Registers Addresses
  */
@@ -81,5 +82,67 @@
 #define REG_DAC_CHANNEL_VOUTG  0x06
 #define REG_DAC_CHANNEL_VOUTH  0x07
 #define REG_DAC_CHANNEL_ALL    0x0F
+
+  /** Generic CaR component names
+   */
+#define CAR_COMPONENTS							\
+  {									\
+    {"u44a", registerConfig<>(ADDR_DAC_U44, REG_DAC_CHANNEL_VOUTA,16)}, \
+    {"u44b", registerConfig<>(ADDR_DAC_U44, REG_DAC_CHANNEL_VOUTB,16)}, \
+    {"u44c", registerConfig<>(ADDR_DAC_U44, REG_DAC_CHANNEL_VOUTC,16)}, \
+    {"u44d", registerConfig<>(ADDR_DAC_U44, REG_DAC_CHANNEL_VOUTD,16)}, \
+    {"u44e", registerConfig<>(ADDR_DAC_U44, REG_DAC_CHANNEL_VOUTE,16)}, \
+    {"u44f", registerConfig<>(ADDR_DAC_U44, REG_DAC_CHANNEL_VOUTF,16)}, \
+    {"u44g", registerConfig<>(ADDR_DAC_U44, REG_DAC_CHANNEL_VOUTG,16)}, \
+    {"u44h", registerConfig<>(ADDR_DAC_U44, REG_DAC_CHANNEL_VOUTH,16)}, \
+    {"u45a", registerConfig<>(ADDR_DAC_U45, REG_DAC_CHANNEL_VOUTA,16)}, \
+    {"u45b", registerConfig<>(ADDR_DAC_U45, REG_DAC_CHANNEL_VOUTB,16)}, \
+    {"u45c", registerConfig<>(ADDR_DAC_U45, REG_DAC_CHANNEL_VOUTC,16)}, \
+    {"u45d", registerConfig<>(ADDR_DAC_U45, REG_DAC_CHANNEL_VOUTD,16)}, \
+    {"u45e", registerConfig<>(ADDR_DAC_U45, REG_DAC_CHANNEL_VOUTE,16)}, \
+    {"u45f", registerConfig<>(ADDR_DAC_U45, REG_DAC_CHANNEL_VOUTF,16)}, \
+    {"u45g", registerConfig<>(ADDR_DAC_U45, REG_DAC_CHANNEL_VOUTG,16)}, \
+    {"u45h", registerConfig<>(ADDR_DAC_U45, REG_DAC_CHANNEL_VOUTH,16)}, \
+    {"u46a", registerConfig<>(ADDR_DAC_U46, REG_DAC_CHANNEL_VOUTA,16)}, \
+    {"u46b", registerConfig<>(ADDR_DAC_U46, REG_DAC_CHANNEL_VOUTB,16)}, \
+    {"u46c", registerConfig<>(ADDR_DAC_U46, REG_DAC_CHANNEL_VOUTC,16)}, \
+    {"u46d", registerConfig<>(ADDR_DAC_U46, REG_DAC_CHANNEL_VOUTD,16)}, \
+    {"u46e", registerConfig<>(ADDR_DAC_U46, REG_DAC_CHANNEL_VOUTE,16)}, \
+    {"u46f", registerConfig<>(ADDR_DAC_U46, REG_DAC_CHANNEL_VOUTF,16)}, \
+    {"u46g", registerConfig<>(ADDR_DAC_U46, REG_DAC_CHANNEL_VOUTG,16)}, \
+    {"u46h", registerConfig<>(ADDR_DAC_U46, REG_DAC_CHANNEL_VOUTH,16)}, \
+    {"u47a", registerConfig<>(ADDR_DAC_U47, REG_DAC_CHANNEL_VOUTA,16)}, \
+    {"u47b", registerConfig<>(ADDR_DAC_U47, REG_DAC_CHANNEL_VOUTB,16)}, \
+    {"u47c", registerConfig<>(ADDR_DAC_U47, REG_DAC_CHANNEL_VOUTC,16)}, \
+    {"u47d", registerConfig<>(ADDR_DAC_U47, REG_DAC_CHANNEL_VOUTD,16)}, \
+    {"u47e", registerConfig<>(ADDR_DAC_U47, REG_DAC_CHANNEL_VOUTE,16)}, \
+    {"u47f", registerConfig<>(ADDR_DAC_U47, REG_DAC_CHANNEL_VOUTF,16)}, \
+    {"u47g", registerConfig<>(ADDR_DAC_U47, REG_DAC_CHANNEL_VOUTG,16)}, \
+    {"u47h", registerConfig<>(ADDR_DAC_U47, REG_DAC_CHANNEL_VOUTH,16)}, \
+    {"u48a", registerConfig<>(ADDR_DAC_U48, REG_DAC_CHANNEL_VOUTA,16)}, \
+    {"u48b", registerConfig<>(ADDR_DAC_U48, REG_DAC_CHANNEL_VOUTB,16)}, \
+    {"u48c", registerConfig<>(ADDR_DAC_U48, REG_DAC_CHANNEL_VOUTC,16)}, \
+    {"u48d", registerConfig<>(ADDR_DAC_U48, REG_DAC_CHANNEL_VOUTD,16)}, \
+    {"u48e", registerConfig<>(ADDR_DAC_U48, REG_DAC_CHANNEL_VOUTE,16)}, \
+    {"u48f", registerConfig<>(ADDR_DAC_U48, REG_DAC_CHANNEL_VOUTF,16)}, \
+    {"u48g", registerConfig<>(ADDR_DAC_U48, REG_DAC_CHANNEL_VOUTG,16)}, \
+    {"u48h", registerConfig<>(ADDR_DAC_U48, REG_DAC_CHANNEL_VOUTH,16)}, \
+    {"u49a", registerConfig<>(ADDR_DAC_U49, REG_DAC_CHANNEL_VOUTA,16)}, \
+    {"u49b", registerConfig<>(ADDR_DAC_U49, REG_DAC_CHANNEL_VOUTB,16)}, \
+    {"u49c", registerConfig<>(ADDR_DAC_U49, REG_DAC_CHANNEL_VOUTC,16)}, \
+    {"u49d", registerConfig<>(ADDR_DAC_U49, REG_DAC_CHANNEL_VOUTD,16)}, \
+    {"u49e", registerConfig<>(ADDR_DAC_U49, REG_DAC_CHANNEL_VOUTE,16)}, \
+    {"u49f", registerConfig<>(ADDR_DAC_U49, REG_DAC_CHANNEL_VOUTF,16)}, \
+    {"u49g", registerConfig<>(ADDR_DAC_U49, REG_DAC_CHANNEL_VOUTG,16)}, \
+    {"u49h", registerConfig<>(ADDR_DAC_U49, REG_DAC_CHANNEL_VOUTH,16)}, \
+    {"u50a", registerConfig<>(ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTA,16)}, \
+    {"u50b", registerConfig<>(ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTB,16)}, \
+    {"u50c", registerConfig<>(ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTC,16)}, \
+    {"u50d", registerConfig<>(ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTD,16)}, \
+    {"u50e", registerConfig<>(ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTE,16)}, \
+    {"u50f", registerConfig<>(ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTF,16)}, \
+    {"u50g", registerConfig<>(ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTG,16)}, \
+    {"u50h", registerConfig<>(ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTH,16)}, \
+  }
 
 #endif /* CARIBOU_CARBOARD_H */
