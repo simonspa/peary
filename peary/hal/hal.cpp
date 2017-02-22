@@ -116,3 +116,26 @@ void caribouHAL::setVoltage(uint8_t device, uint8_t address, double voltage) {
   // Send I2C write command
   myi2c.write(device,reg,payload);
 }
+
+void caribouHAL::powerVoltage(bool enable, uint8_t device, uint8_t address) {
+
+  // Control voltages using DAC7678 with QFN packaging
+  // All DAc7678 use straight binary encoding since the TWOC pins are pulled low
+
+  // All DAC voltage regulators on the CaR board are on the BUS_I2C3:  
+  LOG(logDEBUGHAL) << "Powering "
+		   << (enable ? "up" : "down")
+		   << " channel " << to_hex_string(address)
+		   << " on DAC7678 at " << to_hex_string(device);
+  iface_i2c & myi2c = interface_manager::getInterface<iface_i2c>(BUS_I2C3);
+
+  // Set the correct channel bit to be powered down:
+  uint16_t d_in = (1 << (address+5));
+  std::vector<uint8_t> payload = {
+    static_cast<uint8_t>((enable ? REG_DAC_POWERUP : REG_DAC_POWERDOWN_HZ) | ((d_in >> 8)&0xFF)),
+    static_cast<uint8_t>(d_in&0xFF)
+  };
+  
+  // Send I2C write command
+  myi2c.write(device,REG_DAC_POWER,payload);
+}

@@ -48,7 +48,11 @@ namespace caribou {
      *  The input parameter should be provided in SI Volts
      */
     void setVoltage(uint8_t device, uint8_t address, double voltage);
-    
+
+    /** Power up/down selected output voltage on a DAC7678 voltage regulator
+     */
+    void powerVoltage(bool enable, uint8_t device, uint8_t address);
+
   private:
 
     /** Interface of the configured device
