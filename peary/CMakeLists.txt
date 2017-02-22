@@ -9,6 +9,9 @@ OPTION(INTERFACE_SPI "Build Caribou SPI interface?" ON)
 # Build flag for dummy loopback interface implementation:
 OPTION(INTERFACE_LOOP "Build Caribou Loopback interface?" ON)
 
+# Build flag for emulators - replaces interfaces with empty classes with logging
+OPTION(BUILD_EMULATORS "Build Caribou Interface Emulators?" OFF)
+
 SET(LIB_SOURCE_FILES
   # device library
   "device/device.cpp"
@@ -25,22 +28,35 @@ IF(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
   add_definitions(-DYOCTO_COMPILATION)
 ENDIF(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")  
 
-IF(INTERFACE_I2C)
-  # add I2C source files
-  SET(LIB_SOURCE_FILES ${LIB_SOURCE_FILES}
-    "interfaces/i2c.cpp"
-    )
-  MESSAGE(STATUS "Building Caribou I2C interface.")
-ENDIF(INTERFACE_I2C)
+IF(BUILD_EMULATORS)
 
-IF(INTERFACE_SPI)
-  # add SPI source files
   SET(LIB_SOURCE_FILES ${LIB_SOURCE_FILES}
-    "interfaces/spi.cpp"
+    "interfaces/emulators/i2c.cpp"
+    "interfaces/emulators/spi.cpp"
     )
-  MESSAGE(STATUS "Building Caribou SPI interface.")
-ENDIF(INTERFACE_SPI)
+  MESSAGE(STATUS "Building Caribou interface emulators.")
+  
+ELSE(BUILD_EMULATORS)
 
+  IF(INTERFACE_I2C)
+    # add I2C source files
+    SET(LIB_SOURCE_FILES ${LIB_SOURCE_FILES}
+      "interfaces/i2c.cpp"
+      )
+    MESSAGE(STATUS "Building Caribou I2C interface.")
+  ENDIF(INTERFACE_I2C)
+
+  IF(INTERFACE_SPI)
+    # add SPI source files
+    SET(LIB_SOURCE_FILES ${LIB_SOURCE_FILES}
+      "interfaces/spi.cpp"
+      )
+    MESSAGE(STATUS "Building Caribou SPI interface.")
+  ENDIF(INTERFACE_SPI)
+
+ENDIF(BUILD_EMULATORS)
+
+# Loopback interface can be always built
 IF(INTERFACE_LOOP)
   # add LOOP source files
   SET(LIB_SOURCE_FILES ${LIB_SOURCE_FILES}
