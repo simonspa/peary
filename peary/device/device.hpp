@@ -121,7 +121,8 @@ namespace caribou {
     // Do they need to be virtual? Maybe implement in baseclass (always same for CaR)
     // and only look up correct regulator according to name from child class dictionary?
     void voltageSet(std::string name, double voltage);
-    // void enableVoltage();
+    void voltageOn(std::string name);
+    void voltageOff(std::string name);
     // Also add disableVoltage() or rather provide boolean parameter for on/off?
     //virtual double measureVoltage();
     //virtual double measureCurrent();
