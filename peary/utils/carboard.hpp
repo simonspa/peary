@@ -7,10 +7,10 @@
 #define ADDR_I2CSWTCH 0x74 // PCA9846PW I2C bus switch
 
 // FIXME this mapping depends on the hardware configuration and has to be adapted somehow
-#define BUS_I2C0 "/dev/i2c-6"
-#define BUS_I2C1 "/dev/i2c-7"
-#define BUS_I2C2 "/dev/i2c-8"
-#define BUS_I2C3 "/dev/i2c-9"
+#define BUS_I2C0 "/dev/i2c-7"
+#define BUS_I2C1 "/dev/i2c-8"
+#define BUS_I2C2 "/dev/i2c-9"
+#define BUS_I2C3 "/dev/i2c-10"
 
 /** Reference voltages
  */
