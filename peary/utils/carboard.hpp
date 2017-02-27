@@ -16,6 +16,9 @@
  */
 #define CAR_VREF_4P0  4.096 // via TI REF5040
 
+typedef enum {
+  PWR_OUT1, PWR_OUT2, PWR_OUT3, PWR_OUT4,
+  PWR_OUT5, PWR_OUT6, PWR_OUT7, PWR_OUT8 } VOLTAGE_REGULATOR_T;
 
 /** Devices on I2C0
  */

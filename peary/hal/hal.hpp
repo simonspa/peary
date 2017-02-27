@@ -2,6 +2,9 @@
 #define CARIBOU_HAL_H
 
 #include <vector>
+#include <map>
+#include <tuple>
+#include <string>
 #include <cstdint>
 
 namespace caribou {
@@ -43,18 +46,34 @@ namespace caribou {
      */
     double readTemperature();
 
-    /** Set output voltage on a DAC7678 voltage regulator
+    /** Set output voltage of a voltage regulator
      *
-     *  The input parameter should be provided in SI Volts
+     *  The input parameter should be provided in SI Volts.
+     *  The function sets the proper reference voltage (PWR_ADJ_*) in a DAC
+     *  corresponding to the regulator. 
+     *  The output of the DAC is not enabled.
      */
-    void setVoltage(uint8_t device, uint8_t address, double voltage);
+    void setVoltageRegulator(VOLTAGE_REGULATOR_T regulator, double voltage);
 
-    /** Power up/down selected output voltage on a DAC7678 voltage regulator
+    /** Enable/disable the voltage regulator
+     *
+     *  If enable is true, the function enables first output 
+     *  of the coresponding DAC (PWR_ADJ_*). Afterwards, PWER_EN_* is asserted.
+     *  If enable is false, the sequence is performed in the opposite direction.
      */
-    void powerVoltage(bool enable, uint8_t device, uint8_t address);
+    void powerVoltageRegulator(VOLTAGE_REGULATOR_T regulator, bool enable);
+
+    //FIXME: User shouldn't have access to set setDACVoltage and powerDAC where he can
+    //       provide any I2C address. Instead enums should be used to a specialised functions,
+    //       like setBias, setInjectionBias, setCurrent, etc.
+
 
   private:
 
+    static std::map< VOLTAGE_REGULATOR_T, std::tuple<uint8_t,uint8_t, uint8_t, std::string> > create_map();
+    //the tuple stores (in the order) the coressponding: DAC pin, pin of the port 1 of the U15, I2C address of the current/power monitor and PWR name
+    static const std::map< VOLTAGE_REGULATOR_T, std::tuple<uint8_t,uint8_t, uint8_t, std::string> > voltageRegulatorMap;
+    
     /** Interface of the configured device
      */
     uint8_t _iface;
@@ -62,6 +81,17 @@ namespace caribou {
     /** Device path of the configured device
      */
     std::string _devpath;
+    
+    /** Set output voltage on a DAC7678 voltage regulator
+     *
+     *  The input parameter should be provided in SI Volts
+     */
+    void setDACVoltage(uint8_t device, uint8_t address, double voltage);
+
+    /** Power up/down selected output voltage on a DAC7678 voltage regulator
+     */
+    void powerDAC(bool enable, uint8_t device, uint8_t address);
+
 
   }; //class caribouHAL
 
