@@ -48,7 +48,8 @@ void caribouDevice::voltageSet(std::string name, double voltage) {
   LOG(logDEBUG) << "Regulator to be configured: " << to_hex_string(_periphery.getDevice(name));
 
   // Send command to voltage regulators via HAL
-  _hal->setVoltage(_periphery.getDevice(name),_periphery.getAddress(name),voltage);
+  //FIXME:
+  //_hal->setVoltage(_periphery.getDevice(name),_periphery.getAddress(name),voltage);
 }
 
 void caribouDevice::voltageOn(std::string name) {
@@ -57,7 +58,8 @@ void caribouDevice::voltageOn(std::string name) {
   LOG(logDEBUG) << "Regulator to be configured: " << to_hex_string(_periphery.getDevice(name));
 
   // Send command to voltage regulators via HAL
-  _hal->powerVoltage(true, _periphery.getDevice(name),_periphery.getAddress(name));
+  //FIXME:
+  //_hal->powerVoltage(true, _periphery.getDevice(name),_periphery.getAddress(name));
 }
 
 void caribouDevice::voltageOff(std::string name) {
@@ -66,5 +68,6 @@ void caribouDevice::voltageOff(std::string name) {
   LOG(logDEBUG) << "Regulator to be configured: " << to_hex_string(_periphery.getDevice(name));
 
   // Send command to voltage regulators via HAL
-  _hal->powerVoltage(false, _periphery.getDevice(name),_periphery.getAddress(name));
+  //FIXME:
+  //  _hal->powerVoltage(false, _periphery.getDevice(name),_periphery.getAddress(name));
 }

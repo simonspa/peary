@@ -17,13 +17,20 @@ void C3PD::init() {
 }
 
 void C3PD::powerOn() {
-  LOG(logINFO) << DEVICE_NAME << ": Powering up";
-  LOG(logDEBUG) << " Reference voltage";
-  voltageSet("c3pd_ref",C3PD_REF);
+  LOG(logINFO) << DEVICE_NAME << ": Powering up C3PD";
+
   LOG(logDEBUG) << " VDDD";
-  voltageSet("c3pd_vddd",_config.Get("vddd",C3PD_VDDD));
+  _hal->setVoltageRegulator( PWR_OUT2,_config.Get("vddd",C3PD_VDDD) );
+  _hal->powerVoltageRegulator( PWR_OUT2, true );
+
   LOG(logDEBUG) << " VDDA";
-  voltageSet("c3pd_vdda",_config.Get("vdda",C3PD_VDDD));
+  _hal->setVoltageRegulator( PWR_OUT6,_config.Get("vdda",C3PD_VDDA) );
+  _hal->powerVoltageRegulator( PWR_OUT6, true );
+
+
+  //Fixme: Bias voltage below
+  //LOG(logDEBUG) << " Reference voltage";
+  //voltageSet("c3pd_ref",C3PD_REF);
 }
 
 void C3PD::powerOff() {
