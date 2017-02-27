@@ -1,5 +1,5 @@
 macro(optional_add_subdirectory dir)
-  if(${dir} MATCHES "example")
+  if(${dir} MATCHES "example|c3pd")
     option(BUILD_${dir} "Build device in directory ${dir}?" ON)
   ELSE()
     option(BUILD_${dir} "Build device in directory ${dir}?" OFF)

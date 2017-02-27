@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "configuration.hpp"
-#include "example.hpp"
+#include "c3pd.hpp"
 #include "log.hpp"
 
 using namespace caribou;
@@ -23,8 +23,10 @@ int main(int argc, char* argv[]) {
   
   // Create all Caribou devices instance:
   try {
-    example *dev = new example(caribou::Configuration());
+    std::unique_ptr<C3PD> dev( new C3PD(caribou::Configuration()) );
 
+    dev->powerOn();
+    
     while(1) {
       std::cout << "Select voltage output to configure (\"q\" to quit): ";
       std::string cmd = "";
@@ -54,7 +56,6 @@ int main(int argc, char* argv[]) {
       catch (UndefinedRegister &e) { LOG(logWARNING) << e.what(); }
     }
     
-    delete dev;
   }
   catch (caribouException &e) {
     LOG(logCRITICAL) << "This went wrong: " << e.what();
