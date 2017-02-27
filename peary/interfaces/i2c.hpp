@@ -46,8 +46,11 @@ namespace caribou {
     std::pair<i2c_reg_t, i2c_t> write(const i2c_t& address, const std::pair<i2c_reg_t, i2c_t> & data);
     std::vector<i2c_t> write(const i2c_t& address, const i2c_t & reg, const std::vector< i2c_t > & data);
     std::vector< std::pair<i2c_reg_t, i2c_t> > write(const i2c_t& address, const std::vector< std::pair<i2c_reg_t, i2c_t> > & data);
+
+    //length must be 1
     std::vector<i2c_t> read(const i2c_t& address, const unsigned int length = 1);
-    std::vector<i2c_t> read(const i2c_t& address, const i2c_reg_t reg, const unsigned int length = 1);
+    //length must be 32
+    std::vector<i2c_t> read(const i2c_t& address, const i2c_reg_t reg, const unsigned int length = 32);
 
     // Special functions to read/write to devices with up to 16bit register
     std::vector<i2c_t> wordwrite(const i2c_t& address, const uint16_t & reg, const std::vector< i2c_t > & data);

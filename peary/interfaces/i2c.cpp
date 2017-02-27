@@ -100,17 +100,19 @@ std::vector< std::pair<i2c_reg_t, i2c_t> > iface_i2c::write(const i2c_t&, const 
 std::vector<i2c_t> iface_i2c::read(const i2c_t& address, const unsigned int length) {
   std::lock_guard<std::mutex> lock(mutex);
   std::vector<i2c_t> data;
+  int temp;
 
   if(length != 1)
     throw CommunicationError( "Read operation of multiple data from the device without internal registers is not possible" );
 
   setAddress(address);
     
-  data.resize(1);
-
-  if( i2c_smbus_read_byte( i2cDesc ) )
+  temp = i2c_smbus_read_byte( i2cDesc );
+  if( temp < 0 )
     throw CommunicationError( "Failed to read slave (" + to_hex_string(address) + ") on " + devicePath + ": " + std::strerror(errno) );
 
+  data.push_back( temp );
+  
   LOG(logINTERFACE) << "I2C (" << devicePath <<") address " << to_hex_string(address) << ": Read data \"" << to_hex_string(data[0]) <<  "\"";
 
   return data;
@@ -125,7 +127,7 @@ std::vector<i2c_t> iface_i2c::read(const i2c_t& address, const i2c_t reg, const 
     
   data.resize(length);
 
-  if(i2c_smbus_read_block_data(i2cDesc, reg, data.data()))
+  if(i2c_smbus_read_block_data(i2cDesc, reg, data.data()) != 32)
     throw CommunicationError( "Failed to read slave (" + to_hex_string(address) + ") on " + devicePath + ": " + std::strerror(errno) );
 
   LOG(logINTERFACE) << "I2C (" << devicePath <<") address " << to_hex_string(address) << ": Register " << to_hex_string(reg)
