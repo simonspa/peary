@@ -34,8 +34,8 @@ caribouHAL::caribouHAL(IFACE interface, std::string device_path = "") :
   //Disable all Voltage Regulators
   LOG(logDEBUGHAL) << "Disabling all Voltage regulators";
   iface_i2c & i2c0 = interface_manager::getInterface<iface_i2c>(BUS_I2C0);
-  i2c0.write(ADDR_IOEXP, std::make_pair( 0x3, 0x00)); //disable all bits of Port 1 (internal register)
-  i2c0.write(ADDR_IOEXP, std::make_pair( 0x7, 0x00)); //set all bits of Port 1 in output mode
+  i2c0.write(ADDR_IOEXP, 0x2, {0x00, 0x00} ); //disable all bits of Port 1-2 (internal register)
+  i2c0.write(ADDR_IOEXP, 0x6, {0x00, 0x00} ); //set all bits of Port 1-2 in output mode
 
   LOG(logDEBUGHAL) << "Configured device with typ-" << (int)_iface << " interface on " << _devpath;
 }
@@ -132,13 +132,13 @@ void caribouHAL::powerVoltageRegulator(VOLTAGE_REGULATOR_T regulator, bool enabl
   
   if(enable){
     LOG(logDEBUGHAL) << "Powering up " << std::get<3>(  voltageRegulatorMap.at( regulator ) );
-    
+
     //First power on DAC
     powerDAC( true, ADDR_DAC_U50, std::get<0>( voltageRegulatorMap.at( regulator ) ) );
     //Power on the Voltage regulator
-    i2c_t mask = i2c.read(ADDR_IOEXP, 0x03, 1)[0];
+    auto mask = i2c.read(ADDR_IOEXP, 0x03, 1)[0];
     mask |=  1 <<  std::get<1>( voltageRegulatorMap.at( regulator ) );
-    i2c.write(ADDR_IOEXP, std::make_pair( 0x03, mask ) );
+    i2c.write(ADDR_IOEXP, std::make_pair( 0x03, mask ));
   }
   else{
     LOG(logDEBUGHAL) << "Powering down " << std::get<3>(  voltageRegulatorMap.at( regulator ) );
