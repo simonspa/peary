@@ -10,6 +10,7 @@ using namespace caribou;
 
 C3PD::~C3PD() {
   LOG(logINFO) << DEVICE_NAME << ": Shutdown, delete device.";
+  powerOff();
 }
 
 void C3PD::init() {
@@ -34,7 +35,13 @@ void C3PD::powerOn() {
 }
 
 void C3PD::powerOff() {
-  LOG(logINFO) << DEVICE_NAME << ": Power off.";
+  LOG(logINFO) << DEVICE_NAME << ": Power off C3PD";
+  LOG(logDEBUG) << "Power off VDDD";
+  _hal->powerVoltageRegulator( PWR_OUT2, false );
+
+  LOG(logDEBUG) << "Power off VDDA";
+  _hal->powerVoltageRegulator( PWR_OUT6, false );
+
 }
 
 void C3PD::daqStart() {
