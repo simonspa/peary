@@ -48,14 +48,14 @@ uint32_t caribouHAL::getFirmwareRegister(uint16_t) {
 
 std::map< VOLTAGE_REGULATOR_T, std::tuple<uint8_t,uint8_t, uint8_t, std::string> > caribouHAL::create_map(){
   std::map< VOLTAGE_REGULATOR_T, std::tuple<uint8_t,uint8_t, uint8_t, std::string> > m;
-  m[ PWR_OUT1 ] = std::make_tuple( 1, 7, ADDR_MONITOR_U53, "PWR_OUT1" );
-  m[ PWR_OUT2 ] = std::make_tuple( 2, 6, ADDR_MONITOR_U52, "PWR_OUT2" );
-  m[ PWR_OUT3 ] = std::make_tuple( 3, 5, ADDR_MONITOR_U55, "PWR_OUT3" );
-  m[ PWR_OUT4 ] = std::make_tuple( 4, 4, ADDR_MONITOR_U54, "PWR_OUT4" );
-  m[ PWR_OUT5 ] = std::make_tuple( 5, 0, ADDR_MONITOR_U57, "PWR_OUT5" );
-  m[ PWR_OUT6 ] = std::make_tuple( 6, 1, ADDR_MONITOR_U56, "PWR_OUT6" );
-  m[ PWR_OUT7 ] = std::make_tuple( 7, 2, ADDR_MONITOR_U59, "PWR_OUT7" );
-  m[ PWR_OUT8 ] = std::make_tuple( 8, 3, ADDR_MONITOR_U58, "PWR_OUT8" );
+  m[ PWR_OUT1 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTA, 7, ADDR_MONITOR_U53, "PWR_OUT1" );
+  m[ PWR_OUT2 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTC, 6, ADDR_MONITOR_U52, "PWR_OUT2" );
+  m[ PWR_OUT3 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTE, 5, ADDR_MONITOR_U55, "PWR_OUT3" );
+  m[ PWR_OUT4 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTG, 4, ADDR_MONITOR_U54, "PWR_OUT4" );
+  m[ PWR_OUT5 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTB, 0, ADDR_MONITOR_U57, "PWR_OUT5" );
+  m[ PWR_OUT6 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTD, 1, ADDR_MONITOR_U56, "PWR_OUT6" );
+  m[ PWR_OUT7 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTF, 2, ADDR_MONITOR_U59, "PWR_OUT7" );
+  m[ PWR_OUT8 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTH, 3, ADDR_MONITOR_U58, "PWR_OUT8" );
   return m;
 }
 
