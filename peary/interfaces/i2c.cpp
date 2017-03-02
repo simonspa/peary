@@ -40,10 +40,10 @@ void iface_i2c::setAddress(i2c_address_t const address){
     throw CommunicationError( "Failed to acquire bus access and/or talk to slave (" + to_hex_string(address) + ") on " + devicePath + 
 			      ": " + std::strerror(errno) );
 
-  LOG(logINTERFACE) << "Talking to I2C slave at address " << static_cast<int>(address);
+  LOG(logINTERFACE) << "Talking to I2C slave at address " << to_hex_string(address);
 }
 
-i2c_t iface_i2c::write(const i2c_t& address, const i2c_t& data ){
+i2c_t iface_i2c::write(const i2c_address_t& address, const i2c_t& data ){
   std::lock_guard<std::mutex> lock(mutex);
   
   setAddress(address);
@@ -56,12 +56,12 @@ i2c_t iface_i2c::write(const i2c_t& address, const i2c_t& data ){
   return 0;
 }
 
-std::vector<i2c_t> iface_i2c::write(const i2c_t&, const std::vector<i2c_t>&){
+std::vector<i2c_t> iface_i2c::write(const i2c_address_t&, const std::vector<i2c_t>&){
   throw CommunicationError( "Block write operation is not possible to a device without internal registers" );
   return std::vector<i2c_t>();
 }
 
-std::pair<i2c_reg_t, i2c_t> iface_i2c::write(const i2c_t& address,const std::pair<i2c_reg_t, i2c_t> & data){
+std::pair<i2c_reg_t, i2c_t> iface_i2c::write(const i2c_address_t& address,const std::pair<i2c_reg_t, i2c_t> & data){
 
   std::lock_guard<std::mutex> lock(mutex);
   
@@ -77,7 +77,7 @@ std::pair<i2c_reg_t, i2c_t> iface_i2c::write(const i2c_t& address,const std::pai
   return std::make_pair( 0, 0);
 }
   
-std::vector<i2c_t> iface_i2c::write(const i2c_t& address, const i2c_t & reg, const std::vector< i2c_t > & data){
+std::vector<i2c_t> iface_i2c::write(const i2c_address_t& address, const i2c_t & reg, const std::vector< i2c_t > & data){
 
   std::lock_guard<std::mutex> lock(mutex);
     
@@ -86,18 +86,18 @@ std::vector<i2c_t> iface_i2c::write(const i2c_t& address, const i2c_t & reg, con
   LOG(logINTERFACE) << "I2C (" << devicePath <<") address " << to_hex_string(address) << ": Register " << to_hex_string(reg)
 		    << "\n\t Writing block data: \"" << listVector(data, ", ", true) << "\"";
 
-  if( i2c_smbus_write_block_data( i2cDesc, reg, data.size(), data.data() ) )
+  if( i2c_smbus_write_i2c_block_data( i2cDesc, reg, data.size(), data.data() ) )
     throw CommunicationError( "Failed to block write slave (" + to_hex_string(address) + ") on " + devicePath + ": " + std::strerror(errno) );
 
   return std::vector<i2c_t>();
 }
 
-std::vector< std::pair<i2c_reg_t, i2c_t> > iface_i2c::write(const i2c_t&, const std::vector< std::pair<i2c_reg_t, i2c_t> >&){
+std::vector< std::pair<i2c_reg_t, i2c_t> > iface_i2c::write(const i2c_address_t&, const std::vector< std::pair<i2c_reg_t, i2c_t> >&){
   throw CommunicationError( "Block write operation with different variate register address is not supported by this I2C implementation" );
   return std::vector< std::pair<i2c_reg_t, i2c_t> >();
 }
 
-std::vector<i2c_t> iface_i2c::read(const i2c_t& address, const unsigned int length) {
+std::vector<i2c_t> iface_i2c::read(const i2c_address_t& address, const unsigned int length) {
   std::lock_guard<std::mutex> lock(mutex);
   std::vector<i2c_t> data;
   int temp;
@@ -118,7 +118,7 @@ std::vector<i2c_t> iface_i2c::read(const i2c_t& address, const unsigned int leng
   return data;
 }
 
-std::vector<i2c_t> iface_i2c::read(const i2c_t& address, const i2c_t reg, const unsigned int length){
+std::vector<i2c_t> iface_i2c::read(const i2c_address_t& address, const i2c_reg_t reg, const unsigned int length){
 
   std::lock_guard<std::mutex> lock(mutex);
   std::vector<i2c_t> data;
@@ -137,10 +137,10 @@ std::vector<i2c_t> iface_i2c::read(const i2c_t& address, const i2c_t reg, const 
 }
 
 
-std::vector<i2c_t> iface_i2c::wordwrite(const i2c_t& address, const uint16_t & reg, const std::vector< i2c_t > & data) {
+std::vector<i2c_t> iface_i2c::wordwrite(const i2c_address_t& address, const uint16_t & reg, const std::vector< i2c_t > & data) {
   return std::vector<i2c_t>();
 }
 
-std::vector<i2c_t> iface_i2c::wordread(const i2c_t& address, const uint16_t reg, const unsigned int length) {
+std::vector<i2c_t> iface_i2c::wordread(const i2c_address_t& address, const uint16_t reg, const unsigned int length) {
   std::vector<i2c_t>();
 }
