@@ -124,12 +124,13 @@ void caribouHAL::setVoltageRegulator(VOLTAGE_REGULATOR_T regulator, double volta
     throw ConfigInvalid( "Tring to set Voltage regulator to " + std::to_string(voltage) + " V (max is 3.6 V)");
   
   setDACVoltage( ADDR_DAC_U50,  std::get<0>( voltageRegulatorMap.at( regulator ) ), 3.6 - voltage );
+
 }
 
 void caribouHAL::powerVoltageRegulator(VOLTAGE_REGULATOR_T regulator, bool enable){
 
   iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C0);
-  
+
   if(enable){
     LOG(logDEBUGHAL) << "Powering up " << std::get<3>(  voltageRegulatorMap.at( regulator ) );
 
@@ -166,21 +167,27 @@ void caribouHAL::setDACVoltage(uint8_t device, uint8_t address, double voltage) 
 
   // Per default, the internal reference is switched off,
   // with external reference we have: voltage = d_in/4096*v_refin
-  uint16_t d_in = voltage/CAR_VREF_4P0*4096;
+  uint16_t d_in = voltage*4096/CAR_VREF_4P0;
 
   // with internal reference of 2.5V we have: voltage = d_in/4096*2*2.5
   //  -> d_in = voltage/2.5 * 4096/2
-  
-  std::vector<uint8_t> payload = {
-    static_cast<uint8_t>((d_in >> 8)&0xFF),
-    static_cast<uint8_t>(d_in&0xFF)
-  };
 
+  //Check out of range values
+  if (d_in >= 4096)
+    d_in = 4095; 
+  if (d_in < 0)
+    d_in = 0; 
+  
+  std::vector<uint8_t> command = {
+    static_cast<uint8_t>( d_in >> 4 ),
+    static_cast<uint8_t>( d_in << 4) };
+  
+  
   // Set DAC and update: combine command with channel via Control&Access byte:
   uint8_t reg = REG_DAC_WRUP_CHANNEL | address;
   
   // Send I2C write command
-  myi2c.write(device,reg,payload);
+  myi2c.write(device, reg, command);
 }
 
 void caribouHAL::powerDAC(bool enable, uint8_t device, uint8_t address) {
@@ -195,13 +202,13 @@ void caribouHAL::powerDAC(bool enable, uint8_t device, uint8_t address) {
 		   << " on DAC7678 at " << to_hex_string(device);
   iface_i2c & myi2c = interface_manager::getInterface<iface_i2c>(BUS_I2C3);
 
-  // Set the correct channel bit to be powered down:
-  uint16_t d_in = (1 << (address+5));
-  std::vector<uint8_t> payload = {
-    static_cast<uint8_t>((enable ? REG_DAC_POWERUP : REG_DAC_POWERDOWN_HZ) | ((d_in >> 8)&0xFF)),
-    static_cast<uint8_t>(d_in&0xFF)
+  // Set the correct channel bit to be powered up/down:
+  uint16_t channel_bits = 2 << address;
+  std::vector<uint8_t> command = {
+    static_cast<uint8_t>( (enable ? (REG_DAC_POWERUP | channel_bits >> 4) : (REG_DAC_POWERDOWN_HZ | channel_bits >> 4)) & 0xFF ),
+    static_cast<uint8_t>( (channel_bits << 4) & 0xFF )
   };
  
  // Send I2C write command
- myi2c.write(device,REG_DAC_POWER,payload);
+ myi2c.write(device, REG_DAC_POWER, command);
 }
