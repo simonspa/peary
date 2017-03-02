@@ -145,7 +145,7 @@ void caribouHAL::powerVoltageRegulator(VOLTAGE_REGULATOR_T regulator, bool enabl
     
     //Disable the Volage regulator
     auto mask = i2c.read(ADDR_IOEXP, 0x03, 1)[0];
-    mask ^= 1 <<  std::get<1>( voltageRegulatorMap.at( regulator ) );
+    mask &= ~( 1 <<  std::get<1>( voltageRegulatorMap.at( regulator ) ) );
     i2c.write(ADDR_IOEXP, std::make_pair( 0x03, mask ) );
 
     //Disable the DAC
