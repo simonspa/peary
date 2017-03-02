@@ -28,32 +28,32 @@ int main(int argc, char* argv[]) {
     dev->powerOn();
     
     while(1) {
-      std::cout << "Select voltage output to configure (\"q\" to quit): ";
+      std::cout << "Press \"q\" to quit: ";
       std::string cmd = "";
       std::cin >> cmd;
       std::cin.sync();
       
       if(cmd == "q") break;
 
-      std::cout << "Select voltage (in V): ";
-      double v;
-      std::cin >> v;
-      std::cin.ignore();
+      // std::cout << "Select voltage (in V): ";
+      // double v;
+      // std::cin >> v;
+      // std::cin.ignore();
 
-      try {
-	// Program voltage regulator
-	dev->voltageSet(cmd,v);
+      // try {
+      // 	// Program voltage regulator
+      // 	dev->voltageSet(cmd,v);
 
-	// Turn voltage on:
-	dev->voltageOn(cmd);
+      // 	// Turn voltage on:
+      // 	dev->voltageOn(cmd);
 
-	std::cout << "Voltage output is enabled. Press \"Enter\" to disable.";
-	std::cin.ignore();
+      // 	std::cout << "Voltage output is enabled. Press \"Enter\" to disable.";
+      // 	std::cin.ignore();
 
-	// Turn voltage off:
-	dev->voltageOff(cmd);
-      }
-      catch (UndefinedRegister &e) { LOG(logWARNING) << e.what(); }
+      // 	// Turn voltage off:
+      // 	dev->voltageOff(cmd);
+      // }
+      // catch (UndefinedRegister &e) { LOG(logWARNING) << e.what(); }
     }
     
   }
