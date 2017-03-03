@@ -14,6 +14,7 @@ C3PD::~C3PD() {
 }
 
 void C3PD::init() {
+  powerOn();
   LOG(logINFO) << DEVICE_NAME << ": Initialized.";
 }
 
@@ -27,7 +28,6 @@ void C3PD::powerOn() {
   LOG(logDEBUG) << " VDDA";
   _hal->setVoltageRegulator( PWR_OUT6,_config.Get("vdda",C3PD_VDDA) );
   _hal->powerVoltageRegulator( PWR_OUT6, true );
-
 
   //Fixme: Bias voltage below
   //LOG(logDEBUG) << " Reference voltage";
