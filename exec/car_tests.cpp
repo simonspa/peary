@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "configuration.hpp"
+#include "clicpix2.hpp"
 #include "c3pd.hpp"
 #include "log.hpp"
 
@@ -23,9 +24,11 @@ int main(int argc, char* argv[]) {
   
   // Create all Caribou devices instance:
   try {
-    std::unique_ptr<C3PD> dev( new C3PD(caribou::Configuration()) );
+    std::unique_ptr<C3PD> c3pd( new C3PD(caribou::Configuration()) );
+    std::unique_ptr<clicpix2> cpx2( new clicpix2(caribou::Configuration()) );
 
-    dev->powerOn();
+    cpx2->init();
+    c3pd->init();
     
     while(1) {
       std::cout << "Press \"q\" to quit: ";
