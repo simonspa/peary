@@ -20,6 +20,13 @@ typedef enum {
   PWR_OUT1, PWR_OUT2, PWR_OUT3, PWR_OUT4,
   PWR_OUT5, PWR_OUT6, PWR_OUT7, PWR_OUT8 } VOLTAGE_REGULATOR_T;
 
+typedef struct
+{
+	unsigned int address; /* 16-bit register address */
+	unsigned char value; /* 8-bit register data */
+
+} SI5345_REG_T;
+
 /** Devices on I2C0
  */
 #define ADDR_BRIDGE  0x28 // SC18IS602B BRIDGE SPI/I2C

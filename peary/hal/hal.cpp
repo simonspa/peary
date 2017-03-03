@@ -210,3 +210,20 @@ void caribouHAL::powerDAC(bool enable, uint8_t device, uint8_t address) {
  // Send I2C write command
  myi2c.write(device, REG_DAC_POWER, command);
 }
+
+void caribouHAL::configureSI5345(SI5345_REG_T const * const regs, size_t length){
+  LOG(logDEBUGHAL) << "Configuring SI5345";
+
+  iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C0);
+  uint8_t page = regs[0].address >> 8;  //first page to be used
+
+  i2c.write(ADDR_CLKGEN, std::make_pair( 0x01, page ) );   //set first page
+
+  for(auto i = 0; i< length; i++){
+    if(page != regs[i].address >> 8){  //adjust page
+      page = regs[i].address >> 8;
+      i2c.write(ADDR_CLKGEN, std::make_pair( 0x01, page) );
+    }
+    i2c.write(ADDR_CLKGEN, std::make_pair( regs[i].address & 0xFF, regs[i].value) );
+  }
+}
