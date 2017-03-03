@@ -175,9 +175,7 @@ void caribouHAL::setDACVoltage(uint8_t device, uint8_t address, double voltage) 
   //Check out of range values
   if (d_in >= 4096)
     d_in = 4095; 
-  if (d_in < 0)
-    d_in = 0; 
-  
+
   std::vector<uint8_t> command = {
     static_cast<uint8_t>( d_in >> 4 ),
     static_cast<uint8_t>( d_in << 4) };
