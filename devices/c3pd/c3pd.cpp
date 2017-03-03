@@ -36,11 +36,13 @@ void C3PD::powerOn() {
 
 void C3PD::powerOff() {
   LOG(logINFO) << DEVICE_NAME << ": Power off C3PD";
-  LOG(logDEBUG) << "Power off VDDD";
-  _hal->powerVoltageRegulator( PWR_OUT2, false );
 
   LOG(logDEBUG) << "Power off VDDA";
   _hal->powerVoltageRegulator( PWR_OUT6, false );
+
+  
+  LOG(logDEBUG) << "Power off VDDD";
+  _hal->powerVoltageRegulator( PWR_OUT2, false );
 
 }
 
