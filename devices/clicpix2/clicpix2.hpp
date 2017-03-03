@@ -7,6 +7,7 @@
 
 #include "device.hpp"
 #include "clicpix2_defaults.hpp"
+#include "Si5345-RevB-CLICpix2-Registers.h"
 #include "configuration.hpp"
 #include <string>
 #include <vector>
@@ -60,6 +61,9 @@ namespace caribou {
      * columns are flipped accordingly.
      */
     void programMatrix();
+
+    //The functions sets clocks required by CLICpix2 to operate
+    void configureClock();
   };
 
   extern "C" {

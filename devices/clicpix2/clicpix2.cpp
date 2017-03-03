@@ -10,9 +10,12 @@ using namespace caribou;
 
 void clicpix2::init() {
   LOG(logDEBUG) << "Initializing " << DEVICE_NAME;
+  powerOn();
+  configureClock();
 }
 
 clicpix2::~clicpix2() {
+  
   LOG(logINFO) << DEVICE_NAME << ": Shutdown, delete device.";
   powerOff();
 }
@@ -102,6 +105,11 @@ void clicpix2::programMatrix() {
 
   // Finally, send the data over the SPI interface:
   //_hal->sendCommand(0x4,spi_data);
+}
+
+void clicpix2::configureClock() {
+  LOG(logINFO) << DEVICE_NAME << ": Configure clockx";
+  _hal->configureSI5345( (SI5345_REG_T const * const) si5345_revb_registers , SI5345_REVB_REG_CONFIG_NUM_REGS);
 }
 
 caribouDevice* caribou::generator(const caribou::Configuration config) {
