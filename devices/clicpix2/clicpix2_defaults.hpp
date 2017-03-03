@@ -10,6 +10,12 @@ namespace caribou {
    */
 #define DEFAULT_DEVICEPATH "/dev/spi-0"
 
+#define CLICpix2_VDDD     1.2
+#define CLICpix2_VDDA     1.2
+#define CLICpix2_VDDCML   1.2
+#define CLICpix2_CMLBUFFERS_VDD 2.5
+#define CLICpix2_CMLBUFFERS_VCO 1.2
+  
 #define CLICPIX2_PERIPHERY							\
   {									\
   }
