@@ -20,6 +20,13 @@ typedef enum {
   PWR_OUT1, PWR_OUT2, PWR_OUT3, PWR_OUT4,
   PWR_OUT5, PWR_OUT6, PWR_OUT7, PWR_OUT8 } VOLTAGE_REGULATOR_T;
 
+typedef enum {
+  CUR_1, CUR_2, CUR_3, CUR_4,
+  CUR_5, CUR_6, CUR_7, CUR_8} CURRENT_SOURCE_T;
+
+typedef enum {
+  PULL = 0, PUSH = 1 } CURRENT_SOURCE_POLARISATION_T;
+
 typedef struct
 {
 	unsigned int address; /* 16-bit register address */

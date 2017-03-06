@@ -22,7 +22,9 @@ using namespace caribou;
 //Initialize static members of the HAL
 //
 
-const std::map< VOLTAGE_REGULATOR_T, std::tuple<uint8_t,uint8_t, uint8_t, std::string> > caribouHAL:: voltageRegulatorMap = caribouHAL::create_map();
+const std::map< VOLTAGE_REGULATOR_T, std::tuple<uint8_t,uint8_t, uint8_t, std::string> > caribouHAL:: voltageRegulatorMap = caribouHAL::createVoltageRegulatorMap();
+
+const std::map< CURRENT_SOURCE_T, std::tuple<uint8_t, uint8_t, std::string> > caribouHAL:: currentSourceMap = caribouHAL:: createCurrentSourceMap();
 
 //
 //Define functions of the HAL
@@ -37,6 +39,16 @@ caribouHAL::caribouHAL(IFACE interface, std::string device_path = "") :
   i2c0.write(ADDR_IOEXP, 0x2, {0x00, 0x00} ); //disable all bits of Port 1-2 (internal register)
   i2c0.write(ADDR_IOEXP, 0x6, {0x00, 0x00} ); //set all bits of Port 1-2 in output mode
 
+  LOG(logDEBUGHAL) << "Disabling all current sources";
+  powerDAC( false, ADDR_DAC_U47, std::get<0>( currentSourceMap.at( CUR_1 ) ) );
+  powerDAC( false, ADDR_DAC_U47, std::get<0>( currentSourceMap.at( CUR_2 ) ) );
+  powerDAC( false, ADDR_DAC_U47, std::get<0>( currentSourceMap.at( CUR_3 ) ) );
+  powerDAC( false, ADDR_DAC_U47, std::get<0>( currentSourceMap.at( CUR_4 ) ) );
+  powerDAC( false, ADDR_DAC_U47, std::get<0>( currentSourceMap.at( CUR_5 ) ) );
+  powerDAC( false, ADDR_DAC_U47, std::get<0>( currentSourceMap.at( CUR_6 ) ) );
+  powerDAC( false, ADDR_DAC_U47, std::get<0>( currentSourceMap.at( CUR_7 ) ) );
+  powerDAC( false, ADDR_DAC_U47, std::get<0>( currentSourceMap.at( CUR_8 ) ) );
+  
   LOG(logDEBUGHAL) << "Configured device with typ-" << (int)_iface << " interface on " << _devpath;
 }
 
@@ -46,7 +58,7 @@ uint32_t caribouHAL::getFirmwareRegister(uint16_t) {
   throw FirmwareException("Functionality not implemented.");
 }
 
-std::map< VOLTAGE_REGULATOR_T, std::tuple<uint8_t,uint8_t, uint8_t, std::string> > caribouHAL::create_map(){
+std::map< VOLTAGE_REGULATOR_T, std::tuple<uint8_t,uint8_t, uint8_t, std::string> > caribouHAL::createVoltageRegulatorMap(){
   std::map< VOLTAGE_REGULATOR_T, std::tuple<uint8_t,uint8_t, uint8_t, std::string> > m;
   m[ PWR_OUT1 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTA, 7, ADDR_MONITOR_U53, "PWR_OUT1" );
   m[ PWR_OUT2 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTC, 6, ADDR_MONITOR_U52, "PWR_OUT2" );
@@ -56,6 +68,19 @@ std::map< VOLTAGE_REGULATOR_T, std::tuple<uint8_t,uint8_t, uint8_t, std::string>
   m[ PWR_OUT6 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTD, 1, ADDR_MONITOR_U56, "PWR_OUT6" );
   m[ PWR_OUT7 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTF, 2, ADDR_MONITOR_U59, "PWR_OUT7" );
   m[ PWR_OUT8 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTH, 3, ADDR_MONITOR_U58, "PWR_OUT8" );
+  return m;
+}
+
+std::map< CURRENT_SOURCE_T, std::tuple<uint8_t, uint8_t, std::string> > caribouHAL::createCurrentSourceMap(){
+  std::map< CURRENT_SOURCE_T, std::tuple<uint8_t, uint8_t, std::string> > m;
+  m[ CUR_1 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTB, 6, "CUR_1" );
+  m[ CUR_2 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTD, 7, "CUR_2" );
+  m[ CUR_3 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTF, 5, "CUR_3" );
+  m[ CUR_4 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTH, 4, "CUR_4" );
+  m[ CUR_5 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTG, 2, "CUR_5" );
+  m[ CUR_6 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTE, 3, "CUR_6" );
+  m[ CUR_7 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTC, 1, "CUR_7" );
+  m[ CUR_8 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTA, 0, "CUR_8" );
   return m;
 }
 
@@ -154,6 +179,39 @@ void caribouHAL::powerVoltageRegulator(const VOLTAGE_REGULATOR_T regulator, cons
 
     //Disable the DAC
     powerDAC( false, ADDR_DAC_U50, std::get<0>( voltageRegulatorMap.at( regulator ) ) );
+  }
+}
+
+void caribouHAL::setCurrentSource(const CURRENT_SOURCE_T source, const unsigned int current,
+				  const CURRENT_SOURCE_POLARISATION_T polarisation){
+
+  LOG(logDEBUGHAL) << "Setting " << current  << "uA "
+		   << "on " << std::get<2>(   currentSourceMap.at( source ) );
+
+  if( current > 1000 )
+    throw ConfigInvalid( "Tring to set current source to " + std::to_string(current) + " uA (max is 1000uA)");
+
+  //set DAC
+  setDACVoltage( ADDR_DAC_U47,  std::get<0>(  currentSourceMap.at( source ) ), (current * CAR_VREF_4P0)/1000 );
+
+  //set polarisation
+  iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C0);
+  auto mask = i2c.read(ADDR_IOEXP, 0x02, 1)[0];
+  switch(polarisation){
+  case PULL : mask &= ~( 1 <<  std::get<1>(  currentSourceMap.at( source ) ) );
+  case PUSH : mask |=    1 <<  std::get<1>(  currentSourceMap.at( source ) );
+  }
+  i2c.write(ADDR_IOEXP, std::make_pair(0x02, mask) );
+}
+
+void caribouHAL::powerCurrentSource(const CURRENT_SOURCE_T source, const bool enable){
+  if(enable){
+    LOG(logDEBUGHAL) << "Powering up " << std::get<2>( currentSourceMap.at( source ) );
+    powerDAC( true, ADDR_DAC_U47, std::get<0>(  currentSourceMap.at( source ) ) );
+  }
+  else{
+    LOG(logDEBUGHAL) << "Powering down " << std::get<2>( currentSourceMap.at( source ) );
+    powerDAC( true, ADDR_DAC_U47, std::get<0>( currentSourceMap.at( source ) ) );
   }
 }
 
