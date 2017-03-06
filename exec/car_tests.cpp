@@ -31,32 +31,16 @@ int main(int argc, char* argv[]) {
     c3pd->init();
     
     while(1) {
-      std::cout << "Press \"q\" to quit: ";
+      std::cout << "Press \"q\" to quit or \"m\" to measure: ";
       std::string cmd = "";
       std::cin >> cmd;
       std::cin.sync();
       
       if(cmd == "q") break;
-
-      // std::cout << "Select voltage (in V): ";
-      // double v;
-      // std::cin >> v;
-      // std::cin.ignore();
-
-      // try {
-      // 	// Program voltage regulator
-      // 	dev->voltageSet(cmd,v);
-
-      // 	// Turn voltage on:
-      // 	dev->voltageOn(cmd);
-
-      // 	std::cout << "Voltage output is enabled. Press \"Enter\" to disable.";
-      // 	std::cin.ignore();
-
-      // 	// Turn voltage off:
-      // 	dev->voltageOff(cmd);
-      // }
-      // catch (UndefinedRegister &e) { LOG(logWARNING) << e.what(); }
+      if(cmd == "m"){
+	cpx2->powerStatusLog();
+	c3pd->powerStatusLog();
+      }
     }
     
   }
