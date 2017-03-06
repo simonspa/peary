@@ -51,6 +51,11 @@ namespace caribou {
      */
     void daqStop();
 
+    /** Report power status
+     */
+    void powerStatusLog() {};
+
+
     /** Example function only available in this derived device class
      */
     void exampleCall();

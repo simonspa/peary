@@ -117,6 +117,38 @@ void clicpix2::configureClock() {
   _hal->configureSI5345( (SI5345_REG_T const * const) si5345_revb_registers , SI5345_REVB_REG_CONFIG_NUM_REGS);
 }
 
+void clicpix2::powerStatusLog(){
+  LOG(logINFO) << DEVICE_NAME << " power status:";
+
+  LOG(logINFO) << "VDDA:";
+  LOG(logINFO) << "\tBus voltage: " << _hal->measureVoltage(PWR_OUT3) << "V";
+  LOG(logINFO) << "\tBus current: " << _hal->measureCurrent(PWR_OUT3) << "A";
+  LOG(logINFO) << "\tBus power  : " << _hal->measurePower(PWR_OUT3) << "W";
+
+  LOG(logINFO) << "VDDD:";
+  LOG(logINFO) << "\tBus voltage: " << _hal->measureVoltage(PWR_OUT1) << "V";
+  LOG(logINFO) << "\tBus current: " << _hal->measureCurrent(PWR_OUT1) << "A";
+  LOG(logINFO) << "\tBus power  : " << _hal->measurePower(PWR_OUT1) << "W";
+
+
+  LOG(logINFO) << "VDDACML:";
+  LOG(logINFO) << "\tBus voltage: " << _hal->measureVoltage(PWR_OUT5) << "V";
+  LOG(logINFO) << "\tBus current: " << _hal->measureCurrent(PWR_OUT5) << "A";
+  LOG(logINFO) << "\tBus power  : " << _hal->measurePower(PWR_OUT5) << "W";
+
+
+  LOG(logINFO) << "CMLBUFFERS_VCO:";
+  LOG(logINFO) << "\tBus voltage: " << _hal->measureVoltage(PWR_OUT7) << "V";
+  LOG(logINFO) << "\tBus current: " << _hal->measureCurrent(PWR_OUT7) << "A";
+  LOG(logINFO) << "\tBus power  : " << _hal->measurePower(PWR_OUT7) << "W";
+  
+
+  LOG(logINFO) << "CMLBUFFERS_VDD:";
+  LOG(logINFO) << "\tBus voltage: " << _hal->measureVoltage(PWR_OUT4) << "V";
+  LOG(logINFO) << "\tBus current: " << _hal->measureCurrent(PWR_OUT4) << "A";
+  LOG(logINFO) << "\tBus power  : " << _hal->measurePower(PWR_OUT4) << "W";
+}
+
 caribouDevice* caribou::generator(const caribou::Configuration config) {
   LOG(logDEBUG) << "Generator: " << DEVICE_NAME;
   clicpix2* mDevice = new clicpix2(config);

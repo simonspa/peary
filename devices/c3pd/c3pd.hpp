@@ -39,6 +39,10 @@ namespace caribou {
      */
     void daqStop();
 
+    /** Report power status
+     */
+    void powerStatusLog();
+
   private:
 
     // analog power supply

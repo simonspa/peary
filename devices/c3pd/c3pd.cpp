@@ -56,6 +56,22 @@ void C3PD::daqStop() {
   LOG(logINFO) << DEVICE_NAME << ": DAQ stopped.";
 }
 
+void C3PD::powerStatusLog(){
+  LOG(logINFO) << DEVICE_NAME << " power status:";
+
+  LOG(logINFO) << "VDDD:";
+  LOG(logINFO) << "\tBus voltage: " << _hal->measureVoltage(PWR_OUT2) << "V";
+  LOG(logINFO) << "\tBus current: " << _hal->measureCurrent(PWR_OUT2) << "A";
+  LOG(logINFO) << "\tBus power  : " << _hal->measurePower(PWR_OUT2) << "W";
+    
+  LOG(logINFO) << "VDDA:";
+  LOG(logINFO) << "\tBus voltage: " << _hal->measureVoltage(PWR_OUT6) << "V";
+  LOG(logINFO) << "\tBus current: " << _hal->measureCurrent(PWR_OUT6) << "A";
+  LOG(logINFO) << "\tBus power  : " << _hal->measurePower(PWR_OUT6) << "W";
+
+}
+
+
 caribouDevice* caribou::generator(const caribou::Configuration config) {
   LOG(logDEBUG) << "Generator: " << DEVICE_NAME;
   C3PD* mDevice = new C3PD(config);

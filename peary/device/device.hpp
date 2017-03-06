@@ -80,6 +80,11 @@ namespace caribou {
      */
     virtual void daqStop() = 0;
 
+    /** Report power status
+     *  Method should use logINFO as an output
+     */
+    virtual void powerStatusLog() = 0;
+
     /** Function to reconfigure the Caribou device
      */
     // Previously "loadConfig"?

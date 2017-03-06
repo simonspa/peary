@@ -47,6 +47,11 @@ namespace caribou {
      */
     void daqStop() {};
 
+    /** Report power status
+     */
+    void powerStatusLog();
+
+
   private:
 
     IFACE interface() { return IFACE::SPI; }
