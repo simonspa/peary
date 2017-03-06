@@ -48,12 +48,12 @@ namespace caribou {
 
     /** Set output voltage of a voltage regulator
      *
-     *  The input parameter should be provided in SI Volts.
+     *  The input parameter should be provided in SI Volts and Amps.
      *  The function sets the proper reference voltage (PWR_ADJ_*) in a DAC
-     *  corresponding to the regulator. 
+     *  corresponding to the regulator. It also configures the corresponding curent/power monitor.
      *  The output of the DAC is not enabled.
      */
-    void setVoltageRegulator(const VOLTAGE_REGULATOR_T regulator,const double voltage);
+    void setVoltageRegulator(const VOLTAGE_REGULATOR_T regulator,const double voltage, const double maxExpectedCurrent);
 
     /** Enable/disable the voltage regulator
      *
@@ -67,6 +67,18 @@ namespace caribou {
     void configureSI5345(SI5345_REG_T const * const regs,const size_t length);
 
 
+    //The method measures current
+    //It return value in SI A.
+    double measureCurrent(const VOLTAGE_REGULATOR_T regulator);
+
+    //The method measures power
+    //It return value in SI W.
+    double measurePower(const VOLTAGE_REGULATOR_T regulator);
+
+    //The method measures voltage
+    //It returns vale in SI V.
+    double measureVoltage(const VOLTAGE_REGULATOR_T regulator);
+    
     //FIXME: User shouldn't have access to set setDACVoltage and powerDAC where he can
     //       provide any I2C address. Instead enums should be used to a specialised functions,
     //       like setBias, setInjectionBias, setCurrent, etc.
@@ -96,6 +108,9 @@ namespace caribou {
      */
     void powerDAC(const bool enable, const uint8_t device, const uint8_t address);
 
+    /** Set current/power monitor
+     */
+    void setCurrentMonitor(const uint8_t device, const double maxExpectedCurrent);
 
   }; //class caribouHAL
 

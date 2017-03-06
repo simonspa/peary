@@ -45,6 +45,7 @@ typedef struct
 #define ADDR_MONITOR_U56 0x45
 #define ADDR_MONITOR_U59 0x46
 #define ADDR_MONITOR_U58 0x4A
+#define INA226_R_SHUNT 0.01
 
 /** Devices on I2C2
  */

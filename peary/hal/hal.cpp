@@ -116,7 +116,7 @@ double caribouHAL::readTemperature() {
   return temp*0.0625;
 }
 
-void caribouHAL::setVoltageRegulator(const VOLTAGE_REGULATOR_T regulator, const double voltage){
+void caribouHAL::setVoltageRegulator(const VOLTAGE_REGULATOR_T regulator, const double voltage, const double maxExpectedCurrent){
   LOG(logDEBUGHAL) << "Setting " << voltage << "V "
 		   << "on " << std::get<3>(  voltageRegulatorMap.at( regulator ) );
 
@@ -124,6 +124,9 @@ void caribouHAL::setVoltageRegulator(const VOLTAGE_REGULATOR_T regulator, const 
     throw ConfigInvalid( "Tring to set Voltage regulator to " + std::to_string(voltage) + " V (max is 3.6 V)");
   
   setDACVoltage( ADDR_DAC_U50,  std::get<0>( voltageRegulatorMap.at( regulator ) ), 3.6 - voltage );
+
+  //set current/power monitor
+  setCurrentMonitor( std::get<2>( voltageRegulatorMap.at( regulator ) ), maxExpectedCurrent );
 
 }
 
@@ -227,3 +230,41 @@ void caribouHAL::configureSI5345(SI5345_REG_T const * const regs,const size_t le
     i2c.write(ADDR_CLKGEN, std::make_pair( regs[i].address & 0xFF, regs[i].value) );
   }
 }
+
+void caribouHAL::setCurrentMonitor(const uint8_t device, const double maxExpectedCurrent){
+  LOG(logDEBUGHAL) << "Setting maxExpectedCurrent " << maxExpectedCurrent << "A "
+		   << "on INA226 at " << to_hex_string(device);
+  
+  iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C1);
+  unsigned int cal = static_cast< unsigned int >( 0.00512 *( 0x1 << 15)/(INA226_R_SHUNT * maxExpectedCurrent ) );
+  i2c.write(device, 0x05, {static_cast<i2c_t>( cal >> 8 ), static_cast<i2c_t>( cal & 0xFF ) } );
+}
+
+double caribouHAL::measureVoltage(const VOLTAGE_REGULATOR_T regulator){
+  iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C1);
+  const i2c_address_t device = std::get<2>( voltageRegulatorMap.at( regulator ) );
+  std::vector<i2c_t> voltage = i2c.read( device, 0x02, 2);
+  return ( static_cast<unsigned int>( voltage[0] << 8 ) | voltage[1] ) * 0.00125;
+}
+
+//FIXME: somtimes it returns dummy values
+double caribouHAL::measureCurrent(const VOLTAGE_REGULATOR_T regulator){
+  iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C1);
+  const i2c_address_t device = std::get<2>( voltageRegulatorMap.at( regulator ) );
+  std::vector<i2c_t> cal_v = i2c.read( device, 0x05, 2); //readback calibration register
+  double currentLSB = static_cast<double>(0.00512) / ( (static_cast<uint16_t>(cal_v[0] << 8) | cal_v[1]) * INA226_R_SHUNT );
+  std::vector<i2c_t> current_raw = i2c.read(device, 0x04, 2);
+  return (static_cast<unsigned int>(current_raw[0] << 8 ) | current_raw[1] ) * currentLSB;
+}
+
+//FIXME: sometimes it return dummy values
+double caribouHAL::measurePower(const VOLTAGE_REGULATOR_T regulator){
+  iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C1);
+  const i2c_address_t device = std::get<2>( voltageRegulatorMap.at( regulator ) );
+  std::vector<i2c_t> cal_v = i2c.read( device, 0x05, 2); //readback calibration register
+  double powerLSB = 25 * static_cast<double>(0.00512) / ( (static_cast<uint16_t>(cal_v[0] << 8) | cal_v[1]) * INA226_R_SHUNT );
+  std::vector<i2c_t> power_raw = i2c.read(device, 0x03, 2);
+  return (static_cast<unsigned int>(power_raw[0] << 8 ) | power_raw[1] ) * powerLSB;
+}
+
+
