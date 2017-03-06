@@ -219,7 +219,7 @@ void caribouHAL::configureSI5345(SI5345_REG_T const * const regs,const size_t le
 
   i2c.write(ADDR_CLKGEN, std::make_pair( 0x01, page ) );   //set first page
 
-  for(auto i = 0; i< length; i++){
+  for(size_t i = 0; i< length; i++){
     if(page != regs[i].address >> 8){  //adjust page
       page = regs[i].address >> 8;
       i2c.write(ADDR_CLKGEN, std::make_pair( 0x01, page) );
