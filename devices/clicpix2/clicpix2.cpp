@@ -28,9 +28,9 @@ void clicpix2::powerOn() {
 			     _config.Get("cmlbuffers_vdd_current", CLICpix2_CMLBUFFERS_VDD_CURRENT) );
   _hal->powerVoltageRegulator( PWR_OUT4, true );
 
-  LOG(logDEBUG) << " CMLBUFFERS_VCO";
-  _hal->setVoltageRegulator( PWR_OUT7,_config.Get("cmlbuffers_vco", CLICpix2_CMLBUFFERS_VCO),
-			     _config.Get("cmlbuffers_vco_current", CLICpix2_CMLBUFFERS_VCO_CURRENT) );
+  LOG(logDEBUG) << " CMLBUFFERS_VCCO";
+  _hal->setVoltageRegulator( PWR_OUT7,_config.Get("cmlbuffers_vcco", CLICpix2_CMLBUFFERS_VCCO),
+			     _config.Get("cmlbuffers_vcco_current", CLICpix2_CMLBUFFERS_VCCO_CURRENT) );
   _hal->powerVoltageRegulator( PWR_OUT7, true );
   
   LOG(logDEBUG) << " VDDCML";

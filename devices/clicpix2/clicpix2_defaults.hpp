@@ -18,8 +18,8 @@ namespace caribou {
 #define CLICpix2_VDDCML_CURRENT 3
 #define CLICpix2_CMLBUFFERS_VDD 2.5
 #define CLICpix2_CMLBUFFERS_VDD_CURRENT 3
-#define CLICpix2_CMLBUFFERS_VCO 1.2
-#define CLICpix2_CMLBUFFERS_VCO_CURRENT 3
+#define CLICpix2_CMLBUFFERS_VCCO 1.2
+#define CLICpix2_CMLBUFFERS_VCCO_CURRENT 3
   
 #define CLICPIX2_PERIPHERY							\
   {									\
