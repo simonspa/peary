@@ -116,7 +116,7 @@ double caribouHAL::readTemperature() {
   return temp*0.0625;
 }
 
-void caribouHAL::setVoltageRegulator(VOLTAGE_REGULATOR_T regulator, double voltage){
+void caribouHAL::setVoltageRegulator(const VOLTAGE_REGULATOR_T regulator, const double voltage){
   LOG(logDEBUGHAL) << "Setting " << voltage << "V "
 		   << "on " << std::get<3>(  voltageRegulatorMap.at( regulator ) );
 
@@ -127,7 +127,7 @@ void caribouHAL::setVoltageRegulator(VOLTAGE_REGULATOR_T regulator, double volta
 
 }
 
-void caribouHAL::powerVoltageRegulator(VOLTAGE_REGULATOR_T regulator, bool enable){
+void caribouHAL::powerVoltageRegulator(const VOLTAGE_REGULATOR_T regulator, const bool enable){
 
   iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C0);
 
@@ -154,7 +154,7 @@ void caribouHAL::powerVoltageRegulator(VOLTAGE_REGULATOR_T regulator, bool enabl
   }
 }
 
-void caribouHAL::setDACVoltage(uint8_t device, uint8_t address, double voltage) {
+void caribouHAL::setDACVoltage(const uint8_t device, const uint8_t address, const double voltage) {
 
   // Control voltages using DAC7678 with QFN packaging
   // All DAc7678 use straight binary encoding since the TWOC pins are pulled low
@@ -188,7 +188,7 @@ void caribouHAL::setDACVoltage(uint8_t device, uint8_t address, double voltage) 
   myi2c.write(device, reg, command);
 }
 
-void caribouHAL::powerDAC(bool enable, uint8_t device, uint8_t address) {
+void caribouHAL::powerDAC(const bool enable, const uint8_t device, const uint8_t address) {
 
   // Control voltages using DAC7678 with QFN packaging
   // All DAc7678 use straight binary encoding since the TWOC pins are pulled low
@@ -211,7 +211,7 @@ void caribouHAL::powerDAC(bool enable, uint8_t device, uint8_t address) {
  myi2c.write(device, REG_DAC_POWER, command);
 }
 
-void caribouHAL::configureSI5345(SI5345_REG_T const * const regs, size_t length){
+void caribouHAL::configureSI5345(SI5345_REG_T const * const regs,const size_t length){
   LOG(logDEBUGHAL) << "Configuring SI5345";
 
   iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C0);
