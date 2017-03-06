@@ -22,11 +22,13 @@ void C3PD::powerOn() {
   LOG(logINFO) << DEVICE_NAME << ": Powering up C3PD";
 
   LOG(logDEBUG) << " VDDD";
-  _hal->setVoltageRegulator( PWR_OUT2,_config.Get("vddd",C3PD_VDDD) );
+  _hal->setVoltageRegulator( PWR_OUT2,_config.Get("vddd",C3PD_VDDD),
+			     _config.Get("vddd_current", C3PD_VDDD_CURRENT) );
   _hal->powerVoltageRegulator( PWR_OUT2, true );
 
   LOG(logDEBUG) << " VDDA";
-  _hal->setVoltageRegulator( PWR_OUT6,_config.Get("vdda",C3PD_VDDA) );
+  _hal->setVoltageRegulator( PWR_OUT6,_config.Get("vdda",C3PD_VDDA),
+			     _config.Get("vdda_current", C3PD_VDDA_CURRENT) );
   _hal->powerVoltageRegulator( PWR_OUT6, true );
 
   //Fixme: Bias voltage below

@@ -24,23 +24,28 @@ void clicpix2::powerOn() {
   LOG(logINFO) << DEVICE_NAME << ": Powering up CLICpix2";
 
   LOG(logDEBUG) << " CMLBUFFERS_VDD";
-  _hal->setVoltageRegulator( PWR_OUT4,_config.Get("cmlbuffers_vdd", CLICpix2_CMLBUFFERS_VDD) );
+  _hal->setVoltageRegulator( PWR_OUT4,_config.Get("cmlbuffers_vdd", CLICpix2_CMLBUFFERS_VDD),
+			     _config.Get("cmlbuffers_vdd_current", CLICpix2_CMLBUFFERS_VDD_CURRENT) );
   _hal->powerVoltageRegulator( PWR_OUT4, true );
 
   LOG(logDEBUG) << " CMLBUFFERS_VCO";
-  _hal->setVoltageRegulator( PWR_OUT7,_config.Get("cmlbuffers_vco", CLICpix2_CMLBUFFERS_VCO) );
+  _hal->setVoltageRegulator( PWR_OUT7,_config.Get("cmlbuffers_vco", CLICpix2_CMLBUFFERS_VCO),
+			     _config.Get("cmlbuffers_vco_current", CLICpix2_CMLBUFFERS_VCO_CURRENT) );
   _hal->powerVoltageRegulator( PWR_OUT7, true );
   
   LOG(logDEBUG) << " VDDCML";
-  _hal->setVoltageRegulator( PWR_OUT5,_config.Get("vdddcml",CLICpix2_VDDCML) );
+  _hal->setVoltageRegulator( PWR_OUT5,_config.Get("vdddcml",CLICpix2_VDDCML),
+			     _config.Get("vdddcml_current", CLICpix2_VDDCML_CURRENT) );
   _hal->powerVoltageRegulator( PWR_OUT5, true );
   
   LOG(logDEBUG) << " VDDD";
-  _hal->setVoltageRegulator( PWR_OUT1,_config.Get("vddd",CLICpix2_VDDD) );
+  _hal->setVoltageRegulator( PWR_OUT1,_config.Get("vddd",CLICpix2_VDDD),
+			     _config.Get("vddd_current", CLICpix2_VDDD_CURRENT) );
   _hal->powerVoltageRegulator( PWR_OUT1, true );
 
   LOG(logDEBUG) << " VDDA";
-  _hal->setVoltageRegulator( PWR_OUT3,_config.Get("vdda",CLICpix2_VDDA) );
+  _hal->setVoltageRegulator( PWR_OUT3,_config.Get("vdda",CLICpix2_VDDA),
+			     _config.Get("vdda_current", CLICpix2_VDDA_CURRENT) );
   _hal->powerVoltageRegulator( PWR_OUT3, true );
 
 }

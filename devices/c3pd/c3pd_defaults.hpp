@@ -29,7 +29,9 @@ namespace caribou {
 #define C3PD_VBTP     0x00
 
 #define C3PD_VDDD     1.8
+#define C3PD_VDDD_CURRENT 3
 #define C3PD_VDDA     1.8
+#define C3PD_VDDA_CURRENT 3
 #define C3PD_REF      1.0
 
   /** C3PD Routing 
