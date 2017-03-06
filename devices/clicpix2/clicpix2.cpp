@@ -48,11 +48,28 @@ void clicpix2::powerOn() {
 			     _config.Get("vdda_current", CLICpix2_VDDA_CURRENT) );
   _hal->powerVoltageRegulator( PWR_OUT3, true );
 
+  //FIXME:  _config.Get("cml_iref_pol",CLICpix2_CML_IREF_POL) ) doesn't compile
+  LOG(logDEBUG) << " CML_IREF";
+  _hal->setCurrentSource( CUR_1, _config.Get("cml_iref",CLICpix2_CML_IREF),
+			  CLICpix2_CML_IREF_POL);
+  _hal->powerCurrentSource(CUR_1, true); 
+
+  // LOG(logDEBUG) << " DAC_IREF";
+  // _hal->setCurrentSource( CUR_2, _config.Get("dac_iref",CLICpix2_DAC_IREF),
+  // 			  CLICpix2_DAC_IREF_POL);
+  // _hal->powerCurrentSource(CUR_2, true); 
+
 }
 
 void clicpix2::powerOff() {
   LOG(logINFO) << DEVICE_NAME << ": Power off CLICpix2";
 
+  LOG(logDEBUG) << "Power off CML_IREF";
+  _hal->powerCurrentSource(CUR_1, false); 
+
+  LOG(logDEBUG) << "Power off DAC_IREF";
+  _hal->powerCurrentSource(CUR_2, false); 
+  
   LOG(logDEBUG) << "Power off VDDA";
   _hal->powerVoltageRegulator( PWR_OUT3, false );
   

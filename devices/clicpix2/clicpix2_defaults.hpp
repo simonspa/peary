@@ -20,6 +20,10 @@ namespace caribou {
 #define CLICpix2_CMLBUFFERS_VDD_CURRENT 3
 #define CLICpix2_CMLBUFFERS_VCCO 1.2
 #define CLICpix2_CMLBUFFERS_VCCO_CURRENT 3
+#define CLICpix2_CML_IREF 333
+#define CLICpix2_CML_IREF_POL PUSH
+#define CLICpix2_DAC_IREF 13
+#define CLICpix2_DAC_IREF_POL PULL
   
 #define CLICPIX2_PERIPHERY							\
   {									\
