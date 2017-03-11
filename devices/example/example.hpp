@@ -34,7 +34,11 @@ namespace caribou {
       this->initialize(std::string(DEFAULT_DEVICEPATH), caribou::dictionary<uint8_t>(EXAMPLE_PERIPHERY));
     };
     ~example();
-    
+
+    /** Return human-readable name of this device
+     */
+    std::string getName();
+
     /** Turn on the power supply for the Example chip
      */
     void powerOn();

@@ -8,6 +8,8 @@
 
 using namespace caribou;
 
+std::string timepix3::getName() { return DEVICE_NAME; }
+
 caribouDevice* caribou::generator(const caribou::Configuration config) {
   LOG(logDEBUG) << "Generator: " << DEVICE_NAME;
   timepix3* mDevice = new timepix3(config);

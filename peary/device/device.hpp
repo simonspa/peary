@@ -45,6 +45,10 @@ namespace caribou {
      */
     std::string getVersion();
 
+    /** Return the human-readable device name
+     */
+    virtual std::string getName() = 0;
+
     /** Return the identifier of the firmware currently loaded
      */
     uint8_t getFirmwareID();

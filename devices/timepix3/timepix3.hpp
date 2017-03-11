@@ -26,6 +26,8 @@ namespace caribou {
   };
     ~timepix3() {};
 
+    std::string getName();
+    
     /** Initializer function for Timepix3
      */
     void init() {};

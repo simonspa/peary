@@ -12,6 +12,8 @@ example::~example() {
   LOG(logINFO) << DEVICE_NAME << ": Shutdown, delete device.";
 }
 
+std::string example::getName() { return DEVICE_NAME; }
+
 void example::powerOn() {
   LOG(logINFO) << DEVICE_NAME << ": Power on.";
 

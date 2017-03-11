@@ -27,6 +27,8 @@ namespace caribou {
   };
     ~clicpix2();
 
+    std::string getName();
+    
     /** Initializer function for CLICpix2
      */
     void init();

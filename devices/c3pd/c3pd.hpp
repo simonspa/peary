@@ -18,7 +18,9 @@ namespace caribou {
       this->initialize(std::string(DEFAULT_DEVICEPATH),caribou::dictionary<uint8_t>(C3PD_PERIPHERY));
     };
     ~C3PD();
-    
+
+    std::string getName();
+
     /** Initializer function for C3PD
      */
     void init();
