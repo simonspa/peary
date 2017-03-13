@@ -26,13 +26,16 @@ namespace caribou {
 
     static int devices(const std::vector<std::string> &);
     static int verbosity(const std::vector<std::string> & input);
-    static int powerOn(const std::vector<std::string> & input);
 
-    // Readline console object
-    CppReadline::Console c;
+    static int powerOn(const std::vector<std::string> & input);
+    static int powerOff(const std::vector<std::string> & input);
 
     // Create new Peary device manager
     static caribou::caribouDeviceMgr * manager;
+
+  private:
+    // Readline console object
+    CppReadline::Console c;
   };
 
 } //namespace caribou

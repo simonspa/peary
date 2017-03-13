@@ -10,7 +10,9 @@ pearycli::pearycli() : c("# ") {
   // Register console commands
   c.registerCommand("list_devices", devices);
   c.registerCommand("verbosity", verbosity);
+
   c.registerCommand("powerOn", powerOn);
+  c.registerCommand("powerOff", powerOff);
 }
 
 pearycli::~pearycli() {
@@ -47,7 +49,23 @@ int pearycli::powerOn(const std::vector<std::string> & input) {
     LOG(logINFO) << "Usage: " << input.at(0) << " DEVICE_ID";
     return ret::Error;
   }
-  caribouDevice *dev = manager->getDevice(std::stoi(input.at(1)));
-  dev->powerOn();
+  try {
+    caribouDevice *dev = manager->getDevice(std::stoi(input.at(1)));
+    dev->powerOn();
+  }
+  catch (caribou::DeviceException &) { return ret::Error; }
+  return ret::Ok;
+}
+
+int pearycli::powerOff(const std::vector<std::string> & input) {
+  if (input.size() < 2) {
+    LOG(logINFO) << "Usage: " << input.at(0) << " DEVICE_ID";
+    return ret::Error;
+  }
+  try {
+    caribouDevice *dev = manager->getDevice(std::stoi(input.at(1)));
+    dev->powerOff();
+  }
+  catch (caribou::DeviceException &) { return ret::Error; }
   return ret::Ok;
 }
