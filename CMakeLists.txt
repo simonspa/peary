@@ -44,6 +44,43 @@ ENDIF("${isSystemDir}" STREQUAL "-1")
 ADD_DEFINITIONS(-std=c++14)
 INCLUDE(cmake/Platform.cmake)
 
+########################################
+# Figure out the current peary version #
+########################################
+
+# Check if this is a source tarball build
+IF(NOT IS_DIRECTORY ${CMAKE_SOURCE_DIR}/.git)
+  SET(SOURCE_PACKAGE 1)
+ENDIF(NOT IS_DIRECTORY ${CMAKE_SOURCE_DIR}/.git)
+
+# Set package version
+IF(NOT SOURCE_PACKAGE)
+  # Get the version from last git tag plus number of additional commits:
+  FIND_PACKAGE(Git QUIET)
+  IF(GIT_FOUND)
+    EXEC_PROGRAM(git ${CMAKE_CURRENT_SOURCE_DIR} ARGS describe --tags HEAD OUTPUT_VARIABLE PEARY_LIB_VERSION)
+    STRING(REGEX REPLACE "^release-" "" PEARY_LIB_VERSION ${PEARY_LIB_VERSION})
+    STRING(REGEX REPLACE "([v0-9.]+)-([0-9]+)-([A-Za-z0-9]+)" "\\1+\\2~\\3" PEARY_LIB_VERSION ${PEARY_LIB_VERSION})
+    EXEC_PROGRAM(git ARGS status --porcelain ${CMAKE_CURRENT_SOURCE_DIR}/core OUTPUT_VARIABLE PEARY_CORE_STATUS)
+    IF(PEARY_CORE_STATUS STREQUAL "")
+      MESSAGE("-- Git: corelib directory is clean.")
+    ELSE(PEARY_CORE_STATUS STREQUAL "")
+      MESSAGE("-- Git: corelib directory is dirty:\n ${PEARY_CORE_STATUS}.")
+    ENDIF(PEARY_CORE_STATUS STREQUAL "")
+  ELSE(GIT_FOUND)
+    SET(PEARY_LIB_VERSION ${PEARY_VERSION})
+    MESSAGE("-- Git repository present, but could not find git executable.")
+  ENDIF(GIT_FOUND)
+ELSE(NOT SOURCE_PACKAGE)
+  # If we don't have git we take the hard-set version.
+  SET(PEARY_LIB_VERSION ${PEARY_VERSION})
+  MESSAGE("-- Source tarball build - no repository present.")
+ENDIF(NOT SOURCE_PACKAGE)
+MESSAGE("-- Determined pxar corelib API version ${PEARY_LIB_VERSION}.")
+
+CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/cmake/config.cmake.h" "${CMAKE_CURRENT_BINARY_DIR}/config.h" @ONLY)
+INCLUDE_DIRECTORIES("${CMAKE_CURRENT_BINARY_DIR}")
+
 
 ##################################
 # Define build targets for peary #

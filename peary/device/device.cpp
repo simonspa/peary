@@ -9,6 +9,7 @@
 #include "hal.hpp"
 #include "log.hpp"
 
+#include "config.h"
 #include <string>
 
 using namespace caribou;
@@ -34,7 +35,7 @@ caribouDevice::~caribouDevice() {
   delete _hal;
 }
 
-std::string caribouDevice::getVersion() { return std::string(); }
+std::string caribouDevice::getVersion() { return std::string(PACKAGE_STRING); }
 
 uint8_t caribouDevice::getCaRBoardID() { return _hal->getCaRBoardID(); }
 
