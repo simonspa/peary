@@ -35,7 +35,11 @@ namespace caribou {
     /** Method to get the caribouDevice instance. 
      */
     caribouDevice* getDevice(size_t id);
-    
+
+    /** Method returning the full list of caribouDevices
+     */
+    std::vector<caribouDevice*> getDevices();
+
     /** Method to add a new caribouDevice instance. 
      *  The input parameter is the library name of the device to
      *  be instanciated, the return value is the device ID

@@ -8,7 +8,7 @@ using ret = CppReadline::Console::ReturnCode;
 pearycli::pearycli() : c("# ") {
 
   // Register console commands
-  c.registerCommand("devices", devices);
+  c.registerCommand("list_devices", devices);
   c.registerCommand("verbosity", verbosity);
   c.registerCommand("powerOn", powerOn);
 }
@@ -22,9 +22,9 @@ int pearycli::devices(const std::vector<std::string> &) {
 
   try {
     size_t i = 0;
-    while(1) {
-      caribouDevice *dev = manager->getDevice(i);
-      LOG(logINFO) << i << ": " << dev->getDeviceName();
+    std::vector<caribouDevice*> devs = manager->getDevices();
+    for(auto d : devs) {
+      LOG(logINFO) << "ID " << i << ": " << d->getName();
       i++;
     }
   }

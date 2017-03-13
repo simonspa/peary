@@ -39,6 +39,10 @@ caribouDevice* caribouDeviceMgr::getDevice(size_t id) {
   else return _deviceList.at(id);
 }
 
+std::vector<caribouDevice*> caribouDeviceMgr::getDevices() {
+  return _deviceList;
+}
+
 size_t caribouDeviceMgr::addDevice(std::string name, const caribou::Configuration config) {
 
   caribouDevice* deviceptr = nullptr;
