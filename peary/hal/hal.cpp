@@ -60,27 +60,27 @@ uint32_t caribouHAL::getFirmwareRegister(uint16_t) {
 
 std::map< VOLTAGE_REGULATOR_T, std::tuple<uint8_t,uint8_t, uint8_t, std::string> > caribouHAL::createVoltageRegulatorMap(){
   std::map< VOLTAGE_REGULATOR_T, std::tuple<uint8_t,uint8_t, uint8_t, std::string> > m;
-  m[ PWR_OUT1 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTA, 7, ADDR_MONITOR_U53, "PWR_OUT1" );
-  m[ PWR_OUT2 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTC, 6, ADDR_MONITOR_U52, "PWR_OUT2" );
-  m[ PWR_OUT3 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTE, 5, ADDR_MONITOR_U55, "PWR_OUT3" );
-  m[ PWR_OUT4 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTG, 4, ADDR_MONITOR_U54, "PWR_OUT4" );
-  m[ PWR_OUT5 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTB, 0, ADDR_MONITOR_U57, "PWR_OUT5" );
-  m[ PWR_OUT6 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTD, 1, ADDR_MONITOR_U56, "PWR_OUT6" );
-  m[ PWR_OUT7 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTF, 2, ADDR_MONITOR_U59, "PWR_OUT7" );
-  m[ PWR_OUT8 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTH, 3, ADDR_MONITOR_U58, "PWR_OUT8" );
+  m[ PWR_OUT1 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTA, REG_IOEXP_IO1_7, ADDR_MONITOR_U53, "PWR_OUT1" );
+  m[ PWR_OUT2 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTC, REG_IOEXP_IO1_6, ADDR_MONITOR_U52, "PWR_OUT2" );
+  m[ PWR_OUT3 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTE, REG_IOEXP_IO1_5, ADDR_MONITOR_U55, "PWR_OUT3" );
+  m[ PWR_OUT4 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTG, REG_IOEXP_IO1_4, ADDR_MONITOR_U54, "PWR_OUT4" );
+  m[ PWR_OUT5 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTB, REG_IOEXP_IO1_0, ADDR_MONITOR_U57, "PWR_OUT5" );
+  m[ PWR_OUT6 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTD, REG_IOEXP_IO1_1, ADDR_MONITOR_U56, "PWR_OUT6" );
+  m[ PWR_OUT7 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTF, REG_IOEXP_IO1_2, ADDR_MONITOR_U59, "PWR_OUT7" );
+  m[ PWR_OUT8 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTH, REG_IOEXP_IO1_3, ADDR_MONITOR_U58, "PWR_OUT8" );
   return m;
 }
 
 std::map< CURRENT_SOURCE_T, std::tuple<uint8_t, uint8_t, std::string> > caribouHAL::createCurrentSourceMap(){
   std::map< CURRENT_SOURCE_T, std::tuple<uint8_t, uint8_t, std::string> > m;
-  m[ CUR_1 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTB, 6, "CUR_1" );
-  m[ CUR_2 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTD, 7, "CUR_2" );
-  m[ CUR_3 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTF, 5, "CUR_3" );
-  m[ CUR_4 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTH, 4, "CUR_4" );
-  m[ CUR_5 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTG, 2, "CUR_5" );
-  m[ CUR_6 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTE, 3, "CUR_6" );
-  m[ CUR_7 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTC, 1, "CUR_7" );
-  m[ CUR_8 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTA, 0, "CUR_8" );
+  m[ CUR_1 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTB, REG_IOEXP_IO0_6, "CUR_1" );
+  m[ CUR_2 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTD, REG_IOEXP_IO0_7, "CUR_2" );
+  m[ CUR_3 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTF, REG_IOEXP_IO0_5, "CUR_3" );
+  m[ CUR_4 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTH, REG_IOEXP_IO0_4, "CUR_4" );
+  m[ CUR_5 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTG, REG_IOEXP_IO0_2, "CUR_5" );
+  m[ CUR_6 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTE, REG_IOEXP_IO0_3, "CUR_6" );
+  m[ CUR_7 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTC, REG_IOEXP_IO0_1, "CUR_7" );
+  m[ CUR_8 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTA, REG_IOEXP_IO0_0, "CUR_8" );
   return m;
 }
 

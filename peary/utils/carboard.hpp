@@ -106,4 +106,27 @@ typedef struct
 #define REG_DAC_CHANNEL_VOUTH  0x07
 #define REG_DAC_CHANNEL_ALL    0x0F
 
+
+/** PCA9539 Output register addresses
+ */
+// Port 0
+#define REG_IOEXP_IO0_0 0x00
+#define REG_IOEXP_IO0_1 0x01
+#define REG_IOEXP_IO0_2 0x02
+#define REG_IOEXP_IO0_3 0x03
+#define REG_IOEXP_IO0_4 0x04
+#define REG_IOEXP_IO0_5 0x05
+#define REG_IOEXP_IO0_6 0x06
+#define REG_IOEXP_IO0_7 0x07
+// Port 1
+#define REG_IOEXP_IO1_0 0x00
+#define REG_IOEXP_IO1_1 0x01
+#define REG_IOEXP_IO1_2 0x02
+#define REG_IOEXP_IO1_3 0x03
+#define REG_IOEXP_IO1_4 0x04
+#define REG_IOEXP_IO1_5 0x05
+#define REG_IOEXP_IO1_6 0x06
+#define REG_IOEXP_IO1_7 0x07
+
+
 #endif /* CARIBOU_CARBOARD_H */
