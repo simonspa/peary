@@ -172,7 +172,7 @@ namespace caribou {
 
     /** Initializer function for Caribou devices
      */
-    void initialize(std::string devpath, caribou::dictionary<uint8_t> periphery);
+    void initialize(std::string devpath, uint32_t devaddr, caribou::dictionary<uint8_t> periphery);
 
     /** Device configuration object
      */
