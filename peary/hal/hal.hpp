@@ -32,13 +32,10 @@ namespace caribou {
      */
     uint32_t getFirmwareRegister(uint16_t address);
 
+    /** Get reference to managed device interface
+     */
     template<typename T>
     Interface<T> & getInterface();
-
-    /** Send command to the managed device interface
-     */
-    std::vector<uint8_t> write(std::vector<uint8_t> address, std::vector<uint8_t> data);
-    std::vector<uint8_t> write(const uint8_t address, const std::vector<uint32_t> & data);
 
     /** Read data from managed device interface
      */
