@@ -294,7 +294,7 @@ void caribouHAL::setCurrentMonitor(const uint8_t device, const double maxExpecte
 		   << "on INA226 at " << to_hex_string(device);
   
   iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C1);
-  unsigned int cal = static_cast< unsigned int >( 0.00512 *( 0x1 << 15)/(INA226_R_SHUNT * maxExpectedCurrent ) );
+  unsigned int cal = static_cast< unsigned int >( 0.00512 *( 0x1 << 15)/(CAR_INA226_R_SHUNT * maxExpectedCurrent ) );
   i2c.write(device, 0x05, {static_cast<i2c_t>( cal >> 8 ), static_cast<i2c_t>( cal & 0xFF ) } );
 }
 
@@ -310,7 +310,7 @@ double caribouHAL::measureCurrent(const VOLTAGE_REGULATOR_T regulator){
   iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C1);
   const i2c_address_t device = std::get<2>( voltageRegulatorMap.at( regulator ) );
   std::vector<i2c_t> cal_v = i2c.read( device, 0x05, 2); //readback calibration register
-  double currentLSB = static_cast<double>(0.00512) / ( (static_cast<uint16_t>(cal_v[0] << 8) | cal_v[1]) * INA226_R_SHUNT );
+  double currentLSB = static_cast<double>(0.00512) / ( (static_cast<uint16_t>(cal_v[0] << 8) | cal_v[1]) * CAR_INA226_R_SHUNT );
   std::vector<i2c_t> current_raw = i2c.read(device, 0x04, 2);
   return (static_cast<unsigned int>(current_raw[0] << 8 ) | current_raw[1] ) * currentLSB;
 }
@@ -320,7 +320,7 @@ double caribouHAL::measurePower(const VOLTAGE_REGULATOR_T regulator){
   iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C1);
   const i2c_address_t device = std::get<2>( voltageRegulatorMap.at( regulator ) );
   std::vector<i2c_t> cal_v = i2c.read( device, 0x05, 2); //readback calibration register
-  double powerLSB = 25 * static_cast<double>(0.00512) / ( (static_cast<uint16_t>(cal_v[0] << 8) | cal_v[1]) * INA226_R_SHUNT );
+  double powerLSB = 25 * static_cast<double>(0.00512) / ( (static_cast<uint16_t>(cal_v[0] << 8) | cal_v[1]) * CAR_INA226_R_SHUNT );
   std::vector<i2c_t> power_raw = i2c.read(device, 0x03, 2);
   return (static_cast<unsigned int>(power_raw[0] << 8 ) | power_raw[1] ) * powerLSB;
 }

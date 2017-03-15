@@ -12,9 +12,10 @@
 #define BUS_I2C2 "/dev/i2c-9"
 #define BUS_I2C3 "/dev/i2c-10"
 
-/** Reference voltages
+/** Reference voltages, shunts, ...
  */
 #define CAR_VREF_4P0  4.096 // via TI REF5040
+#define CAR_INA226_R_SHUNT 0.01
 
 typedef enum {
   PWR_OUT1, PWR_OUT2, PWR_OUT3, PWR_OUT4,
@@ -52,7 +53,6 @@ typedef struct
 #define ADDR_MONITOR_U56 0x45
 #define ADDR_MONITOR_U59 0x46
 #define ADDR_MONITOR_U58 0x4A
-#define INA226_R_SHUNT 0.01
 
 /** Devices on I2C2
  */
