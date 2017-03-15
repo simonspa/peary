@@ -88,11 +88,6 @@ namespace caribou {
     //It returns vale in SI V.
     double measureVoltage(const VOLTAGE_REGULATOR_T regulator);
     
-    //FIXME: User shouldn't have access to set setDACVoltage and powerDAC where he can
-    //       provide any I2C address. Instead enums should be used to a specialised functions,
-    //       like setBias, setInjectionBias, setCurrent, etc.
-    
-
   private:
 
     //the tuple stores (in the order) the coressponding: DAC pin, pin of the port 1 of the U15, I2C address of the current/power monitor and PWR name
