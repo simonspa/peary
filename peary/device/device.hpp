@@ -180,7 +180,7 @@ namespace caribou {
 
     /** Static periphery dictionary for all devices to access CaR components:
      */
-    static caribou::dictionary<uint8_t> _periphery;
+    caribou::dictionary<uint8_t> _periphery;
 
   }; //class caribouDevice
 
