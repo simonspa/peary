@@ -89,7 +89,8 @@ INCLUDE_DIRECTORIES("${CMAKE_CURRENT_BINARY_DIR}")
 # Include directories
 INCLUDE_DIRECTORIES(peary/utils
   peary/device
-  peary/hal)
+  peary/hal
+  peary/interfaces)
 
 # Always build main peary library;
 ADD_SUBDIRECTORY(peary)

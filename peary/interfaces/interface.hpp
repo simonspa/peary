@@ -7,6 +7,8 @@
 #include <string>
 
 #include "exceptions.hpp"
+#include "utils.hpp"
+#include "log.hpp"
 
 namespace caribou {
 
@@ -18,14 +20,26 @@ namespace caribou {
   class Interface {
 
   protected:
-    Interface( std::string devicePath) : devicePath(devicePath) {};
-
+    Interface(std::string devicePath) : devicePath(devicePath), address(0), fixed_address(false) {};
     virtual ~Interface(){};
 
     //Path of the device
     const std::string devicePath;
-  
-  public: 
+    ADDRESS_T address;
+    bool fixed_address;
+
+    // Provide initial (locked) address
+    void lock_address(ADDRESS_T addr) {
+      address = addr;
+      fixed_address = true;
+      LOG(logINTERFACE) << "Device address of interface " << devicePath
+			<< " locked to " << to_hex_string(address);
+    }
+    
+    friend class caribouHAL;
+  public:
+
+  private:
     //////////////////////
     // Write operations
     //////////////////////

@@ -18,9 +18,28 @@
 
 using namespace caribou;
 
-caribouHAL::caribouHAL(IFACE interface, std::string device_path = "") :
-  _iface(interface), _devpath(device_path) {
+caribouHAL::caribouHAL(IFACE interface, std::string device_path, uint32_t device_address) :
+  _iface(interface), _devpath(device_path), _devaddress(device_address) {
 
+  // try to access the device:
+  switch(_iface) {
+  case IFACE::SPI : {
+    iface_spi & myspi = interface_manager::getInterface<iface_spi>(_devpath);
+    myspi.lock_address(device_address);
+    break;
+  }
+  case IFACE::I2C : {
+    iface_i2c & myi2c = interface_manager::getInterface<iface_i2c>(_devpath);
+    myi2c.lock_address(device_address);
+    break;
+  }
+  case IFACE::LOOPBACK : {
+    Interface<uint8_t, uint8_t> & loop = interface_manager::getInterface<iface_loopback>(_devpath);
+    loop.lock_address(device_address);
+    break;
+  }
+  }
+    
   //Disable all Voltage Regulators
   LOG(logDEBUGHAL) << "Disabling all Voltage regulators";
   iface_i2c & i2c0 = interface_manager::getInterface<iface_i2c>(BUS_I2C0);
@@ -59,25 +78,30 @@ uint8_t caribouHAL::getCaRBoardID() {
   return data.front();
 }
 
-std::vector<uint8_t> caribouHAL::write(const uint8_t address, const std::vector<uint8_t>& data) {
+
+template<typename T>
+Interface<T>& caribouHAL::getInterface() {
+}
+
+std::vector<uint8_t> caribouHAL::write(const uint8_t address, const std::vector<uint32_t>& data) {
 
   switch(_iface) {
   case IFACE::SPI : {
     LOG(logDEBUGHAL) << "Command to SPI";
     iface_spi & myspi = interface_manager::getInterface<iface_spi>(_devpath);
-    return myspi.write(address,data);
+    return myspi.write(address,std::vector<spi_t>(data.begin(), data.end()));
     break;
   }
   case IFACE::I2C : {
     LOG(logDEBUGHAL) << "Command to I2C";
     iface_i2c & myi2c = interface_manager::getInterface<iface_i2c>(_devpath);
-    return myi2c.write(address,data);
+    return myi2c.write(address,std::vector<i2c_t>(data.begin(), data.end()));
     break;
   }
   case IFACE::LOOPBACK : {
     LOG(logDEBUGHAL) << "Command to LOOPBACK interface";
     Interface<uint8_t, uint8_t> & loop = interface_manager::getInterface<iface_loopback>(_devpath);
-    return loop.write(0x0,address,data);
+    return loop.write(0x0,address,std::vector<uint8_t>(data.begin(), data.end()));
     break;
   }
 

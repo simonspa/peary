@@ -7,6 +7,8 @@
 #include <string>
 #include <cstdint>
 
+#include "interface.hpp"
+
 namespace caribou {
 
   class caribouHAL {
@@ -14,7 +16,7 @@ namespace caribou {
   public:
     /** Default constructor for creating a new HAL instance
      */
-    caribouHAL(IFACE interface, std::string device_path);
+    caribouHAL(IFACE interface, std::string device_path, uint32_t device_address);
 
     /** Default destructor for HAL objects
      */
@@ -29,11 +31,14 @@ namespace caribou {
      *  @param address : address of the register to be read
      */
     uint32_t getFirmwareRegister(uint16_t address);
-    
+
+    template<typename T>
+    Interface<T> & getInterface();
+
     /** Send command to the managed device interface
      */
     std::vector<uint8_t> write(std::vector<uint8_t> address, std::vector<uint8_t> data);
-    std::vector<uint8_t> write(const uint8_t address, const std::vector<uint8_t> & data);
+    std::vector<uint8_t> write(const uint8_t address, const std::vector<uint32_t> & data);
 
     /** Read data from managed device interface
      */
@@ -97,6 +102,10 @@ namespace caribou {
     /** Device path of the configured device
      */
     std::string _devpath;
+
+    /** Address of the configured device
+     */
+    uint32_t _devaddress;
     
     /** Set output voltage on a DAC7678 voltage regulator
      *
