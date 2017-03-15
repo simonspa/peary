@@ -43,7 +43,7 @@ uint8_t caribouDevice::getFirmwareID() { return _hal->getFirmwareRegister(ADDR_F
 
 std::string caribouDevice::getDeviceName() { return std::string(); }
 
-void caribouDevice::voltageSet(std::string name, double voltage) {
+void caribouDevice::setVoltage(std::string name, double voltage) {
 
   // Resolve name against global periphery dictionary
   LOG(logDEBUG) << "Regulator to be configured: " << to_hex_string(_periphery.getDevice(name));

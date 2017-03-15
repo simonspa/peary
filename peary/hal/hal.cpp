@@ -146,7 +146,7 @@ void caribouHAL::setVoltageRegulator(const VOLTAGE_REGULATOR_T regulator, const 
 		   << "on " << std::get<3>(  voltageRegulatorMap.at( regulator ) );
 
   if( voltage > 3.6 )
-    throw ConfigInvalid( "Tring to set Voltage regulator to " + std::to_string(voltage) + " V (max is 3.6 V)");
+    throw ConfigInvalid( "Trying to set Voltage regulator to " + std::to_string(voltage) + " V (max is 3.6 V)");
   
   setDACVoltage( ADDR_DAC_U50,  std::get<0>( voltageRegulatorMap.at( regulator ) ), 3.6 - voltage );
 

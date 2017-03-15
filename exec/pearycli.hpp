@@ -29,7 +29,8 @@ namespace caribou {
 
     static int powerOn(const std::vector<std::string> & input);
     static int powerOff(const std::vector<std::string> & input);
-
+    static int setVoltage(const std::vector<std::string> & input);
+    
     // Create new Peary device manager
     static caribou::caribouDeviceMgr * manager;
 

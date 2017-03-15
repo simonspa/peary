@@ -18,7 +18,8 @@ int main(int argc, char* argv[]) {
 
   std::vector<std::string> devices;
   std::string configfile = "", execfile = "";
-
+  Log::ReportingLevel() = TLogLevel::logINFO;
+  
   // Start peary console
   pearycli c;
   

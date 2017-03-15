@@ -13,6 +13,7 @@ pearycli::pearycli() : c("# ") {
 
   c.registerCommand("powerOn", powerOn);
   c.registerCommand("powerOff", powerOff);
+  c.registerCommand("setVoltage", setVoltage);
 }
 
 pearycli::~pearycli() {
@@ -67,5 +68,21 @@ int pearycli::powerOff(const std::vector<std::string> & input) {
     dev->powerOff();
   }
   catch (caribou::DeviceException &) { return ret::Error; }
+  return ret::Ok;
+}
+
+int pearycli::setVoltage(const std::vector<std::string> & input) {
+  if (input.size() < 4) {
+    LOG(logINFO) << "Usage: " << input.at(0) << " OUTPUT_NAME OUTPUT_VALUE DEVICE_ID";
+    return ret::Error;
+  }
+  try {
+    caribouDevice *dev = manager->getDevice(std::stoi(input.at(3)));
+    dev->setVoltage(input.at(1),std::stod(input.at(2)));
+  }
+  catch (caribou::caribouException &e) {
+    LOG(logERROR) << e.what();
+    return ret::Error;
+  }
   return ret::Ok;
 }
