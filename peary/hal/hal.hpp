@@ -90,15 +90,6 @@ namespace caribou {
     
   private:
 
-    //the tuple stores (in the order) the coressponding: DAC pin, pin of the port 1 of the U15, I2C address of the current/power monitor and PWR name
-    static const std::map< VOLTAGE_REGULATOR_T, std::tuple<uint8_t,uint8_t, uint8_t, uint8_t, std::string> > voltageRegulatorMap;
-    
-    //the tuple stores (in order) the coresponding DAC pin, pin of the port 0 of the U15 and CURRENT name
-    static const std::map< CURRENT_SOURCE_T, std::tuple<uint8_t, uint8_t, std::string> > currentSourceMap;
-
-    static std::map< VOLTAGE_REGULATOR_T, std::tuple<uint8_t,uint8_t, uint8_t, uint8_t, std::string> > createVoltageRegulatorMap();
-    static std::map< CURRENT_SOURCE_T, std::tuple<uint8_t, uint8_t, std::string> > createCurrentSourceMap();
-    
     /** Interface of the configured device
      */
     uint8_t _iface;

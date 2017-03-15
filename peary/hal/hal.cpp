@@ -18,18 +18,6 @@
 
 using namespace caribou;
 
-//
-//Initialize static members of the HAL
-//
-
-const std::map< VOLTAGE_REGULATOR_T, std::tuple<uint8_t,uint8_t, uint8_t, uint8_t, std::string> > caribouHAL:: voltageRegulatorMap = caribouHAL::createVoltageRegulatorMap();
-
-const std::map< CURRENT_SOURCE_T, std::tuple<uint8_t, uint8_t, std::string> > caribouHAL:: currentSourceMap = caribouHAL:: createCurrentSourceMap();
-
-//
-//Define functions of the HAL
-//
-
 caribouHAL::caribouHAL(IFACE interface, std::string device_path = "") :
   _iface(interface), _devpath(device_path) {
 
@@ -40,14 +28,14 @@ caribouHAL::caribouHAL(IFACE interface, std::string device_path = "") :
   i2c0.write(ADDR_IOEXP, 0x6, {0x00, 0x00} ); //set all bits of Port 1-2 in output mode
 
   LOG(logDEBUGHAL) << "Disabling all current sources";
-  powerDAC( false, ADDR_DAC_U47, std::get<0>( currentSourceMap.at( CUR_1 ) ) );
-  powerDAC( false, ADDR_DAC_U47, std::get<0>( currentSourceMap.at( CUR_2 ) ) );
-  powerDAC( false, ADDR_DAC_U47, std::get<0>( currentSourceMap.at( CUR_3 ) ) );
-  powerDAC( false, ADDR_DAC_U47, std::get<0>( currentSourceMap.at( CUR_4 ) ) );
-  powerDAC( false, ADDR_DAC_U47, std::get<0>( currentSourceMap.at( CUR_5 ) ) );
-  powerDAC( false, ADDR_DAC_U47, std::get<0>( currentSourceMap.at( CUR_6 ) ) );
-  powerDAC( false, ADDR_DAC_U47, std::get<0>( currentSourceMap.at( CUR_7 ) ) );
-  powerDAC( false, ADDR_DAC_U47, std::get<0>( currentSourceMap.at( CUR_8 ) ) );
+  powerDAC( false, std::get<1>(CUR_1), std::get<2>(CUR_1));
+  powerDAC( false, std::get<1>(CUR_2), std::get<2>(CUR_2));
+  powerDAC( false, std::get<1>(CUR_3), std::get<2>(CUR_3));
+  powerDAC( false, std::get<1>(CUR_4), std::get<2>(CUR_4));
+  powerDAC( false, std::get<1>(CUR_5), std::get<2>(CUR_5));
+  powerDAC( false, std::get<1>(CUR_6), std::get<2>(CUR_6));
+  powerDAC( false, std::get<1>(CUR_7), std::get<2>(CUR_7));
+  powerDAC( false, std::get<1>(CUR_8), std::get<2>(CUR_8));
   
   LOG(logDEBUGHAL) << "Configured device with typ-" << (int)_iface << " interface on " << _devpath;
 }
@@ -56,32 +44,6 @@ caribouHAL::~caribouHAL() {}
 
 uint32_t caribouHAL::getFirmwareRegister(uint16_t) {
   throw FirmwareException("Functionality not implemented.");
-}
-
-std::map< VOLTAGE_REGULATOR_T, std::tuple<uint8_t,uint8_t, uint8_t, uint8_t, std::string> > caribouHAL::createVoltageRegulatorMap(){
-  std::map< VOLTAGE_REGULATOR_T, std::tuple<uint8_t,uint8_t, uint8_t, uint8_t, std::string> > m;
-  m[ PWR_OUT1 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTA, REG_IOEXP_IO1_7, ADDR_MONITOR_U53, ADDR_DAC_U50, "PWR_OUT1" );
-  m[ PWR_OUT2 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTC, REG_IOEXP_IO1_6, ADDR_MONITOR_U52, ADDR_DAC_U50, "PWR_OUT2" );
-  m[ PWR_OUT3 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTE, REG_IOEXP_IO1_5, ADDR_MONITOR_U55, ADDR_DAC_U50, "PWR_OUT3" );
-  m[ PWR_OUT4 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTG, REG_IOEXP_IO1_4, ADDR_MONITOR_U54, ADDR_DAC_U50, "PWR_OUT4" );
-  m[ PWR_OUT5 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTB, REG_IOEXP_IO1_0, ADDR_MONITOR_U57, ADDR_DAC_U50, "PWR_OUT5" );
-  m[ PWR_OUT6 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTD, REG_IOEXP_IO1_1, ADDR_MONITOR_U56, ADDR_DAC_U50, "PWR_OUT6" );
-  m[ PWR_OUT7 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTF, REG_IOEXP_IO1_2, ADDR_MONITOR_U59, ADDR_DAC_U50, "PWR_OUT7" );
-  m[ PWR_OUT8 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTH, REG_IOEXP_IO1_3, ADDR_MONITOR_U58, ADDR_DAC_U50, "PWR_OUT8" );
-  return m;
-}
-
-std::map< CURRENT_SOURCE_T, std::tuple<uint8_t, uint8_t, std::string> > caribouHAL::createCurrentSourceMap(){
-  std::map< CURRENT_SOURCE_T, std::tuple<uint8_t, uint8_t, std::string> > m;
-  m[ CUR_1 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTB, REG_IOEXP_IO0_6, "CUR_1" );
-  m[ CUR_2 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTD, REG_IOEXP_IO0_7, "CUR_2" );
-  m[ CUR_3 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTF, REG_IOEXP_IO0_5, "CUR_3" );
-  m[ CUR_4 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTH, REG_IOEXP_IO0_4, "CUR_4" );
-  m[ CUR_5 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTG, REG_IOEXP_IO0_2, "CUR_5" );
-  m[ CUR_6 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTE, REG_IOEXP_IO0_3, "CUR_6" );
-  m[ CUR_7 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTC, REG_IOEXP_IO0_1, "CUR_7" );
-  m[ CUR_8 ] = std::make_tuple( REG_DAC_CHANNEL_VOUTA, REG_IOEXP_IO0_0, "CUR_8" );
-  return m;
 }
 
 uint8_t caribouHAL::getCaRBoardID() {
@@ -143,16 +105,15 @@ double caribouHAL::readTemperature() {
 
 void caribouHAL::setVoltageRegulator(const VOLTAGE_REGULATOR_T regulator, const double voltage, const double maxExpectedCurrent){
   LOG(logDEBUGHAL) << "Setting " << voltage << "V "
-		   << "on " << std::get<4>(  voltageRegulatorMap.at( regulator ) );
+		   << "on " << std::get<0>(regulator);
 
   if( voltage > 3.6 )
     throw ConfigInvalid( "Trying to set Voltage regulator to " + std::to_string(voltage) + " V (max is 3.6 V)");
   
-  setDACVoltage( std::get<3>( voltageRegulatorMap.at( regulator ) ),  std::get<0>( voltageRegulatorMap.at( regulator ) ), 3.6 - voltage );
+  setDACVoltage(std::get<1>(regulator), std::get<2>(regulator), 3.6 - voltage );
 
   //set current/power monitor
-  setCurrentMonitor( std::get<2>( voltageRegulatorMap.at( regulator ) ), maxExpectedCurrent );
-
+  setCurrentMonitor(std::get<4>(regulator), maxExpectedCurrent );
 }
 
 void caribouHAL::powerVoltageRegulator(const VOLTAGE_REGULATOR_T regulator, const bool enable){
@@ -160,25 +121,25 @@ void caribouHAL::powerVoltageRegulator(const VOLTAGE_REGULATOR_T regulator, cons
   iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C0);
 
   if(enable){
-    LOG(logDEBUGHAL) << "Powering up " << std::get<4>(  voltageRegulatorMap.at( regulator ) );
+    LOG(logDEBUGHAL) << "Powering up " << std::get<0>(regulator);
 
     //First power on DAC
-    powerDAC( true, std::get<3>( voltageRegulatorMap.at( regulator ) ), std::get<0>( voltageRegulatorMap.at( regulator ) ) );
+    powerDAC(true, std::get<1>(regulator), std::get<2>(regulator));
     //Power on the Voltage regulator
     auto mask = i2c.read(ADDR_IOEXP, 0x03, 1)[0];
-    mask |=  1 <<  std::get<1>( voltageRegulatorMap.at( regulator ) );
+    mask |=  1 <<  std::get<3>(regulator);
     i2c.write(ADDR_IOEXP, std::make_pair( 0x03, mask ));
   }
   else{
-    LOG(logDEBUGHAL) << "Powering down " << std::get<4>(  voltageRegulatorMap.at( regulator ) );
+    LOG(logDEBUGHAL) << "Powering down " << std::get<0>(regulator);
     
     //Disable the Volage regulator
     auto mask = i2c.read(ADDR_IOEXP, 0x03, 1)[0];
-    mask &= ~( 1 <<  std::get<1>( voltageRegulatorMap.at( regulator ) ) );
+    mask &= ~( 1 <<  std::get<3>(regulator));
     i2c.write(ADDR_IOEXP, std::make_pair( 0x03, mask ) );
 
     //Disable the DAC
-    powerDAC( false, std::get<3>( voltageRegulatorMap.at( regulator ) ), std::get<0>( voltageRegulatorMap.at( regulator ) ) );
+    powerDAC( false, std::get<1>(regulator), std::get<2>(regulator) );
   }
 }
 
@@ -186,32 +147,32 @@ void caribouHAL::setCurrentSource(const CURRENT_SOURCE_T source, const unsigned 
 				  const CURRENT_SOURCE_POLARISATION_T polarisation){
 
   LOG(logDEBUGHAL) << "Setting " << current  << "uA "
-		   << "on " << std::get<2>(   currentSourceMap.at( source ) );
+		   << "on " << std::get<0>(source);
 
   if( current > 1000 )
     throw ConfigInvalid( "Tring to set current source to " + std::to_string(current) + " uA (max is 1000uA)");
 
   //set DAC
-  setDACVoltage( ADDR_DAC_U47,  std::get<0>(  currentSourceMap.at( source ) ), (current * CAR_VREF_4P0)/1000 );
+  setDACVoltage(std::get<1>(source), std::get<2>(source), (current * CAR_VREF_4P0)/1000 );
 
   //set polarisation
   iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C0);
   auto mask = i2c.read(ADDR_IOEXP, 0x02, 1)[0];
   switch(polarisation){
-  case PULL : mask &= ~( 1 <<  std::get<1>(  currentSourceMap.at( source ) ) );
-  case PUSH : mask |=    1 <<  std::get<1>(  currentSourceMap.at( source ) );
+  case PULL : mask &= ~( 1 <<  std::get<3>(source));
+  case PUSH : mask |=    1 <<  std::get<3>(source);
   }
   i2c.write(ADDR_IOEXP, std::make_pair(0x02, mask) );
 }
 
 void caribouHAL::powerCurrentSource(const CURRENT_SOURCE_T source, const bool enable){
   if(enable){
-    LOG(logDEBUGHAL) << "Powering up " << std::get<2>( currentSourceMap.at( source ) );
-    powerDAC( true, ADDR_DAC_U47, std::get<0>(  currentSourceMap.at( source ) ) );
+    LOG(logDEBUGHAL) << "Powering up " << std::get<0>(source);
+    powerDAC( true, std::get<1>(source), std::get<2>(source));
   }
   else{
-    LOG(logDEBUGHAL) << "Powering down " << std::get<2>( currentSourceMap.at( source ) );
-    powerDAC( true, ADDR_DAC_U47, std::get<0>( currentSourceMap.at( source ) ) );
+    LOG(logDEBUGHAL) << "Powering down " << std::get<0>(source);
+    powerDAC( true, std::get<1>(source), std::get<2>(source));
   }
 }
 
@@ -300,7 +261,7 @@ void caribouHAL::setCurrentMonitor(const uint8_t device, const double maxExpecte
 
 double caribouHAL::measureVoltage(const VOLTAGE_REGULATOR_T regulator){
   iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C1);
-  const i2c_address_t device = std::get<2>( voltageRegulatorMap.at( regulator ) );
+  const i2c_address_t device = std::get<4>(regulator);
   std::vector<i2c_t> voltage = i2c.read( device, 0x02, 2);
   return ( static_cast<unsigned int>( voltage[0] << 8 ) | voltage[1] ) * 0.00125;
 }
@@ -308,7 +269,7 @@ double caribouHAL::measureVoltage(const VOLTAGE_REGULATOR_T regulator){
 //FIXME: somtimes it returns dummy values
 double caribouHAL::measureCurrent(const VOLTAGE_REGULATOR_T regulator){
   iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C1);
-  const i2c_address_t device = std::get<2>( voltageRegulatorMap.at( regulator ) );
+  const i2c_address_t device = std::get<4>(regulator);
   std::vector<i2c_t> cal_v = i2c.read( device, 0x05, 2); //readback calibration register
   double currentLSB = static_cast<double>(0.00512) / ( (static_cast<uint16_t>(cal_v[0] << 8) | cal_v[1]) * CAR_INA226_R_SHUNT );
   std::vector<i2c_t> current_raw = i2c.read(device, 0x04, 2);
@@ -318,7 +279,7 @@ double caribouHAL::measureCurrent(const VOLTAGE_REGULATOR_T regulator){
 //FIXME: sometimes it return dummy values
 double caribouHAL::measurePower(const VOLTAGE_REGULATOR_T regulator){
   iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C1);
-  const i2c_address_t device = std::get<2>( voltageRegulatorMap.at( regulator ) );
+  const i2c_address_t device = std::get<4>(regulator);
   std::vector<i2c_t> cal_v = i2c.read( device, 0x05, 2); //readback calibration register
   double powerLSB = 25 * static_cast<double>(0.00512) / ( (static_cast<uint16_t>(cal_v[0] << 8) | cal_v[1]) * CAR_INA226_R_SHUNT );
   std::vector<i2c_t> power_raw = i2c.read(device, 0x03, 2);
