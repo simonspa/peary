@@ -39,6 +39,28 @@ namespace caribou {
     friend class caribouHAL;
   public:
 
+    //Write data to a device which does not contain internal register
+    //If readout is intergralpart of write operations, the read values a returned by function. 
+    DATA_T send(const DATA_T& data) { return write(deviceAddress,data); };
+
+        //Write data to a device which does not contain internal register
+    //If readout is intergralpart of write operations, the read values a returned by function. 
+    std::vector<DATA_T> send(const std::vector<DATA_T>& data) { return write(deviceAddress, data); };
+
+  
+    //Write data to a device containing internal registers
+    //If readout is intergralpart of write operations, the read values a returned by function. 
+    std::pair<REG_T, DATA_T> send(const std::pair<REG_T, DATA_T> & data) { return write(deviceAddress,data); };
+    
+    //Write data to a device containing internal registers
+    //If readout is intergralpart of write operations, the read values a returned by function. 
+    std::vector<DATA_T> send(const REG_T& reg, const std::vector< DATA_T>& data) { return write(deviceAddress, reg, data); };
+
+  
+    //Write data to a device containing internal registers
+    //If readout is intergralpart of write operations, the read values a returned by function. 
+    std::vector<std::pair<REG_T, DATA_T> > send(const std::vector<std::pair<REG_T, DATA_T> >& data) { return write(deviceAddress, data); };
+
   private:
     //////////////////////
     // Write operations
