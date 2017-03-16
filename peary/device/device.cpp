@@ -68,3 +68,14 @@ void caribouDevice::voltageOff(std::string name) {
   //FIXME:
   //  _hal->powerVoltage(false, _periphery.getDevice(name),_periphery.getAddress(name));
 }
+
+double caribouDevice::getADC(uint8_t channel) {
+  if(channel < 1 || channel > 8) {
+    LOG(logCRITICAL) << "ADC channel " << std::to_string(channel) << " does not exist";
+    throw caribou::ConfigInvalid("ADC channel " + std::to_string(channel) + " does not exist");
+  }
+  
+  LOG(logDEBUG) << "Reading slow ADC, channel " << static_cast<int>(channel);
+  return _hal->readSlowADC(channel);
+}
+

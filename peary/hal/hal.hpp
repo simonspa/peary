@@ -93,7 +93,9 @@ namespace caribou {
     //The method measures voltage
     //It returns vale in SI V.
     double measureVoltage(const VOLTAGE_REGULATOR_T regulator);
-    
+
+    double readSlowADC(const uint8_t channel);
+
   private:
 
     /** Interface of the configured device

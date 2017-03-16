@@ -146,7 +146,18 @@ namespace caribou {
     //virtual double measureCurrent();
 
     //virtual double getTemperature();
-    //virtual double getADC();
+
+    /** Read slow-ADC value by name of the input signal as defined by the device
+     *
+     *  Returns value in SI Volts
+     */
+    double getADC(std::string name);
+
+    /** Read slow-ADC value by the input channel number of the ADC device
+     *
+     *  Returns value in SI Volts
+     */
+    double getADC(uint8_t channel);
     
     // CaR CMOS signals
     // void enableSignal();

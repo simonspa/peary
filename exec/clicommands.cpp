@@ -15,6 +15,7 @@ pearycli::pearycli() : c("# ") {
   c.registerCommand("powerOff", powerOff);
   c.registerCommand("setVoltage", setVoltage);
   c.registerCommand("exploreInterface", exploreInterface);
+  c.registerCommand("getADC", getADC);
 }
 
 pearycli::~pearycli() {
@@ -98,5 +99,18 @@ int pearycli::exploreInterface(const std::vector<std::string> & input) {
     dev->exploreInterface();
   }
   catch (caribou::DeviceException &) { return ret::Error; }
+  return ret::Ok;
+}
+
+int pearycli::getADC(const std::vector<std::string> & input) {
+  if (input.size() < 3) {
+    LOG(logINFO) << "Usage: " << input.at(0) << " CHANNEL_ID DEVICE_ID";
+    return ret::Error;
+  }
+  try {
+    caribouDevice *dev = manager->getDevice(std::stoi(input.at(2)));
+    LOG(logINFO) << "Voltage: " << dev->getADC(std::stoi(input.at(1)));
+  }
+  catch (caribou::ConfigInvalid &) { return ret::Error; }
   return ret::Ok;
 }
