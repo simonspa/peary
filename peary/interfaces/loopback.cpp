@@ -23,7 +23,7 @@ uint8_t iface_loopback::write(const uint8_t& address, const uint8_t& data ){
   
   LOG(logINTERFACE) << std::hex << "LOOPBACK (" << devicePath
 		    <<") : Writing data \"" << static_cast<int>(data)
-		    <<  "\" at address " << static_cast<int>(address) << std::dec;
+		    <<  "\" at address " << to_hex_string(address) << std::dec;
 
   return data;
 }
@@ -33,7 +33,7 @@ std::vector<uint8_t> iface_loopback::write(const uint8_t& address, const std::ve
   
   LOG(logINTERFACE) << std::hex << "LOOPBACK (" << devicePath
 		    <<") : Writing data \"" << listVector(data)
-		    <<  "\" at address " << static_cast<int>(address) << std::dec;
+		    <<  "\" at address " << to_hex_string(address) << std::dec;
 
   return data;
 }
@@ -45,7 +45,7 @@ std::pair<uint8_t, uint8_t> iface_loopback::write(const uint8_t& address,const s
   LOG(logINTERFACE) << std::hex << "LOOPBACK (" << devicePath
 		    <<") : Writing data \"" << static_cast<int>(data.second) << "\" to register "
 		    << static_cast<int>(data.first)
-		    <<  " at address " << static_cast<int>(address) << std::dec;
+		    <<  " at address " << to_hex_string(address) << std::dec;
 
   return data;
 }
@@ -57,7 +57,7 @@ std::vector<uint8_t> iface_loopback::write(const uint8_t& address, const uint8_t
   LOG(logINTERFACE) << std::hex << "LOOPBACK (" << devicePath <<") : Writing block data: \""
 		    << listVector(data) << "\"";
   LOG(logINTERFACE) << " to register " << static_cast<int>(reg)
-		    << " at address " << static_cast<int>(address) << std::dec;
+		    << " at address " << to_hex_string(address) << std::dec;
   return data;
 }
 
@@ -69,7 +69,7 @@ std::vector< std::pair<uint8_t, uint8_t> > iface_loopback::write(const uint8_t& 
 		    <<") : Writing block data to registers:";
   for(auto i : data)
     LOG(logINTERFACE) << static_cast<int>(i.first) << " | " << static_cast<int>(i.second);
-  LOG(logINTERFACE) <<  "at address " << static_cast<int>(address) << std::dec;
+  LOG(logINTERFACE) <<  "at address " << to_hex_string(address) << std::dec;
 
   return data;
 }
@@ -78,7 +78,7 @@ std::vector<uint8_t> iface_loopback::read(const uint8_t& address, const unsigned
   std::lock_guard<std::mutex> lock(mutex);
   std::vector<uint8_t> data;
 
-  LOG(logINTERFACE) << std::hex << "LOOPBACK (" << devicePath <<") address " << static_cast<int>(address) << ": Read data  - returning address." << std::dec;
+  LOG(logINTERFACE) << std::hex << "LOOPBACK (" << devicePath <<") address " << to_hex_string(address) << ": Read data  - returning address." << std::dec;
 
   for(unsigned int i = 0; i < length; i++)
     data.push_back(address);
@@ -90,7 +90,7 @@ std::vector<uint8_t> iface_loopback::read(const uint8_t& address, const uint8_t 
   std::lock_guard<std::mutex> lock(mutex);
   std::vector<uint8_t> data;
 
-  LOG(logINTERFACE) << std::hex << "LOOPBACK (" << devicePath <<") address " << static_cast<int>(address) << ": Read data from register " << static_cast<int>(reg) << " - returning address." << std::dec;
+  LOG(logINTERFACE) << std::hex << "LOOPBACK (" << devicePath <<") address " << to_hex_string(address) << ": Read data from register " << static_cast<int>(reg) << " - returning address." << std::dec;
 
   for(unsigned int i = 0; i < length; i++)
     data.push_back(address);
