@@ -17,7 +17,9 @@ namespace caribou {
     interface_manager() {};
 
   private:
-
+    // Static instance of this singleton class
+    static interface_manager instance;
+    
     // Mutex protecting interface generation
     static std::mutex mutex;
     
@@ -29,7 +31,6 @@ namespace caribou {
      */
     template<typename T>
     static T& getInterface(std::string const & device_path) {
-      static interface_manager instance;
       static std::map<std::string, T* > interfaces;
 
       std::lock_guard<std::mutex> lock(mutex);
