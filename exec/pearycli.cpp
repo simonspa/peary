@@ -53,13 +53,14 @@ int main(int argc, char* argv[]) {
   // Create all Caribou devices instance:
   try {
 
-    // Open configuration file and create (const) object:
+    // Open configuration file and create object:
+    caribou::Configuration config;
     std::ifstream file(configfile.c_str());
     if (!file.is_open()) {
-      LOG(logCRITICAL) << "No configuration file provided.";
-      throw std::runtime_error("configuration file not found");
+      LOG(logWARNING) << "No configuration file provided, all devices will use defaults!";
+      config = caribou::Configuration();
     }
-    const caribou::Configuration config(file);
+    else { config = caribou::Configuration(file); }
 
     // Demonstrate how to fetch a vector from the config file:
     std::vector<int64_t> a = config.Get("myintvec",std::vector<int64_t>());
