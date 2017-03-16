@@ -45,6 +45,8 @@ namespace caribou {
      */
     void powerStatusLog();
 
+    void exploreInterface() {};
+
   private:
 
     // analog power supply

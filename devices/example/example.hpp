@@ -59,6 +59,7 @@ namespace caribou {
      */
     void powerStatusLog() {};
 
+    void exploreInterface() {};
 
     /** Example function only available in this derived device class
      */

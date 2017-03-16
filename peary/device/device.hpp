@@ -89,6 +89,11 @@ namespace caribou {
      */
     virtual void powerStatusLog() = 0;
 
+    /** Explore interface by sending data via all available functions
+     *  FIXME for debugging purposes, should be removed later
+     */
+    virtual void exploreInterface() = 0;
+
     /** Function to reconfigure the Caribou device
      */
     // Previously "loadConfig"?

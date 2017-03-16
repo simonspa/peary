@@ -3,6 +3,7 @@
  */
 
 #include "clicpix2.hpp"
+#include "spi.hpp"
 #include "hal.hpp"
 #include "log.hpp"
 
@@ -166,6 +167,36 @@ void clicpix2::powerStatusLog(){
   LOG(logINFO) << "\tBus voltage: " << _hal->measureVoltage(PWR_OUT_4) << "V";
   LOG(logINFO) << "\tBus current: " << _hal->measureCurrent(PWR_OUT_4) << "A";
   LOG(logINFO) << "\tBus power  : " << _hal->measurePower(PWR_OUT_4) << "W";
+}
+
+void clicpix2::exploreInterface(){
+  LOG(logINFO) << DEVICE_NAME << " - Exploring interface capabilities...";
+
+  // Prepare data:
+  uint8_t data = 0xff;
+  LOG(logDEBUG) << "Write: Single data word";
+  LOG(logDEBUG) << "  sending:   " << to_hex_string(data);
+  LOG(logDEBUG) << "  receiving: " << to_hex_string(_hal->getInterface<iface_spi>().send(data));
+
+  std::vector<uint8_t> vecdata {data, data, data};
+  LOG(logDEBUG) << "Write: Vector of data words";
+  LOG(logDEBUG) << "  sending:   " << listVector(vecdata,",",true);
+  LOG(logDEBUG) << "  receiving: " << listVector(_hal->getInterface<iface_spi>().send(vecdata),",", true);
+
+  std::pair<uint8_t, uint8_t> pairdata = std::make_pair(data,data);
+  LOG(logDEBUG) << "Write: Pair of register and data word";
+  LOG(logDEBUG) << "  sending:   " << to_hex_string(pairdata.first) << " -> " << to_hex_string(pairdata.second);
+  std::pair<uint8_t, uint8_t> pairval = _hal->getInterface<iface_spi>().send(pairdata);
+  LOG(logDEBUG) << "  receiving: " << to_hex_string(pairval.first) << " -> " << to_hex_string(pairval.second);
+
+  LOG(logDEBUG) << "Write: Register plus vector of data words";
+  LOG(logDEBUG) << "  sending:   " << to_hex_string(data) << " -> " << listVector(vecdata,",",true);
+  LOG(logDEBUG) << "  receiving: " << listVector(_hal->getInterface<iface_spi>().send(data, vecdata),",", true);
+
+  std::vector<std::pair<uint8_t, uint8_t>> pairvec {std::make_pair(data,data), std::make_pair(data,data), std::make_pair(data,data)};
+  LOG(logDEBUG) << "Write: Vector of register/data word pairs";
+  LOG(logDEBUG) << "  sending:   " << listVector(pairvec,",",true);
+  LOG(logDEBUG) << "  receiving: " << listVector(_hal->getInterface<iface_spi>().send(pairvec),",", true);
 }
 
 caribouDevice* caribou::generator(const caribou::Configuration config) {
