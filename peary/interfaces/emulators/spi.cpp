@@ -24,12 +24,11 @@ iface_spi::~iface_spi() {}
 
 spi_t iface_spi::write(const spi_t& address, const spi_t& data) {
   std::lock_guard<std::mutex> lock(mutex);
-  spi_t rx;
   
   LOG(logINTERFACE) << "SPI (" << devicePath <<") address " << to_hex_string( address ) << ": Wrote data \"" << to_hex_string(data)
-		    <<  "\" Read data \"" << to_hex_string(rx) <<  "\"";
+		    <<  "\" Read data \"-- none --\"";
 
-  return rx;
+  return spi_t();
 }
 
 std::vector<spi_t> iface_spi::write(const spi_address_t& address, const std::vector<spi_t>& data ){
