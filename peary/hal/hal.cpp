@@ -80,11 +80,6 @@ uint8_t caribouHAL::getCaRBoardID() {
   return data.front();
 }
 
-
-template<typename T>
-Interface<T>& caribouHAL::getInterface() {
-}
-
 double caribouHAL::readTemperature() {
 
   // Two bytes must be read, containing 12bit of temperature information plus 4bit 0.

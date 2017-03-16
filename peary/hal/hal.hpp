@@ -7,6 +7,7 @@
 #include <string>
 #include <cstdint>
 
+#include "interface_manager.hpp"
 #include "interface.hpp"
 
 namespace caribou {
@@ -35,7 +36,10 @@ namespace caribou {
     /** Get reference to managed device interface
      */
     template<typename T>
-    Interface<T> & getInterface();
+    T& getInterface() {
+      return interface_manager::getInterface<T>(_devpath);
+    }
+
 
     /** Read data from managed device interface
      */
