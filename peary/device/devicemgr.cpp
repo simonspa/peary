@@ -66,7 +66,7 @@ size_t caribouDeviceMgr::addDevice(std::string name, const caribou::Configuratio
     if(!hndl) {
       LOG(logCRITICAL) << "Loading of " << libName << " failed:";
       LOG(logCRITICAL) << dlerror();
-      throw caribou::DeviceException("dlopen could not open shared library");
+      throw caribou::DeviceLibException("dlopen could not open shared library");
     }
     _deviceLibraries.insert( std::make_pair(name, hndl) );
     LOG(logDEBUG) << "Shared library successfully loaded.";
@@ -81,7 +81,7 @@ size_t caribouDeviceMgr::addDevice(std::string name, const caribou::Configuratio
     if ((err = dlerror()) != NULL) {
       // handle error, the symbol wasn't found
       LOG(logCRITICAL) << err;
-      throw caribou::DeviceException("Symbol lookup failed");
+      throw caribou::DeviceLibException("Symbol lookup for caribouDevice* failed");
     } else {
       // symbol found, its value is in "gen"
       deviceptr = reinterpret_cast<caribouDevice*(*)(const caribou::Configuration)>(gen)(config);
@@ -91,9 +91,10 @@ size_t caribouDeviceMgr::addDevice(std::string name, const caribou::Configuratio
     LOG(logINFO) << "Appending instance to device list, device ID " << device_id;
     _deviceList.push_back(deviceptr);
   }
-  catch(...) {
-    LOG(logCRITICAL) << "Could not retrieve pointer to caribouDevice object, is the generator() function included w/o C++ name mangling?";
-    throw caribou::DeviceException("Retrieval of caribouDevice* failed");
+  catch(caribou::DeviceLibException & e) {
+    LOG(logCRITICAL) << "Could not retrieve pointer to caribouDevice object";
+    LOG(logCRITICAL) << "Is the generator() function included w/o C++ name mangling?";
+    throw caribou::DeviceException(e.what());
   }
 
   // FIXME initialize device here? requires configuration!

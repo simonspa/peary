@@ -3,6 +3,7 @@
  */
 
 #include "clicpix2.hpp"
+#include "spi.hpp"
 #include "hal.hpp"
 #include "log.hpp"
 
@@ -26,29 +27,29 @@ void clicpix2::powerOn() {
   LOG(logINFO) << DEVICE_NAME << ": Powering up CLICpix2";
 
   LOG(logDEBUG) << " CMLBUFFERS_VDD";
-  _hal->setVoltageRegulator( PWR_OUT4,_config.Get("cmlbuffers_vdd", CLICpix2_CMLBUFFERS_VDD),
+  _hal->setVoltageRegulator( PWR_OUT_4,_config.Get("cmlbuffers_vdd", CLICpix2_CMLBUFFERS_VDD),
 			     _config.Get("cmlbuffers_vdd_current", CLICpix2_CMLBUFFERS_VDD_CURRENT) );
-  _hal->powerVoltageRegulator( PWR_OUT4, true );
+  _hal->powerVoltageRegulator( PWR_OUT_4, true );
 
   LOG(logDEBUG) << " CMLBUFFERS_VCCO";
-  _hal->setVoltageRegulator( PWR_OUT7,_config.Get("cmlbuffers_vcco", CLICpix2_CMLBUFFERS_VCCO),
+  _hal->setVoltageRegulator( PWR_OUT_7,_config.Get("cmlbuffers_vcco", CLICpix2_CMLBUFFERS_VCCO),
 			     _config.Get("cmlbuffers_vcco_current", CLICpix2_CMLBUFFERS_VCCO_CURRENT) );
-  _hal->powerVoltageRegulator( PWR_OUT7, true );
+  _hal->powerVoltageRegulator( PWR_OUT_7, true );
   
   LOG(logDEBUG) << " VDDCML";
-  _hal->setVoltageRegulator( PWR_OUT5,_config.Get("vdddcml",CLICpix2_VDDCML),
+  _hal->setVoltageRegulator( PWR_OUT_5,_config.Get("vdddcml",CLICpix2_VDDCML),
 			     _config.Get("vdddcml_current", CLICpix2_VDDCML_CURRENT) );
-  _hal->powerVoltageRegulator( PWR_OUT5, true );
+  _hal->powerVoltageRegulator( PWR_OUT_5, true );
   
   LOG(logDEBUG) << " VDDD";
-  _hal->setVoltageRegulator( PWR_OUT1,_config.Get("vddd",CLICpix2_VDDD),
+  _hal->setVoltageRegulator( PWR_OUT_1,_config.Get("vddd",CLICpix2_VDDD),
 			     _config.Get("vddd_current", CLICpix2_VDDD_CURRENT) );
-  _hal->powerVoltageRegulator( PWR_OUT1, true );
+  _hal->powerVoltageRegulator( PWR_OUT_1, true );
 
   LOG(logDEBUG) << " VDDA";
-  _hal->setVoltageRegulator( PWR_OUT3,_config.Get("vdda",CLICpix2_VDDA),
+  _hal->setVoltageRegulator( PWR_OUT_3,_config.Get("vdda",CLICpix2_VDDA),
 			     _config.Get("vdda_current", CLICpix2_VDDA_CURRENT) );
-  _hal->powerVoltageRegulator( PWR_OUT3, true );
+  _hal->powerVoltageRegulator( PWR_OUT_3, true );
 
   //FIXME:  _config.Get("cml_iref_pol",CLICpix2_CML_IREF_POL) ) doesn't compile
   LOG(logDEBUG) << " CML_IREF";
@@ -73,19 +74,19 @@ void clicpix2::powerOff() {
   _hal->powerCurrentSource(CUR_2, false); 
   
   LOG(logDEBUG) << "Power off VDDA";
-  _hal->powerVoltageRegulator( PWR_OUT3, false );
+  _hal->powerVoltageRegulator( PWR_OUT_3, false );
   
   LOG(logDEBUG) << "Power off VDDD";
-  _hal->powerVoltageRegulator( PWR_OUT1, false );
+  _hal->powerVoltageRegulator( PWR_OUT_1, false );
   
   LOG(logDEBUG) << "Power off VDDCML";
-  _hal->powerVoltageRegulator( PWR_OUT5, false );
+  _hal->powerVoltageRegulator( PWR_OUT_5, false );
 
   LOG(logDEBUG) << "Power off CMLBUFFERS_VCO";
-  _hal->powerVoltageRegulator( PWR_OUT7, false );
+  _hal->powerVoltageRegulator( PWR_OUT_7, false );
 
   LOG(logDEBUG) << "Power off CMLBUFFERS_VDD";
-  _hal->powerVoltageRegulator( PWR_OUT4, false );
+  _hal->powerVoltageRegulator( PWR_OUT_4, false );
 
 }
 
@@ -140,32 +141,62 @@ void clicpix2::powerStatusLog(){
   LOG(logINFO) << DEVICE_NAME << " power status:";
 
   LOG(logINFO) << "VDDA:";
-  LOG(logINFO) << "\tBus voltage: " << _hal->measureVoltage(PWR_OUT3) << "V";
-  LOG(logINFO) << "\tBus current: " << _hal->measureCurrent(PWR_OUT3) << "A";
-  LOG(logINFO) << "\tBus power  : " << _hal->measurePower(PWR_OUT3) << "W";
+  LOG(logINFO) << "\tBus voltage: " << _hal->measureVoltage(PWR_OUT_3) << "V";
+  LOG(logINFO) << "\tBus current: " << _hal->measureCurrent(PWR_OUT_3) << "A";
+  LOG(logINFO) << "\tBus power  : " << _hal->measurePower(PWR_OUT_3) << "W";
 
   LOG(logINFO) << "VDDD:";
-  LOG(logINFO) << "\tBus voltage: " << _hal->measureVoltage(PWR_OUT1) << "V";
-  LOG(logINFO) << "\tBus current: " << _hal->measureCurrent(PWR_OUT1) << "A";
-  LOG(logINFO) << "\tBus power  : " << _hal->measurePower(PWR_OUT1) << "W";
+  LOG(logINFO) << "\tBus voltage: " << _hal->measureVoltage(PWR_OUT_1) << "V";
+  LOG(logINFO) << "\tBus current: " << _hal->measureCurrent(PWR_OUT_1) << "A";
+  LOG(logINFO) << "\tBus power  : " << _hal->measurePower(PWR_OUT_1) << "W";
 
 
   LOG(logINFO) << "VDDACML:";
-  LOG(logINFO) << "\tBus voltage: " << _hal->measureVoltage(PWR_OUT5) << "V";
-  LOG(logINFO) << "\tBus current: " << _hal->measureCurrent(PWR_OUT5) << "A";
-  LOG(logINFO) << "\tBus power  : " << _hal->measurePower(PWR_OUT5) << "W";
+  LOG(logINFO) << "\tBus voltage: " << _hal->measureVoltage(PWR_OUT_5) << "V";
+  LOG(logINFO) << "\tBus current: " << _hal->measureCurrent(PWR_OUT_5) << "A";
+  LOG(logINFO) << "\tBus power  : " << _hal->measurePower(PWR_OUT_5) << "W";
 
 
   LOG(logINFO) << "CMLBUFFERS_VCO:";
-  LOG(logINFO) << "\tBus voltage: " << _hal->measureVoltage(PWR_OUT7) << "V";
-  LOG(logINFO) << "\tBus current: " << _hal->measureCurrent(PWR_OUT7) << "A";
-  LOG(logINFO) << "\tBus power  : " << _hal->measurePower(PWR_OUT7) << "W";
+  LOG(logINFO) << "\tBus voltage: " << _hal->measureVoltage(PWR_OUT_7) << "V";
+  LOG(logINFO) << "\tBus current: " << _hal->measureCurrent(PWR_OUT_7) << "A";
+  LOG(logINFO) << "\tBus power  : " << _hal->measurePower(PWR_OUT_7) << "W";
   
 
   LOG(logINFO) << "CMLBUFFERS_VDD:";
-  LOG(logINFO) << "\tBus voltage: " << _hal->measureVoltage(PWR_OUT4) << "V";
-  LOG(logINFO) << "\tBus current: " << _hal->measureCurrent(PWR_OUT4) << "A";
-  LOG(logINFO) << "\tBus power  : " << _hal->measurePower(PWR_OUT4) << "W";
+  LOG(logINFO) << "\tBus voltage: " << _hal->measureVoltage(PWR_OUT_4) << "V";
+  LOG(logINFO) << "\tBus current: " << _hal->measureCurrent(PWR_OUT_4) << "A";
+  LOG(logINFO) << "\tBus power  : " << _hal->measurePower(PWR_OUT_4) << "W";
+}
+
+void clicpix2::exploreInterface(){
+  LOG(logINFO) << DEVICE_NAME << " - Exploring interface capabilities...";
+
+  // Prepare data:
+  uint8_t data = 0xff;
+  LOG(logDEBUG) << "Write: Single data word";
+  LOG(logDEBUG) << "  sending:   " << to_hex_string(data);
+  LOG(logDEBUG) << "  receiving: " << to_hex_string(_hal->getInterface<iface_spi>().send(data));
+
+  std::vector<uint8_t> vecdata {data, data, data};
+  LOG(logDEBUG) << "Write: Vector of data words";
+  LOG(logDEBUG) << "  sending:   " << listVector(vecdata,",",true);
+  LOG(logDEBUG) << "  receiving: " << listVector(_hal->getInterface<iface_spi>().send(vecdata),",", true);
+
+  std::pair<uint8_t, uint8_t> pairdata = std::make_pair(data,data);
+  LOG(logDEBUG) << "Write: Pair of register and data word";
+  LOG(logDEBUG) << "  sending:   " << to_hex_string(pairdata.first) << " -> " << to_hex_string(pairdata.second);
+  std::pair<uint8_t, uint8_t> pairval = _hal->getInterface<iface_spi>().send(pairdata);
+  LOG(logDEBUG) << "  receiving: " << to_hex_string(pairval.first) << " -> " << to_hex_string(pairval.second);
+
+  LOG(logDEBUG) << "Write: Register plus vector of data words";
+  LOG(logDEBUG) << "  sending:   " << to_hex_string(data) << " -> " << listVector(vecdata,",",true);
+  LOG(logDEBUG) << "  receiving: " << listVector(_hal->getInterface<iface_spi>().send(data, vecdata),",", true);
+
+  std::vector<std::pair<uint8_t, uint8_t>> pairvec {std::make_pair(data,data), std::make_pair(data,data), std::make_pair(data,data)};
+  LOG(logDEBUG) << "Write: Vector of register/data word pairs";
+  LOG(logDEBUG) << "  sending:   " << listVector(pairvec,",",true);
+  LOG(logDEBUG) << "  receiving: " << listVector(_hal->getInterface<iface_spi>().send(pairvec),",", true);
 }
 
 caribouDevice* caribou::generator(const caribou::Configuration config) {

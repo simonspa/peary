@@ -34,6 +34,7 @@ namespace caribou {
 
   namespace color {
     enum ColorCode {
+      GRAY     = 90,
       RED      = 31,
       GREEN    = 32,
       YELLOW   = 33,
@@ -136,6 +137,7 @@ namespace caribou {
     // Add colors:
     if (level == logERROR || level == logCRITICAL) os << color::RED;
     if (level == logWARNING) os << color::YELLOW;
+    if (level == logINTERFACE) os << color::GRAY;
 
     os << std::setw(8) << ToString(level) << ": ";
 

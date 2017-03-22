@@ -81,10 +81,10 @@ namespace caribou {
    */
 #define C3PD_PERIPHERY							\
   {									\
-    {"c3pd_vddd", registerConfig<>(ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTC,16)}, \
-    {"c3pd_vdda", registerConfig<>(ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTD,16)}, \
-    {"c3pd_ref",  registerConfig<>(ADDR_DAC_U44, REG_DAC_CHANNEL_VOUTC,16)}, \
-    {"c3pd_ain",  registerConfig<>(ADDR_DAC_U44, REG_DAC_CHANNEL_VOUTA,16)}, \
+    {"vddd", registerConfig<>(ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTC,16)}, \
+    {"vdda", registerConfig<>(ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTD,16)}, \
+    {"ref",  registerConfig<>(ADDR_DAC_U44, REG_DAC_CHANNEL_VOUTC,16)}, \
+    {"ain",  registerConfig<>(ADDR_DAC_U44, REG_DAC_CHANNEL_VOUTA,16)}, \
   }
 
 } //namespace caribou

@@ -99,10 +99,10 @@ std::vector<i2c_t> iface_i2c::read(const i2c_t& address, const i2c_t reg, const 
 }
 
 
-std::vector<i2c_t> iface_i2c::wordwrite(const i2c_t& address, const uint16_t & reg, const std::vector< i2c_t > & data) {
+std::vector<i2c_t> iface_i2c::wordwrite(const i2c_t&, const uint16_t &, const std::vector< i2c_t > &) {
   return std::vector<i2c_t>();
 }
 
-std::vector<i2c_t> iface_i2c::wordread(const i2c_t& address, const uint16_t reg, const unsigned int length) {
-  std::vector<i2c_t>();
+std::vector<i2c_t> iface_i2c::wordread(const i2c_t&, const uint16_t, const unsigned int) {
+  return std::vector<i2c_t>();
 }

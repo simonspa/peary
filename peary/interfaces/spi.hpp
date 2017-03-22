@@ -42,8 +42,8 @@ namespace caribou {
     //Default: 100 MHz
     const uint32_t speed = 100000000;
 
-  public:
-
+    friend class caribouHAL;
+  private:
     spi_t write(const spi_address_t& address, const spi_t& data );
     std::vector<spi_t> write(const spi_address_t& address, const std::vector<spi_t>& data );
     std::pair<spi_reg_t, spi_t> write(const spi_address_t& address, const std::pair<spi_reg_t, spi_t> & data);

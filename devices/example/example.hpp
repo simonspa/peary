@@ -31,7 +31,7 @@ namespace caribou {
      */
     example(const caribou::Configuration config) : caribouDevice(config), exampleDict(EXAMPLE_DICT) {
       // Initialize the device and HAL object:
-      this->initialize(std::string(DEFAULT_DEVICEPATH), caribou::dictionary<uint8_t>(EXAMPLE_PERIPHERY));
+      this->initialize(std::string(DEFAULT_DEVICEPATH), DEFAULT_ADDRESS, caribou::dictionary<uint8_t>(EXAMPLE_PERIPHERY));
     };
     ~example();
 
@@ -59,6 +59,7 @@ namespace caribou {
      */
     void powerStatusLog() {};
 
+    void exploreInterface() {};
 
     /** Example function only available in this derived device class
      */

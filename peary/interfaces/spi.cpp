@@ -42,7 +42,8 @@ iface_spi::~iface_spi() {
 }
 
 
-spi_t iface_spi::write(const spi_t& address, const spi_t& data) {
+spi_t iface_spi::write(const spi_t&, const spi_t& data) {
+
   std::lock_guard<std::mutex> lock(mutex);
   spi_t rx;
   
@@ -53,16 +54,16 @@ spi_t iface_spi::write(const spi_t& address, const spi_t& data) {
   tr.bits_per_word = sizeof(spi_t) * CHAR_BIT;
 
   if( ioctl(spiDesc, SPI_IOC_MESSAGE(1), &tr) < 1 ){
-    throw CommunicationError( "Failed to access (" + to_hex_string(address) + ") on " + devicePath + ": " + std::strerror(errno) );
+    throw CommunicationError( "Failed to access " + devicePath + ": " + std::strerror(errno) );
   }
 
-  LOG(logINTERFACE) << "SPI (" << devicePath <<") address " << to_hex_string( address ) << ": Wrote data \"" << to_hex_string(data)
+  LOG(logINTERFACE) << "SPI device " << devicePath << ": Wrote data \"" << to_hex_string(data)
 		    <<  "\" Read data \"" << to_hex_string(rx) <<  "\"";
 
   return rx;
 }
 
-std::vector<spi_t> iface_spi::write(const spi_address_t& address, const std::vector<spi_t>& data ){
+std::vector<spi_t> iface_spi::write(const spi_address_t&, const std::vector<spi_t>& data ){
   std::lock_guard<std::mutex> lock(mutex);
   std::vector<spi_t> rx;
   rx.resize( data.size() );
@@ -77,16 +78,16 @@ std::vector<spi_t> iface_spi::write(const spi_address_t& address, const std::vec
   }
 
   if( ioctl(spiDesc, SPI_IOC_MESSAGE(data.size()), tr.get() ) < data.size() ){
-      throw CommunicationError( "Failed to access (" + to_hex_string(address) + ") on " + devicePath + ": " + std::strerror(errno) );
+      throw CommunicationError( "Failed to access device " + devicePath + ": " + std::strerror(errno) );
   }
 
-  LOG(logINTERFACE) << "SPI (" << devicePath <<") address " << to_hex_string(address) << "\n\t Wrote block data: \""
+  LOG(logINTERFACE) << "SPI device " << devicePath << ": \n\t Wrote block data: \""
 		    << listVector( data, ", ", true) << "\"\n\t Read  block data: \"" <<  listVector( rx, ", ", true) << "\"";
 
   return rx;
 }
 
-std::pair<spi_reg_t, spi_t> iface_spi::write(const spi_address_t& address, const std::pair<spi_reg_t, spi_t> & data){
+std::pair<spi_reg_t, spi_t> iface_spi::write(const spi_address_t&, const std::pair<spi_reg_t, spi_t> & data){
 
   std::lock_guard<std::mutex> lock(mutex);
   std::array< uint8_t, sizeof(spi_reg_t) + sizeof(spi_t) >  _data;
@@ -101,12 +102,12 @@ std::pair<spi_reg_t, spi_t> iface_spi::write(const spi_address_t& address, const
   tr.bits_per_word = ( sizeof(spi_reg_t) + sizeof(spi_t) ) * CHAR_BIT;
   
   if( ioctl(spiDesc, SPI_IOC_MESSAGE(1), &tr) < 1 ){
-    throw CommunicationError( "Failed to access (" + to_hex_string(address) + ") on " + devicePath + ": " + std::strerror(errno) );
+    throw CommunicationError( "Failed to access device " + devicePath + ": " + std::strerror(errno) );
   }
 
   std::pair<spi_reg_t, spi_t> rx (* static_cast<spi_reg_t* >( _data.data() + sizeof(spi_t) ), * static_cast<spi_t* >( _data.data()  ) );
 
-  LOG(logINTERFACE) << "SPI (" << devicePath <<") address " << to_hex_string(address) << ": Register " << to_hex_string(data.first)
+  LOG(logINTERFACE) << "SPI device " << devicePath << ": Register " << to_hex_string(data.first)
 		    << " Wrote data \"" << to_hex_string(data.second) << "\" Read data \"" << to_hex_string(rx.second) << "\"";
 
   return rx;
@@ -130,7 +131,7 @@ std::vector<spi_t> iface_spi::write(const spi_address_t& address, const spi_t & 
   return rx;
 }
 
-std::vector< std::pair<spi_reg_t, spi_t> > iface_spi::write(const spi_address_t& address, const std::vector< std::pair<spi_reg_t, spi_t> > & data){
+std::vector< std::pair<spi_reg_t, spi_t> > iface_spi::write(const spi_address_t&, const std::vector< std::pair<spi_reg_t, spi_t> > & data){
 
   std::lock_guard<std::mutex> lock(mutex);
 
@@ -152,7 +153,7 @@ std::vector< std::pair<spi_reg_t, spi_t> > iface_spi::write(const spi_address_t&
   }
 
   if( ioctl(spiDesc, SPI_IOC_MESSAGE(data.size()), tr.get() ) < data.size() ){
-    throw CommunicationError( "Failed to access (" + to_hex_string(address) + ") on " + devicePath + ": " + std::strerror(errno) );
+    throw CommunicationError( "Failed to access device " + devicePath + ": " + std::strerror(errno) );
   }
 
   //unpack
@@ -162,13 +163,13 @@ std::vector< std::pair<spi_reg_t, spi_t> > iface_spi::write(const spi_address_t&
 				  * static_cast<spi_t*>( _data.data() + loop.pos ) ));
   }
   
-  LOG(logINTERFACE) << "SPI (" << devicePath <<") address " << to_hex_string(address) << "\n\t Wrote block data (Reg: data): \""
+  LOG(logINTERFACE) << "SPI device " << devicePath <<": \n\t Wrote block data (Reg: data): \""
 		    << listVector( data, ", ", true) << "\"\n\t Read  block data (Reg: data): \"" <<  listVector( rx, ", ", true) << "\"";
   
   return rx;
 }
 
-std::vector<spi_t> iface_spi::read(const spi_address_t& address, const unsigned int length){
+std::vector<spi_t> iface_spi::read(const spi_address_t&, const unsigned int length){
 
   std::lock_guard<std::mutex> lock(mutex);
 
@@ -182,10 +183,10 @@ std::vector<spi_t> iface_spi::read(const spi_address_t& address, const unsigned 
   }
 
   if( ioctl(spiDesc, SPI_IOC_MESSAGE(length), tr.get() ) < length ){
-    throw CommunicationError( "Failed to access (" + to_hex_string(address) + ") on " + devicePath + ": " + std::strerror(errno) );
+    throw CommunicationError( "Failed to access device " + devicePath + ": " + std::strerror(errno) );
   }
 
-  LOG(logINTERFACE) << "SPI (" << devicePath <<") address " << to_hex_string(address) << " Red block data: \""
+  LOG(logINTERFACE) << "SPI device " << devicePath <<": Red block data: \""
 		    << listVector( rx, ", ", true) << "\"";
 
   return rx;

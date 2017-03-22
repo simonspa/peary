@@ -3,6 +3,7 @@
  */
 
 #include "example.hpp"
+#include "loopback.hpp"
 #include "hal.hpp"
 #include "log.hpp"
 
@@ -28,7 +29,7 @@ void example::powerOn() {
   }
   
   // Vectors can be read directly from the config and passed to an interface
-  _hal->write(exampleDict.getAddress("vthreshold"),_config.Get("sample-registers",std::vector<uint8_t>{EXAMPLE_DAC_VEC}));
+  _hal->getInterface<iface_loopback>().send(exampleDict.getAddress("vthreshold"),_config.Get("sample-registers",std::vector<uint8_t>{EXAMPLE_DAC_VEC}));
 }
 
 void example::powerOff() {
@@ -46,8 +47,7 @@ void example::daqStop() {
 void example::exampleCall() {
   LOG(logINFO) << DEVICE_NAME << ": exampleCall";
   // Vectors can be read directly from the config and passed to an interface
-  _hal->write(0,_config.Get("sample-registers",std::vector<uint8_t>{EXAMPLE_DAC_VEC}));
-
+  _hal->getInterface<iface_loopback>().send(_config.Get("sample-registers",std::vector<uint8_t>{EXAMPLE_DAC_VEC}));
 }
 
 caribouDevice* caribou::generator(const caribou::Configuration config) {

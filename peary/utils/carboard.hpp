@@ -4,6 +4,8 @@
 #ifndef CARIBOU_CARBOARD_H
 #define CARIBOU_CARBOARD_H
 
+#include "datatypes.hpp"
+
 #define ADDR_I2CSWTCH 0x74 // PCA9846PW I2C bus switch
 
 // FIXME this mapping depends on the hardware configuration and has to be adapted somehow
@@ -12,17 +14,10 @@
 #define BUS_I2C2 "/dev/i2c-9"
 #define BUS_I2C3 "/dev/i2c-10"
 
-/** Reference voltages
+/** Reference voltages, shunts, ...
  */
 #define CAR_VREF_4P0  4.096 // via TI REF5040
-
-typedef enum {
-  PWR_OUT1, PWR_OUT2, PWR_OUT3, PWR_OUT4,
-  PWR_OUT5, PWR_OUT6, PWR_OUT7, PWR_OUT8 } VOLTAGE_REGULATOR_T;
-
-typedef enum {
-  CUR_1, CUR_2, CUR_3, CUR_4,
-  CUR_5, CUR_6, CUR_7, CUR_8} CURRENT_SOURCE_T;
+#define CAR_INA226_R_SHUNT 0.01
 
 typedef enum {
   PULL = 0, PUSH = 1 } CURRENT_SOURCE_POLARISATION_T;
@@ -52,7 +47,6 @@ typedef struct
 #define ADDR_MONITOR_U56 0x45
 #define ADDR_MONITOR_U59 0x46
 #define ADDR_MONITOR_U58 0x4A
-#define INA226_R_SHUNT 0.01
 
 /** Devices on I2C2
  */
@@ -106,66 +100,45 @@ typedef struct
 #define REG_DAC_CHANNEL_VOUTH  0x07
 #define REG_DAC_CHANNEL_ALL    0x0F
 
-  /** Generic CaR component names
-   */
-#define CAR_COMPONENTS							\
-  {									\
-    {"u44a", registerConfig<>(ADDR_DAC_U44, REG_DAC_CHANNEL_VOUTA,16)}, \
-    {"u44b", registerConfig<>(ADDR_DAC_U44, REG_DAC_CHANNEL_VOUTB,16)}, \
-    {"u44c", registerConfig<>(ADDR_DAC_U44, REG_DAC_CHANNEL_VOUTC,16)}, \
-    {"u44d", registerConfig<>(ADDR_DAC_U44, REG_DAC_CHANNEL_VOUTD,16)}, \
-    {"u44e", registerConfig<>(ADDR_DAC_U44, REG_DAC_CHANNEL_VOUTE,16)}, \
-    {"u44f", registerConfig<>(ADDR_DAC_U44, REG_DAC_CHANNEL_VOUTF,16)}, \
-    {"u44g", registerConfig<>(ADDR_DAC_U44, REG_DAC_CHANNEL_VOUTG,16)}, \
-    {"u44h", registerConfig<>(ADDR_DAC_U44, REG_DAC_CHANNEL_VOUTH,16)}, \
-    {"u45a", registerConfig<>(ADDR_DAC_U45, REG_DAC_CHANNEL_VOUTA,16)}, \
-    {"u45b", registerConfig<>(ADDR_DAC_U45, REG_DAC_CHANNEL_VOUTB,16)}, \
-    {"u45c", registerConfig<>(ADDR_DAC_U45, REG_DAC_CHANNEL_VOUTC,16)}, \
-    {"u45d", registerConfig<>(ADDR_DAC_U45, REG_DAC_CHANNEL_VOUTD,16)}, \
-    {"u45e", registerConfig<>(ADDR_DAC_U45, REG_DAC_CHANNEL_VOUTE,16)}, \
-    {"u45f", registerConfig<>(ADDR_DAC_U45, REG_DAC_CHANNEL_VOUTF,16)}, \
-    {"u45g", registerConfig<>(ADDR_DAC_U45, REG_DAC_CHANNEL_VOUTG,16)}, \
-    {"u45h", registerConfig<>(ADDR_DAC_U45, REG_DAC_CHANNEL_VOUTH,16)}, \
-    {"u46a", registerConfig<>(ADDR_DAC_U46, REG_DAC_CHANNEL_VOUTA,16)}, \
-    {"u46b", registerConfig<>(ADDR_DAC_U46, REG_DAC_CHANNEL_VOUTB,16)}, \
-    {"u46c", registerConfig<>(ADDR_DAC_U46, REG_DAC_CHANNEL_VOUTC,16)}, \
-    {"u46d", registerConfig<>(ADDR_DAC_U46, REG_DAC_CHANNEL_VOUTD,16)}, \
-    {"u46e", registerConfig<>(ADDR_DAC_U46, REG_DAC_CHANNEL_VOUTE,16)}, \
-    {"u46f", registerConfig<>(ADDR_DAC_U46, REG_DAC_CHANNEL_VOUTF,16)}, \
-    {"u46g", registerConfig<>(ADDR_DAC_U46, REG_DAC_CHANNEL_VOUTG,16)}, \
-    {"u46h", registerConfig<>(ADDR_DAC_U46, REG_DAC_CHANNEL_VOUTH,16)}, \
-    {"u47a", registerConfig<>(ADDR_DAC_U47, REG_DAC_CHANNEL_VOUTA,16)}, \
-    {"u47b", registerConfig<>(ADDR_DAC_U47, REG_DAC_CHANNEL_VOUTB,16)}, \
-    {"u47c", registerConfig<>(ADDR_DAC_U47, REG_DAC_CHANNEL_VOUTC,16)}, \
-    {"u47d", registerConfig<>(ADDR_DAC_U47, REG_DAC_CHANNEL_VOUTD,16)}, \
-    {"u47e", registerConfig<>(ADDR_DAC_U47, REG_DAC_CHANNEL_VOUTE,16)}, \
-    {"u47f", registerConfig<>(ADDR_DAC_U47, REG_DAC_CHANNEL_VOUTF,16)}, \
-    {"u47g", registerConfig<>(ADDR_DAC_U47, REG_DAC_CHANNEL_VOUTG,16)}, \
-    {"u47h", registerConfig<>(ADDR_DAC_U47, REG_DAC_CHANNEL_VOUTH,16)}, \
-    {"u48a", registerConfig<>(ADDR_DAC_U48, REG_DAC_CHANNEL_VOUTA,16)}, \
-    {"u48b", registerConfig<>(ADDR_DAC_U48, REG_DAC_CHANNEL_VOUTB,16)}, \
-    {"u48c", registerConfig<>(ADDR_DAC_U48, REG_DAC_CHANNEL_VOUTC,16)}, \
-    {"u48d", registerConfig<>(ADDR_DAC_U48, REG_DAC_CHANNEL_VOUTD,16)}, \
-    {"u48e", registerConfig<>(ADDR_DAC_U48, REG_DAC_CHANNEL_VOUTE,16)}, \
-    {"u48f", registerConfig<>(ADDR_DAC_U48, REG_DAC_CHANNEL_VOUTF,16)}, \
-    {"u48g", registerConfig<>(ADDR_DAC_U48, REG_DAC_CHANNEL_VOUTG,16)}, \
-    {"u48h", registerConfig<>(ADDR_DAC_U48, REG_DAC_CHANNEL_VOUTH,16)}, \
-    {"u49a", registerConfig<>(ADDR_DAC_U49, REG_DAC_CHANNEL_VOUTA,16)}, \
-    {"u49b", registerConfig<>(ADDR_DAC_U49, REG_DAC_CHANNEL_VOUTB,16)}, \
-    {"u49c", registerConfig<>(ADDR_DAC_U49, REG_DAC_CHANNEL_VOUTC,16)}, \
-    {"u49d", registerConfig<>(ADDR_DAC_U49, REG_DAC_CHANNEL_VOUTD,16)}, \
-    {"u49e", registerConfig<>(ADDR_DAC_U49, REG_DAC_CHANNEL_VOUTE,16)}, \
-    {"u49f", registerConfig<>(ADDR_DAC_U49, REG_DAC_CHANNEL_VOUTF,16)}, \
-    {"u49g", registerConfig<>(ADDR_DAC_U49, REG_DAC_CHANNEL_VOUTG,16)}, \
-    {"u49h", registerConfig<>(ADDR_DAC_U49, REG_DAC_CHANNEL_VOUTH,16)}, \
-    {"u50a", registerConfig<>(ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTA,16)}, \
-    {"u50b", registerConfig<>(ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTB,16)}, \
-    {"u50c", registerConfig<>(ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTC,16)}, \
-    {"u50d", registerConfig<>(ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTD,16)}, \
-    {"u50e", registerConfig<>(ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTE,16)}, \
-    {"u50f", registerConfig<>(ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTF,16)}, \
-    {"u50g", registerConfig<>(ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTG,16)}, \
-    {"u50h", registerConfig<>(ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTH,16)}, \
-  }
+
+/** PCA9539 Output register addresses
+ */
+// Port 0
+#define REG_IOEXP_IO0_0 0x00
+#define REG_IOEXP_IO0_1 0x01
+#define REG_IOEXP_IO0_2 0x02
+#define REG_IOEXP_IO0_3 0x03
+#define REG_IOEXP_IO0_4 0x04
+#define REG_IOEXP_IO0_5 0x05
+#define REG_IOEXP_IO0_6 0x06
+#define REG_IOEXP_IO0_7 0x07
+// Port 1
+#define REG_IOEXP_IO1_0 0x00
+#define REG_IOEXP_IO1_1 0x01
+#define REG_IOEXP_IO1_2 0x02
+#define REG_IOEXP_IO1_3 0x03
+#define REG_IOEXP_IO1_4 0x04
+#define REG_IOEXP_IO1_5 0x05
+#define REG_IOEXP_IO1_6 0x06
+#define REG_IOEXP_IO1_7 0x07
+
+
+const VOLTAGE_REGULATOR_T PWR_OUT_1("PWR_OUT_1", ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTA, REG_IOEXP_IO1_7, ADDR_MONITOR_U53);
+const VOLTAGE_REGULATOR_T PWR_OUT_2("PWR_OUT_2", ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTC, REG_IOEXP_IO1_6, ADDR_MONITOR_U52);
+const VOLTAGE_REGULATOR_T PWR_OUT_3("PWR_OUT_3", ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTE, REG_IOEXP_IO1_5, ADDR_MONITOR_U55);
+const VOLTAGE_REGULATOR_T PWR_OUT_4("PWR_OUT_4", ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTG, REG_IOEXP_IO1_4, ADDR_MONITOR_U54);
+const VOLTAGE_REGULATOR_T PWR_OUT_5("PWR_OUT_5", ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTB, REG_IOEXP_IO1_0, ADDR_MONITOR_U57);
+const VOLTAGE_REGULATOR_T PWR_OUT_6("PWR_OUT_6", ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTD, REG_IOEXP_IO1_1, ADDR_MONITOR_U56);
+const VOLTAGE_REGULATOR_T PWR_OUT_7("PWR_OUT_7", ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTF, REG_IOEXP_IO1_2, ADDR_MONITOR_U59);
+const VOLTAGE_REGULATOR_T PWR_OUT_8("PWR_OUT_8", ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTH, REG_IOEXP_IO1_3, ADDR_MONITOR_U58);
+
+const CURRENT_SOURCE_T CUR_1("CUR_1", ADDR_DAC_U47, REG_DAC_CHANNEL_VOUTB, REG_IOEXP_IO0_6);
+const CURRENT_SOURCE_T CUR_2("CUR_2", ADDR_DAC_U47, REG_DAC_CHANNEL_VOUTD, REG_IOEXP_IO0_7);
+const CURRENT_SOURCE_T CUR_3("CUR_3", ADDR_DAC_U47, REG_DAC_CHANNEL_VOUTF, REG_IOEXP_IO0_5);
+const CURRENT_SOURCE_T CUR_4("CUR_4", ADDR_DAC_U47, REG_DAC_CHANNEL_VOUTH, REG_IOEXP_IO0_4);
+const CURRENT_SOURCE_T CUR_5("CUR_5", ADDR_DAC_U47, REG_DAC_CHANNEL_VOUTG, REG_IOEXP_IO0_2);
+const CURRENT_SOURCE_T CUR_6("CUR_6", ADDR_DAC_U47, REG_DAC_CHANNEL_VOUTE, REG_IOEXP_IO0_3);
+const CURRENT_SOURCE_T CUR_7("CUR_7", ADDR_DAC_U47, REG_DAC_CHANNEL_VOUTC, REG_IOEXP_IO0_1);
+const CURRENT_SOURCE_T CUR_8("CUR_8", ADDR_DAC_U47, REG_DAC_CHANNEL_VOUTA, REG_IOEXP_IO0_0);
 
 #endif /* CARIBOU_CARBOARD_H */

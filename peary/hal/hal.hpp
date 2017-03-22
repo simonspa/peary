@@ -7,6 +7,9 @@
 #include <string>
 #include <cstdint>
 
+#include "interface_manager.hpp"
+#include "interface.hpp"
+
 namespace caribou {
 
   class caribouHAL {
@@ -14,7 +17,7 @@ namespace caribou {
   public:
     /** Default constructor for creating a new HAL instance
      */
-    caribouHAL(IFACE interface, std::string device_path);
+    caribouHAL(IFACE interface, std::string device_path, uint32_t device_address);
 
     /** Default destructor for HAL objects
      */
@@ -29,11 +32,14 @@ namespace caribou {
      *  @param address : address of the register to be read
      */
     uint32_t getFirmwareRegister(uint16_t address);
-    
-    /** Send command to the managed device interface
+
+    /** Get reference to managed device interface
      */
-    std::vector<uint8_t> write(std::vector<uint8_t> address, std::vector<uint8_t> data);
-    std::vector<uint8_t> write(const uint8_t address, const std::vector<uint8_t> & data);
+    template<typename T>
+    T& getInterface() {
+      return interface_manager::getInterface<T>(_devpath);
+    }
+
 
     /** Read data from managed device interface
      */
@@ -87,23 +93,11 @@ namespace caribou {
     //The method measures voltage
     //It returns vale in SI V.
     double measureVoltage(const VOLTAGE_REGULATOR_T regulator);
-    
-    //FIXME: User shouldn't have access to set setDACVoltage and powerDAC where he can
-    //       provide any I2C address. Instead enums should be used to a specialised functions,
-    //       like setBias, setInjectionBias, setCurrent, etc.
-    
+
+    double readSlowADC(const uint8_t channel);
 
   private:
 
-    //the tuple stores (in the order) the coressponding: DAC pin, pin of the port 1 of the U15, I2C address of the current/power monitor and PWR name
-    static const std::map< VOLTAGE_REGULATOR_T, std::tuple<uint8_t,uint8_t, uint8_t, std::string> > voltageRegulatorMap;
-    
-    //the tuple stores (in order) the coresponding DAC pin, pin of the port 0 of the U15 and CURRENT name
-    static const std::map< CURRENT_SOURCE_T, std::tuple<uint8_t, uint8_t, std::string> > currentSourceMap;
-
-    static std::map< VOLTAGE_REGULATOR_T, std::tuple<uint8_t,uint8_t, uint8_t, std::string> > createVoltageRegulatorMap();
-    static std::map< CURRENT_SOURCE_T, std::tuple<uint8_t, uint8_t, std::string> > createCurrentSourceMap();
-    
     /** Interface of the configured device
      */
     uint8_t _iface;
@@ -111,6 +105,10 @@ namespace caribou {
     /** Device path of the configured device
      */
     std::string _devpath;
+
+    /** Address of the configured device
+     */
+    uint32_t _devaddress;
     
     /** Set output voltage on a DAC7678 voltage regulator
      *

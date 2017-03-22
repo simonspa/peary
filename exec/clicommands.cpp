@@ -13,6 +13,10 @@ pearycli::pearycli() : c("# ") {
 
   c.registerCommand("powerOn", powerOn);
   c.registerCommand("powerOff", powerOff);
+  c.registerCommand("setVoltage", setVoltage);
+  c.registerCommand("exploreInterface", exploreInterface);
+  c.registerCommand("getADC", getADC);
+  c.registerCommand("powerStatusLog", powerStatusLog);
 }
 
 pearycli::~pearycli() {
@@ -65,6 +69,61 @@ int pearycli::powerOff(const std::vector<std::string> & input) {
   try {
     caribouDevice *dev = manager->getDevice(std::stoi(input.at(1)));
     dev->powerOff();
+  }
+  catch (caribou::DeviceException &) { return ret::Error; }
+  return ret::Ok;
+}
+
+int pearycli::setVoltage(const std::vector<std::string> & input) {
+  if (input.size() < 4) {
+    LOG(logINFO) << "Usage: " << input.at(0) << " OUTPUT_NAME OUTPUT_VALUE DEVICE_ID";
+    return ret::Error;
+  }
+  try {
+    caribouDevice *dev = manager->getDevice(std::stoi(input.at(3)));
+    dev->setVoltage(input.at(1),std::stod(input.at(2)));
+  }
+  catch (caribou::caribouException &e) {
+    LOG(logERROR) << e.what();
+    return ret::Error;
+  }
+  return ret::Ok;
+}
+
+int pearycli::exploreInterface(const std::vector<std::string> & input) {
+  if (input.size() < 2) {
+    LOG(logINFO) << "Usage: " << input.at(0) << " DEVICE_ID";
+    return ret::Error;
+  }
+  try {
+    caribouDevice *dev = manager->getDevice(std::stoi(input.at(1)));
+    dev->exploreInterface();
+  }
+  catch (caribou::DeviceException &) { return ret::Error; }
+  return ret::Ok;
+}
+
+int pearycli::getADC(const std::vector<std::string> & input) {
+  if (input.size() < 3) {
+    LOG(logINFO) << "Usage: " << input.at(0) << " CHANNEL_ID DEVICE_ID";
+    return ret::Error;
+  }
+  try {
+    caribouDevice *dev = manager->getDevice(std::stoi(input.at(2)));
+    LOG(logINFO) << "Voltage: " << dev->getADC(std::stoi(input.at(1)));
+  }
+  catch (caribou::ConfigInvalid &) { return ret::Error; }
+  return ret::Ok;
+}
+
+int pearycli::powerStatusLog(const std::vector<std::string> & input) {
+  if (input.size() < 2) {
+    LOG(logINFO) << "Usage: " << input.at(0) << " DEVICE_ID";
+    return ret::Error;
+  }
+  try {
+    caribouDevice *dev = manager->getDevice(std::stoi(input.at(1)));
+    dev->powerStatusLog();
   }
   catch (caribou::DeviceException &) { return ret::Error; }
   return ret::Ok;

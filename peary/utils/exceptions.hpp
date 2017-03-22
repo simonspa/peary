@@ -58,6 +58,14 @@ namespace caribou {
   DeviceException(const std::string& what_arg) : caribouException(what_arg) {}
   };
 
+  /** Exception covering issues with loading of the peary device libraries by
+   *  the device manager
+   */
+  class DeviceLibException : public DeviceException {
+  public:
+  DeviceLibException(const std::string& what_arg) : DeviceException(what_arg) {}
+  };
+
   /** Exception covering issues with the Caribou firmware such as missing 
    *  firmware binaries, problems flashing the selected firmware or the request
    *  to configure an unsupported device

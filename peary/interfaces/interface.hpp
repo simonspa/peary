@@ -7,6 +7,8 @@
 #include <string>
 
 #include "exceptions.hpp"
+#include "utils.hpp"
+#include "log.hpp"
 
 namespace caribou {
 
@@ -18,14 +20,48 @@ namespace caribou {
   class Interface {
 
   protected:
-    Interface( std::string devicePath) : devicePath(devicePath) {};
-
+    Interface(std::string devicePath) : devicePath(devicePath), deviceAddress(0), fixed_address(false) {};
     virtual ~Interface(){};
 
     //Path of the device
     const std::string devicePath;
+    ADDRESS_T deviceAddress;
+    bool fixed_address;
+
+    // Provide initial (locked) address
+    void lock_address(ADDRESS_T addr) {
+      deviceAddress = addr;
+      fixed_address = true;
+      LOG(logINTERFACE) << "Device address of interface " << devicePath
+			<< " locked to " << to_hex_string(deviceAddress);
+    }
+    
+    friend class caribouHAL;
+  public:
+
+    //Write data to a device which does not contain internal register
+    //If readout is intergralpart of write operations, the read values a returned by function. 
+    DATA_T send(const DATA_T& data) { return write(deviceAddress,data); };
+
+        //Write data to a device which does not contain internal register
+    //If readout is intergralpart of write operations, the read values a returned by function. 
+    std::vector<DATA_T> send(const std::vector<DATA_T>& data) { return write(deviceAddress, data); };
+
   
-  public: 
+    //Write data to a device containing internal registers
+    //If readout is intergralpart of write operations, the read values a returned by function. 
+    std::pair<REG_T, DATA_T> send(const std::pair<REG_T, DATA_T> & data) { return write(deviceAddress,data); };
+    
+    //Write data to a device containing internal registers
+    //If readout is intergralpart of write operations, the read values a returned by function. 
+    std::vector<DATA_T> send(const REG_T& reg, const std::vector< DATA_T>& data) { return write(deviceAddress, reg, data); };
+
+  
+    //Write data to a device containing internal registers
+    //If readout is intergralpart of write operations, the read values a returned by function. 
+    std::vector<std::pair<REG_T, DATA_T> > send(const std::vector<std::pair<REG_T, DATA_T> >& data) { return write(deviceAddress, data); };
+
+  private:
     //////////////////////
     // Write operations
     //////////////////////

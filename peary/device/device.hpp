@@ -89,6 +89,11 @@ namespace caribou {
      */
     virtual void powerStatusLog() = 0;
 
+    /** Explore interface by sending data via all available functions
+     *  FIXME for debugging purposes, should be removed later
+     */
+    virtual void exploreInterface() = 0;
+
     /** Function to reconfigure the Caribou device
      */
     // Previously "loadConfig"?
@@ -129,15 +134,30 @@ namespace caribou {
     // Purely virtual?
     // Do they need to be virtual? Maybe implement in baseclass (always same for CaR)
     // and only look up correct regulator according to name from child class dictionary?
-    void voltageSet(std::string name, double voltage);
+    void setVoltage(std::string name, double voltage);
+    void setBias(std::string name, double voltage);
+    void setInjectionBias(std::string name, double voltage);
+
     void voltageOn(std::string name);
     void voltageOff(std::string name);
-    // Also add disableVoltage() or rather provide boolean parameter for on/off?
+
+    void setCurrent(std::string name, double current);
     //virtual double measureVoltage();
     //virtual double measureCurrent();
 
     //virtual double getTemperature();
-    //virtual double getADC();
+
+    /** Read slow-ADC value by name of the input signal as defined by the device
+     *
+     *  Returns value in SI Volts
+     */
+    double getADC(std::string name);
+
+    /** Read slow-ADC value by the input channel number of the ADC device
+     *
+     *  Returns value in SI Volts
+     */
+    double getADC(uint8_t channel);
     
     // CaR CMOS signals
     // void enableSignal();
@@ -168,7 +188,7 @@ namespace caribou {
 
     /** Initializer function for Caribou devices
      */
-    void initialize(std::string devpath, caribou::dictionary<uint8_t> periphery);
+    void initialize(std::string devpath, uint32_t devaddr, caribou::dictionary<uint8_t> periphery);
 
     /** Device configuration object
      */
@@ -176,7 +196,7 @@ namespace caribou {
 
     /** Static periphery dictionary for all devices to access CaR components:
      */
-    static caribou::dictionary<uint8_t> _periphery;
+    caribou::dictionary<uint8_t> _periphery;
 
   }; //class caribouDevice
 

@@ -14,6 +14,8 @@ namespace caribou {
    */
 #define DEFAULT_DEVICEPATH "/dev/null"
 
+#define DEFAULT_ADDRESS 0x33
+
   /** Definition of default values for the different DAC settings of the device
    *
    *  These values will be used when the configuration object does not contain

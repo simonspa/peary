@@ -14,18 +14,14 @@
 
 using namespace caribou;
 
-// Add generic CaR board component names to the periphery dictionary,
-// Components are identified via schematic names
-dictionary<uint8_t> caribouDevice::_periphery(CAR_COMPONENTS);
-
 caribouDevice::caribouDevice(const caribou::Configuration config) :
   _hal(nullptr), _config(config) {
   LOG(logQUIET) << "New Caribou device instance, version " << getVersion();
 }
 
-void caribouDevice::initialize(std::string devpath, caribou::dictionary<uint8_t> periphery) {
+void caribouDevice::initialize(std::string devpath, uint32_t devaddr, caribou::dictionary<uint8_t> periphery) {
   LOG(logDEBUGAPI) << "Initializing Caribou device instance...";
-  _hal = new caribouHAL(this->interface(),_config.Get("devicepath",devpath));
+  _hal = new caribouHAL(this->interface(),_config.Get("devicepath",devpath),_config.Get("deviceaddress",devaddr));
 
   // Supplement the periphery dictionary with local names and definitions:
   _periphery += periphery;
@@ -43,7 +39,7 @@ uint8_t caribouDevice::getFirmwareID() { return _hal->getFirmwareRegister(ADDR_F
 
 std::string caribouDevice::getDeviceName() { return std::string(); }
 
-void caribouDevice::voltageSet(std::string name, double voltage) {
+void caribouDevice::setVoltage(std::string name, double voltage) {
 
   // Resolve name against global periphery dictionary
   LOG(logDEBUG) << "Regulator to be configured: " << to_hex_string(_periphery.getDevice(name));
@@ -72,3 +68,14 @@ void caribouDevice::voltageOff(std::string name) {
   //FIXME:
   //  _hal->powerVoltage(false, _periphery.getDevice(name),_periphery.getAddress(name));
 }
+
+double caribouDevice::getADC(uint8_t channel) {
+  if(channel < 1 || channel > 8) {
+    LOG(logCRITICAL) << "ADC channel " << std::to_string(channel) << " does not exist";
+    throw caribou::ConfigInvalid("ADC channel " + std::to_string(channel) + " does not exist");
+  }
+  
+  LOG(logDEBUG) << "Reading slow ADC, channel " << static_cast<int>(channel);
+  return _hal->readSlowADC(channel);
+}
+
