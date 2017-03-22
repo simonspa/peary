@@ -43,48 +43,14 @@ iface_spi::~iface_spi() {
 
 
 spi_t iface_spi::write(const spi_t&, const spi_t& data) {
-
-  std::lock_guard<std::mutex> lock(mutex);
-  spi_t rx;
-  
-  spi_ioc_transfer tr = spi_ioc_transfer();
-  tr.tx_buf = (unsigned long)  & data;
-  tr.rx_buf = (unsigned long) &rx;
-  tr.len = sizeof(spi_t);
-  tr.bits_per_word = sizeof(spi_t) * CHAR_BIT;
-
-  if( ioctl(spiDesc, SPI_IOC_MESSAGE(1), &tr) < 1 ){
-    throw CommunicationError( "Failed to access " + devicePath + ": " + std::strerror(errno) );
-  }
-
-  LOG(logINTERFACE) << "SPI device " << devicePath << ": Wrote data \"" << to_hex_string(data)
-		    <<  "\" Read data \"" << to_hex_string(rx) <<  "\"";
-
-  return rx;
+  throw CommunicationError( "Write of single data word is not supported by this SPI implementation" );
+  return 0;
 }
 
 std::vector<spi_t> iface_spi::write(const spi_address_t&, const std::vector<spi_t>& data ){
-  std::lock_guard<std::mutex> lock(mutex);
-  std::vector<spi_t> rx;
-  rx.resize( data.size() );
+  throw CommunicationError( "Block Write of single data words is not supported by this SPI implementation" );
+  return std::vector<spi_t> ();
 
-  std::unique_ptr<  spi_ioc_transfer []> tr( new  spi_ioc_transfer [ data.size() ]() );
-
-  for( auto i = 0; i< data.size(); ++i) {
-    tr[i].tx_buf = (unsigned long) &data[i];
-    tr[i].rx_buf = (unsigned long) &rx[i];
-    tr[i].len = sizeof(spi_t);
-    tr[i].bits_per_word = sizeof(spi_t) * CHAR_BIT;
-  }
-
-  if( ioctl(spiDesc, SPI_IOC_MESSAGE(data.size()), tr.get() ) < data.size() ){
-      throw CommunicationError( "Failed to access device " + devicePath + ": " + std::strerror(errno) );
-  }
-
-  LOG(logINTERFACE) << "SPI device " << devicePath << ": \n\t Wrote block data: \""
-		    << listVector( data, ", ", true) << "\"\n\t Read  block data: \"" <<  listVector( rx, ", ", true) << "\"";
-
-  return rx;
 }
 
 std::pair<spi_reg_t, spi_t> iface_spi::write(const spi_address_t&, const std::pair<spi_reg_t, spi_t> & data){
@@ -143,7 +109,7 @@ std::vector< std::pair<spi_reg_t, spi_t> > iface_spi::write(const spi_address_t&
   for( struct { unsigned int i = 0; unsigned int pos = 0;} loop; loop.i < data.size(); ++loop.i) {
     std::memcpy( _data.data() + loop.pos , & data[loop.i].second, sizeof(spi_t) );
     loop.pos += sizeof(spi_t);
-    std::memcpy( _data.data() + loop.pos + sizeof(spi_t),   & data[loop.i].first,  sizeof(spi_reg_t) );
+    std::memcpy( _data.data() + loop.pos,   & data[loop.i].first,  sizeof(spi_reg_t) );
     loop.pos += sizeof(spi_reg_t);
 
     tr[loop.i].tx_buf =  (unsigned long) _data.data() + ( sizeof(spi_reg_t) + sizeof(spi_t) ) * loop.i;
@@ -161,6 +127,7 @@ std::vector< std::pair<spi_reg_t, spi_t> > iface_spi::write(const spi_address_t&
   for( struct { unsigned int i = 0; unsigned int pos = 0;} loop; loop.i < data.size(); ++loop.i) {
     rx.push_back( std::make_pair( * static_cast<spi_reg_t*>( _data.data() + loop.pos + sizeof(spi_t) ),
 				  * static_cast<spi_t*>( _data.data() + loop.pos ) ));
+    loop.pos += sizeof(spi_t) + sizeof(spi_reg_t);
   }
   
   LOG(logINTERFACE) << "SPI device " << devicePath <<": \n\t Wrote block data (Reg: data): \""
@@ -170,26 +137,8 @@ std::vector< std::pair<spi_reg_t, spi_t> > iface_spi::write(const spi_address_t&
 }
 
 std::vector<spi_t> iface_spi::read(const spi_address_t&, const unsigned int length){
-
-  std::lock_guard<std::mutex> lock(mutex);
-
-  std::vector<spi_t> rx(length);
-  std::unique_ptr<  spi_ioc_transfer []> tr( new  spi_ioc_transfer[length]() );
-
-  for( unsigned int i = 0; i < length; ++i) {
-    tr[i].rx_buf = (unsigned long) rx.data()+i;
-    tr[i].len = sizeof(spi_t);
-    tr[i].bits_per_word = sizeof(spi_t)  * CHAR_BIT;
-  }
-
-  if( ioctl(spiDesc, SPI_IOC_MESSAGE(length), tr.get() ) < length ){
-    throw CommunicationError( "Failed to access device " + devicePath + ": " + std::strerror(errno) );
-  }
-
-  LOG(logINTERFACE) << "SPI device " << devicePath <<": Red block data: \""
-		    << listVector( rx, ", ", true) << "\"";
-
-  return rx;
+  throw CommunicationError( "Block read operati is not supported by this SPI implementation" );
+  return std::vector< spi_t> ();
 }
 
 std::vector<spi_t> iface_spi::read(const spi_address_t& address, const spi_reg_t reg, const unsigned int length){

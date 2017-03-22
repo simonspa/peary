@@ -61,6 +61,12 @@ namespace caribou {
     //If readout is intergralpart of write operations, the read values a returned by function. 
     std::vector<std::pair<REG_T, DATA_T> > send(const std::vector<std::pair<REG_T, DATA_T> >& data) { return write(deviceAddress, data); };
 
+    //Read data from a device which does not contain internal register
+    std::vector<DATA_T> receive(const unsigned int length = 1) { return read(deviceAddress, length); };
+
+    //Read data from a device containing internal registers
+    std::vector<DATA_T> receive(const REG_T reg, const unsigned int length = 1) { return read(deviceAddress, reg, length); };
+    
   private:
     //////////////////////
     // Write operations
