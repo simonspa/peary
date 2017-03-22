@@ -100,6 +100,14 @@ typedef struct
 #define REG_DAC_CHANNEL_VOUTH  0x07
 #define REG_DAC_CHANNEL_ALL    0x0F
 
+/** INA226 register addresses
+ */
+#define REG_ADC_CONFIGURATION 0x00
+#define REG_ADC_SHUNT_VOLTAGE 0x01
+#define REG_ADC_BUS_VOLTAGE   0x02
+#define REG_ADC_POWER         0x03
+#define REG_ADC_CURRENT       0x04
+#define REG_ADC_CALIBRATION   0x05
 
 /** PCA9539 Output register addresses
  */
