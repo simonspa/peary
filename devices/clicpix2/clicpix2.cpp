@@ -187,6 +187,9 @@ void clicpix2::exploreInterface(){
   LOG(logDEBUG) << "Write: Vector of register/data word pairs";
   LOG(logDEBUG) << "  sending:   " << listVector(pairvec,",",true);
   LOG(logDEBUG) << "  receiving: " << listVector(_hal->getInterface<iface_spi>().send(pairvec),",", true);
+
+  LOG(logDEBUG) << "Read: Vector of register/data word pairs";
+  LOG(logDEBUG) << "  receiving: " << listVector(_hal->getInterface<iface_spi>().receive( static_cast<uint8_t>(0x12),static_cast<unsigned int>(3)),",", true);
 }
 
 caribouDevice* caribou::generator(const caribou::Configuration config) {
