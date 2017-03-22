@@ -99,7 +99,10 @@ int pearycli::exploreInterface(const std::vector<std::string> & input) {
     caribouDevice *dev = manager->getDevice(std::stoi(input.at(1)));
     dev->exploreInterface();
   }
-  catch (caribou::DeviceException &) { return ret::Error; }
+  catch (caribou::DeviceException & e) {
+    LOG(logCRITICAL) << "Exception: " << e.what();
+    return ret::Error;
+  }
   return ret::Ok;
 }
 
