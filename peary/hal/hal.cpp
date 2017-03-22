@@ -250,9 +250,16 @@ void caribouHAL::setCurrentMonitor(const uint8_t device, const double maxExpecte
   iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C1);
 
   // Set configuration register:
-  // operation mode: continuous mesaurement
-  // averaging
-  // conversion time
+  uint16_t conf = (1<<14);
+  // Average over 16 samples:
+  conf |= (1<<10);
+  // Use a bus voltage conversion time of 8.244 ms:
+  conf |= (0x7<<6);
+  // Use a bus voltage conversion time of 8.244 ms:
+  conf |= (0x7<<3);
+  // Operation mode: continuous mesaurement of shunt and bus voltage:
+  conf |= 0x7;
+  i2c.write(device, REG_ADC_CONFIGURATION, {static_cast<i2c_t>(conf>>8), static_cast<i2c_t>(conf&0xFF)});
 
   // set calibration register
   
