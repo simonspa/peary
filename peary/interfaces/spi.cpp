@@ -109,7 +109,7 @@ std::vector< std::pair<spi_reg_t, spi_t> > iface_spi::write(const spi_address_t&
   for( struct { unsigned int i = 0; unsigned int pos = 0;} loop; loop.i < data.size(); ++loop.i) {
     std::memcpy( _data.data() + loop.pos , & data[loop.i].second, sizeof(spi_t) );
     loop.pos += sizeof(spi_t);
-    std::memcpy( _data.data() + loop.pos + sizeof(spi_t),   & data[loop.i].first,  sizeof(spi_reg_t) );
+    std::memcpy( _data.data() + loop.pos,   & data[loop.i].first,  sizeof(spi_reg_t) );
     loop.pos += sizeof(spi_reg_t);
 
     tr[loop.i].tx_buf =  (unsigned long) _data.data() + ( sizeof(spi_reg_t) + sizeof(spi_t) ) * loop.i;
@@ -127,6 +127,7 @@ std::vector< std::pair<spi_reg_t, spi_t> > iface_spi::write(const spi_address_t&
   for( struct { unsigned int i = 0; unsigned int pos = 0;} loop; loop.i < data.size(); ++loop.i) {
     rx.push_back( std::make_pair( * static_cast<spi_reg_t*>( _data.data() + loop.pos + sizeof(spi_t) ),
 				  * static_cast<spi_t*>( _data.data() + loop.pos ) ));
+    loop.pos += sizeof(spi_t) + sizeof(spi_reg_t);
   }
   
   LOG(logINTERFACE) << "SPI device " << devicePath <<": \n\t Wrote block data (Reg: data): \""
