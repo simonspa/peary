@@ -282,7 +282,7 @@ double caribouHAL::measurePower(const VOLTAGE_REGULATOR_T regulator){
 
 
 double caribouHAL::readSlowADC(const uint8_t channel) {
-  iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C1);
+  iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C3);
 
   LOG(logDEBUGHAL) << "Sampling channel " << static_cast<int>(channel)
 		   << " on ADS7828 at " << to_hex_string(ADDR_ADC);
