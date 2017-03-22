@@ -39,8 +39,8 @@ namespace caribou {
     //Protects access to the bus
     std::mutex mutex;
 
-    friend class caribouHAL;
-  private:
+    //friend class caribouHAL;
+  public:
     i2c_t write(const i2c_address_t& address, const i2c_t& data );
     std::vector<i2c_t> write(const i2c_address_t& address, const std::vector<i2c_t>& data );
     std::pair<i2c_reg_t, i2c_t> write(const i2c_address_t& address, const std::pair<i2c_reg_t, i2c_t> & data);

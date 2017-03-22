@@ -28,6 +28,7 @@ namespace caribou {
     ADDRESS_T deviceAddress;
     bool fixed_address;
 
+  public:
     // Provide initial (locked) address
     void lock_address(ADDRESS_T addr) {
       deviceAddress = addr;
@@ -36,8 +37,8 @@ namespace caribou {
 			<< " locked to " << to_hex_string(deviceAddress);
     }
     
-    friend class caribouHAL;
-  public:
+    //friend class caribouHAL;
+
 
     //Write data to a device which does not contain internal register
     //If readout is intergralpart of write operations, the read values a returned by function. 
@@ -67,7 +68,7 @@ namespace caribou {
     //Read data from a device containing internal registers
     std::vector<DATA_T> receive(const REG_T reg, const unsigned int length = 1) { return read(deviceAddress, reg, length); };
     
-  private:
+    //private:
     //////////////////////
     // Write operations
     //////////////////////

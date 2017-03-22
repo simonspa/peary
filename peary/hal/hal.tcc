@@ -1,46 +1,17 @@
 /**
  * Caribou HAL class implementation
  */
+#ifndef CARIBOU_HAL_IMPL
+#define CARIBOU_HAL_IMPL
 
-#include "exceptions.hpp"
-#include "constants.hpp"
-#include "carboard.hpp"
-#include "utils.hpp"
-#include "log.hpp"
-#include "hal.hpp"
+namespace caribou {
 
-#include "interface_manager.hpp"
-#include "interface.hpp"
+template<typename T>
+caribouHAL<T>::caribouHAL(std::string device_path, uint32_t device_address) :
+  _devpath(device_path), _devaddress(device_address) {
 
-#include "i2c.hpp"
-#include "spi.hpp"
-#include "loopback.hpp"
-
-using namespace caribou;
-
-caribouHAL::caribouHAL(IFACE interface, std::string device_path, uint32_t device_address) :
-  _iface(interface), _devpath(device_path), _devaddress(device_address) {
-
-  // try to access the device:
-  switch(_iface) {
-  case IFACE::SPI : {
-    iface_spi & myspi = interface_manager::getInterface<iface_spi>(_devpath);
-    myspi.lock_address(device_address);
-    break;
-  }
-  case IFACE::I2C : {
-    iface_i2c & myi2c = interface_manager::getInterface<iface_i2c>(_devpath);
-    myi2c.lock_address(device_address);
-    break;
-  }
-  case IFACE::LOOPBACK : {
-    Interface<uint8_t, uint8_t> & loop = interface_manager::getInterface<iface_loopback>(_devpath);
-    loop.lock_address(device_address);
-    break;
-  }
-  default:
-    throw caribou::CommunicationError("No device interface configured!");
-  }
+  T & dev_iface = interface_manager::getInterface<T>(_devpath);
+  dev_iface.lock_address(device_address);
     
   //Disable all Voltage Regulators
   LOG(logDEBUGHAL) << "Disabling all Voltage regulators";
@@ -61,13 +32,16 @@ caribouHAL::caribouHAL(IFACE interface, std::string device_path, uint32_t device
   LOG(logDEBUGHAL) << "Configured device with typ-" << (int)_iface << " interface on " << _devpath;
 }
 
-caribouHAL::~caribouHAL() {}
+template<typename T>
+caribouHAL<T>::~caribouHAL() {}
 
-uint32_t caribouHAL::getFirmwareRegister(uint16_t) {
+template<typename T>
+uint32_t caribouHAL<T>::getFirmwareRegister(uint16_t) {
   throw FirmwareException("Functionality not implemented.");
 }
 
-uint8_t caribouHAL::getCaRBoardID() {
+template<typename T>
+uint8_t caribouHAL<T>::getCaRBoardID() {
 
   LOG(logDEBUGHAL) << "Reading board ID from CaR EEPROM";
   iface_i2c & myi2c = interface_manager::getInterface<iface_i2c>(BUS_I2C0);
@@ -80,7 +54,8 @@ uint8_t caribouHAL::getCaRBoardID() {
   return data.front();
 }
 
-double caribouHAL::readTemperature() {
+template<typename T>
+double caribouHAL<T>::readTemperature() {
 
   // Two bytes must be read, containing 12bit of temperature information plus 4bit 0.
   // Negative numbers are represented in binary twos complement format.
@@ -97,7 +72,8 @@ double caribouHAL::readTemperature() {
   return temp*0.0625;
 }
 
-void caribouHAL::setVoltageRegulator(const VOLTAGE_REGULATOR_T regulator, const double voltage, const double maxExpectedCurrent){
+template<typename T>
+void caribouHAL<T>::setVoltageRegulator(const VOLTAGE_REGULATOR_T regulator, const double voltage, const double maxExpectedCurrent){
   LOG(logDEBUGHAL) << "Setting " << voltage << "V "
 		   << "on " << std::get<0>(regulator);
 
@@ -110,7 +86,8 @@ void caribouHAL::setVoltageRegulator(const VOLTAGE_REGULATOR_T regulator, const 
   setCurrentMonitor(std::get<4>(regulator), maxExpectedCurrent );
 }
 
-void caribouHAL::powerVoltageRegulator(const VOLTAGE_REGULATOR_T regulator, const bool enable){
+template<typename T>
+void caribouHAL<T>::powerVoltageRegulator(const VOLTAGE_REGULATOR_T regulator, const bool enable){
 
   iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C0);
 
@@ -137,7 +114,8 @@ void caribouHAL::powerVoltageRegulator(const VOLTAGE_REGULATOR_T regulator, cons
   }
 }
 
-void caribouHAL::setCurrentSource(const CURRENT_SOURCE_T source, const unsigned int current,
+template<typename T>
+void caribouHAL<T>::setCurrentSource(const CURRENT_SOURCE_T source, const unsigned int current,
 				  const CURRENT_SOURCE_POLARISATION_T polarisation){
 
   LOG(logDEBUGHAL) << "Setting " << current  << "uA "
@@ -159,7 +137,8 @@ void caribouHAL::setCurrentSource(const CURRENT_SOURCE_T source, const unsigned 
   i2c.write(ADDR_IOEXP, std::make_pair(0x02, mask) );
 }
 
-void caribouHAL::powerCurrentSource(const CURRENT_SOURCE_T source, const bool enable){
+template<typename T>
+void caribouHAL<T>::powerCurrentSource(const CURRENT_SOURCE_T source, const bool enable){
   if(enable){
     LOG(logDEBUGHAL) << "Powering up " << std::get<0>(source);
     powerDAC( true, std::get<1>(source), std::get<2>(source));
@@ -170,7 +149,8 @@ void caribouHAL::powerCurrentSource(const CURRENT_SOURCE_T source, const bool en
   }
 }
 
-void caribouHAL::setDACVoltage(const uint8_t device, const uint8_t address, const double voltage) {
+template<typename T>
+void caribouHAL<T>::setDACVoltage(const uint8_t device, const uint8_t address, const double voltage) {
 
   // Control voltages using DAC7678 with QFN packaging
   // All DAc7678 use straight binary encoding since the TWOC pins are pulled low
@@ -204,7 +184,8 @@ void caribouHAL::setDACVoltage(const uint8_t device, const uint8_t address, cons
   myi2c.write(device, reg, command);
 }
 
-void caribouHAL::powerDAC(const bool enable, const uint8_t device, const uint8_t address) {
+template<typename T>
+void caribouHAL<T>::powerDAC(const bool enable, const uint8_t device, const uint8_t address) {
 
   // Control voltages using DAC7678 with QFN packaging
   // All DAc7678 use straight binary encoding since the TWOC pins are pulled low
@@ -227,7 +208,8 @@ void caribouHAL::powerDAC(const bool enable, const uint8_t device, const uint8_t
  myi2c.write(device, REG_DAC_POWER, command);
 }
 
-void caribouHAL::configureSI5345(SI5345_REG_T const * const regs,const size_t length){
+template<typename T>
+void caribouHAL<T>::configureSI5345(SI5345_REG_T const * const regs,const size_t length){
   LOG(logDEBUGHAL) << "Configuring SI5345";
 
   iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C0);
@@ -244,7 +226,8 @@ void caribouHAL::configureSI5345(SI5345_REG_T const * const regs,const size_t le
   }
 }
 
-void caribouHAL::setCurrentMonitor(const uint8_t device, const double maxExpectedCurrent){
+template<typename T>
+void caribouHAL<T>::setCurrentMonitor(const uint8_t device, const double maxExpectedCurrent){
   LOG(logDEBUGHAL) << "Setting maxExpectedCurrent " << maxExpectedCurrent << "A "
 		   << "on INA226 at " << to_hex_string(device);
   iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C1);
@@ -274,7 +257,8 @@ void caribouHAL::setCurrentMonitor(const uint8_t device, const double maxExpecte
   i2c.write(device, REG_ADC_CALIBRATION, {static_cast<i2c_t>(cal>>8), static_cast<i2c_t>(cal&0xFF)});
 }
 
-double caribouHAL::measureVoltage(const VOLTAGE_REGULATOR_T regulator){
+template<typename T>
+double caribouHAL<T>::measureVoltage(const VOLTAGE_REGULATOR_T regulator){
 
   iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C1);
   const i2c_address_t device = std::get<4>(regulator);
@@ -287,7 +271,8 @@ double caribouHAL::measureVoltage(const VOLTAGE_REGULATOR_T regulator){
 }
 
 //FIXME: somtimes it returns dummy values
-double caribouHAL::measureCurrent(const VOLTAGE_REGULATOR_T regulator){
+template<typename T>
+double caribouHAL<T>::measureCurrent(const VOLTAGE_REGULATOR_T regulator){
   iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C1);
   const i2c_address_t device = std::get<4>(regulator);
   LOG(logDEBUGHAL) <<  "Reading current from INA226 at " << to_hex_string(device);
@@ -303,7 +288,8 @@ double caribouHAL::measureCurrent(const VOLTAGE_REGULATOR_T regulator){
 }
 
 //FIXME: sometimes it return dummy values
-double caribouHAL::measurePower(const VOLTAGE_REGULATOR_T regulator){
+template<typename T>
+double caribouHAL<T>::measurePower(const VOLTAGE_REGULATOR_T regulator){
   iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C1);
   const i2c_address_t device = std::get<4>(regulator);
   LOG(logDEBUGHAL) <<  "Reading power from INA226 at " << to_hex_string(device);
@@ -319,7 +305,8 @@ double caribouHAL::measurePower(const VOLTAGE_REGULATOR_T regulator){
 }
 
 
-double caribouHAL::readSlowADC(const uint8_t channel) {
+template<typename T>
+double caribouHAL<T>::readSlowADC(const uint8_t channel) {
   iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C3);
 
   LOG(logDEBUGHAL) << "Sampling channel " << static_cast<int>(channel)
@@ -338,3 +325,6 @@ double caribouHAL::readSlowADC(const uint8_t channel) {
   uint16_t readback = (volt_raw[0] << 8) | volt_raw[0];
   return static_cast<double>(readback*CAR_VREF_4P0/4096);
 }
+
+}
+#endif /* CARIBOU_HAL_IMPL */

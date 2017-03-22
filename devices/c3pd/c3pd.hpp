@@ -6,15 +6,17 @@
 #define DEVICE_C3PD_H
 
 #include "device.hpp"
+#include "pearydevice.hpp"
+#include "i2c.hpp"
 #include "c3pd_defaults.hpp"
 
 namespace caribou {
   /** C3PD Device class definition
    */
-  class C3PD : public caribouDevice {
+  class C3PD : public pearyDevice<iface_i2c> {
     
   public:
-    C3PD(const caribou::Configuration config) : caribouDevice(config) {
+    C3PD(const caribou::Configuration config) : pearyDevice(config) {
       this->initialize(std::string(DEFAULT_DEVICEPATH),C3PD_DEFAULT_I2C,caribou::dictionary<uint8_t>(C3PD_PERIPHERY));
     };
     ~C3PD();

@@ -2,9 +2,10 @@
  * Caribou Device API class header
  */
 
-#ifndef CARIBOU_API_H
-#define CARIBOU_API_H
+#ifndef CARIBOU_MIDDLEWARE_DEF
+#define CARIBOU_MIDDLEWARE_DEF
 
+#include "device.hpp"
 #include "configuration.hpp"
 #include "dictionary.hpp"
 #include "constants.hpp"
@@ -15,7 +16,11 @@
 
 namespace caribou {
 
-  /** Abstract Caribou Device class definition
+  /** Forward declaration of the hardware abstraction layer, not including the header file!
+   */
+  template<typename T> class caribouHAL;
+
+  /** Caribou Device class definition
    *
    *  this is the central device class from which all device implementations inherit.
    *
@@ -24,22 +29,23 @@ namespace caribou {
    *  of interfacing the devices independently via the common set of function alls, e.g.,
    *  from a GUI or a commandline interface.
    */
-  class caribouDevice {
+  template<typename T>
+  class pearyDevice : public caribouDevice {
 
   public:
 
     /** Default constructor for Caribou devices
      *
      */
-    caribouDevice(const caribou::Configuration) {};
+    pearyDevice(const caribou::Configuration config);
 
     /** Default destructor for Caribou devices
      */
-    virtual ~caribouDevice() {};
+    virtual ~pearyDevice();
 
     /** Return the software version string for reference
      */
-    virtual std::string getVersion() = 0;
+    std::string getVersion();
 
     /** Return the human-readable device name
      */
@@ -47,22 +53,22 @@ namespace caribou {
 
     /** Return the identifier of the firmware currently loaded
      */
-    virtual uint8_t getFirmwareID() = 0;
+    uint8_t getFirmwareID();
 
     /** Return the board identifier of the CaR board installed
      */
-    virtual uint8_t getCaRBoardID() = 0;
+    uint8_t getCaRBoardID();
 
     /** Read the ID from the chip board if available
      *
      *  Some chip boards feature an EPROM which stores a board ID and thus
      *  allows identification of the attached chip board.
      */
-    virtual uint16_t getChipID() = 0;
+    uint16_t getChipID() { return 0; };
 
     /** Return the human-readable device name of the firmware currently loaded
      */
-    virtual std::string getDeviceName() = 0;
+    std::string getDeviceName();
 
     /** Turn on the power supply for the attached device
      */
@@ -130,14 +136,14 @@ namespace caribou {
     // Purely virtual?
     // Do they need to be virtual? Maybe implement in baseclass (always same for CaR)
     // and only look up correct regulator according to name from child class dictionary?
-    virtual void setVoltage(std::string name, double voltage) = 0;
-    virtual void setBias(std::string name, double voltage) = 0;
-    virtual void setInjectionBias(std::string name, double voltage) = 0;
+    void setVoltage(std::string name, double voltage);
+    void setBias(std::string name, double voltage);
+    void setInjectionBias(std::string name, double voltage);
 
-    virtual void voltageOn(std::string name) = 0;
-    virtual void voltageOff(std::string name) = 0;
+    void voltageOn(std::string name);
+    void voltageOff(std::string name);
 
-    virtual void setCurrent(std::string name, double current) = 0;
+    void setCurrent(std::string name, double current);
     //virtual double measureVoltage();
     //virtual double measureCurrent();
 
@@ -147,13 +153,13 @@ namespace caribou {
      *
      *  Returns value in SI Volts
      */
-    virtual double getADC(std::string name) = 0;
+    double getADC(std::string name);
 
     /** Read slow-ADC value by the input channel number of the ADC device
      *
      *  Returns value in SI Volts
      */
-    virtual double getADC(uint8_t channel) = 0;
+    double getADC(uint8_t channel);
     
     // CaR CMOS signals
     // void enableSignal();
@@ -171,8 +177,31 @@ namespace caribou {
     // Otherwise synchronization of event-based detectors impossible
 
 
-  }; //class caribouDevice
+  protected:
+    /** Instance of the Caribou hardware abstraction layer library
+     *
+     *  All register and hardware access should go through this interface.
+     */
+    caribou::caribouHAL<T> * _hal;
+
+    /** Return the required communication interface
+     */
+    virtual IFACE interface() = 0;
+
+    /** Initializer function for Caribou devices
+     */
+    void initialize(std::string devpath, uint32_t devaddr, caribou::dictionary<uint8_t> periphery);
+
+    /** Device configuration object
+     */
+    caribou::Configuration _config;
+
+    /** Static periphery dictionary for all devices to access CaR components:
+     */
+    caribou::dictionary<uint8_t> _periphery;
+
+  }; //class pearyDevice
 
 } //namespace caribou
 
-#endif /* CARIBOU_API_H */
+#endif /* CARIBOU_MIDDLEWARE_DEF */

@@ -6,6 +6,8 @@
 #define DEVICE_CLICPIX2_H
 
 #include "device.hpp"
+#include "pearydevice.hpp"
+#include "spi.hpp"
 #include "clicpix2_defaults.hpp"
 #include "Si5345-RevB-CLICpix2-Registers.h"
 #include "configuration.hpp"
@@ -19,10 +21,10 @@ namespace caribou {
    *  this class implements the required functionality to operate CLICpix2 chips via the
    *  Caribou device class interface.
    */
-  class clicpix2 : public caribouDevice {
+  class clicpix2 : public pearyDevice<iface_spi> {
     
   public:
-  clicpix2(const caribou::Configuration config) : caribouDevice(config) {
+  clicpix2(const caribou::Configuration config) : pearyDevice(config) {
     this->initialize(std::string(DEFAULT_DEVICEPATH),0,caribou::dictionary<uint8_t>(CLICPIX2_PERIPHERY));
   };
     ~clicpix2();

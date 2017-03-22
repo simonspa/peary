@@ -175,21 +175,21 @@ void clicpix2::exploreInterface(){
   std::pair<uint8_t, uint8_t> pairdata = std::make_pair(0x12,0x34);
   LOG(logDEBUG) << "Write: Pair of register and data word";
   LOG(logDEBUG) << "  sending:   " << to_hex_string(pairdata.first) << " -> " << to_hex_string(pairdata.second);
-  std::pair<uint8_t, uint8_t> pairval = _hal->getInterface<iface_spi>().send(pairdata);
+  std::pair<uint8_t, uint8_t> pairval = _hal->getInterface().send(pairdata);
   LOG(logDEBUG) << "  receiving: " << to_hex_string(pairval.first) << " -> " << to_hex_string(pairval.second);
 
   std::vector<uint8_t> vecdata {0x34, 0x56, 0x78};
   LOG(logDEBUG) << "Write: Register plus vector of data words";
   LOG(logDEBUG) << "  sending:   " << to_hex_string(0x12) << " -> " << listVector(vecdata,",",true);
-  LOG(logDEBUG) << "  receiving: " << listVector(_hal->getInterface<iface_spi>().send(0x12, vecdata),",", true);
+  LOG(logDEBUG) << "  receiving: " << listVector(_hal->getInterface().send(0x12, vecdata),",", true);
 
   std::vector<std::pair<uint8_t, uint8_t>> pairvec {std::make_pair(0x12,0x34), std::make_pair(0x56,0x78), std::make_pair(0x90,0xab)};
   LOG(logDEBUG) << "Write: Vector of register/data word pairs";
   LOG(logDEBUG) << "  sending:   " << listVector(pairvec,",",true);
-  LOG(logDEBUG) << "  receiving: " << listVector(_hal->getInterface<iface_spi>().send(pairvec),",", true);
+  LOG(logDEBUG) << "  receiving: " << listVector(_hal->getInterface().send(pairvec),",", true);
 
   LOG(logDEBUG) << "Read: Vector of register/data word pairs";
-  LOG(logDEBUG) << "  receiving: " << listVector(_hal->getInterface<iface_spi>().receive( static_cast<uint8_t>(0x12),static_cast<unsigned int>(3)),",", true);
+  LOG(logDEBUG) << "  receiving: " << listVector(_hal->getInterface().receive( static_cast<uint8_t>(0x12),static_cast<unsigned int>(3)),",", true);
 }
 
 caribouDevice* caribou::generator(const caribou::Configuration config) {
