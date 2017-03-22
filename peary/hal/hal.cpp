@@ -264,17 +264,16 @@ void caribouHAL::setCurrentMonitor(const uint8_t device, const double maxExpecte
   LOG(logDEBUGHAL) << "  cal_register = " << static_cast<double>(cal)
 		   << " (" << to_hex_string(cal) << ")";
   
-  i2c.write(device, REG_ADC_CALIBRATION, {static_cast<i2c_t>( cal >> 8 ), static_cast<i2c_t>( cal & 0xFF ) } );
+  i2c.write(device, REG_ADC_CALIBRATION, {static_cast<i2c_t>(cal>>8), static_cast<i2c_t>(cal&0xFF)});
 }
 
 double caribouHAL::measureVoltage(const VOLTAGE_REGULATOR_T regulator){
 
   iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C1);
   const i2c_address_t device = std::get<4>(regulator);
-  LOG(logDEBUGHAL) <<  "Reading bus voltage from INA226 at " << to_hex_string(device);
 
+  LOG(logDEBUGHAL) <<  "Reading bus voltage from INA226 at " << to_hex_string(device);
   std::vector<i2c_t> voltage = i2c.read( device, REG_ADC_BUS_VOLTAGE, 2);
-  if(voltage.size() < 2) throw caribou::CommunicationError("Failed to read two bytes from INA226 at " + to_hex_string(device));
 
   // INA226: fixed LSB for voltage measurement: 1.25mV
   return ( static_cast<unsigned int>( voltage.at(0) << 8 ) | voltage.at(1) ) * 0.00125;
