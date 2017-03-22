@@ -172,28 +172,18 @@ void clicpix2::powerStatusLog(){
 void clicpix2::exploreInterface(){
   LOG(logINFO) << DEVICE_NAME << " - Exploring interface capabilities...";
 
-  // Prepare data:
-  uint8_t data = 0xff;
-  LOG(logDEBUG) << "Write: Single data word";
-  LOG(logDEBUG) << "  sending:   " << to_hex_string(data);
-  LOG(logDEBUG) << "  receiving: " << to_hex_string(_hal->getInterface<iface_spi>().send(data));
-
-  std::vector<uint8_t> vecdata {data, data, data};
-  LOG(logDEBUG) << "Write: Vector of data words";
-  LOG(logDEBUG) << "  sending:   " << listVector(vecdata,",",true);
-  LOG(logDEBUG) << "  receiving: " << listVector(_hal->getInterface<iface_spi>().send(vecdata),",", true);
-
-  std::pair<uint8_t, uint8_t> pairdata = std::make_pair(data,data);
+  std::pair<uint8_t, uint8_t> pairdata = std::make_pair(0x12,0x34);
   LOG(logDEBUG) << "Write: Pair of register and data word";
   LOG(logDEBUG) << "  sending:   " << to_hex_string(pairdata.first) << " -> " << to_hex_string(pairdata.second);
   std::pair<uint8_t, uint8_t> pairval = _hal->getInterface<iface_spi>().send(pairdata);
   LOG(logDEBUG) << "  receiving: " << to_hex_string(pairval.first) << " -> " << to_hex_string(pairval.second);
 
+  std::vector<uint8_t> vecdata {0x34, 0x56, 0x78};
   LOG(logDEBUG) << "Write: Register plus vector of data words";
-  LOG(logDEBUG) << "  sending:   " << to_hex_string(data) << " -> " << listVector(vecdata,",",true);
-  LOG(logDEBUG) << "  receiving: " << listVector(_hal->getInterface<iface_spi>().send(data, vecdata),",", true);
+  LOG(logDEBUG) << "  sending:   " << to_hex_string(0x12) << " -> " << listVector(vecdata,",",true);
+  LOG(logDEBUG) << "  receiving: " << listVector(_hal->getInterface<iface_spi>().send(0x12, vecdata),",", true);
 
-  std::vector<std::pair<uint8_t, uint8_t>> pairvec {std::make_pair(data,data), std::make_pair(data,data), std::make_pair(data,data)};
+  std::vector<std::pair<uint8_t, uint8_t>> pairvec {std::make_pair(0x12,0x34), std::make_pair(0x56,0x78), std::make_pair(0x90,0xab)};
   LOG(logDEBUG) << "Write: Vector of register/data word pairs";
   LOG(logDEBUG) << "  sending:   " << listVector(pairvec,",",true);
   LOG(logDEBUG) << "  receiving: " << listVector(_hal->getInterface<iface_spi>().send(pairvec),",", true);
