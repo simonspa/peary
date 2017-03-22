@@ -113,7 +113,7 @@ int pearycli::getADC(const std::vector<std::string> & input) {
   }
   try {
     caribouDevice *dev = manager->getDevice(std::stoi(input.at(2)));
-    LOG(logINFO) << "Voltage: " << dev->getADC(std::stoi(input.at(1)));
+    LOG(logINFO) << "Voltage: " << dev->getADC(std::stoi(input.at(1))) << "V";
   }
   catch (caribou::ConfigInvalid &) { return ret::Error; }
   return ret::Ok;
