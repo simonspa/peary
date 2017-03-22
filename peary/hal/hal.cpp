@@ -247,37 +247,75 @@ void caribouHAL::configureSI5345(SI5345_REG_T const * const regs,const size_t le
 void caribouHAL::setCurrentMonitor(const uint8_t device, const double maxExpectedCurrent){
   LOG(logDEBUGHAL) << "Setting maxExpectedCurrent " << maxExpectedCurrent << "A "
 		   << "on INA226 at " << to_hex_string(device);
-  
   iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C1);
-  unsigned int cal = static_cast< unsigned int >( 0.00512 *( 0x1 << 15)/(CAR_INA226_R_SHUNT * maxExpectedCurrent ) );
-  i2c.write(device, 0x05, {static_cast<i2c_t>( cal >> 8 ), static_cast<i2c_t>( cal & 0xFF ) } );
+
+  // Set configuration register:
+  uint16_t conf = (1<<14);
+  // Average over 16 samples:
+  conf |= (1<<10);
+  // Use a bus voltage conversion time of 8.244 ms:
+  conf |= (0x7<<6);
+  // Use a bus voltage conversion time of 8.244 ms:
+  conf |= (0x7<<3);
+  // Operation mode: continuous mesaurement of shunt and bus voltage:
+  conf |= 0x7;
+  i2c.write(device, REG_ADC_CONFIGURATION, {static_cast<i2c_t>(conf>>8), static_cast<i2c_t>(conf&0xFF)});
+
+  // set calibration register
+  
+  // Calculate current LSB from expected current:
+  double current_lsb = maxExpectedCurrent/(0x1<<15);
+  LOG(logDEBUGHAL) << "  current_lsb  = " << static_cast<double>(current_lsb*1e6) << " uA/bit";
+  
+  unsigned int cal = static_cast<unsigned int>(0.00512/(CAR_INA226_R_SHUNT*current_lsb));
+  LOG(logDEBUGHAL) << "  cal_register = " << static_cast<double>(cal)
+		   << " (" << to_hex_string(cal) << ")";
+  
+  i2c.write(device, REG_ADC_CALIBRATION, {static_cast<i2c_t>(cal>>8), static_cast<i2c_t>(cal&0xFF)});
 }
 
 double caribouHAL::measureVoltage(const VOLTAGE_REGULATOR_T regulator){
+
   iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C1);
   const i2c_address_t device = std::get<4>(regulator);
-  std::vector<i2c_t> voltage = i2c.read( device, 0x02, 2);
-  return ( static_cast<unsigned int>( voltage[0] << 8 ) | voltage[1] ) * 0.00125;
+
+  LOG(logDEBUGHAL) <<  "Reading bus voltage from INA226 at " << to_hex_string(device);
+  std::vector<i2c_t> voltage = i2c.read( device, REG_ADC_BUS_VOLTAGE, 2);
+
+  // INA226: fixed LSB for voltage measurement: 1.25mV
+  return ( static_cast<unsigned int>( voltage.at(0) << 8 ) | voltage.at(1) ) * 0.00125;
 }
 
 //FIXME: somtimes it returns dummy values
 double caribouHAL::measureCurrent(const VOLTAGE_REGULATOR_T regulator){
   iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C1);
   const i2c_address_t device = std::get<4>(regulator);
-  std::vector<i2c_t> cal_v = i2c.read( device, 0x05, 2); //readback calibration register
-  double currentLSB = static_cast<double>(0.00512) / ( (static_cast<uint16_t>(cal_v[0] << 8) | cal_v[1]) * CAR_INA226_R_SHUNT );
-  std::vector<i2c_t> current_raw = i2c.read(device, 0x04, 2);
-  return (static_cast<unsigned int>(current_raw[0] << 8 ) | current_raw[1] ) * currentLSB;
+  LOG(logDEBUGHAL) <<  "Reading current from INA226 at " << to_hex_string(device);
+
+  // Reading back the calibration register:
+  std::vector<i2c_t> cal_v = i2c.read( device, REG_ADC_CALIBRATION, 2);
+  double current_lsb = static_cast<double>(0.00512)/((static_cast<uint16_t>(cal_v.at(0) << 8) | cal_v.at(1))*CAR_INA226_R_SHUNT);
+  LOG(logDEBUGHAL) << "  current_lsb  = " << static_cast<double>(current_lsb*1e6) << " uA/bit";
+
+  // Reading the current register:
+  std::vector<i2c_t> current_raw = i2c.read(device, REG_ADC_CURRENT, 2);
+  return (static_cast<unsigned int>(current_raw.at(0) << 8 ) | current_raw.at(1) ) * current_lsb;
 }
 
 //FIXME: sometimes it return dummy values
 double caribouHAL::measurePower(const VOLTAGE_REGULATOR_T regulator){
   iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C1);
   const i2c_address_t device = std::get<4>(regulator);
-  std::vector<i2c_t> cal_v = i2c.read( device, 0x05, 2); //readback calibration register
-  double powerLSB = 25 * static_cast<double>(0.00512) / ( (static_cast<uint16_t>(cal_v[0] << 8) | cal_v[1]) * CAR_INA226_R_SHUNT );
-  std::vector<i2c_t> power_raw = i2c.read(device, 0x03, 2);
-  return (static_cast<unsigned int>(power_raw[0] << 8 ) | power_raw[1] ) * powerLSB;
+  LOG(logDEBUGHAL) <<  "Reading power from INA226 at " << to_hex_string(device);
+
+    // Reading back the calibration register:
+  std::vector<i2c_t> cal_v = i2c.read( device, REG_ADC_CALIBRATION, 2);
+  double power_lsb = static_cast<double>(0.00512)/((static_cast<uint16_t>(cal_v.at(0) << 8) | cal_v.at(1))*CAR_INA226_R_SHUNT);
+  LOG(logDEBUGHAL) << "  power_lsb  = " << static_cast<double>(power_lsb*1e6) << " uA/bit";
+
+  // Reading the power register:
+  std::vector<i2c_t> power_raw = i2c.read(device, REG_ADC_POWER, 2);
+  return (static_cast<unsigned int>(power_raw[0] << 8 ) | power_raw[1] ) * power_lsb;
 }
 
 
