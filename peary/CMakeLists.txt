@@ -10,12 +10,10 @@ OPTION(INTERFACE_SPI "Build Caribou SPI interface?" ON)
 OPTION(INTERFACE_LOOP "Build Caribou Loopback interface?" ON)
 
 SET(LIB_SOURCE_FILES
-  # device library
-  #"device/pearydevice.cpp"
+  # device manager
   "device/devicemgr.cpp"
+  # interface manager
   "interfaces/interface_manager.cpp"
-  # hardware abstraction layer
-  #"hal/hal.cpp"
   # utilities
   "utils/utils.cpp"
   "utils/configuration.cpp"
