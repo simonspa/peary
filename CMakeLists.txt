@@ -117,12 +117,7 @@ INCLUDE_DIRECTORIES(devices/example)
 ADD_EXECUTABLE(peary_direct "exec/direct_device.cpp")
 TARGET_LINK_LIBRARIES(peary_direct ${PROJECT_NAME} CaribouExampleDevice )
 
-INCLUDE_DIRECTORIES(devices/c3pd)
-INCLUDE_DIRECTORIES(devices/clicpix2)
-ADD_EXECUTABLE(car_tests "exec/car_tests.cpp")
-TARGET_LINK_LIBRARIES(car_tests ${PROJECT_NAME} C3PD CLICpix2 )
-
-INSTALL(TARGETS peary_app peary_direct car_tests pearycli
+INSTALL(TARGETS peary_app peary_direct pearycli
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib)
