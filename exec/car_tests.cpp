@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 
 #include "configuration.hpp"
 #include "clicpix2.hpp"
@@ -9,23 +10,42 @@ using namespace caribou;
 
 int main(int argc, char* argv[]) {
 
+  std::string configfile = "";
+
   // Quick and hacky cli arguments reading:
   for (int i = 1; i < argc; i++) {
     if (!strcmp(argv[i],"-h")) {
       std::cout << "Help:" << std::endl;
       std::cout << "-v verbosity   verbosity level, default INFO" << std::endl;
+      std::cout << "-c configfile  configuration file to be used" << std::endl;
       return 0;
     }
     else if (!strcmp(argv[i],"-v")) {
       Log::ReportingLevel() = Log::FromString(std::string(argv[++i]));
       continue;
     }
+    else if (!strcmp(argv[i],"-c")) {
+      configfile = std::string(argv[++i]);
+      continue;
+    }
+
   }
   
   // Create all Caribou devices instance:
   try {
-    std::unique_ptr<C3PD> c3pd( new C3PD(caribou::Configuration()) );
-    std::unique_ptr<clicpix2> cpx2( new clicpix2(caribou::Configuration()) );
+
+    // Open configuration file and create object:
+    caribou::Configuration config;
+    std::ifstream file(configfile.c_str());
+    if (!file.is_open()) {
+      LOG(logWARNING) << "No configuration file provided, all devices will use defaults!";
+      config = caribou::Configuration();
+    }
+    else { config = caribou::Configuration(file); }
+    config.SetSection("C3PD");
+    std::unique_ptr<C3PD> c3pd( new C3PD( config ) );
+    config.SetSection("CLICpix2");
+    std::unique_ptr<clicpix2> cpx2( new clicpix2( config ) );
 
     cpx2->init();
     c3pd->init();
