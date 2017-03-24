@@ -10,7 +10,7 @@
  * Design ID:                                          CLICpix2
  * Includes Pre/Post Download Control Register Writes: Yes
  * Created By:                                         ClockBuilder Pro v2.13 [2017-03-03]
- * Timestamp:                                          2017-03-22 09:53:05 GMT+01:00
+ * Timestamp:                                          2017-03-23 18:38:33 GMT+01:00
  *
  * A complete design report corresponding to this export is included at the end 
  * of this header file.
@@ -111,9 +111,9 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
 	{ 0x009E, 0x20 },
 	{ 0x00A0, 0x00 },
 	{ 0x00A2, 0x00 },
-	{ 0x00A8, 0xD2 },
-	{ 0x00A9, 0xF3 },
-	{ 0x00AA, 0x07 },
+	{ 0x00A8, 0x57 },
+	{ 0x00A9, 0x3F },
+	{ 0x00AA, 0x00 },
 	{ 0x00AB, 0x00 },
 	{ 0x00AC, 0x00 },
 	{ 0x0102, 0x01 },
@@ -357,17 +357,17 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
 	{ 0x0487, 0x01 },
 	{ 0x0502, 0x01 },
 	{ 0x0508, 0x14 },
-	{ 0x0509, 0x23 },
-	{ 0x050A, 0x0C },
-	{ 0x050B, 0x0B },
-	{ 0x050C, 0x03 },
-	{ 0x050D, 0x3F },
-	{ 0x050E, 0x17 },
-	{ 0x050F, 0x2B },
-	{ 0x0510, 0x09 },
-	{ 0x0511, 0x08 },
-	{ 0x0512, 0x03 },
-	{ 0x0513, 0x3F },
+	{ 0x0509, 0x28 },
+	{ 0x050A, 0x07 },
+	{ 0x050B, 0x06 },
+	{ 0x050C, 0x3F },
+	{ 0x050D, 0x1F },
+	{ 0x050E, 0x14 },
+	{ 0x050F, 0x2A },
+	{ 0x0510, 0x07 },
+	{ 0x0511, 0x06 },
+	{ 0x0512, 0x3F },
+	{ 0x0513, 0x1F },
 	{ 0x0515, 0x00 },
 	{ 0x0516, 0x00 },
 	{ 0x0517, 0x00 },
@@ -381,7 +381,7 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
 	{ 0x051F, 0x80 },
 	{ 0x0521, 0x21 },
 	{ 0x052A, 0x01 },
-	{ 0x052B, 0x01 },
+	{ 0x052B, 0x00 },
 	{ 0x052C, 0x0F },
 	{ 0x052D, 0x03 },
 	{ 0x052E, 0x19 },
@@ -427,7 +427,7 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
  * Project File: E:\clic\Caribou\peary\devices\clicpix2\Si5345-RevB-CLICpix2-Project.slabtimeproj
  * Design ID:    CLICpix2
  * Created By:   ClockBuilder Pro v2.13 [2017-03-03]
- * Timestamp:    2017-03-22 09:53:05 GMT+01:00
+ * Timestamp:    2017-03-23 18:38:33 GMT+01:00
  * 
  * Design Rule Check
  * =================
@@ -435,11 +435,8 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
  * - No errors
  * 
  * Warnings:
- * - Datasheet input-to-output delay cannot be met due to loop bandwidth less than 100 Hz [1]
+ * - For your frequency plan, loop bandwidth above 1.563 kHz may increase output jitter and/or increase peaking
  * - Revision B is not recommended for new designs
- * 
- * Notes:
- * [1] In Zero Delay mode, input-to-output delay is measured as the time delay difference between the reference input and the feedback input, with both clocks running at 10 MHz and having the same slew rate. Consider increasing nominal loop bandwidth to 100 Hz in order to meet the datasheet specification.
  * 
  * Device Grade
  * ============
@@ -543,25 +540,25 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
  *    R9 = 2
  * 
  * Nominal Bandwidth:
- *   Desired: 100.000 Hz
- *   Actual:  88.064 Hz
+ *   Desired: 4.000 kHz
+ *   Actual:  2.831 kHz
  *   Coefficients:
  *      BW0:  20
- *      BW1:  35
- *      BW2:  12
- *      BW3:  11
- *      BW4:  3
- *      BW5:  63
+ *      BW1:  40
+ *      BW2:  7
+ *      BW3:  6
+ *      BW4:  63
+ *      BW5:  31
  * Fastlock Bandwidth:
- *   Desired: 1.000 kHz
- *   Actual:  705.217 Hz
+ *   Desired: 4.000 kHz
+ *   Actual:  2.831 kHz
  *   Coefficients:
- *      BW0:  23
- *      BW1:  43
- *      BW2:  9
- *      BW3:  8
- *      BW4:  3
- *      BW5:  63
+ *      BW0:  20
+ *      BW1:  42
+ *      BW2:  7
+ *      BW3:  6
+ *      BW4:  63
+ *      BW5:  31
  * 
  * Dividers listed above show effective values. These values are translated to register settings by ClockBuilder Pro. For the actual register values, see below. Refer to the Family Reference Manual for information on registers related to frequency plan.
  * 
@@ -710,7 +707,7 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
  * 0x009E[7:4]   LOL_SLW_SET_THR       2              0x2             
  * 0x00A0[7:4]   LOL_SLW_CLR_THR       0              0x0             
  * 0x00A2[1]     LOL_TIMER_EN          0              0x0             
- * 0x00A8[34:0]  LOL_CLR_DELAY         521170         0x00007F3D2     
+ * 0x00A8[34:0]  LOL_CLR_DELAY         16215          0x000003F57     
  * 0x0102[0]     OUTALL_DISABLE_LOW    1              0x1             
  * 0x0108[0]     OUT0_PDN              1              0x1             
  * 0x0108[1]     OUT0_OE               0              0x0             
@@ -898,17 +895,17 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
  * 0x0487[2:1]   ZDM_IN_SEL            0              0x0             
  * 0x0502[4]     ADD_DIV256            0              0x0             
  * 0x0508[5:0]   BW0_PLL               20             0x14            
- * 0x0509[5:0]   BW1_PLL               35             0x23            
- * 0x050A[5:0]   BW2_PLL               12             0x0C            
- * 0x050B[5:0]   BW3_PLL               11             0x0B            
- * 0x050C[5:0]   BW4_PLL               3              0x03            
- * 0x050D[5:0]   BW5_PLL               63             0x3F            
- * 0x050E[5:0]   FAST_BW0_PLL          23             0x17            
- * 0x050F[5:0]   FAST_BW1_PLL          43             0x2B            
- * 0x0510[5:0]   FAST_BW2_PLL          9              0x09            
- * 0x0511[5:0]   FAST_BW3_PLL          8              0x08            
- * 0x0512[5:0]   FAST_BW4_PLL          3              0x03            
- * 0x0513[5:0]   FAST_BW5_PLL          63             0x3F            
+ * 0x0509[5:0]   BW1_PLL               40             0x28            
+ * 0x050A[5:0]   BW2_PLL               7              0x07            
+ * 0x050B[5:0]   BW3_PLL               6              0x06            
+ * 0x050C[5:0]   BW4_PLL               63             0x3F            
+ * 0x050D[5:0]   BW5_PLL               31             0x1F            
+ * 0x050E[5:0]   FAST_BW0_PLL          20             0x14            
+ * 0x050F[5:0]   FAST_BW1_PLL          42             0x2A            
+ * 0x0510[5:0]   FAST_BW2_PLL          7              0x07            
+ * 0x0511[5:0]   FAST_BW3_PLL          6              0x06            
+ * 0x0512[5:0]   FAST_BW4_PLL          63             0x3F            
+ * 0x0513[5:0]   FAST_BW5_PLL          31             0x1F            
  * 0x0515[55:0]  M_NUM                 2920577761280  0x0002A800000000
  * 0x051C[31:0]  M_DEN                 2147483648     0x80000000      
  * 0x0521[3:0]   M_FRAC_MODE           1              0x1             
@@ -916,7 +913,7 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
  * 0x0521[5]     PLL_OUT_RATE_SEL      1              0x1             
  * 0x052A[0]     IN_SEL_REGCTRL        1              0x1             
  * 0x052A[3:1]   IN_SEL                0              0x0             
- * 0x052B[0]     FASTLOCK_AUTO_EN      1              0x1             
+ * 0x052B[0]     FASTLOCK_AUTO_EN      0              0x0             
  * 0x052B[1]     FASTLOCK_MAN          0              0x0             
  * 0x052C[0]     HOLD_EN               1              0x1             
  * 0x052C[3]     HOLD_RAMP_BYP         1              0x1             
