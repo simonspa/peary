@@ -14,6 +14,7 @@
 
 #include "i2c.hpp"
 #include "spi.hpp"
+#include "spi_CLICpix2.hpp"
 #include "loopback.hpp"
 
 using namespace caribou;
@@ -25,6 +26,11 @@ caribouHAL::caribouHAL(IFACE interface, std::string device_path, uint32_t device
   switch(_iface) {
   case IFACE::SPI : {
     iface_spi & myspi = interface_manager::getInterface<iface_spi>(_devpath);
+    myspi.lock_address(device_address);
+    break;
+  }
+  case IFACE::SPI_CLICpix2 : {
+    iface_spi_CLICpix2 & myspi = interface_manager::getInterface<iface_spi_CLICpix2>(_devpath);
     myspi.lock_address(device_address);
     break;
   }
