@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <unistd.h>
 
 #include "configuration.hpp"
 #include "clicpix2.hpp"
@@ -49,6 +50,9 @@ int main(int argc, char* argv[]) {
 
     cpx2->init();
     c3pd->init();
+
+    usleep(1000000);
+    cpx2->exploreInterface();
     
     while(1) {
       std::cout << "Press \"q\" to quit or \"m\" to measure: ";
