@@ -28,4 +28,33 @@ typedef std::tuple<std::string, uint8_t, uint8_t, uint8_t, uint8_t> VOLTAGE_REGU
  */
 typedef std::tuple<std::string, uint8_t, uint8_t, uint8_t> CURRENT_SOURCE_T;
 
+/** Slow ADC Channel Configuration
+ *
+ *  The parameters hold (in this order):
+ *  - the channel number
+ */
+typedef uint8_t SLOW_ADC_CHANNEL_T;
+
+/**  Bias Voltage Regulator Configuration
+ *  
+ *  - the name of the bias voltage
+ *  - the DAC address
+ *  - the corresponding DAC output pin
+ */
+typedef std::tuple<std::string, uint8_t, uint8_t> BIAS_REGULATOR_T;
+
+/**  Injection Bias Voltage Regulator Configuration
+ *  
+ *  - the name of the injection bias
+ *  - the DAC address
+ *  - the corresponding DAC output pin
+ *  - FIXME: INJ_CTRL_X signals from FPGA!
+ */
+typedef std::tuple<std::string, uint8_t, uint8_t> INJBIAS_REGULATOR_T;
+
+// FIXME
+// MISSING
+// fast ADC: ADC_IN_XY
+
+
 #endif /* CARIBOU_DATATYPES_H */
