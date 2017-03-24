@@ -57,7 +57,7 @@ namespace caribou {
 
   private:
 
-    IFACE interface() { return IFACE::SPI; }
+    IFACE interface() { return IFACE::SPI_CLICpix2; }
     
     /* Routine to program the pixel matrix via the SPI interface
      *

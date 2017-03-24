@@ -3,7 +3,7 @@
  */
 
 #include "clicpix2.hpp"
-#include "spi.hpp"
+#include "spi_CLICpix2.hpp"
 #include "hal.hpp"
 #include "log.hpp"
 
@@ -180,21 +180,17 @@ void clicpix2::exploreInterface(){
   for(unsigned int i= 10; i < 63; i+=2 )
       pairvec.push_back( std::make_pair(i, ~i) );
 
-  std::vector<std::pair<uint8_t, uint8_t>> rx = _hal->getInterface<iface_spi>().send(pairvec);
+  std::vector<std::pair<uint8_t, uint8_t>> rx = _hal->getInterface<iface_spi_CLICpix2>().send(pairvec);
   for( unsigned int i = 0; i < rx.size(); i++)
     if( rx[i].second != defualtValues [i] )
       throw DataCorrupt("Default register vaules mismatch");
   LOG(logINFO) << DEVICE_NAME << "Success readout of default values of registers (addresses range 0x0a - 0x3E)";
 
-  rx = _hal->getInterface<iface_spi>().send(pairvec);
+  rx = _hal->getInterface<iface_spi_CLICpix2>().send(pairvec);
   for( unsigned int i = 0; i < rx.size(); i++)
     if( rx[i].second != pairvec[i].second )
       throw DataCorrupt("Data written at address " + to_hex_string(pairvec[i].first) + " doesn't match with read value");
   LOG(logINFO) << "Sucess write-read back operation of regisers (addresses range 0x0a - 0x3E).";
-
-  _hal->getInterface<iface_spi>().send(pairvec);
-  
-  LOG(logINFO) << DEVICE_NAME << " - Checking default values of the registers ...";
 
   LOG(logINFO) << DEVICE_NAME << " - Exploring interface capabilities ... Done";
   
