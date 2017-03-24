@@ -244,6 +244,23 @@ void caribouHAL::configureSI5345(SI5345_REG_T const * const regs,const size_t le
   }
 }
 
+bool caribouHAL::isLockedSI5345(){
+  LOG(logDEBUGHAL) << "Checking lock status of SI5345";
+
+  iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C0);
+  i2c.write(ADDR_CLKGEN, std::make_pair( 0x01, 0x00 ) );   //set first page
+  std::vector<i2c_t> rx = i2c.read(ADDR_CLKGEN, static_cast<uint8_t>( 0x0E) );
+  if(rx[0] & 0x1){
+    LOG(logDEBUGHAL) << "SI5345 is not locked";
+    return false;
+  }
+  else{
+    LOG(logDEBUGHAL) << "SI5345 is locked";
+    return true;
+  }
+}
+
+
 void caribouHAL::setCurrentMonitor(const uint8_t device, const double maxExpectedCurrent){
   LOG(logDEBUGHAL) << "Setting maxExpectedCurrent " << maxExpectedCurrent << "A "
 		   << "on INA226 at " << to_hex_string(device);
