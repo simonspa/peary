@@ -135,7 +135,8 @@ void clicpix2::programMatrix() {
 void clicpix2::configureClock() {
   LOG(logINFO) << DEVICE_NAME << ": Configure clock";
   _hal->configureSI5345( (SI5345_REG_T const * const) si5345_revb_registers , SI5345_REVB_REG_CONFIG_NUM_REGS);
-  while(! _hal-> isLockedSI5345() );
+  //FIXME
+  //while(! _hal-> isLockedSI5345() );
 }
 
 void clicpix2::powerStatusLog(){
