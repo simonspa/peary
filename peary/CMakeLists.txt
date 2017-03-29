@@ -48,7 +48,7 @@ IF(INTERFACE_SPI_CLICpix2)
   MESSAGE(STATUS "Building Caribou SPI CLICpix2 interface.")
 ELSE(INTERFACE_SPI_CLICpix2)
   SET(LIB_SOURCE_FILES ${LIB_SOURCE_FILES}
-    "interfaces/emulators/spi.cpp"
+    "interfaces/emulators/spi_CLICpix2.cpp"
     )
   MESSAGE(STATUS "Building emulator for Caribou SPI CLICpix2 interface.")
 ENDIF(INTERFACE_SPI_CLICpix2)
