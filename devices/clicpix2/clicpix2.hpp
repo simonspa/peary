@@ -7,7 +7,7 @@
 
 #include "device.hpp"
 #include "pearydevice.hpp"
-#include "spi.hpp"
+#include "spi_CLICpix2.hpp"
 #include "clicpix2_defaults.hpp"
 #include "Si5345-RevB-CLICpix2-Registers.h"
 #include "configuration.hpp"
