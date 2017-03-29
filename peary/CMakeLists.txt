@@ -6,6 +6,9 @@ INCLUDE_DIRECTORIES(interfaces)
 OPTION(INTERFACE_I2C "Build Caribou I2C interface?" ON)
 # Build flag for SPI interface implementation:
 OPTION(INTERFACE_SPI "Build Caribou SPI interface?" ON)
+#FIXME: INTERFACE_SPI_CLICpix2 should be dependent on INTERFACE_SPI
+# Build flag for SPI CLICpix2 interface implementation:
+OPTION(INTERFACE_SPI_CLICpix2 "Build Caribou SPI CLICpix2 interface?" ON)
 # Build flag for dummy loopback interface implementation:
 OPTION(INTERFACE_LOOP "Build Caribou Loopback interface?" ON)
 
@@ -48,6 +51,20 @@ ELSE(INTERFACE_SPI)
     )
   MESSAGE(STATUS "Building emulator for Caribou SPI interface.")
 ENDIF(INTERFACE_SPI)
+
+IF(INTERFACE_SPI_CLICpix2)
+  # add SPI source files
+  SET(LIB_SOURCE_FILES ${LIB_SOURCE_FILES}
+    "interfaces/spi_CLICpix2.cpp"
+    )
+  MESSAGE(STATUS "Building Caribou SPI CLICpix2 interface.")
+ELSE(INTERFACE_SPI_CLICpix2)
+  SET(LIB_SOURCE_FILES ${LIB_SOURCE_FILES}
+    "interfaces/emulators/spi.cpp"
+    )
+  MESSAGE(STATUS "Building emulator for Caribou SPI interface.")
+ENDIF(INTERFACE_SPI_CLICpix2)
+
 
 # Loopback interface can be always built
 IF(INTERFACE_LOOP)

@@ -18,7 +18,8 @@ namespace caribou {
     NONE,
     LOOPBACK,
     I2C,
-    SPI
+    SPI,
+    SPI_CLICpix2,
   };
 
   /** Types of register configurations

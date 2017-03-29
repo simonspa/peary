@@ -3,7 +3,7 @@
  */
 
 #include "clicpix2.hpp"
-#include "spi.hpp"
+#include "spi_CLICpix2.hpp"
 #include "hal.hpp"
 #include "log.hpp"
 
@@ -133,8 +133,9 @@ void clicpix2::programMatrix() {
 }
 
 void clicpix2::configureClock() {
-  LOG(logINFO) << DEVICE_NAME << ": Configure clockx";
+  LOG(logINFO) << DEVICE_NAME << ": Configure clock";
   _hal->configureSI5345( (SI5345_REG_T const * const) si5345_revb_registers , SI5345_REVB_REG_CONFIG_NUM_REGS);
+  while(! _hal-> isLockedSI5345() );
 }
 
 void clicpix2::powerStatusLog(){
@@ -170,26 +171,29 @@ void clicpix2::powerStatusLog(){
 }
 
 void clicpix2::exploreInterface(){
-  LOG(logINFO) << DEVICE_NAME << " - Exploring interface capabilities...";
+  LOG(logINFO) << DEVICE_NAME << " - Exploring interface capabilities ...";
 
-  std::pair<uint8_t, uint8_t> pairdata = std::make_pair(0x12,0x34);
-  LOG(logDEBUG) << "Write: Pair of register and data word";
-  LOG(logDEBUG) << "  sending:   " << to_hex_string(pairdata.first) << " -> " << to_hex_string(pairdata.second);
-  std::pair<uint8_t, uint8_t> pairval = _hal->getInterface().send(pairdata);
-  LOG(logDEBUG) << "  receiving: " << to_hex_string(pairval.first) << " -> " << to_hex_string(pairval.second);
+  std::vector<std::pair<uint8_t, uint8_t>> pairvec;
+  uint8_t defualtValues [] = { 30, 50, 80, 90, 64, 136, 133, 133, 133, 133, 30, 50,
+			       90, 0, 138, 0, 138, 133, 0,0,0,0,0,0,0,88, 11 };
+    
+  for(unsigned int i= 10; i < 63; i+=2 )
+      pairvec.push_back( std::make_pair(i, ~i) );
 
-  std::vector<uint8_t> vecdata {0x34, 0x56, 0x78};
-  LOG(logDEBUG) << "Write: Register plus vector of data words";
-  LOG(logDEBUG) << "  sending:   " << to_hex_string(0x12) << " -> " << listVector(vecdata,",",true);
-  LOG(logDEBUG) << "  receiving: " << listVector(_hal->getInterface().send(0x12, vecdata),",", true);
+  std::vector<std::pair<uint8_t, uint8_t>> rx = _hal->getInterface().send(pairvec);
+  for( unsigned int i = 0; i < rx.size(); i++)
+    if( rx[i].second != defualtValues [i] )
+      throw DataCorrupt("Default register vaules mismatch");
+  LOG(logINFO) << DEVICE_NAME << "Success readout of default values of registers (addresses range 0x0a - 0x3E)";
 
-  std::vector<std::pair<uint8_t, uint8_t>> pairvec {std::make_pair(0x12,0x34), std::make_pair(0x56,0x78), std::make_pair(0x90,0xab)};
-  LOG(logDEBUG) << "Write: Vector of register/data word pairs";
-  LOG(logDEBUG) << "  sending:   " << listVector(pairvec,",",true);
-  LOG(logDEBUG) << "  receiving: " << listVector(_hal->getInterface().send(pairvec),",", true);
+  rx = _hal->getInterface().send(pairvec);
+  for( unsigned int i = 0; i < rx.size(); i++)
+    if( rx[i].second != pairvec[i].second )
+      throw DataCorrupt("Data written at address " + to_hex_string(pairvec[i].first) + " doesn't match with read value");
+  LOG(logINFO) << "Sucess write-read back operation of regisers (addresses range 0x0a - 0x3E).";
 
-  LOG(logDEBUG) << "Read: Vector of register/data word pairs";
-  LOG(logDEBUG) << "  receiving: " << listVector(_hal->getInterface().receive( static_cast<uint8_t>(0x12),static_cast<unsigned int>(3)),",", true);
+  LOG(logINFO) << DEVICE_NAME << " - Exploring interface capabilities ... Done";
+  
 }
 
 caribouDevice* caribou::generator(const caribou::Configuration config) {

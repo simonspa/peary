@@ -21,7 +21,7 @@ namespace caribou {
    *  this class implements the required functionality to operate CLICpix2 chips via the
    *  Caribou device class interface.
    */
-  class clicpix2 : public pearyDevice<iface_spi> {
+  class clicpix2 : public pearyDevice<iface_spi_CLICpix2> {
     
   public:
   clicpix2(const caribou::Configuration config) : pearyDevice(config) {
@@ -59,7 +59,7 @@ namespace caribou {
 
   private:
 
-    IFACE interface() { return IFACE::SPI; }
+    IFACE interface() { return IFACE::SPI_CLICpix2; }
     
     /* Routine to program the pixel matrix via the SPI interface
      *

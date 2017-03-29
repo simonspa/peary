@@ -20,7 +20,7 @@ namespace caribou {
    */
   class iface_spi : public Interface<spi_address_t, spi_reg_t, spi_t> {
 
-  private:
+  protected:
     //Default constructor: private (only created by interface_manager)
     //It can throw DeviceException
     iface_spi(std::string const & device_path);
@@ -44,8 +44,7 @@ namespace caribou {
 
     template<typename T>
     friend class caribouHAL;
-
-  private:
+  protected:
     spi_t write(const spi_address_t& address, const spi_t& data );
     std::vector<spi_t> write(const spi_address_t& address, const std::vector<spi_t>& data );
     std::pair<spi_reg_t, spi_t> write(const spi_address_t& address, const std::pair<spi_reg_t, spi_t> & data);

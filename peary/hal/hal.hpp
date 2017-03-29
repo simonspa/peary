@@ -21,6 +21,7 @@
 
 #include "i2c.hpp"
 #include "spi.hpp"
+#include "spi_CLICpix2.hpp"
 #include "loopback.hpp"
 
 #include "hal.hcc"
