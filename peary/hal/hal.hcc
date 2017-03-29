@@ -94,7 +94,7 @@ namespace caribou {
     //It returns vale in SI V.
     double measureVoltage(const VOLTAGE_REGULATOR_T regulator);
 
-    double readSlowADC(const uint8_t channel);
+    double readSlowADC(const SLOW_ADC_CHANNEL_T channel);
 
   private:
 
