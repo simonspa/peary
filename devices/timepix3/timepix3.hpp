@@ -50,8 +50,6 @@ namespace caribou {
 
   private:
 
-    IFACE interface() { return IFACE::I2C; }
-
   };
 
   extern "C" {

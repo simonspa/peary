@@ -68,14 +68,6 @@ namespace caribou {
     void exampleCall();
 
   private:
-
-    /** Device interface
-     *
-     *  Specifies the device hardware interface to be instanciated by the HAL.
-     *  Returns a value of type caribou::IFACE.
-     */
-    IFACE interface() { return IFACE::LOOPBACK; }
-
     dictionary<> exampleDict;
   };
 

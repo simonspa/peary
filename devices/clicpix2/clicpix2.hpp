@@ -58,9 +58,6 @@ namespace caribou {
     void exploreInterface();
 
   private:
-
-    IFACE interface() { return IFACE::SPI_CLICpix2; }
-    
     /* Routine to program the pixel matrix via the SPI interface
      *
      * This routine produces a bit matrix (using STL vector<bool>) which can

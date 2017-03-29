@@ -60,8 +60,6 @@ namespace caribou {
     // reset signal pin
     // power enable pin
 
-    IFACE interface() { return IFACE::I2C; }
-    
   };
 
   /** Device generator
