@@ -75,35 +75,47 @@ namespace caribou {
 
     //Write data to a device which does not contain internal register
     //If readout is intergralpart of write operations, the read values a returned by function. 
-    virtual DATA_T write(const ADDRESS_T& address,const DATA_T& data) = 0;
+    virtual DATA_T write(const ADDRESS_T& address,const DATA_T& data) {
+      throw CommunicationError("Functionality not provided by this interface");
+    };
 
     //Write data to a device which does not contain internal register
     //If readout is intergralpart of write operations, the read values a returned by function. 
-    virtual std::vector<DATA_T> write(const ADDRESS_T& address, const std::vector<DATA_T>& data) = 0;
-
+    virtual std::vector<DATA_T> write(const ADDRESS_T& address, const std::vector<DATA_T>& data) {
+      throw CommunicationError("Functionality not provided by this interface");
+    };
   
     //Write data to a device containing internal registers
     //If readout is intergralpart of write operations, the read values a returned by function. 
-    virtual std::pair<REG_T, DATA_T> write(const ADDRESS_T& address,const std::pair<REG_T, DATA_T> & data) = 0;
+    virtual std::pair<REG_T, DATA_T> write(const ADDRESS_T& address,const std::pair<REG_T, DATA_T> & data) {
+      throw CommunicationError("Functionality not provided by this interface");
+    };
     
     //Write data to a device containing internal registers
     //If readout is intergralpart of write operations, the read values a returned by function. 
-    virtual std::vector<DATA_T> write(const ADDRESS_T& address, const REG_T& reg, const std::vector< DATA_T>& data) = 0;
-
+    virtual std::vector<DATA_T> write(const ADDRESS_T& address, const REG_T& reg, const std::vector< DATA_T>& data) {
+      throw CommunicationError("Functionality not provided by this interface");
+    };
   
     //Write data to a device containing internal registers
     //If readout is intergralpart of write operations, the read values a returned by function. 
-    virtual std::vector<std::pair<REG_T, DATA_T> > write(const ADDRESS_T& address,const std::vector<std::pair<REG_T, DATA_T> >& data) = 0;
+    virtual std::vector<std::pair<REG_T, DATA_T> > write(const ADDRESS_T& address,const std::vector<std::pair<REG_T, DATA_T> >& data) {
+      throw CommunicationError("Functionality not provided by this interface");
+    };
 
     //////////////////////
     // Read operations
     //////////////////////
   
     //Read number of data words form the given device
-    virtual std::vector<DATA_T> read(const ADDRESS_T& address, const unsigned int length = 1) = 0;
+    virtual std::vector<DATA_T> read(const ADDRESS_T& address, const unsigned int length = 1) {
+      throw CommunicationError("Functionality not provided by this interface");
+    };
 
     //Read number of data words form a register of the given device
-    virtual std::vector<DATA_T> read(const ADDRESS_T& address, const REG_T reg, const unsigned int length = 1) = 0;
+    virtual std::vector<DATA_T> read(const ADDRESS_T& address, const REG_T reg, const unsigned int length = 1) {
+      throw CommunicationError("Functionality not provided by this interface");
+    };
 
   };
 

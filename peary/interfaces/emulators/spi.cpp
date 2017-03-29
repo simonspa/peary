@@ -22,21 +22,6 @@ iface_spi::iface_spi(std::string const & device_path) : Interface( device_path )
 iface_spi::~iface_spi() {}
 
 
-spi_t iface_spi::write(const spi_t& address, const spi_t& data) {
-  std::lock_guard<std::mutex> lock(mutex);
-  
-  LOG(logINTERFACE) << "SPI (" << devicePath <<") address " << to_hex_string( address ) << ": Wrote data \"" << to_hex_string(data)
-		    <<  "\" Read data \"" << to_hex_string(data) << "\"";
-  return data;
-}
-
-std::vector<spi_t> iface_spi::write(const spi_address_t& address, const std::vector<spi_t>& data ){
-  std::lock_guard<std::mutex> lock(mutex);
-  LOG(logINTERFACE) << "SPI (" << devicePath <<") address " << to_hex_string(address) << "\n\t Wrote block data: \""
-		    << listVector( data, ", ", true) << "\"\n\t Read  block data: \"" <<  listVector( data, ", ", true) << "\"";
-  return data;
-}
-
 std::pair<spi_reg_t, spi_t> iface_spi::write(const spi_address_t& address, const std::pair<spi_reg_t, spi_t> & data){
 
   std::lock_guard<std::mutex> lock(mutex);
@@ -96,18 +81,6 @@ std::vector< std::pair<spi_reg_t, spi_t> > iface_spi::write(const spi_address_t&
   LOG(logINTERFACE) << "SPI (" << devicePath <<") address " << to_hex_string(address) << "\n\t Wrote block data (Reg: data): \""
 		    << listVector( data, ", ", true) << "\"\n\t Read  block data (Reg: data): \"" <<  listVector( rx, ", ", true) << "\"";
   
-  return rx;
-}
-
-std::vector<spi_t> iface_spi::read(const spi_address_t& address, const unsigned int length){
-
-  std::lock_guard<std::mutex> lock(mutex);
-
-  std::vector<spi_t> rx(length);
-
-  LOG(logINTERFACE) << "SPI (" << devicePath <<") address " << to_hex_string(address) << " Red block data: \""
-		    << listVector( rx, ", ", true) << "\"";
-
   return rx;
 }
 

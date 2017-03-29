@@ -92,11 +92,6 @@ std::vector<i2c_t> iface_i2c::write(const i2c_address_t& address, const i2c_t & 
   return std::vector<i2c_t>();
 }
 
-std::vector< std::pair<i2c_reg_t, i2c_t> > iface_i2c::write(const i2c_address_t&, const std::vector< std::pair<i2c_reg_t, i2c_t> >&){
-  throw CommunicationError( "Block write operation with different variate register address is not supported by this I2C implementation" );
-  return std::vector< std::pair<i2c_reg_t, i2c_t> >();
-}
-
 std::vector<i2c_t> iface_i2c::read(const i2c_address_t& address, const unsigned int length) {
   std::lock_guard<std::mutex> lock(mutex);
   std::vector<i2c_t> data;

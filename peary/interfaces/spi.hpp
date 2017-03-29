@@ -45,12 +45,9 @@ namespace caribou {
     template<typename T>
     friend class caribouHAL;
   protected:
-    spi_t write(const spi_address_t& address, const spi_t& data );
-    std::vector<spi_t> write(const spi_address_t& address, const std::vector<spi_t>& data );
     std::pair<spi_reg_t, spi_t> write(const spi_address_t& address, const std::pair<spi_reg_t, spi_t> & data);
     std::vector<spi_t> write(const spi_address_t& address, const spi_t & reg, const std::vector< spi_t > & data);
     std::vector< std::pair<spi_reg_t, spi_t> > write(const spi_address_t& address, const std::vector< std::pair<spi_reg_t, spi_t> > & data);
-    std::vector<spi_t> read(const spi_address_t& address, const unsigned int length = 1);
     std::vector<spi_t> read(const spi_address_t& address, const spi_reg_t reg, const unsigned int length = 1);
 
     //Unused constructor
