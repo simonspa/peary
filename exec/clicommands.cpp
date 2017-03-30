@@ -18,6 +18,7 @@ pearycli::pearycli() : c("# ") {
   c.registerCommand("powerOn", powerOn);
   c.registerCommand("powerOff", powerOff);
   c.registerCommand("setVoltage", setVoltage);
+  c.registerCommand("setRegister", setRegister);
   c.registerCommand("exploreInterface", exploreInterface);
   c.registerCommand("getADC", getADC);
   c.registerCommand("powerStatusLog", powerStatusLog);
@@ -108,6 +109,22 @@ int pearycli::setVoltage(const std::vector<std::string> & input) {
   try {
     caribouDevice *dev = manager->getDevice(std::stoi(input.at(3)));
     dev->setVoltage(input.at(1),std::stod(input.at(2)));
+  }
+  catch (caribou::caribouException &e) {
+    LOG(logERROR) << e.what();
+    return ret::Error;
+  }
+  return ret::Ok;
+}
+
+int pearycli::setRegister(const std::vector<std::string> & input) {
+  if (input.size() < 4) {
+    LOG(logINFO) << "Usage: " << input.at(0) << " REGISTER_NAME REGISTER_VALUE DEVICE_ID";
+    return ret::Error;
+  }
+  try {
+    caribouDevice *dev = manager->getDevice(std::stoi(input.at(3)));
+    dev->setRegister(input.at(1),std::stoi(input.at(2)));
   }
   catch (caribou::caribouException &e) {
     LOG(logERROR) << e.what();
