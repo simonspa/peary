@@ -19,18 +19,11 @@
 namespace caribou {
 
   template<typename T>
-  pearyDevice<T>::pearyDevice(const caribou::Configuration config) :
+  pearyDevice<T>::pearyDevice(const caribou::Configuration config, std::string devpath, uint32_t devaddr) :
     caribouDevice(config), _hal(nullptr), _config(config) {
     LOG(logQUIET) << "New Caribou device instance, version " << getVersion();
-  }
 
-  template<typename T>
-  void pearyDevice<T>::initialize(std::string devpath, uint32_t devaddr, caribou::dictionary<uint8_t> periphery) {
-    LOG(logDEBUGAPI) << "Initializing Caribou device instance...";
     _hal = new caribouHAL<T>(_config.Get("devicepath",devpath),_config.Get("deviceaddress",devaddr));
-
-    // Supplement the periphery dictionary with local names and definitions:
-    _periphery += periphery;
   }
 
   template<typename T>

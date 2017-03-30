@@ -16,9 +16,7 @@ namespace caribou {
   class C3PD : public pearyDevice<iface_i2c> {
     
   public:
-    C3PD(const caribou::Configuration config) : pearyDevice(config) {
-      this->initialize(std::string(DEFAULT_DEVICEPATH),C3PD_DEFAULT_I2C,caribou::dictionary<uint8_t>(C3PD_PERIPHERY));
-    };
+    C3PD(const caribou::Configuration config) : pearyDevice(config, std::string(DEFAULT_DEVICEPATH),C3PD_DEFAULT_I2C) {};
     ~C3PD();
 
     std::string getName();

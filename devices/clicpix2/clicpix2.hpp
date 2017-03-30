@@ -24,9 +24,7 @@ namespace caribou {
   class clicpix2 : public pearyDevice<iface_spi_CLICpix2> {
     
   public:
-  clicpix2(const caribou::Configuration config) : pearyDevice(config) {
-    this->initialize(std::string(DEFAULT_DEVICEPATH),0,caribou::dictionary<uint8_t>(CLICPIX2_PERIPHERY));
-  };
+    clicpix2(const caribou::Configuration config) : pearyDevice(config, std::string(DEFAULT_DEVICEPATH),0) {};
     ~clicpix2();
 
     std::string getName();

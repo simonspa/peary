@@ -31,10 +31,7 @@ namespace caribou {
      *  in the device class constructor since the interface type is only known once the
      *  child object (of this class) exists.
      */
-    example(const caribou::Configuration config) : pearyDevice(config), exampleDict(EXAMPLE_DICT) {
-      // Initialize the device and HAL object:
-      this->initialize(std::string(DEFAULT_DEVICEPATH), DEFAULT_ADDRESS, caribou::dictionary<uint8_t>(EXAMPLE_PERIPHERY));
-    };
+    example(const caribou::Configuration config) : pearyDevice(config, std::string(DEFAULT_DEVICEPATH), DEFAULT_ADDRESS) {};
     ~example();
 
     /** Return human-readable name of this device
