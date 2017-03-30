@@ -54,24 +54,19 @@ int main(int argc, char* argv[]) {
   try {
 
     // Open configuration file and create object:
-    caribou::Configuration config;
     std::ifstream file(configfile.c_str());
     if (!file.is_open()) {
       LOG(logWARNING) << "No configuration file provided, all devices will use defaults!";
-      config = caribou::Configuration();
+      c.config = caribou::Configuration();
     }
-    else { config = caribou::Configuration(file); }
-
-    // Demonstrate how to fetch a vector from the config file:
-    std::vector<int64_t> a = config.Get("myintvec",std::vector<int64_t>());
-    for(auto i : a) { LOG(logINFO) << i; }
+    else { c.config = caribou::Configuration(file); }
 
     // Spawn all devices
     for(auto d : devices) {
       // ...if we have a configuration for them
-      if(config.SetSection(d)) {
-	size_t device_id = c.manager->addDevice(d,config);
-	LOG(logINFO) << "Manager returned device ID " << device_id << ", fetching device...";
+      if(c.config.SetSection(d)) {
+	size_t device_id = c.manager->addDevice(d,c.config);
+	LOG(logINFO) << "Manager returned device ID " << device_id << ".";
       }
       else { LOG(logERROR) << "No configuration found for device " << d; }
     }

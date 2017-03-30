@@ -1,14 +1,18 @@
 #include "../extern/cpp-readline/src/Console.hpp"
 #include "log.hpp"
 #include "pearycli.hpp"
+#include "configuration.hpp"
 
 using namespace caribou;
 using ret = CppReadline::Console::ReturnCode;
+
+caribou::Configuration pearycli::config = caribou::Configuration();
 
 pearycli::pearycli() : c("# ") {
 
   // Register console commands
   c.registerCommand("list_devices", devices);
+  c.registerCommand("add_device", addDevice);
   c.registerCommand("verbosity", verbosity);
 
   c.registerCommand("powerOn", powerOn);
@@ -32,6 +36,28 @@ int pearycli::devices(const std::vector<std::string> &) {
     for(auto d : devs) {
       LOG(logINFO) << "ID " << i << ": " << d->getName();
       i++;
+    }
+  }
+  catch (caribou::DeviceException &e) {}
+  return ret::Ok;
+}
+
+int pearycli::addDevice(const std::vector<std::string> & input) {
+
+  if (input.size() < 2) {
+    LOG(logINFO) << "Usage: " << input.at(0) << " DEVICE [DEVICE...]";
+    return ret::Error;
+  }
+
+  try {
+    // Spawn all devices
+    for(auto d = input.begin()+1; d != input.end(); d++) {
+      // ...if we have a configuration for them
+      if(config.SetSection(*d)) {
+	size_t device_id = manager->addDevice(*d,config);
+	LOG(logINFO) << "Manager returned device ID " << device_id << ".";
+      }
+      else { LOG(logERROR) << "No configuration found for device " << *d; }
     }
   }
   catch (caribou::DeviceException &e) {}

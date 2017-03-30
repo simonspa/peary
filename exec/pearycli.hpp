@@ -7,6 +7,7 @@
 
 #include "../extern/cpp-readline/src/Console.hpp"
 #include "devicemgr.hpp"
+#include "configuration.hpp"
 
 #include <vector>
 
@@ -25,6 +26,7 @@ namespace caribou {
     int executeFile(std::string file) { return c.executeFile(file); }
 
     static int devices(const std::vector<std::string> &);
+    static int addDevice(const std::vector<std::string> & input);
     static int verbosity(const std::vector<std::string> & input);
 
     static int powerOn(const std::vector<std::string> & input);
@@ -36,6 +38,9 @@ namespace caribou {
 
     // Create new Peary device manager
     static caribou::caribouDeviceMgr * manager;
+
+    // Configuration object
+    static caribou::Configuration config;
 
   private:
     // Readline console object
