@@ -59,12 +59,12 @@ namespace caribou {
      *  corresponding to the regulator. It also configures the corresponding curent/power monitor.
      *  The output of the DAC is not enabled.
      */
-    void setVoltageRegulator(const VOLTAGE_REGULATOR_T regulator,const double voltage, const double maxExpectedCurrent);
+    void setVoltageRegulator(const VOLTAGE_REGULATOR_T regulator, const double voltage, const double maxExpectedCurrent = 3);
 
     /** Set the current source.
      * ~current~ is provided in uA.
      */
-    void setCurrentSource(const CURRENT_SOURCE_T source, const unsigned int current,const CURRENT_SOURCE_POLARISATION_T polarisation);
+    void setCurrentSource(const CURRENT_SOURCE_T source, const unsigned int current, const CURRENT_SOURCE_POLARISATION_T polarisation);
     
     /** Enable/disable the voltage regulator
      *
