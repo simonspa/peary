@@ -6,6 +6,8 @@
 #define DEVICE_TIMEPIX3_H
 
 #include "device.hpp"
+#include "pearydevice.hpp"
+#include "i2c.hpp"
 #include "timepix3_defaults.hpp"
 
 #include <string>
@@ -18,12 +20,11 @@ namespace caribou {
    *  this class implements the required functionality to operate Timepix3 chips via the
    *  Caribou device class interface.
    */
-  class timepix3 : public caribouDevice {
+  class timepix3 : public pearyDevice<iface_i2c> {
     
   public:
-  timepix3(const caribou::Configuration config) : caribouDevice(config) {
-    this->initialize(std::string(DEFAULT_DEVICEPATH),caribou::dictionary<uint8_t>(TIMEPIX3_PERIPHERY));
-  };
+    timepix3(const caribou::Configuration config) :
+      pearyDevice(config, std::string(DEFAULT_DEVICEPATH), DEFAULT_DEVICEADDR) {};
     ~timepix3() {};
 
     std::string getName();
@@ -48,6 +49,11 @@ namespace caribou {
      */
     void daqStop() {};
 
+    /** Report power status
+     */
+    void powerStatusLog() {};
+
+    void exploreInterface() {};
   private:
 
   };
