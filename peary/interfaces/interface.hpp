@@ -18,7 +18,11 @@ namespace caribou {
   //@param DATA_T : type for data 
   template <typename ADDRESS_T = uint8_t, typename REG_T = uint8_t, typename DATA_T = REG_T >
   class Interface {
-
+  public:
+    typedef ADDRESS_T addr_type;
+    typedef REG_T reg_type;
+    typedef DATA_T data_type;
+    
   protected:
     Interface(std::string devicePath) : devicePath(devicePath), deviceAddress(0), fixed_address(false) {};
     virtual ~Interface(){};
