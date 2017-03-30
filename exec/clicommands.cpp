@@ -18,8 +18,8 @@ pearycli::pearycli() : c("# ") {
   c.registerCommand("powerOn", powerOn);
   c.registerCommand("powerOff", powerOff);
   c.registerCommand("setVoltage", setVoltage);
-  c.registerCommand("voltageOff", voltageOn);
-  c.registerCommand("voltageOn", voltageOff);
+  c.registerCommand("voltageOff", voltageOff);
+  c.registerCommand("voltageOn", voltageOn);
 
   c.registerCommand("setRegister", setRegister);
   c.registerCommand("exploreInterface", exploreInterface);
