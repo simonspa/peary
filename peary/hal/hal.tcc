@@ -20,14 +20,14 @@ caribouHAL<T>::caribouHAL(std::string device_path, uint32_t device_address) :
   i2c0.write(ADDR_IOEXP, 0x6, {0x00, 0x00} ); //set all bits of Port 1-2 in output mode
 
   LOG(logDEBUGHAL) << "Disabling all current sources";
-  powerDAC( false, std::get<1>(CUR_1), std::get<2>(CUR_1));
-  powerDAC( false, std::get<1>(CUR_2), std::get<2>(CUR_2));
-  powerDAC( false, std::get<1>(CUR_3), std::get<2>(CUR_3));
-  powerDAC( false, std::get<1>(CUR_4), std::get<2>(CUR_4));
-  powerDAC( false, std::get<1>(CUR_5), std::get<2>(CUR_5));
-  powerDAC( false, std::get<1>(CUR_6), std::get<2>(CUR_6));
-  powerDAC( false, std::get<1>(CUR_7), std::get<2>(CUR_7));
-  powerDAC( false, std::get<1>(CUR_8), std::get<2>(CUR_8));
+  powerDAC( false, CUR_1.dacaddress(), CUR_1.dacoutput());
+  powerDAC( false, CUR_2.dacaddress(), CUR_2.dacoutput());
+  powerDAC( false, CUR_3.dacaddress(), CUR_3.dacoutput());
+  powerDAC( false, CUR_4.dacaddress(), CUR_4.dacoutput());
+  powerDAC( false, CUR_5.dacaddress(), CUR_5.dacoutput());
+  powerDAC( false, CUR_6.dacaddress(), CUR_6.dacoutput());
+  powerDAC( false, CUR_7.dacaddress(), CUR_7.dacoutput());
+  powerDAC( false, CUR_8.dacaddress(), CUR_8.dacoutput());
   
   LOG(logDEBUGHAL) << "Configured device with typ-" << (int)_iface << " interface on " << _devpath;
 }
@@ -75,15 +75,15 @@ double caribouHAL<T>::readTemperature() {
 template<typename T>
 void caribouHAL<T>::setVoltageRegulator(const VOLTAGE_REGULATOR_T regulator, const double voltage, const double maxExpectedCurrent){
   LOG(logDEBUGHAL) << "Setting " << voltage << "V "
-		   << "on " << std::get<0>(regulator);
+		   << "on " << regulator.name();
 
   if( voltage > 3.6 )
     throw ConfigInvalid( "Trying to set Voltage regulator to " + std::to_string(voltage) + " V (max is 3.6 V)");
   
-  setDACVoltage(std::get<1>(regulator), std::get<2>(regulator), 3.6 - voltage );
+  setDACVoltage(regulator.dacaddress(), regulator.dacoutput(), 3.6 - voltage );
 
   //set current/power monitor
-  setCurrentMonitor(std::get<4>(regulator), maxExpectedCurrent );
+  setCurrentMonitor(regulator.pwrmonitor(), maxExpectedCurrent );
 }
 
 template<typename T>
@@ -92,25 +92,25 @@ void caribouHAL<T>::powerVoltageRegulator(const VOLTAGE_REGULATOR_T regulator, c
   iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C0);
 
   if(enable){
-    LOG(logDEBUGHAL) << "Powering up " << std::get<0>(regulator);
+    LOG(logDEBUGHAL) << "Powering up " << regulator.name();
 
     //First power on DAC
-    powerDAC(true, std::get<1>(regulator), std::get<2>(regulator));
+    powerDAC(true, regulator.dacaddress(), regulator.dacoutput());
     //Power on the Voltage regulator
     auto mask = i2c.read(ADDR_IOEXP, 0x03, 1)[0];
-    mask |=  1 <<  std::get<3>(regulator);
+    mask |=  1 <<  regulator.pwrswitch();
     i2c.write(ADDR_IOEXP, std::make_pair( 0x03, mask ));
   }
   else{
-    LOG(logDEBUGHAL) << "Powering down " << std::get<0>(regulator);
+    LOG(logDEBUGHAL) << "Powering down " << regulator.name();
     
     //Disable the Volage regulator
     auto mask = i2c.read(ADDR_IOEXP, 0x03, 1)[0];
-    mask &= ~( 1 <<  std::get<3>(regulator));
+    mask &= ~( 1 <<  regulator.pwrswitch());
     i2c.write(ADDR_IOEXP, std::make_pair( 0x03, mask ) );
 
     //Disable the DAC
-    powerDAC( false, std::get<1>(regulator), std::get<2>(regulator) );
+    powerDAC( false, regulator.dacaddress(), regulator.dacoutput());
   }
 }
 
@@ -119,20 +119,20 @@ void caribouHAL<T>::setCurrentSource(const CURRENT_SOURCE_T source, const unsign
 				  const CURRENT_SOURCE_POLARISATION_T polarisation){
 
   LOG(logDEBUGHAL) << "Setting " << current  << "uA "
-		   << "on " << std::get<0>(source);
+		   << "on " << source.name();
 
   if( current > 1000 )
     throw ConfigInvalid( "Tring to set current source to " + std::to_string(current) + " uA (max is 1000uA)");
 
   //set DAC
-  setDACVoltage(std::get<1>(source), std::get<2>(source), (current * CAR_VREF_4P0)/1000 );
+  setDACVoltage(source.dacaddress(), source.dacoutput(), (current * CAR_VREF_4P0)/1000 );
 
   //set polarisation
   iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C0);
   auto mask = i2c.read(ADDR_IOEXP, 0x02, 1)[0];
   switch(polarisation){
-  case PULL : mask &= ~( 1 <<  std::get<3>(source));
-  case PUSH : mask |=    1 <<  std::get<3>(source);
+  case PULL : mask &= ~( 1 <<  source.polswitch());
+  case PUSH : mask |=    1 <<  source.polswitch();
   }
   i2c.write(ADDR_IOEXP, std::make_pair(0x02, mask) );
 }
@@ -140,12 +140,12 @@ void caribouHAL<T>::setCurrentSource(const CURRENT_SOURCE_T source, const unsign
 template<typename T>
 void caribouHAL<T>::powerCurrentSource(const CURRENT_SOURCE_T source, const bool enable){
   if(enable){
-    LOG(logDEBUGHAL) << "Powering up " << std::get<0>(source);
-    powerDAC( true, std::get<1>(source), std::get<2>(source));
+    LOG(logDEBUGHAL) << "Powering up " << source.name();
+    powerDAC( true, source.dacaddress(), source.dacoutput());
   }
   else{
-    LOG(logDEBUGHAL) << "Powering down " << std::get<0>(source);
-    powerDAC( true, std::get<1>(source), std::get<2>(source));
+    LOG(logDEBUGHAL) << "Powering down " << source.name();
+    powerDAC( false, source.dacaddress(), source.dacoutput());
   }
 }
 
@@ -278,7 +278,7 @@ template<typename T>
 double caribouHAL<T>::measureVoltage(const VOLTAGE_REGULATOR_T regulator){
 
   iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C1);
-  const i2c_address_t device = std::get<4>(regulator);
+  const i2c_address_t device = regulator.pwrmonitor();
 
   LOG(logDEBUGHAL) <<  "Reading bus voltage from INA226 at " << to_hex_string(device);
   std::vector<i2c_t> voltage = i2c.read( device, REG_ADC_BUS_VOLTAGE, 2);
@@ -291,7 +291,7 @@ double caribouHAL<T>::measureVoltage(const VOLTAGE_REGULATOR_T regulator){
 template<typename T>
 double caribouHAL<T>::measureCurrent(const VOLTAGE_REGULATOR_T regulator){
   iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C1);
-  const i2c_address_t device = std::get<4>(regulator);
+  const i2c_address_t device = regulator.pwrmonitor();
   LOG(logDEBUGHAL) <<  "Reading current from INA226 at " << to_hex_string(device);
 
   // Reading back the calibration register:
@@ -308,7 +308,7 @@ double caribouHAL<T>::measureCurrent(const VOLTAGE_REGULATOR_T regulator){
 template<typename T>
 double caribouHAL<T>::measurePower(const VOLTAGE_REGULATOR_T regulator){
   iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C1);
-  const i2c_address_t device = std::get<4>(regulator);
+  const i2c_address_t device = regulator.pwrmonitor();
   LOG(logDEBUGHAL) <<  "Reading power from INA226 at " << to_hex_string(device);
 
     // Reading back the calibration register:
