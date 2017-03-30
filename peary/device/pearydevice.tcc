@@ -44,7 +44,7 @@ namespace caribou {
   std::string pearyDevice<T>::getDeviceName() { return std::string(); }
 
   template<typename T>
-  void pearyDevice<T>::setVoltage(std::string name, double voltage) {
+  void pearyDevice<T>::setVoltage(std::string name, double) {
 
     // Resolve name against global periphery dictionary
     LOG(logDEBUG) << "Regulator to be configured: " << to_hex_string(_periphery.getDevice(name));
@@ -88,12 +88,17 @@ namespace caribou {
   }
 
   template<typename T>
-  void pearyDevice<T>::setBias(std::string name, double voltage) {}
-  template<typename T>
-  void pearyDevice<T>::setInjectionBias(std::string name, double voltage) {}
+  void pearyDevice<T>::setBias(std::string, double) {}
 
   template<typename T>
-  void pearyDevice<T>::setCurrent(std::string name, double current) {}
+  void pearyDevice<T>::setInjectionBias(std::string, double) {}
+
+  template<typename T>
+  void pearyDevice<T>::setCurrent(std::string, double) {}
+
+  template<typename T>
+  double pearyDevice<T>::getADC(std::string) { return 0.; }
+
   template<typename T>
   double pearyDevice<T>::getADC(std::string name) {}
 
