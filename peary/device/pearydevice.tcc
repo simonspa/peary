@@ -100,7 +100,14 @@ namespace caribou {
   double pearyDevice<T>::getADC(std::string) { return 0.; }
 
   template<typename T>
-  double pearyDevice<T>::getADC(std::string name) {}
+  void pearyDevice<T>::setRegister(std::string, uint32_t value) {
+
+    // Resolve name against registe rdictionary:
+    LOG(logDEBUG) << "Register to be set: ";
+
+    //typename T::ADDR_TYPE addr
+    _hal->getInterface().send(std::make_pair(static_cast<typename T::reg_type>(0x0),static_cast<typename T::data_type>(value)));
+  }
 
 
 }

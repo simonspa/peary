@@ -98,10 +98,13 @@ namespace caribou {
 
     
     // Controlling the device
-    
-    // How to define registers? std::string and internal conversion?
-    // Overload to accept vector?
-    //virtual void setRegister(std::string name, uint32_t value) {};
+
+    /** Set register on the device
+     *
+     *  The register is identified by its human-readable name, the value is
+     *  automatically casted to the register data type (e.g. 8-bit)
+     */
+    virtual void setRegister(std::string name, uint32_t value) = 0;
 
     /** Sending reset signal to the device
      */
