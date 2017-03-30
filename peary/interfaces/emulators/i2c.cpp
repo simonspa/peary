@@ -33,11 +33,6 @@ i2c_t iface_i2c::write(const i2c_t& address, const i2c_t& data ){
   return 0;
 }
 
-std::vector<i2c_t> iface_i2c::write(const i2c_t&, const std::vector<i2c_t>&){
-  throw CommunicationError( "Block write operation is not possible to a device without internal registers" );
-  return std::vector<i2c_t>();
-}
-
 std::pair<i2c_reg_t, i2c_t> iface_i2c::write(const i2c_t& address,const std::pair<i2c_reg_t, i2c_t> & data){
 
   std::lock_guard<std::mutex> lock(mutex);

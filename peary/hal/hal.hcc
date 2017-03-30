@@ -100,10 +100,6 @@ namespace caribou {
 
   private:
 
-    /** Interface of the configured device
-     */
-    uint8_t _iface;
-
     /** Device path of the configured device
      */
     std::string _devpath;

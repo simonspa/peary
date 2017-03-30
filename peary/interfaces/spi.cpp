@@ -19,7 +19,7 @@
 
 using namespace caribou;
 
-iface_spi::iface_spi(std::string const & device_path) : Interface( device_path ) {
+iface_spi::iface_spi(std::string const & device_path) : Interface(device_path), spIDesc() {
   std::lock_guard<std::mutex> lock(mutex);
 
   //Open device

@@ -29,7 +29,7 @@ caribouHAL<T>::caribouHAL(std::string device_path, uint32_t device_address) :
   powerDAC( false, CUR_7.dacaddress(), CUR_7.dacoutput());
   powerDAC( false, CUR_8.dacaddress(), CUR_8.dacoutput());
   
-  LOG(logDEBUGHAL) << "Configured device with typ-" << (int)_iface << " interface on " << _devpath;
+  LOG(logDEBUGHAL) << "Configured device with interface on " << _devpath;
 }
 
 template<typename T>
@@ -130,10 +130,11 @@ void caribouHAL<T>::setCurrentSource(const CURRENT_SOURCE_T source, const unsign
   //set polarisation
   iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C0);
   auto mask = i2c.read(ADDR_IOEXP, 0x02, 1)[0];
-  switch(polarisation){
-  case PULL : mask &= ~( 1 <<  source.polswitch());
-  case PUSH : mask |=    1 <<  source.polswitch();
-  }
+
+  if(polarisation == PULL) { mask &= ~( 1 <<  source.polswitch()); }
+  else if(polarisation == PUSH) { mask |=    1 <<  source.polswitch(); }
+  else { throw ConfigInvalid("Invalid polarity setting provided"); }
+  
   i2c.write(ADDR_IOEXP, std::make_pair(0x02, mask) );
 }
 
