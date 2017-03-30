@@ -167,7 +167,7 @@ namespace caribou {
 	else { throw ConfigInvalid("Component cannot be cast"); }
       }
       catch(...) {
-	throw ConfigInvalid("Component name unknown");
+	throw ConfigInvalid("Component name \"" + name + "\" unknown");
       }
     }
 
@@ -177,7 +177,7 @@ namespace caribou {
     std::map<std::string,std::shared_ptr<component_t>> comps;
 
   };
-  
+
 } //namespace caribou
 
 #endif /* CARIBOU_DICT_H */
