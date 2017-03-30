@@ -44,36 +44,36 @@ namespace caribou {
   std::string pearyDevice<T>::getDeviceName() { return std::string(); }
 
   template<typename T>
-  void pearyDevice<T>::setVoltage(std::string name, double) {
+  void pearyDevice<T>::setVoltage(std::string name, double voltage) {
 
-    // Resolve name against global periphery dictionary
-    LOG(logDEBUG) << "Regulator to be configured: " << to_hex_string(_periphery.getDevice(name));
+    // Resolve name against periphery dictionary
+    std::shared_ptr<VOLTAGE_REGULATOR_T> ptr = _periphery.get<VOLTAGE_REGULATOR_T>(name);
+    LOG(logDEBUG) << "Regulator to be configured: " << name << " on " << ptr->name();
 
     // Send command to voltage regulators via HAL
-    //FIXME:
-    //_hal->setVoltage(_periphery.getDevice(name),_periphery.getAddress(name),voltage);
+    _hal->setVoltageRegulator(*ptr,voltage);
   }
 
   template<typename T>
   void pearyDevice<T>::voltageOn(std::string name) {
 
-    // Resolve name against global periphery dictionary
-    LOG(logDEBUG) << "Regulator to be configured: " << to_hex_string(_periphery.getDevice(name));
+    // Resolve name against periphery dictionary
+    std::shared_ptr<VOLTAGE_REGULATOR_T> ptr = _periphery.get<VOLTAGE_REGULATOR_T>(name);
+    LOG(logDEBUG) << "Regulator to be powered up: " << name << " on " << ptr->name();
 
     // Send command to voltage regulators via HAL
-    //FIXME:
-    //_hal->powerVoltage(true, _periphery.getDevice(name),_periphery.getAddress(name));
+    _hal->powerVoltageRegulator(*ptr, true);
   }
 
   template<typename T>
   void pearyDevice<T>::voltageOff(std::string name) {
 
-    // Resolve name against global periphery dictionary
-    LOG(logDEBUG) << "Regulator to be configured: " << to_hex_string(_periphery.getDevice(name));
+    // Resolve name against periphery dictionary
+    std::shared_ptr<VOLTAGE_REGULATOR_T> ptr = _periphery.get<VOLTAGE_REGULATOR_T>(name);
+    LOG(logDEBUG) << "Regulator to be powered down: " << name << " on " << ptr->name();
 
     // Send command to voltage regulators via HAL
-    //FIXME:
-    //  _hal->powerVoltage(false, _periphery.getDevice(name),_periphery.getAddress(name));
+    _hal->powerVoltageRegulator(*ptr, false);
   }
 
   template<typename T>
