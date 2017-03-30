@@ -108,7 +108,7 @@ typedef component_dac_t BIAS_REGULATOR_T;
  *  - the corresponding DAC output pin
  *  - FIXME: INJ_CTRL_X signals from FPGA!
  */
-typedef std::tuple<std::string, uint8_t, uint8_t> INJBIAS_REGULATOR_T;
+typedef component_dac_t INJBIAS_REGULATOR_T;
 
 // FIXME
 // MISSING
