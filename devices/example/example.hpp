@@ -33,6 +33,7 @@ namespace caribou {
      */
     example(const caribou::Configuration config) :
       pearyDevice(config, std::string(DEFAULT_DEVICEPATH), DEFAULT_ADDRESS) {
+      _periphery.add("vd",PWR_OUT_1);
       _registers.add(EXAMPLE_REGISTERS);
     };
     ~example();
