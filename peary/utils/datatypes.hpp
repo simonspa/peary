@@ -91,7 +91,22 @@ private:
  *  The parameters hold (in this order):
  *  - the channel number
  */
-typedef uint8_t SLOW_ADC_CHANNEL_T;
+class SLOW_ADC_CHANNEL_T : public component_t {
+public:
+  SLOW_ADC_CHANNEL_T(std::string name, uint8_t channel, uint8_t address) :
+    component_t(name),
+    _channel(channel),
+    _address(address)
+  {};
+  virtual ~SLOW_ADC_CHANNEL_T() {};
+
+  uint8_t channel() const { return _channel; };
+  uint8_t address() const { return _address; };
+
+private:
+  uint8_t _channel;
+  uint8_t _address;
+};
 
 /**  Bias Voltage Regulator Configuration
  *  

@@ -78,13 +78,15 @@ namespace caribou {
 
   template<typename T>
   double pearyDevice<T>::getADC(uint8_t channel) {
-    if(channel < 1 || channel > 8) {
+    try {
+      std::vector<SLOW_ADC_CHANNEL_T> ch {VOL_IN_1,VOL_IN_2,VOL_IN_3,VOL_IN_4,VOL_IN_5,VOL_IN_6,VOL_IN_7,VOL_IN_8};
+      LOG(logDEBUG) << "Reading slow ADC, channel " << ch.at(channel-1).name();
+      return _hal->readSlowADC(ch.at(channel-1));
+    }
+    catch(const std::out_of_range&) {
       LOG(logCRITICAL) << "ADC channel " << std::to_string(channel) << " does not exist";
       throw caribou::ConfigInvalid("ADC channel " + std::to_string(channel) + " does not exist");
     }
-  
-    LOG(logDEBUG) << "Reading slow ADC, channel " << static_cast<int>(channel);
-    return _hal->readSlowADC(channel);
   }
 
   template<typename T>

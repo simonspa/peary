@@ -358,14 +358,14 @@ double caribouHAL<T>::measurePower(const VOLTAGE_REGULATOR_T regulator){
 
 
 template<typename T>
-double caribouHAL<T>::readSlowADC(const uint8_t channel) {
+double caribouHAL<T>::readSlowADC(const SLOW_ADC_CHANNEL_T channel) {
   iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C3);
 
-  LOG(logDEBUGHAL) << "Sampling channel " << static_cast<int>(channel)
-		   << " on ADS7828 at " << to_hex_string(ADDR_ADC);
+  LOG(logDEBUGHAL) << "Sampling channel " << channel.name() << " on pin "
+		   << static_cast<int>(channel.channel())
+		   << " of ADS7828 at " << to_hex_string(ADDR_ADC);
 
-  unsigned char channels[8] = {0x00, 0x40, 0x10, 0x50, 0x20, 0x60, 0x30, 0x70};
-  uint8_t command = channels[channel];
+  uint8_t command = channel.address();
 
   // Enable single-ended mode, no differential measurement:
   command = command ^ 0x80;
