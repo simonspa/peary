@@ -15,16 +15,21 @@ namespace caribou {
    *                 This allows to set registers which only occupy a
    *                 fraction of the full-size register to be written
    */
-  template<typename ADDR_T = uint8_t, typename MASK_T = uint8_t>
+  template<typename REG_T = uint8_t, typename MASK_T = uint8_t>
   class register_t {
   public:
     register_t() : _address(0), _mask(0) {};
-    register_t(ADDR_T address, MASK_T mask) : _address(address), _mask(mask) {};
-    ADDR_T _address;
-    MASK_T _mask;
+    register_t(REG_T address, MASK_T mask) : _address(address), _mask(mask) {};
+
+    REG_T address() const { return _address; };
+    MASK_T mask() const { return _mask; };
 
     template<typename T1, typename T2>
     friend std::ostream& operator<<(std::ostream& os, const register_t<T1, T2>& rg);
+
+  private:
+    REG_T _address;
+    MASK_T _mask;
   };
 
   template<typename T1, typename T2>
