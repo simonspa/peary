@@ -181,13 +181,13 @@ void clicpix2::exploreInterface(){
   for(unsigned int i= 10; i < 63; i+=2 )
       pairvec.push_back( std::make_pair(i, ~i) );
 
-  std::vector<std::pair<uint8_t, uint8_t>> default_rx = _hal->getInterface().send(pairvec);
+  std::vector<std::pair<uint8_t, uint8_t>> default_rx = _hal->send(pairvec);
   for( unsigned int i = 0; i < default_rx.size(); i++)
     if( default_rx[i].second != defualtValues [i] )
       throw DataCorrupt("Default register vaules mismatch");
   LOG(logINFO) << DEVICE_NAME << "Success readout of default values of registers (addresses range 0x0a - 0x3E)";
 
-  std::vector<std::pair<uint8_t, uint8_t>> rx = _hal->getInterface().send(pairvec);
+  std::vector<std::pair<uint8_t, uint8_t>> rx = _hal->send(pairvec);
   for( unsigned int i = 0; i < rx.size(); i++)
     if( rx[i].second != pairvec[i].second )
       throw DataCorrupt("Data written at address " + to_hex_string(pairvec[i].first) + " doesn't match with read value");
@@ -200,7 +200,7 @@ void clicpix2::exploreInterface(){
     i+= 2;
     r.second = default_rx[y++].second;
   }
-  _hal->getInterface().send(pairvec);
+  _hal->send(pairvec);
   LOG(logINFO) << DEVICE_NAME << "Reverting the defualt values of registers (addresses range 0x0a - 0x3E)";
   
   LOG(logINFO) << DEVICE_NAME << " - Exploring interface capabilities ... Done";

@@ -27,6 +27,9 @@ namespace caribou {
     // Protects access to the bus
     std::mutex mutex;
 
+    template<typename T>
+    friend class caribouHAL;
+
   private:
     uint8_t write(const uint8_t& address, const uint8_t& data );
     std::vector<uint8_t> write(const uint8_t& address, const std::vector<uint8_t>& data );

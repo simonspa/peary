@@ -24,54 +24,15 @@ namespace caribou {
     typedef DATA_T data_type;
     
   protected:
-    Interface(std::string devicePath) : devicePath(devicePath), deviceAddress(0), fixed_address(false) {};
+    Interface(std::string devicePath) : devicePath(devicePath) {};
     virtual ~Interface(){};
 
     //Path of the device
     const std::string devicePath;
-    ADDRESS_T deviceAddress;
-    bool fixed_address;
-
-    // Provide initial (locked) address
-    void lock_address(ADDRESS_T addr) {
-      deviceAddress = addr;
-      fixed_address = true;
-      LOG(logINTERFACE) << "Device address of interface " << devicePath
-			<< " locked to " << to_hex_string(deviceAddress);
-    }
 
     template<typename T>
     friend class caribouHAL;
 
-  public:
-    //Write data to a device which does not contain internal register
-    //If readout is intergralpart of write operations, the read values a returned by function. 
-    DATA_T send(const DATA_T& data) { return write(deviceAddress,data); };
-
-        //Write data to a device which does not contain internal register
-    //If readout is intergralpart of write operations, the read values a returned by function. 
-    std::vector<DATA_T> send(const std::vector<DATA_T>& data) { return write(deviceAddress, data); };
-
-  
-    //Write data to a device containing internal registers
-    //If readout is intergralpart of write operations, the read values a returned by function. 
-    std::pair<REG_T, DATA_T> send(const std::pair<REG_T, DATA_T> & data) { return write(deviceAddress,data); };
-    
-    //Write data to a device containing internal registers
-    //If readout is intergralpart of write operations, the read values a returned by function. 
-    std::vector<DATA_T> send(const REG_T& reg, const std::vector< DATA_T>& data) { return write(deviceAddress, reg, data); };
-
-  
-    //Write data to a device containing internal registers
-    //If readout is intergralpart of write operations, the read values a returned by function. 
-    std::vector<std::pair<REG_T, DATA_T> > send(const std::vector<std::pair<REG_T, DATA_T> >& data) { return write(deviceAddress, data); };
-
-    //Read data from a device which does not contain internal register
-    std::vector<DATA_T> receive(const unsigned int length = 1) { return read(deviceAddress, length); };
-
-    //Read data from a device containing internal registers
-    std::vector<DATA_T> receive(const REG_T reg, const unsigned int length = 1) { return read(deviceAddress, reg, length); };
-    
   private:
     //////////////////////
     // Write operations

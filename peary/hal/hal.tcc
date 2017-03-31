@@ -11,7 +11,7 @@ caribouHAL<T>::caribouHAL(std::string device_path, uint32_t device_address) :
   _devpath(device_path), _devaddress(device_address) {
 
   T & dev_iface = interface_manager::getInterface<T>(_devpath);
-  dev_iface.lock_address(device_address);
+  LOG(logDEBUGHAL) << "Perpared HAL for accessing device with interface at " << dev_iface.devicePath;
     
   //Disable all Voltage Regulators
   LOG(logDEBUGHAL) << "Disabling all Voltage regulators";
@@ -28,13 +28,47 @@ caribouHAL<T>::caribouHAL(std::string device_path, uint32_t device_address) :
   powerDAC( false, CUR_6.dacaddress(), CUR_6.dacoutput());
   powerDAC( false, CUR_7.dacaddress(), CUR_7.dacoutput());
   powerDAC( false, CUR_8.dacaddress(), CUR_8.dacoutput());
-  
-  LOG(logDEBUGHAL) << "Configured device with interface on " << _devpath;
 }
 
 template<typename T>
 caribouHAL<T>::~caribouHAL() {}
 
+template<typename T>
+typename T::data_type caribouHAL<T>::send(const typename T::data_type& data) {
+  return interface_manager::getInterface<T>(_devpath).write(_devaddress, data);
+}
+
+template<typename T>
+std::vector<typename T::data_type> caribouHAL<T>::send(const std::vector<typename T::data_type>& data) {
+  return interface_manager::getInterface<T>(_devpath).write(_devaddress, data);
+}
+
+template<typename T>
+std::pair<typename T::reg_type, typename T::data_type> caribouHAL<T>::send(const std::pair<typename T::reg_type, typename T::data_type> & data) {
+  return interface_manager::getInterface<T>(_devpath).write(_devaddress, data);
+}
+
+template<typename T>
+std::vector<typename T::data_type> caribouHAL<T>::send(const typename T::reg_type& reg, const std::vector< typename T::data_type>& data) {
+  return interface_manager::getInterface<T>(_devpath).write(_devaddress, reg, data);
+}
+
+template<typename T>
+std::vector<std::pair<typename T::reg_type, typename T::data_type> > caribouHAL<T>::send(const std::vector<std::pair<typename T::reg_type, typename T::data_type> >& data) {
+  return interface_manager::getInterface<T>(_devpath).write(_devaddress, data);
+}
+
+template<typename T>
+std::vector<typename T::data_type> caribouHAL<T>::receive(const unsigned int length) {
+  return interface_manager::getInterface<T>(_devpath).read(_devaddress, length);
+}
+
+template<typename T>
+std::vector<typename T::data_type> caribouHAL<T>::receive(const typename T::reg_type reg, const unsigned int length) {
+  return interface_manager::getInterface<T>(_devpath).read(_devaddress, reg, length);
+}
+
+  
 template<typename T>
 uint32_t caribouHAL<T>::getFirmwareRegister(uint16_t) {
   throw FirmwareException("Functionality not implemented.");

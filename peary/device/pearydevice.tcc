@@ -106,7 +106,7 @@ namespace caribou {
     LOG(logDEBUG) << "Register to be set: ";
 
     //typename T::ADDR_TYPE addr
-    _hal->getInterface().send(std::make_pair(static_cast<typename T::reg_type>(0x0),static_cast<typename T::data_type>(value)));
+    _hal->send(std::make_pair(static_cast<typename T::reg_type>(0x0),static_cast<typename T::data_type>(value)));
   }
 
   template<typename T>
@@ -116,7 +116,7 @@ namespace caribou {
     LOG(logDEBUG) << "Register to be read: ";
 
     //typename T::ADDR_TYPE addr
-    //_hal->getInterface().send(std::make_pair(static_cast<typename T::reg_type>(0x0),static_cast<typename T::data_type>(value)));
+    //_hal->send(std::make_pair(static_cast<typename T::reg_type>(0x0),static_cast<typename T::data_type>(value)));
     return 0;
   }
 

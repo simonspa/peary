@@ -34,11 +34,32 @@ namespace caribou {
      */
     uint32_t getFirmwareRegister(uint16_t address);
 
-    /** Get reference to managed device interface
-     */
-    T& getInterface() {
-      return interface_manager::getInterface<T>(_devpath);
-    }
+    //Write data to a device which does not contain internal register
+    //If readout is intergralpart of write operations, the read values a returned by function. 
+    typename T::data_type send(const typename T::data_type& data);
+
+    //Write data to a device which does not contain internal register
+    //If readout is intergralpart of write operations, the read values a returned by function.
+    std::vector<typename T::data_type> send(const std::vector<typename T::data_type>& data);
+
+        //Write data to a device containing internal registers
+    //If readout is intergralpart of write operations, the read values a returned by function. 
+    std::pair<typename T::reg_type, typename T::data_type> send(const std::pair<typename T::reg_type, typename T::data_type> & data);
+    
+    //Write data to a device containing internal registers
+    //If readout is intergralpart of write operations, the read values a returned by function. 
+    std::vector<typename T::data_type> send(const typename T::reg_type& reg, const std::vector< typename T::data_type>& data);
+
+  
+    //Write data to a device containing internal registers
+    //If readout is intergralpart of write operations, the read values a returned by function. 
+    std::vector<std::pair<typename T::reg_type, typename T::data_type> > send(const std::vector<std::pair<typename T::reg_type, typename T::data_type> >& data);
+
+    //Read data from a device which does not contain internal register
+    std::vector<typename T::data_type> receive(const unsigned int length = 1);
+
+    //Read data from a device containing internal registers
+    std::vector<typename T::data_type> receive(const typename T::reg_type reg, const unsigned int length = 1);
 
     
     /** Read data from managed device interface
