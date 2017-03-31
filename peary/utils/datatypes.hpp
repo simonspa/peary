@@ -16,19 +16,19 @@ namespace caribou {
    *                 fraction of the full-size register to be written
    */
   template<typename ADDR_T = uint8_t, typename MASK_T = uint8_t>
-  class registerConfig {
+  class register_t {
   public:
-    registerConfig() : _address(0), _mask(0) {};
-    registerConfig(ADDR_T address, MASK_T mask) : _address(address), _mask(mask) {};
+    register_t() : _address(0), _mask(0) {};
+    register_t(ADDR_T address, MASK_T mask) : _address(address), _mask(mask) {};
     ADDR_T _address;
     MASK_T _mask;
 
-    template<typename T>
-    friend std::ostream& operator<<(std::ostream& os, const registerConfig<T, T>& rg);
+    template<typename T1, typename T2>
+    friend std::ostream& operator<<(std::ostream& os, const register_t<T1, T2>& rg);
   };
 
-  template<typename T>
-  std::ostream& operator<<(std::ostream& os, const caribou::registerConfig<T, T>& rg) {
+  template<typename T1, typename T2>
+  std::ostream& operator<<(std::ostream& os, const caribou::register_t<T1, T2>& rg) {
     os << to_hex_string(rg._address) << " ("
        << to_bit_string(rg._mask) << ")";
     return os;  

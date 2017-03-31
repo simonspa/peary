@@ -14,6 +14,31 @@
 
 namespace caribou {
 
+  template<typename T1, typename T2>
+  class register_dict {
+  public:
+    register_dict() {};
+    virtual ~register_dict() {};
+
+    // Register new component alias:
+    void add(const std::string name, register_t<T1, T2> reg) {
+      regs.insert(std::make_pair(name,reg));
+    }
+
+    // Return register config for the name in question:
+    register_t<T1, T2> get(const std::string name) const {
+      try { return regs.at(name); }
+      catch(...) {
+	throw ConfigInvalid("Register name \"" + name + "\" unknown");
+      }
+    }
+
+  private:
+    /** Map fo human-readable names for periphery components
+     */
+    std::map<std::string,register_t<T1, T2> > regs;
+  };
+
   class component_dict {
   public:
     component_dict() {};
@@ -42,7 +67,6 @@ namespace caribou {
     /** Map fo human-readable names for periphery components
      */
     std::map<std::string,std::shared_ptr<component_t>> comps;
-
   };
 
 } //namespace caribou

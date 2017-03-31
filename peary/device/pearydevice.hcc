@@ -186,7 +186,11 @@ namespace caribou {
      */
     caribou::Configuration _config;
 
-    /** Static periphery dictionary for all devices to access CaR components:
+    /** Register dictionary for the devices:
+     */
+    caribou::register_dict<typename T::addr_type,typename T::data_type> _registers;
+
+    /** Periphery dictionary to access CaR components:
      */
     caribou::component_dict _periphery;
 
