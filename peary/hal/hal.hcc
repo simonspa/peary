@@ -57,7 +57,7 @@ namespace caribou {
 
     //Read data from a device which does not contain internal register
     std::vector<typename T::data_type> receive(const unsigned int length = 1);
-
+    
     //Read data from a device containing internal registers
     std::vector<typename T::data_type> receive(const typename T::reg_type reg, const unsigned int length = 1);
 

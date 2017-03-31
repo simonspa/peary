@@ -102,13 +102,31 @@ namespace caribou {
   double pearyDevice<T>::getADC(std::string) { return 0.; }
 
   template<typename T>
-  void pearyDevice<T>::setRegister(std::string, uint32_t value) {
+  void pearyDevice<T>::setRegister(std::string name, uint32_t value) {
+
+    typename T::data_type regval = static_cast<typename T::data_type>(value);
 
     // Resolve name against registe rdictionary:
-    LOG(logDEBUG) << "Register to be set: ";
+    register_t<typename T::reg_type, typename T::data_type> reg = _registers.get(name);
+    LOG(logDEBUG) << "Register to be set: " << name << " ("
+		  << to_hex_string(reg.address()) << ")";
 
-    //typename T::ADDR_TYPE addr
-    _hal->send(std::make_pair(static_cast<typename T::reg_type>(0x0),static_cast<typename T::data_type>(value)));
+    // Obey the mask:
+    if(reg.mask() < std::numeric_limits<typename T::data_type>::max()) {
+      // We need to read the register in order to preserve the nonaffected bits:
+      LOG(logDEBUG) << "Mask not covering full register: " << to_bit_string(reg.mask());
+      typename T::data_type current_reg = _hal->receive(reg.address()).front();
+      LOG(logDEBUG) << "value   = " << to_bit_string(regval);
+      LOG(logDEBUG) << "current = " << to_bit_string(current_reg);
+      regval = (current_reg & ~reg.mask()) | (regval & reg.mask());
+      LOG(logDEBUG) << "new     = " << to_bit_string(regval);
+    }
+    else {
+      LOG(logDEBUG) << "Mask covering full register: " << to_bit_string(reg.mask());
+    }
+
+    LOG(logDEBUG) << "Register value to be set: " << to_hex_string(regval);
+    _hal->send(std::make_pair(reg.address(),regval));
   }
 
   template<typename T>
