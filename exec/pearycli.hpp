@@ -36,6 +36,8 @@ namespace caribou {
     static int voltageOff(const std::vector<std::string> & input);
 
     static int setRegister(const std::vector<std::string> & input);
+    static int getRegister(const std::vector<std::string> & input);
+
     static int exploreInterface(const std::vector<std::string> & input);
     static int getADC(const std::vector<std::string> & input);
     static int powerStatusLog(const std::vector<std::string> & input);
