@@ -25,6 +25,10 @@ namespace caribou {
       regs.insert(std::make_pair(name,reg));
     }
 
+    void add(const std::vector<std::pair<std::string, register_t<T1, T2> > > reg) {
+      for (auto i : reg) add(i.first, i.second);
+    }
+
     // Return register config for the name in question:
     register_t<T1, T2> get(const std::string name) const {
       try { return regs.at(name); }
