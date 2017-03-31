@@ -106,6 +106,13 @@ namespace caribou {
      */
     virtual void setRegister(std::string name, uint32_t value) = 0;
 
+    /** Get register from the device
+     *
+     *  Retrieve content of specified register from the device. The register
+     *  is identified by its human-readable name.
+     */
+    virtual uint32_t getRegister(std::string name) = 0;
+
     /** Sending reset signal to the device
      */
     //virtual void reset() = 0;

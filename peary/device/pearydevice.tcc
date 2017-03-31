@@ -109,6 +109,17 @@ namespace caribou {
     _hal->getInterface().send(std::make_pair(static_cast<typename T::reg_type>(0x0),static_cast<typename T::data_type>(value)));
   }
 
+  template<typename T>
+  uint32_t pearyDevice<T>::getRegister(std::string) {
+
+    // Resolve name against registe rdictionary:
+    LOG(logDEBUG) << "Register to be read: ";
+
+    //typename T::ADDR_TYPE addr
+    //_hal->getInterface().send(std::make_pair(static_cast<typename T::reg_type>(0x0),static_cast<typename T::data_type>(value)));
+    return 0;
+  }
+
 
 }
 
