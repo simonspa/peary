@@ -106,7 +106,7 @@ namespace caribou {
 
     typename T::data_type regval = static_cast<typename T::data_type>(value);
 
-    // Resolve name against registe rdictionary:
+    // Resolve name against register dictionary:
     register_t<typename T::reg_type, typename T::data_type> reg = _registers.get(name);
     LOG(logDEBUG) << "Register to be set: " << name << " ("
 		  << to_hex_string(reg.address()) << ")";
@@ -130,16 +130,19 @@ namespace caribou {
   }
 
   template<typename T>
-  uint32_t pearyDevice<T>::getRegister(std::string) {
+  uint32_t pearyDevice<T>::getRegister(std::string name) {
 
-    // Resolve name against registe rdictionary:
-    LOG(logDEBUG) << "Register to be read: ";
+    // Resolve name against register dictionary:
+    register_t<typename T::reg_type, typename T::data_type> reg = _registers.get(name);
+    LOG(logDEBUG) << "Register to be read: " << name << " ("
+		  << to_hex_string(reg.address()) << ")";
 
-    //typename T::ADDR_TYPE addr
-    //_hal->send(std::make_pair(static_cast<typename T::reg_type>(0x0),static_cast<typename T::data_type>(value)));
-    return 0;
+    typename T::data_type regval = _hal->receive(reg.address()).front();
+    LOG(logDEBUG) << "value   = " << to_hex_string(regval);
+
+    // Obey the mask:
+    return static_cast<uint32_t>(regval & reg.mask());
   }
-
 
 }
 
