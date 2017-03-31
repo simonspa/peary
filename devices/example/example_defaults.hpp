@@ -33,18 +33,17 @@ namespace caribou {
    *  int adr = exampleDict.getAddress("threshold");
    *  in order to resolve human-readable register names to their addresses.
    */
-#define EXAMPLE_DICT \
+#define EXAMPLE_REGISTERS			\
   {						\
-    {"vthreshold", registerConfig<>(5,255)},	\
-    {"vkrum",      registerConfig<>(6,255)},	\
-    {"vadc",       registerConfig<>(6,255)}	\
+    {"vthreshold", register_t<>(0x5)},		\
+    {"vkrum",      register_t<>(0x6,0x0f)},	\
+    {"vadc",       register_t<>(0x6)}		\
   }
 
-
 #define EXAMPLE_PERIPHERY \
-  {									\
-    {"va", registerConfig<>(ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTC,16)},	\
-    {"vd", registerConfig<>(ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTD,16)},	\
+  {			  \
+    {"va", PWR_OUT_1},	  \
+    {"vd", PWR_OUT_2},	  \
   }
 
 } //namespace caribou
