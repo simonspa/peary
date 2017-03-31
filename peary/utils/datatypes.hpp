@@ -18,7 +18,10 @@ namespace caribou {
   template<typename REG_T = uint8_t, typename MASK_T = uint8_t>
   class register_t {
   public:
+    // If no address is given, also set the mask to zero:
     register_t() : _address(0), _mask(0) {};
+    // If no mask is given, default to accessing the full register:
+    register_t(REG_T address) : _address(address), _mask(std::numeric_limits<MASK_T>::max()) {};
     register_t(REG_T address, MASK_T mask) : _address(address), _mask(mask) {};
 
     REG_T address() const { return _address; };
