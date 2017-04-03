@@ -214,7 +214,7 @@ int pearycli::scanDAC(const std::vector<std::string> & input) {
       // Wait a bit, in ms:
       mDelay(std::stoi(input.at(5)));
       // Read the ADC
-      double adc = dev->getADC(1);
+      double adc = dev->getADC(input.at(4));
       LOG(logINFO) << "DAC " << input.at(1) << " " << i
 		   << " = " << adc << "V";
       data.push_back(std::make_pair(i,adc));
