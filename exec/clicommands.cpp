@@ -16,7 +16,8 @@ pearycli::pearycli() : c("# ") {
   c.registerCommand("list_devices", devices);
   c.registerCommand("add_device", addDevice);
   c.registerCommand("verbosity", verbosity);
-
+  c.registerCommand("delay", delay);
+  
   c.registerCommand("init", init);
   c.registerCommand("powerOn", powerOn);
   c.registerCommand("powerOff", powerOff);
@@ -81,6 +82,15 @@ int pearycli::verbosity(const std::vector<std::string> & input) {
     return ret::Error;
   }
   Log::ReportingLevel() = Log::FromString(input.at(1));
+  return ret::Ok;
+}
+
+int pearycli::delay(const std::vector<std::string> & input) {
+  if (input.size() < 2) {
+    LOG(logINFO) << "Usage: " << input.at(0) << " TIME_MS";
+    return ret::Error;
+  }
+  mDelay(std::stoi(input.at(1)));
   return ret::Ok;
 }
 
