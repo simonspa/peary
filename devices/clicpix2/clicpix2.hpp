@@ -26,6 +26,16 @@ namespace caribou {
   public:
     clicpix2(const caribou::Configuration config) :
       pearyDevice(config, std::string(DEFAULT_DEVICEPATH), 0) {
+
+      // Set up periphery
+      _periphery.add("vddd",PWR_OUT_1);
+      _periphery.add("vdda",PWR_OUT_3);
+      _periphery.add("cmlbuffers_vdd",PWR_OUT_4);
+      _periphery.add("vddcml",PWR_OUT_5);
+      _periphery.add("cmlbuffers_vcco",PWR_OUT_7);
+      _periphery.add("cml_iref",CUR_1);
+      _periphery.add("dac_out",VOL_IN_1);
+
       // Add the register definitions to the dictionary for convenient lookup of names:
       _registers.add(CLICPIX2_REGISTERS);
     };
