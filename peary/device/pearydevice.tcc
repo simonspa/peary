@@ -90,6 +90,17 @@ namespace caribou {
   }
 
   template<typename T>
+  double pearyDevice<T>::getADC(std::string name) {
+
+    // Resolve name against periphery dictionary
+    std::shared_ptr<SLOW_ADC_CHANNEL_T> ptr = _periphery.get<SLOW_ADC_CHANNEL_T>(name);
+    LOG(logDEBUG) << "ADC channel to be sampled: " << name << " on " << ptr->name();
+
+    // Read slow ADC
+    return _hal->readSlowADC(*ptr);
+  }
+
+  template<typename T>
   void pearyDevice<T>::setBias(std::string, double) {}
 
   template<typename T>
@@ -97,9 +108,6 @@ namespace caribou {
 
   template<typename T>
   void pearyDevice<T>::setCurrent(std::string, double) {}
-
-  template<typename T>
-  double pearyDevice<T>::getADC(std::string) { return 0.; }
 
   template<typename T>
   void pearyDevice<T>::setRegister(std::string name, uint32_t value) {
