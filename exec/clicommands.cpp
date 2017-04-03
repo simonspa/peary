@@ -15,6 +15,7 @@ pearycli::pearycli() : c("# ") {
   c.registerCommand("add_device", addDevice);
   c.registerCommand("verbosity", verbosity);
 
+  c.registerCommand("init", init);
   c.registerCommand("powerOn", powerOn);
   c.registerCommand("powerOff", powerOff);
   c.registerCommand("setVoltage", setVoltage);
@@ -76,6 +77,19 @@ int pearycli::verbosity(const std::vector<std::string> & input) {
     return ret::Error;
   }
   Log::ReportingLevel() = Log::FromString(input.at(1));
+  return ret::Ok;
+}
+
+int pearycli::init(const std::vector<std::string> & input) {
+  if (input.size() < 2) {
+    LOG(logINFO) << "Usage: " << input.at(0) << " DEVICE_ID";
+    return ret::Error;
+  }
+  try {
+    caribouDevice *dev = manager->getDevice(std::stoi(input.at(1)));
+    dev->init();
+  }
+  catch (caribou::DeviceException &) { return ret::Error; }
   return ret::Ok;
 }
 

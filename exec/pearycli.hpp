@@ -29,6 +29,7 @@ namespace caribou {
     static int addDevice(const std::vector<std::string> & input);
     static int verbosity(const std::vector<std::string> & input);
 
+    static int init(const std::vector<std::string> & input);
     static int powerOn(const std::vector<std::string> & input);
     static int powerOff(const std::vector<std::string> & input);
     static int setVoltage(const std::vector<std::string> & input);
