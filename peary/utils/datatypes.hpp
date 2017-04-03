@@ -28,7 +28,10 @@ namespace caribou {
     REG_T address() const { return _address; };
     MASK_T mask() const { return _mask; };
 
-    MASK_T shift() const { return ffs(_mask); };
+    MASK_T shift() const {
+      if(_mask > 0) return (ffs(_mask)-1);
+      else return 0;
+    };
     
     template<typename T1, typename T2>
     friend std::ostream& operator<<(std::ostream& os, const register_t<T1, T2>& rg);
@@ -42,7 +45,7 @@ namespace caribou {
   std::ostream& operator<<(std::ostream& os, const caribou::register_t<T1, T2>& rg) {
     os << to_hex_string(rg._address) << " ("
        << to_bit_string(rg._mask) << ")";
-    return os;  
+    return os;
   }
 
   /** Component Configuration Base class

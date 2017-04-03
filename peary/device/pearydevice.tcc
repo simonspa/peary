@@ -115,12 +115,12 @@ namespace caribou {
     if(reg.mask() < std::numeric_limits<typename T::data_type>::max()) {
       // We need to read the register in order to preserve the nonaffected bits:
       LOG(logDEBUG) << "Reg. mask:   " << to_bit_string(reg.mask());
-      LOG(logDEBUG) << "Shift by:    " << static_cast<int>(reg.shift()-1);
+      LOG(logDEBUG) << "Shift by:    " << static_cast<int>(reg.shift());
       typename T::data_type current_reg = _hal->receive(reg.address()).front();
       LOG(logDEBUG) << "new_val    = " << to_bit_string(regval);
-      LOG(logDEBUG) << "value (sh) = " << to_bit_string(static_cast<typename T::data_type>(regval << (reg.shift()-1)));
+      LOG(logDEBUG) << "value (sh) = " << to_bit_string(static_cast<typename T::data_type>(regval << reg.shift()));
       LOG(logDEBUG) << "curr_val   = " << to_bit_string(current_reg);
-      regval = (current_reg & ~reg.mask()) | ((regval << (reg.shift()-1))& reg.mask());
+      regval = (current_reg & ~reg.mask()) | ((regval << reg.shift())& reg.mask());
       LOG(logDEBUG) << "updated    = " << to_bit_string(regval);
     }
     else {
@@ -142,10 +142,10 @@ namespace caribou {
     typename T::data_type regval = _hal->receive(reg.address()).front();
     LOG(logDEBUG) << "raw value  = " << to_bit_string(regval);
     LOG(logDEBUG) << "masked val = " << to_bit_string(static_cast<typename T::data_type>(regval & reg.mask()));
-    LOG(logDEBUG) << "shifted val = " << static_cast<int>((regval & reg.mask()) >> (reg.shift()-1));
+    LOG(logDEBUG) << "shifted val = " << static_cast<int>((regval & reg.mask()) >> reg.shift());
 
     // Obey the mask:
-    return static_cast<uint32_t>((regval & reg.mask()) >> (reg.shift()-1));
+    return static_cast<uint32_t>((regval & reg.mask()) >> reg.shift());
   }
 
 }
