@@ -33,7 +33,10 @@ namespace caribou {
       _periphery.add("cmlbuffers_vdd",PWR_OUT_4);
       _periphery.add("vddcml",PWR_OUT_5);
       _periphery.add("cmlbuffers_vcco",PWR_OUT_7);
+
       _periphery.add("cml_iref",CUR_1);
+      _periphery.add("dac_iref",CUR_2);
+
       _periphery.add("dac_out",VOL_IN_1);
 
       // Add the register definitions to the dictionary for convenient lookup of names:
