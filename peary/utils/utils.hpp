@@ -12,10 +12,19 @@
 #include <sstream>
 #include <iomanip>
 #include <string>
+#include <unistd.h>
 
 #include "exceptions.hpp"
 
 namespace caribou {
+
+  /** Delay helper function
+   *  Uses usleep() to wait the given time in milliseconds
+   */
+  void inline mDelay(uint32_t ms) {
+    // Wait for the given time in milliseconds:
+    usleep(ms*1000);
+  }
 
   /** Trims the leading and trainling white space from a string
    */
