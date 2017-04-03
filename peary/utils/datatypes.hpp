@@ -78,7 +78,21 @@ namespace caribou {
     uint8_t _dacoutput;
   };
 
-
+  /** DC/DC converter Configuration
+   *
+   *  The parameters hold:
+   *  - the name of the power output
+   *  - the DAC address
+   *  - the corresponding DAC output pin
+   */
+  class DCDC_CONVERTER_T : public component_dac_t {
+  public:
+    DCDC_CONVERTER_T(std::string name, uint8_t dacaddr, uint8_t dacout) :
+      component_dac_t(name,dacaddr,dacout)
+    {};
+    ~DCDC_CONVERTER_T() {};
+  };
+  
   /** Voltage Regulator Configuration
    *
    *  The parameters hold:

@@ -28,6 +28,11 @@ caribouHAL<T>::caribouHAL(std::string device_path, uint32_t device_address) :
   powerDAC( false, CUR_6.dacaddress(), CUR_6.dacoutput());
   powerDAC( false, CUR_7.dacaddress(), CUR_7.dacoutput());
   powerDAC( false, CUR_8.dacaddress(), CUR_8.dacoutput());
+
+  //Enabling DC/DC converters
+  setDCDCConverter(LTM_VPWR1, 5 );
+  setDCDCConverter(LTM_VPWR2, 5 );
+  setDCDCConverter(LTM_VPWR3, 5 );
 }
 
 template<typename T>
@@ -107,19 +112,34 @@ double caribouHAL<T>::readTemperature() {
 }
 
 template<typename T>
+void caribouHAL<T>:: setDCDCConverter(const DCDC_CONVERTER_T converter, const double voltage){
+  LOG(logDEBUGHAL) << "Setting " << voltage << "V "
+		   << "on " << converter.name();
+
+  iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C3);
+  if( voltage > 5 || voltage < 0 )
+    throw ConfigInvalid( "Trying to set DC/DC converter to " + std::to_string(voltage) + " V (range is 0-5 V)");
+
+  powerDAC(false, converter.dacaddress(), converter.dacoutput());
+  setDACVoltage(converter.dacaddress(), converter.dacoutput(), -0.1824 * voltage + 0.9120 );
+  powerDAC(true, converter.dacaddress(), converter.dacoutput());
+
+}  
+  
+template<typename T>
 void caribouHAL<T>::setVoltageRegulator(const VOLTAGE_REGULATOR_T regulator, const double voltage, const double maxExpectedCurrent){
   LOG(logDEBUGHAL) << "Setting " << voltage << "V "
 		   << "on " << regulator.name();
 
-  if( voltage > 3.6 )
-    throw ConfigInvalid( "Trying to set Voltage regulator to " + std::to_string(voltage) + " V (max is 3.6 V)");
+  if( voltage > 3.6 || voltage < 0)
+    throw ConfigInvalid( "Trying to set Voltage regulator to " + std::to_string(voltage) + " V (range is 0-3.6 V)");
   
   setDACVoltage(regulator.dacaddress(), regulator.dacoutput(), 3.6 - voltage );
 
   //set current/power monitor
   setCurrentMonitor(regulator.pwrmonitor(), maxExpectedCurrent );
-}
-
+}  
+  
 template<typename T>
 void caribouHAL<T>::powerVoltageRegulator(const VOLTAGE_REGULATOR_T regulator, const bool enable){
 
