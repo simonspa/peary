@@ -5,6 +5,7 @@
 #define CARIBOU_DATATYPES_H
 
 #include <tuple>
+#include <strings.h>
 
 namespace caribou {
 
@@ -27,6 +28,8 @@ namespace caribou {
     REG_T address() const { return _address; };
     MASK_T mask() const { return _mask; };
 
+    MASK_T shift() const { return ffs(_mask); };
+    
     template<typename T1, typename T2>
     friend std::ostream& operator<<(std::ostream& os, const register_t<T1, T2>& rg);
 
