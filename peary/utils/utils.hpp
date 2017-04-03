@@ -25,10 +25,6 @@ namespace caribou {
    */
   uint8_t reverseByte(uint8_t byte);
 
-  /** Return the binary representation of a char as std::string
-   */
-  std::string bitstring(uint8_t data);
-
   /** Converts a string to any type.
    * \param x The string to be converted.
    * \param def The default value to be used in case of an invalid string,
@@ -129,6 +125,17 @@ namespace caribou {
       elems.push_back(from_string(item, def));
     }
     return elems;
+  }
+
+  /** Return the binary representation of a char as std::string
+   */
+  template< typename T >
+  std::string to_bit_string(const T data) {
+    std::ostringstream stream;
+    for(int i = std::numeric_limits<T>::digits-1; i >= 0; i--) {
+      stream <<((data>>i)&1);
+    }
+    return stream.str();
   }
 
   template< typename T >

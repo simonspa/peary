@@ -1,19 +1,29 @@
 #include "../extern/cpp-readline/src/Console.hpp"
 #include "log.hpp"
 #include "pearycli.hpp"
+#include "configuration.hpp"
 
 using namespace caribou;
 using ret = CppReadline::Console::ReturnCode;
+
+caribou::Configuration pearycli::config = caribou::Configuration();
 
 pearycli::pearycli() : c("# ") {
 
   // Register console commands
   c.registerCommand("list_devices", devices);
+  c.registerCommand("add_device", addDevice);
   c.registerCommand("verbosity", verbosity);
 
   c.registerCommand("powerOn", powerOn);
   c.registerCommand("powerOff", powerOff);
   c.registerCommand("setVoltage", setVoltage);
+  c.registerCommand("voltageOff", voltageOff);
+  c.registerCommand("voltageOn", voltageOn);
+
+  c.registerCommand("setRegister", setRegister);
+  c.registerCommand("getRegister", getRegister);
+
   c.registerCommand("exploreInterface", exploreInterface);
   c.registerCommand("getADC", getADC);
   c.registerCommand("powerStatusLog", powerStatusLog);
@@ -32,6 +42,28 @@ int pearycli::devices(const std::vector<std::string> &) {
     for(auto d : devs) {
       LOG(logINFO) << "ID " << i << ": " << d->getName();
       i++;
+    }
+  }
+  catch (caribou::DeviceException &e) {}
+  return ret::Ok;
+}
+
+int pearycli::addDevice(const std::vector<std::string> & input) {
+
+  if (input.size() < 2) {
+    LOG(logINFO) << "Usage: " << input.at(0) << " DEVICE [DEVICE...]";
+    return ret::Error;
+  }
+
+  try {
+    // Spawn all devices
+    for(auto d = input.begin()+1; d != input.end(); d++) {
+      // ...if we have a configuration for them
+      if(config.SetSection(*d)) {
+	size_t device_id = manager->addDevice(*d,config);
+	LOG(logINFO) << "Manager returned device ID " << device_id << ".";
+      }
+      else { LOG(logERROR) << "No configuration found for device " << *d; }
     }
   }
   catch (caribou::DeviceException &e) {}
@@ -82,6 +114,71 @@ int pearycli::setVoltage(const std::vector<std::string> & input) {
   try {
     caribouDevice *dev = manager->getDevice(std::stoi(input.at(3)));
     dev->setVoltage(input.at(1),std::stod(input.at(2)));
+  }
+  catch (caribou::caribouException &e) {
+    LOG(logERROR) << e.what();
+    return ret::Error;
+  }
+  return ret::Ok;
+}
+
+int pearycli::voltageOn(const std::vector<std::string> & input) {
+  if (input.size() < 3) {
+    LOG(logINFO) << "Usage: " << input.at(0) << " OUTPUT_NAME DEVICE_ID";
+    return ret::Error;
+  }
+  try {
+    caribouDevice *dev = manager->getDevice(std::stoi(input.at(2)));
+    dev->voltageOn(input.at(1));
+  }
+  catch (caribou::caribouException &e) {
+    LOG(logERROR) << e.what();
+    return ret::Error;
+  }
+  return ret::Ok;
+}
+
+int pearycli::voltageOff(const std::vector<std::string> & input) {
+  if (input.size() < 3) {
+    LOG(logINFO) << "Usage: " << input.at(0) << " OUTPUT_NAME DEVICE_ID";
+    return ret::Error;
+  }
+  try {
+    caribouDevice *dev = manager->getDevice(std::stoi(input.at(2)));
+    dev->voltageOff(input.at(1));
+  }
+  catch (caribou::caribouException &e) {
+    LOG(logERROR) << e.what();
+    return ret::Error;
+  }
+  return ret::Ok;
+}
+
+int pearycli::setRegister(const std::vector<std::string> & input) {
+  if (input.size() < 4) {
+    LOG(logINFO) << "Usage: " << input.at(0) << " REGISTER_NAME REGISTER_VALUE DEVICE_ID";
+    return ret::Error;
+  }
+  try {
+    caribouDevice *dev = manager->getDevice(std::stoi(input.at(3)));
+    dev->setRegister(input.at(1),std::stoi(input.at(2)));
+  }
+  catch (caribou::caribouException &e) {
+    LOG(logERROR) << e.what();
+    return ret::Error;
+  }
+  return ret::Ok;
+}
+
+int pearycli::getRegister(const std::vector<std::string> & input) {
+  if (input.size() < 3) {
+    LOG(logINFO) << "Usage: " << input.at(0) << " REGISTER_NAME DEVICE_ID";
+    return ret::Error;
+  }
+  try {
+    caribouDevice *dev = manager->getDevice(std::stoi(input.at(2)));
+    uint32_t value = dev->getRegister(input.at(1));
+    LOG(logINFO) << input.at(1) << " = " << value;
   }
   catch (caribou::caribouException &e) {
     LOG(logERROR) << e.what();

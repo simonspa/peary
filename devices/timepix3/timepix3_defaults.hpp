@@ -9,6 +9,7 @@ namespace caribou {
     /** Default device path for this device: SPI interface
    */
 #define DEFAULT_DEVICEPATH BUS_I2C2
+#define DEFAULT_DEVICEADDR 0x0
 
   // Default register values for Timepix3 chips
 

@@ -23,7 +23,7 @@
 
 using namespace caribou;
 
-iface_i2c::iface_i2c(std::string const & device_path) : Interface( device_path ) {
+iface_i2c::iface_i2c(std::string const & device_path) : Interface(device_path), i2cDesc() {
   if ( (i2cDesc = open( devicePath.c_str(), O_RDWR) ) < 0  ){
     throw DeviceException("Open " + device_path + " device failed. " + std::strerror(i2cDesc) );
   }
@@ -56,11 +56,6 @@ i2c_t iface_i2c::write(const i2c_address_t& address, const i2c_t& data ){
   return 0;
 }
 
-std::vector<i2c_t> iface_i2c::write(const i2c_address_t&, const std::vector<i2c_t>&){
-  throw CommunicationError( "Block write operation is not possible to a device without internal registers" );
-  return std::vector<i2c_t>();
-}
-
 std::pair<i2c_reg_t, i2c_t> iface_i2c::write(const i2c_address_t& address,const std::pair<i2c_reg_t, i2c_t> & data){
 
   std::lock_guard<std::mutex> lock(mutex);
@@ -90,11 +85,6 @@ std::vector<i2c_t> iface_i2c::write(const i2c_address_t& address, const i2c_t & 
     throw CommunicationError( "Failed to block write slave (" + to_hex_string(address) + ") on " + devicePath + ": " + std::strerror(errno) );
 
   return std::vector<i2c_t>();
-}
-
-std::vector< std::pair<i2c_reg_t, i2c_t> > iface_i2c::write(const i2c_address_t&, const std::vector< std::pair<i2c_reg_t, i2c_t> >&){
-  throw CommunicationError( "Block write operation with different variate register address is not supported by this I2C implementation" );
-  return std::vector< std::pair<i2c_reg_t, i2c_t> >();
 }
 
 std::vector<i2c_t> iface_i2c::read(const i2c_address_t& address, const unsigned int length) {

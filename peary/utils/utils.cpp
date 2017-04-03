@@ -35,12 +35,6 @@ std::string caribou::trim(const std::string &s) {
   return std::string(s, b, e - b + 1);
 }
 
-std::string caribou::bitstring(uint8_t data) {
-  std::stringstream s;
-  for(int i=7; i>=0; i--) { s <<((data>>i)&1); }
-  return s.str();
-}
-
 template <> int64_t caribou::from_string(const std::string &x, const int64_t &def) {
   if (x == "")
     return def;

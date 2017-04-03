@@ -19,7 +19,7 @@
 
 using namespace caribou;
 
-iface_spi::iface_spi(std::string const & device_path) : Interface( device_path ) {
+iface_spi::iface_spi(std::string const & device_path) : Interface(device_path), spiDesc() {
   std::lock_guard<std::mutex> lock(mutex);
 
   //Open device
@@ -39,18 +39,6 @@ iface_spi::iface_spi(std::string const & device_path) : Interface( device_path )
 
 iface_spi::~iface_spi() {
   close(spiDesc);
-}
-
-
-spi_t iface_spi::write(const spi_t&, const spi_t& data) {
-  throw CommunicationError( "Write of single data word is not supported by this SPI implementation" );
-  return 0;
-}
-
-std::vector<spi_t> iface_spi::write(const spi_address_t&, const std::vector<spi_t>& data ){
-  throw CommunicationError( "Block Write of single data words is not supported by this SPI implementation" );
-  return std::vector<spi_t> ();
-
 }
 
 std::pair<spi_reg_t, spi_t> iface_spi::write(const spi_address_t&, const std::pair<spi_reg_t, spi_t> & data){
@@ -134,11 +122,6 @@ std::vector< std::pair<spi_reg_t, spi_t> > iface_spi::write(const spi_address_t&
 		    << listVector( data, ", ", true) << "\"\n\t Read  block data (Reg: data): \"" <<  listVector( rx, ", ", true) << "\"";
   
   return rx;
-}
-
-std::vector<spi_t> iface_spi::read(const spi_address_t&, const unsigned int length){
-  throw CommunicationError( "Block read operati is not supported by this SPI implementation" );
-  return std::vector< spi_t> ();
 }
 
 std::vector<spi_t> iface_spi::read(const spi_address_t& address, const spi_reg_t reg, const unsigned int length){

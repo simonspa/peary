@@ -6,6 +6,8 @@
 #define DEVICE_CLICPIX2_H
 
 #include "device.hpp"
+#include "pearydevice.hpp"
+#include "spi_CLICpix2.hpp"
 #include "clicpix2_defaults.hpp"
 #include "Si5345-RevB-CLICpix2-Registers.h"
 #include "configuration.hpp"
@@ -19,12 +21,14 @@ namespace caribou {
    *  this class implements the required functionality to operate CLICpix2 chips via the
    *  Caribou device class interface.
    */
-  class clicpix2 : public caribouDevice {
+  class clicpix2 : public pearyDevice<iface_spi_CLICpix2> {
     
   public:
-  clicpix2(const caribou::Configuration config) : caribouDevice(config) {
-    this->initialize(std::string(DEFAULT_DEVICEPATH),0,caribou::dictionary<uint8_t>(CLICPIX2_PERIPHERY));
-  };
+    clicpix2(const caribou::Configuration config) :
+      pearyDevice(config, std::string(DEFAULT_DEVICEPATH), 0) {
+      // Add the register definitions to the dictionary for convenient lookup of names:
+      _registers.add(CLICPIX2_REGISTERS);
+    };
     ~clicpix2();
 
     std::string getName();
@@ -56,9 +60,6 @@ namespace caribou {
     void exploreInterface();
 
   private:
-
-    IFACE interface() { return IFACE::SPI_CLICpix2; }
-    
     /* Routine to program the pixel matrix via the SPI interface
      *
      * This routine produces a bit matrix (using STL vector<bool>) which can

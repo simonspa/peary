@@ -8,6 +8,8 @@
 #define DEVICE_EXAMPLE_H
 
 #include "device.hpp"
+#include "pearydevice.hpp"
+#include "loopback.hpp"
 #include "constants.hpp"
 #include "example_defaults.hpp"
 
@@ -19,7 +21,7 @@ namespace caribou {
    *  Applications can then control this device via the Caribou device class interface
    *  by using the device manager to instanciate the device object.
    */
-  class example : public caribouDevice {
+  class example : public pearyDevice<iface_loopback> {
     
   public:
     /** Device constructor
@@ -29,9 +31,10 @@ namespace caribou {
      *  in the device class constructor since the interface type is only known once the
      *  child object (of this class) exists.
      */
-    example(const caribou::Configuration config) : caribouDevice(config), exampleDict(EXAMPLE_DICT) {
-      // Initialize the device and HAL object:
-      this->initialize(std::string(DEFAULT_DEVICEPATH), DEFAULT_ADDRESS, caribou::dictionary<uint8_t>(EXAMPLE_PERIPHERY));
+    example(const caribou::Configuration config) :
+      pearyDevice(config, std::string(DEFAULT_DEVICEPATH), DEFAULT_ADDRESS) {
+      _periphery.add("vd",PWR_OUT_1);
+      _registers.add(EXAMPLE_REGISTERS);
     };
     ~example();
 
@@ -64,17 +67,6 @@ namespace caribou {
     /** Example function only available in this derived device class
      */
     void exampleCall();
-
-  private:
-
-    /** Device interface
-     *
-     *  Specifies the device hardware interface to be instanciated by the HAL.
-     *  Returns a value of type caribou::IFACE.
-     */
-    IFACE interface() { return IFACE::LOOPBACK; }
-
-    dictionary<> exampleDict;
   };
 
   /** Device generator

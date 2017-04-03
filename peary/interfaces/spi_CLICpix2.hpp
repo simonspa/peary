@@ -24,7 +24,8 @@ namespace caribou {
     iface_spi_CLICpix2(std::string const & device_path)  : iface_spi(device_path) {};
 
     virtual ~iface_spi_CLICpix2(){};
-    
+
+    template<typename T>
     friend class caribouHAL;
 
     std::pair<spi_reg_t, spi_t> write(const spi_address_t& address, const std::pair<spi_reg_t, spi_t> & data);
