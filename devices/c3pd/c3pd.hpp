@@ -23,7 +23,7 @@ namespace caribou {
 
     /** Initializer function for C3PD
      */
-    void init();
+    void init() {};
 
     /** Turn on the power supply for the C3PD chip
      */

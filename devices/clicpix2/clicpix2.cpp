@@ -13,7 +13,6 @@ std::string clicpix2::getName() { return DEVICE_NAME; }
 
 void clicpix2::init() {
   LOG(logDEBUG) << "Initializing " << DEVICE_NAME;
-  powerOn();
   configureClock();
 }
 

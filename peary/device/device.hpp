@@ -64,6 +64,10 @@ namespace caribou {
      */
     virtual std::string getDeviceName() = 0;
 
+    /** Initialize the device (ex.set the required clock otuputs etc.).
+     */
+    virtual void init() = 0;
+    
     /** Turn on the power supply for the attached device
      */
     virtual void powerOn() = 0;
