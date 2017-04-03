@@ -10,7 +10,7 @@
  * Design ID:                                          CLICpix2
  * Includes Pre/Post Download Control Register Writes: Yes
  * Created By:                                         ClockBuilder Pro v2.13 [2017-03-03]
- * Timestamp:                                          2017-03-23 18:38:33 GMT+01:00
+ * Timestamp:                                          2017-03-30 18:51:20 GMT+02:00
  *
  * A complete design report corresponding to this export is included at the end 
  * of this header file.
@@ -141,10 +141,10 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
 	{ 0x0122, 0x09 },
 	{ 0x0123, 0x3B },
 	{ 0x0124, 0x00 },
-	{ 0x0126, 0x01 },
+	{ 0x0126, 0x06 },
 	{ 0x0127, 0x09 },
 	{ 0x0128, 0x3B },
-	{ 0x0129, 0x00 },
+	{ 0x0129, 0x01 },
 	{ 0x012B, 0x01 },
 	{ 0x012C, 0x09 },
 	{ 0x012D, 0x3B },
@@ -427,7 +427,7 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
  * Project File: E:\clic\Caribou\peary\devices\clicpix2\Si5345-RevB-CLICpix2-Project.slabtimeproj
  * Design ID:    CLICpix2
  * Created By:   ClockBuilder Pro v2.13 [2017-03-03]
- * Timestamp:    2017-03-23 18:38:33 GMT+01:00
+ * Timestamp:    2017-03-30 18:51:19 GMT+02:00
  * 
  * Design Rule Check
  * =================
@@ -486,7 +486,8 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
  *    OUT4: 320 MHz
  *          Enabled, LVDS 2.5 V
  *    OUT5: Unused
- *    OUT6: Unused
+ *    OUT6: 320 MHz
+ *          Enabled, LVDS 2.5 V
  *    OUT7: Unused
  *    OUT8: Unused
  *    OUT9: ZDM - 100 MHz
@@ -520,6 +521,7 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
  *       Value: 21.25 [ 21 + 1/4 ]
  *       Skew:  0.000 s
  *       OUT4: 320 MHz
+ *       OUT6: 320 MHz
  *    N2:
  *       Unused
  *    N3:
@@ -534,7 +536,7 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
  *    R3 = Unused
  *    R4 = 2
  *    R5 = Unused
- *    R6 = Unused
+ *    R6 = 2
  *    R7 = Unused
  *    R8 = Unused
  *    R9 = 2
@@ -587,7 +589,7 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
  * OUT3    Unused                    
  * OUT4    320 MHz    0.000000       
  * OUT5    Unused                    
- * OUT6    Unused                    
+ * OUT6    320 MHz    0.000000       
  * OUT7    Unused                    
  * OUT8    Unused                    
  * OUT9    100 MHz    0.000000       
@@ -603,11 +605,11 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
  * Ta:       70 °C
  * Airflow:  None
  * 
- * Total Power: 725 mW, On Chip Power: 707 mW, Tj: 86 °C
+ * Total Power: 774 mW, On Chip Power: 750 mW, Tj: 87 °C
  * 
  *         Frequency  Format   Voltage   Current     Power
  *         ---------  ------  --------  --------  --------
- * VDD                           1.8 V  120.9 mA    218 mW
+ * VDD                           1.8 V  124.2 mA    224 mW
  * VDDA                          3.3 V  117.4 mA    387 mW
  * VDDO0      Unused                                      
  * VDDO1      Unused                                      
@@ -615,12 +617,12 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
  * VDDO3      Unused                                      
  * VDDO4     320 MHz  LVDS       2.5 V   17.0 mA     43 mW
  * VDDO5      Unused                                      
- * VDDO6      Unused                                      
+ * VDDO6     320 MHz  LVDS       2.5 V   17.0 mA     43 mW
  * VDDO7      Unused                                      
  * VDDO8      Unused                                      
  * VDDO9     100 MHz  LVDS       2.5 V   15.6 mA     39 mW
  *                                      --------  --------
- *                               Total  286.5 mA    725 mW
+ *                               Total  306.8 mA    774 mW
  * 
  * Note:
  * 
@@ -775,16 +777,16 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
  * 0x0123[6:4]   OUT5_AMPL             3              0x3             
  * 0x0124[2:0]   OUT5_MUX_SEL          0              0x0             
  * 0x0124[7:6]   OUT5_INV              0              0x0             
- * 0x0126[0]     OUT6_PDN              1              0x1             
- * 0x0126[1]     OUT6_OE               0              0x0             
- * 0x0126[2]     OUT6_RDIV_FORCE2      0              0x0             
+ * 0x0126[0]     OUT6_PDN              0              0x0             
+ * 0x0126[1]     OUT6_OE               1              0x1             
+ * 0x0126[2]     OUT6_RDIV_FORCE2      1              0x1             
  * 0x0127[2:0]   OUT6_FORMAT           1              0x1             
  * 0x0127[3]     OUT6_SYNC_EN          1              0x1             
  * 0x0127[5:4]   OUT6_DIS_STATE        0              0x0             
  * 0x0127[7:6]   OUT6_CMOS_DRV         0              0x0             
  * 0x0128[3:0]   OUT6_CM               11             0xB             
  * 0x0128[6:4]   OUT6_AMPL             3              0x3             
- * 0x0129[2:0]   OUT6_MUX_SEL          0              0x0             
+ * 0x0129[2:0]   OUT6_MUX_SEL          1              0x1             
  * 0x0129[7:6]   OUT6_INV              0              0x0             
  * 0x012B[0]     OUT7_PDN              1              0x1             
  * 0x012B[1]     OUT7_OE               0              0x0             
