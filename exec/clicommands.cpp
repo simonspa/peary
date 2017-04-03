@@ -222,16 +222,18 @@ int pearycli::scanDAC(const std::vector<std::string> & input) {
 
     // Write CSV file
     std::ofstream myfile;
-    myfile.open ("dacscan_" + input.at(1) + ".csv");
+    std::string filename = "dacscan_" + input.at(1) + ".csv";
+    myfile.open (filename);
     myfile << "# pearycli > scanDAC\n";
     myfile << "# scanned DAC \"" << input.at(1) << "\", range " << input.at(2) << "-" << input.at(3) << "\n";
     myfile << "# measured voltage using ADC signal \"" << input.at(4) << "\"\n";
-    myfile << "# with " << input.at(5) << "ms delay between setting register and sampling ADC.\n";
+    myfile << "# with " << input.at(4) << "ms delay between setting register and sampling ADC.\n";
     for(auto i : data) {
       myfile << i.first << "," << i.second << "\n";
     }
     myfile << "# EOF\n";
     myfile.close();
+    LOG(logINFO) << "Data writte to file: \"" << filename << "\"";
   }
   catch (caribou::caribouException &e) {
     LOG(logERROR) << e.what();
