@@ -21,7 +21,8 @@ namespace caribou {
     virtual ~register_dict() {};
 
     // Register new component alias:
-    void add(const std::string name, register_t<T1, T2> reg) {
+    void add(std::string name, const register_t<T1, T2> reg) {
+      std::transform(name.begin(), name.end(), name.begin(), ::tolower);
       regs.insert(std::make_pair(name,reg));
     }
 
@@ -30,7 +31,8 @@ namespace caribou {
     }
 
     // Return register config for the name in question:
-    register_t<T1, T2> get(const std::string name) const {
+    register_t<T1, T2> get(std::string name) const {
+      std::transform(name.begin(), name.end(), name.begin(), ::tolower);
       try { return regs.at(name); }
       catch(...) {
 	throw ConfigInvalid("Register name \"" + name + "\" unknown");
@@ -50,14 +52,16 @@ namespace caribou {
 
     // Register new component alias:
     template<typename T>
-    void add(const std::string name, T ptr) {
+    void add(std::string name, T ptr) {
+      std::transform(name.begin(), name.end(), name.begin(), ::tolower);
       comps.insert(std::make_pair(name,std::make_shared<T>(ptr)));
     }
 
     // Return shared pointer to component config for the name in question:
     template<typename T>
-    std::shared_ptr<T> get(const std::string name) const {
+    std::shared_ptr<T> get(std::string name) const {
       try {
+	std::transform(name.begin(), name.end(), name.begin(), ::tolower);
 	std::shared_ptr<component_t> ptr = comps.at(name);
 	if(std::dynamic_pointer_cast<T>(ptr)) { return std::dynamic_pointer_cast<T>(ptr); }
 	else { throw ConfigInvalid("Component cannot be cast"); }
