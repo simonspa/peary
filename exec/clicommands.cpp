@@ -229,7 +229,7 @@ int pearycli::scanDAC(const std::vector<std::string> & input) {
   try {
     caribouDevice *dev = manager->getDevice(std::stoi(input.at(5)));
 
-    std::vector<std::pair<int,int>> data;
+    std::vector<std::pair<int,double>> data;
     
     // Set the register in output_mux_DAC:
     dev->setRegister("output_mux_DAC",output_mux_DAC[input.at(1)]);
@@ -252,8 +252,7 @@ int pearycli::scanDAC(const std::vector<std::string> & input) {
     myfile.open (filename);
     myfile << "# pearycli > scanDAC\n";
     myfile << "# scanned DAC \"" << input.at(1) << "\", range " << input.at(2) << "-" << input.at(3) << "\n";
-    myfile << "# measured voltage using ADC signal \"" << input.at(4) << "\"\n";
-    myfile << "# with " << input.at(4) << "ms delay between setting register and sampling ADC.\n";
+    myfile << "# with " << input.at(4) << "ms delay between setting register and ADC sampling.\n";
     for(auto i : data) {
       myfile << i.first << "," << i.second << "\n";
     }
