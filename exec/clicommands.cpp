@@ -70,7 +70,9 @@ int pearycli::addDevice(const std::vector<std::string> & input) {
       else { LOG(logERROR) << "No configuration found for device " << *d; }
     }
   }
-  catch (caribou::DeviceException &e) {}
+  catch (caribou::DeviceException &e) {
+    LOG(logCRITICAL) << "This went wrong: " << e.what();
+  }
   return ret::Ok;
 }
 
