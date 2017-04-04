@@ -42,6 +42,10 @@ namespace caribou {
      */
     std::string getName();
 
+    /** Initializer function for Example chip
+     */
+    void init() {};
+    
     /** Turn on the power supply for the Example chip
      */
     void powerOn();

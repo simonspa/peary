@@ -121,6 +121,9 @@ namespace caribou {
 
   private:
 
+    //It's not possible to power on/off DCDC converter by software
+    void setDCDCConverter(const DCDC_CONVERTER_T converter, const double voltage);
+    
     /** Device path of the configured device
      */
     std::string _devpath;

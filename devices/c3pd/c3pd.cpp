@@ -15,11 +15,6 @@ C3PD::~C3PD() {
 
 std::string C3PD::getName() { return DEVICE_NAME; }
 
-void C3PD::init() {
-  powerOn();
-  LOG(logINFO) << DEVICE_NAME << ": Initialized.";
-}
-
 void C3PD::powerOn() {
   LOG(logINFO) << DEVICE_NAME << ": Powering up C3PD";
 
