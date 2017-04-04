@@ -390,11 +390,12 @@ double caribouHAL<T>::readSlowADC(const SLOW_ADC_CHANNEL_T channel) {
   // Enable single-ended mode, no differential measurement:
   command = command ^ 0x80;
 
-  // We use the external reference voltage CAR_VREF_4P0, so do not switch to internal:
-  //command = command ^ 0x08;
+  // We use the external reference voltage CAR_VREF_4P0, so do not switch to internal,
+  // but keeb A/D power on
+  command = command ^ 0x04;
 
   std::vector<i2c_t> volt_raw = i2c.read(ADDR_ADC, command, 2);
-  uint16_t readback = (volt_raw[0] << 8) | volt_raw[0];
+  uint16_t readback = (volt_raw[0] << 8) | volt_raw[1];
   return static_cast<double>(readback*CAR_VREF_4P0/4096);
 }
 
