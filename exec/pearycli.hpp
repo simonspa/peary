@@ -11,7 +11,7 @@
 
 #include <vector>
 
-using ret = CppReadline::Console::ReturnCode;
+using ret = CppReadline::ReturnCode;
 
 namespace caribou {
 
