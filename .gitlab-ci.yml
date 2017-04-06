@@ -18,7 +18,6 @@ peary-mac:
     - mac
   before_script:
     - source .peary-ci/init_x86_64.sh
-    - brew install readline && brew link --force readline
   script:
     - mkdir build
     - cd build
