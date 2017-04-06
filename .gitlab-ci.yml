@@ -17,6 +17,7 @@ peary-mac:
   tags:
     - mac
   before_script:
+    - source .peary-ci/init_86_64.sh
     - brew install readline && brew link --force readline
   script:
     - mkdir build
