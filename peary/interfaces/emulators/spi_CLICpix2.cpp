@@ -16,12 +16,8 @@ using namespace caribou;
 std::pair<spi_reg_t, spi_t> iface_spi_CLICpix2::write(const spi_address_t& address, const std::pair<spi_reg_t, spi_t> & data){
 
   std::lock_guard<std::mutex> lock(mutex);
-  std::array< uint8_t, sizeof(spi_reg_t) + sizeof(spi_t) >  _data;
   
-  std::memcpy( _data.data(), &data.second, sizeof(spi_t) );
-  std::memcpy( _data.data() + sizeof(spi_t), &data.first, sizeof( spi_reg_t) );
-    
-  std::pair<spi_reg_t, spi_t> rx (* static_cast<spi_reg_t* >( _data.data() + sizeof(spi_t) ), * static_cast<spi_t* >( _data.data()  ) );
+  std::pair<spi_reg_t, spi_t> rx = std::make_pair(spi_reg_t(), spi_t());
 
   LOG(logINTERFACE) << "SPI (" << devicePath <<") address " << to_hex_string(address) << ": Register " << to_hex_string(data.first)
 		    << " Wrote data \"" << to_hex_string(data.second) << "\" Read data \"" << to_hex_string(rx.second) << "\"";
