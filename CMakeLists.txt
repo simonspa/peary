@@ -109,7 +109,6 @@ ADD_SUBDIRECTORY(doc)
 ADD_EXECUTABLE(peary_app "exec/sample_application.cpp")
 TARGET_LINK_LIBRARIES(peary_app ${PROJECT_NAME})
 
-FIND_PACKAGE(Readline REQUIRED)
 ADD_SUBDIRECTORY(extern/cpp-readline)
 ADD_EXECUTABLE(pearycli "exec/pearycli.cpp" "exec/clicommands.cpp")
 TARGET_LINK_LIBRARIES(pearycli ${PROJECT_NAME} ${CPP-READLINE_LIB})
