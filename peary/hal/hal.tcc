@@ -116,7 +116,6 @@ void caribouHAL<T>:: setDCDCConverter(const DCDC_CONVERTER_T converter, const do
   LOG(logDEBUGHAL) << "Setting " << voltage << "V "
 		   << "on " << converter.name();
 
-  iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C3);
   if( voltage > 5 || voltage < 0 )
     throw ConfigInvalid( "Trying to set DC/DC converter to " + std::to_string(voltage) + " V (range is 0-5 V)");
 
