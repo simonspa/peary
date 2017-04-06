@@ -8,9 +8,31 @@ DAQ framework for the Carioub DAQ System
 
 The user manual for the Peary DAQ software can be found [here](doc/usermanual/manual.md)
 
+## Getting the code
+
+This repository contains git submodules. This means, either you clone the repository and already initialize these module susing
+
+```
+$ git clone --recursive https://:@gitlab.cern.ch:8443/Caribou/peary.git peary/
+```
+
+or you initialize them after cloning the Peary repository via
+
+```
+$ git clone https://:@gitlab.cern.ch:8443/Caribou/peary.git peary/
+$ cd peary/
+$ git submodule update --init --recursive
+```
+
 ## How to compile / install?
 
-The Peary library is compiled by simply running
+Peary depends on the Linux I2C and SPI libraries which either need to be installed or the interfaces switched to emulation mode. The latter can be achieved via
+```
+$ cmake -DINTERFACE_I2C=OFF -DINTERFACE_SPI=OFF -DINTERFACE_SPI_CLICpix2=OFF ..
+```
+In emulation mode, the interfaces simply returns dummy values for all send and receive commands.
+
+The Peary library is compiled by running
 
 ```
 $ mkdir build && cd build/
