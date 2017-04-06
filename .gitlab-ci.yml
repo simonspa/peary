@@ -13,16 +13,16 @@ peary:
     - cmake -DBUILD_example=ON ..
     - make
 
-peary-mac:
-  tags:
-    - mac
-  before_script:
-    - source .peary-ci/init_x86_64.sh
-  script:
-    - mkdir build
-    - cd build
-    - cmake -DBUILD_example=ON -DINTERFACE_I2C=OFF -DINTERFACE_SPI=OFF -DINTERFACE_SPI_CLICpix2=OFF ..
-    - make
+#peary-mac:
+#  tags:
+#    - mac
+#  before_script:
+#    - source .peary-ci/init_x86_64.sh
+#  script:
+#    - mkdir build
+#    - cd build
+#    - cmake -DBUILD_example=ON -DINTERFACE_I2C=OFF -DINTERFACE_SPI=OFF -DINTERFACE_SPI_CLICpix2=OFF ..
+#    - make
 
 # peary-zync:
 #  tags:
