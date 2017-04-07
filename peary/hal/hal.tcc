@@ -29,10 +29,11 @@ caribouHAL<T>::caribouHAL(std::string device_path, uint32_t device_address) :
   powerDAC( false, CUR_7.dacaddress(), CUR_7.dacoutput());
   powerDAC( false, CUR_8.dacaddress(), CUR_8.dacoutput());
 
+  //In the current CaR version it has been disabled
   //Enabling DC/DC converters
-  setDCDCConverter(LTM_VPWR1, 5 );
-  setDCDCConverter(LTM_VPWR2, 5 );
-  setDCDCConverter(LTM_VPWR3, 5 );
+  // setDCDCConverter(LTM_VPWR1, 5 );
+  // setDCDCConverter(LTM_VPWR2, 5 );
+  // setDCDCConverter(LTM_VPWR3, 5 );
 }
 
 template<typename T>
@@ -131,8 +132,8 @@ void caribouHAL<T>::setVoltageRegulator(const VOLTAGE_REGULATOR_T regulator, con
   LOG(logDEBUGHAL) << "Setting " << voltage << "V "
 		   << "on " << regulator.name();
 
-  if( voltage > 3.6 || voltage < 0)
-    throw ConfigInvalid( "Trying to set Voltage regulator to " + std::to_string(voltage) + " V (range is 0-3.6 V)");
+  if( voltage > 3.2 || voltage < 0)
+    throw ConfigInvalid( "Trying to set Voltage regulator to " + std::to_string(voltage) + " V (range is 0-3.2 V)");
   
   setDACVoltage(regulator.dacaddress(), regulator.dacoutput(), 3.6 - voltage );
 
