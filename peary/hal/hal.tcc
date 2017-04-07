@@ -117,7 +117,6 @@ void caribouHAL<T>:: setDCDCConverter(const DCDC_CONVERTER_T converter, const do
   LOG(logDEBUGHAL) << "Setting " << voltage << "V "
 		   << "on " << converter.name();
 
-  iface_i2c & i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C3);
   if( voltage > 5 || voltage < 0 )
     throw ConfigInvalid( "Trying to set DC/DC converter to " + std::to_string(voltage) + " V (range is 0-5 V)");
 
@@ -308,11 +307,11 @@ void caribouHAL<T>::setCurrentMonitor(const uint8_t device, const double maxExpe
   // Set configuration register:
   uint16_t conf = (1<<14);
   // Average over 16 samples:
-  conf |= (1<<10);
-  // Use a bus voltage conversion time of 8.244 ms:
-  conf |= (0x7<<6);
-  // Use a bus voltage conversion time of 8.244 ms:
-  conf |= (0x7<<3);
+  conf |= (0x7<<9);
+  // Use a bus voltage conversion time of 140 us:
+  conf |= (0x0<<6);
+  // Use a shunt voltage conversion time of 140us:
+  conf |= (0x0<<3);
   // Operation mode: continuous mesaurement of shunt and bus voltage:
   conf |= 0x7;
   i2c.write(device, REG_ADC_CONFIGURATION, {static_cast<i2c_t>(conf>>8), static_cast<i2c_t>(conf&0xFF)});
@@ -391,11 +390,12 @@ double caribouHAL<T>::readSlowADC(const SLOW_ADC_CHANNEL_T channel) {
   // Enable single-ended mode, no differential measurement:
   command = command ^ 0x80;
 
-  // We use the external reference voltage CAR_VREF_4P0, so do not switch to internal:
-  //command = command ^ 0x08;
+  // We use the external reference voltage CAR_VREF_4P0, so do not switch to internal,
+  // but keeb A/D power on
+  command = command ^ 0x04;
 
   std::vector<i2c_t> volt_raw = i2c.read(ADDR_ADC, command, 2);
-  uint16_t readback = (volt_raw[0] << 8) | volt_raw[0];
+  uint16_t readback = (volt_raw[0] << 8) | volt_raw[1];
   return static_cast<double>(readback*CAR_VREF_4P0/4096);
 }
 

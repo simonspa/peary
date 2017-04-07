@@ -10,7 +10,7 @@
 
 using namespace caribou;
 namespace cr = CppReadline;
-using ret = cr::Console::ReturnCode;
+using ret = cr::ReturnCode;
 
 caribou::caribouDeviceMgr * pearycli::manager = new caribouDeviceMgr();
 

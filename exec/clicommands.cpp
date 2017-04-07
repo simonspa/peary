@@ -6,33 +6,36 @@
 #include <fstream>
 
 using namespace caribou;
-using ret = CppReadline::Console::ReturnCode;
+using ret = CppReadline::ReturnCode;
 
 caribou::Configuration pearycli::config = caribou::Configuration();
 
 pearycli::pearycli() : c("# ") {
 
   // Register console commands
-  c.registerCommand("list_devices", devices);
-  c.registerCommand("add_device", addDevice);
-  c.registerCommand("verbosity", verbosity);
-  c.registerCommand("delay", delay);
-  
-  c.registerCommand("init", init);
-  c.registerCommand("powerOn", powerOn);
-  c.registerCommand("powerOff", powerOff);
-  c.registerCommand("setVoltage", setVoltage);
-  c.registerCommand("voltageOff", voltageOff);
-  c.registerCommand("voltageOn", voltageOn);
+  c.registerCommand("list_devices", devices, "Lists all registered devices",0);
+  c.registerCommand("add_device", addDevice, "Registers new device(s)",1,"DEVICE [DEVICE...]");
+  c.registerCommand("verbosity", verbosity, "Changes the logging verbosity",1,"LOGLEVEL");
+  c.registerCommand("delay", delay, "Adds a delay in Milliseconds",1,"DELAY_MS");
 
-  c.registerCommand("setRegister", setRegister);
-  c.registerCommand("getRegister", getRegister);
+  c.registerCommand("init", init, "Initialize the selected device",1,"DEVICE_ID");
+  c.registerCommand("powerOn", powerOn, "Power up the selected device",1,"DEVICE_ID");
+  c.registerCommand("powerOff", powerOff, "Power down the selected device",1,"DEVICE_ID");
+  c.registerCommand("setVoltage",
+		    setVoltage,
+		    "Set the output voltage NAME to VALUE (in V) on the selected device",
+		    3,"NAME VALUE DEVICE_ID");
+  c.registerCommand("voltageOff", voltageOff, "Turn off output voltage NAME on the selected device",2,"NAME DEVICE_ID");
+  c.registerCommand("voltageOn", voltageOn, "Turn on output voltage NAME on the selected device",2,"NAME DEVICE_ID");
 
-  c.registerCommand("scanDAC", scanDAC);
+  c.registerCommand("setRegister", setRegister, "Set register REG_NAME to value REG_VALUE for the selected device",3,"REG_NAME REG_VALUE DEVICE_ID");
+  c.registerCommand("getRegister", getRegister, "Read the value of register REG_NAME on the selected device",2,"REG_NAME DEVICE_ID");
+
+  c.registerCommand("scanDAC", scanDAC, "Scan DAC DAC_NAME from value MIN to MAX and read the voltage from the ADC after DELAY milliseconds",5,"DAC_NAME MIN MAX DELAY[ms] DEVICE_ID");
   
-  c.registerCommand("exploreInterface", exploreInterface);
-  c.registerCommand("getADC", getADC);
-  c.registerCommand("powerStatusLog", powerStatusLog);
+  c.registerCommand("exploreInterface", exploreInterface,"Perform an interface communication test on the selected devce",1,"DEVICE_ID");
+  c.registerCommand("getADC", getADC, "Read the voltage from ADC channel CHANNEL_ID via the selected device",2,"CHANNEL_ID[1:8] DEVICE_ID");
+  c.registerCommand("powerStatusLog", powerStatusLog,"Perform a power and current measurement for the selected device",1,"DEVICE_ID");
 }
 
 pearycli::~pearycli() {
@@ -55,12 +58,6 @@ int pearycli::devices(const std::vector<std::string> &) {
 }
 
 int pearycli::addDevice(const std::vector<std::string> & input) {
-
-  if (input.size() < 2) {
-    LOG(logINFO) << "Usage: " << input.at(0) << " DEVICE [DEVICE...]";
-    return ret::Error;
-  }
-
   try {
     // Spawn all devices
     for(auto d = input.begin()+1; d != input.end(); d++) {
@@ -72,33 +69,24 @@ int pearycli::addDevice(const std::vector<std::string> & input) {
       else { LOG(logERROR) << "No configuration found for device " << *d; }
     }
   }
-  catch (caribou::DeviceException &e) {}
+  catch (caribou::DeviceException &e) {
+    LOG(logCRITICAL) << "This went wrong: " << e.what();
+    return ret::Error;
+  }
   return ret::Ok;
 }
 
 int pearycli::verbosity(const std::vector<std::string> & input) {
-  if (input.size() < 2) {
-    LOG(logINFO) << "Usage: " << input.at(0) << " LOGLEVEL";
-    return ret::Error;
-  }
   Log::ReportingLevel() = Log::FromString(input.at(1));
   return ret::Ok;
 }
 
 int pearycli::delay(const std::vector<std::string> & input) {
-  if (input.size() < 2) {
-    LOG(logINFO) << "Usage: " << input.at(0) << " TIME_MS";
-    return ret::Error;
-  }
   mDelay(std::stoi(input.at(1)));
   return ret::Ok;
 }
 
 int pearycli::init(const std::vector<std::string> & input) {
-  if (input.size() < 2) {
-    LOG(logINFO) << "Usage: " << input.at(0) << " DEVICE_ID";
-    return ret::Error;
-  }
   try {
     caribouDevice *dev = manager->getDevice(std::stoi(input.at(1)));
     dev->init();
@@ -109,10 +97,6 @@ int pearycli::init(const std::vector<std::string> & input) {
 
 
 int pearycli::powerOn(const std::vector<std::string> & input) {
-  if (input.size() < 2) {
-    LOG(logINFO) << "Usage: " << input.at(0) << " DEVICE_ID";
-    return ret::Error;
-  }
   try {
     caribouDevice *dev = manager->getDevice(std::stoi(input.at(1)));
     dev->powerOn();
@@ -122,10 +106,6 @@ int pearycli::powerOn(const std::vector<std::string> & input) {
 }
 
 int pearycli::powerOff(const std::vector<std::string> & input) {
-  if (input.size() < 2) {
-    LOG(logINFO) << "Usage: " << input.at(0) << " DEVICE_ID";
-    return ret::Error;
-  }
   try {
     caribouDevice *dev = manager->getDevice(std::stoi(input.at(1)));
     dev->powerOff();
@@ -135,10 +115,6 @@ int pearycli::powerOff(const std::vector<std::string> & input) {
 }
 
 int pearycli::setVoltage(const std::vector<std::string> & input) {
-  if (input.size() < 4) {
-    LOG(logINFO) << "Usage: " << input.at(0) << " OUTPUT_NAME OUTPUT_VALUE DEVICE_ID";
-    return ret::Error;
-  }
   try {
     caribouDevice *dev = manager->getDevice(std::stoi(input.at(3)));
     dev->setVoltage(input.at(1),std::stod(input.at(2)));
@@ -151,10 +127,6 @@ int pearycli::setVoltage(const std::vector<std::string> & input) {
 }
 
 int pearycli::voltageOn(const std::vector<std::string> & input) {
-  if (input.size() < 3) {
-    LOG(logINFO) << "Usage: " << input.at(0) << " OUTPUT_NAME DEVICE_ID";
-    return ret::Error;
-  }
   try {
     caribouDevice *dev = manager->getDevice(std::stoi(input.at(2)));
     dev->voltageOn(input.at(1));
@@ -167,10 +139,6 @@ int pearycli::voltageOn(const std::vector<std::string> & input) {
 }
 
 int pearycli::voltageOff(const std::vector<std::string> & input) {
-  if (input.size() < 3) {
-    LOG(logINFO) << "Usage: " << input.at(0) << " OUTPUT_NAME DEVICE_ID";
-    return ret::Error;
-  }
   try {
     caribouDevice *dev = manager->getDevice(std::stoi(input.at(2)));
     dev->voltageOff(input.at(1));
@@ -183,10 +151,6 @@ int pearycli::voltageOff(const std::vector<std::string> & input) {
 }
 
 int pearycli::setRegister(const std::vector<std::string> & input) {
-  if (input.size() < 4) {
-    LOG(logINFO) << "Usage: " << input.at(0) << " REGISTER_NAME REGISTER_VALUE DEVICE_ID";
-    return ret::Error;
-  }
   try {
     caribouDevice *dev = manager->getDevice(std::stoi(input.at(3)));
     dev->setRegister(input.at(1),std::stoi(input.at(2)));
@@ -199,10 +163,6 @@ int pearycli::setRegister(const std::vector<std::string> & input) {
 }
 
 int pearycli::getRegister(const std::vector<std::string> & input) {
-  if (input.size() < 3) {
-    LOG(logINFO) << "Usage: " << input.at(0) << " REGISTER_NAME DEVICE_ID";
-    return ret::Error;
-  }
   try {
     caribouDevice *dev = manager->getDevice(std::stoi(input.at(2)));
     uint32_t value = dev->getRegister(input.at(1));
@@ -216,18 +176,13 @@ int pearycli::getRegister(const std::vector<std::string> & input) {
 }
 
 int pearycli::scanDAC(const std::vector<std::string> & input) {
-  if (input.size() < 6) {
-    LOG(logINFO) << "Usage: " << input.at(0) << " DAC_NAME MIN MAX DELAY[ms] DEVICE_ID";
-    return ret::Error;
-  }
-  
   std::map<std::string,int> output_mux_DAC {
     {"bias_disc_N", 1},{"bias_disc_P", 2},{"bias_thadj_DAC", 3},{"bias_preamp_casc", 4},{"ikrum",5},{"bias_preamp",6},{"bias_buffers_1st",7},{"bias_buffers_2st",8},{"bias_thadj_casc",9},{"bias_mirror_casc",10},{"vfbk",11},{"threshold_LSB",12},{"threshold_MSB",12},{"test_cap_2",13},{"test_cap_1_LSB",14},{"test_cap_1_MSB",14}};
   
   try {
     caribouDevice *dev = manager->getDevice(std::stoi(input.at(5)));
 
-    std::vector<std::pair<int,int>> data;
+    std::vector<std::pair<int,double>> data;
     
     // Set the register in output_mux_DAC:
     dev->setRegister("output_mux_DAC",output_mux_DAC[input.at(1)]);
@@ -250,8 +205,7 @@ int pearycli::scanDAC(const std::vector<std::string> & input) {
     myfile.open (filename);
     myfile << "# pearycli > scanDAC\n";
     myfile << "# scanned DAC \"" << input.at(1) << "\", range " << input.at(2) << "-" << input.at(3) << "\n";
-    myfile << "# measured voltage using ADC signal \"" << input.at(4) << "\"\n";
-    myfile << "# with " << input.at(4) << "ms delay between setting register and sampling ADC.\n";
+    myfile << "# with " << input.at(4) << "ms delay between setting register and ADC sampling.\n";
     for(auto i : data) {
       myfile << i.first << "," << i.second << "\n";
     }
@@ -267,10 +221,6 @@ int pearycli::scanDAC(const std::vector<std::string> & input) {
 }
 
 int pearycli::exploreInterface(const std::vector<std::string> & input) {
-  if (input.size() < 2) {
-    LOG(logINFO) << "Usage: " << input.at(0) << " DEVICE_ID";
-    return ret::Error;
-  }
   try {
     caribouDevice *dev = manager->getDevice(std::stoi(input.at(1)));
     dev->exploreInterface();
@@ -283,10 +233,6 @@ int pearycli::exploreInterface(const std::vector<std::string> & input) {
 }
 
 int pearycli::getADC(const std::vector<std::string> & input) {
-  if (input.size() < 3) {
-    LOG(logINFO) << "Usage: " << input.at(0) << " CHANNEL_ID DEVICE_ID";
-    return ret::Error;
-  }
   try {
     caribouDevice *dev = manager->getDevice(std::stoi(input.at(2)));
     LOG(logINFO) << "Voltage: " << dev->getADC(std::stoi(input.at(1))) << "V";
@@ -296,10 +242,6 @@ int pearycli::getADC(const std::vector<std::string> & input) {
 }
 
 int pearycli::powerStatusLog(const std::vector<std::string> & input) {
-  if (input.size() < 2) {
-    LOG(logINFO) << "Usage: " << input.at(0) << " DEVICE_ID";
-    return ret::Error;
-  }
   try {
     caribouDevice *dev = manager->getDevice(std::stoi(input.at(1)));
     dev->powerStatusLog();
