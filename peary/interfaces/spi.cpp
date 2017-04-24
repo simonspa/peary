@@ -126,7 +126,15 @@ std::vector< std::pair<spi_reg_t, spi_t> > iface_spi::write(const spi_address_t&
 
 std::vector<spi_t> iface_spi::read(const spi_address_t& address, const spi_reg_t reg, const unsigned int length){
   std::vector<spi_t> rx(length);
-  return write(address, reg, rx);
+  // Workaround for SPI interface: when reading a register, "0" is written to the address.
+  // Thus, we simply write back the retrieved value.
+
+  // Read register value:
+  std::vector<spi_t> data = write(address, reg, rx);
+  // Re-write register value:
+  write(address, reg, data);
+  
+  return data;
 }
 
 
