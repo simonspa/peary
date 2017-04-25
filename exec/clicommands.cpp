@@ -209,7 +209,6 @@ int pearycli::scanDAC(const std::vector<std::string> & input) {
     for(auto i : data) {
       myfile << i.first << "," << i.second << "\n";
     }
-    myfile << "# EOF\n";
     myfile.close();
     LOG(logINFO) << "Data writte to file: \"" << filename << "\"";
   }
