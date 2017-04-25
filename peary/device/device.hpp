@@ -6,8 +6,8 @@
 #define CARIBOU_API_H
 
 #include "configuration.hpp"
-#include "dictionary.hpp"
 #include "constants.hpp"
+#include "dictionary.hpp"
 
 #include <stdint.h>
 #include <string>
@@ -27,15 +27,14 @@ namespace caribou {
   class caribouDevice {
 
   public:
-
     /** Default constructor for Caribou devices
      *
      */
-    caribouDevice(const caribou::Configuration) {};
+    caribouDevice(const caribou::Configuration){};
 
     /** Default destructor for Caribou devices
      */
-    virtual ~caribouDevice() {};
+    virtual ~caribouDevice(){};
 
     /** Return the software version string for reference
      */
@@ -67,7 +66,7 @@ namespace caribou {
     /** Initialize the device (ex.set the required clock otuputs etc.).
      */
     virtual void init() = 0;
-    
+
     /** Turn on the power supply for the attached device
      */
     virtual void powerOn() = 0;
@@ -84,10 +83,10 @@ namespace caribou {
      */
     virtual void daqStop() = 0;
 
-      /** Get data methods. Can return raw or decoded data **/
-      virtual void getRawData() = 0;
-      virtual void getData() = 0;
-      
+    /** Get data methods. Can return raw or decoded data **/
+    virtual void getRawData() = 0;
+    virtual void getData() = 0;
+
     /** Report power status
      *  Method should use logINFO as an output
      */
@@ -101,10 +100,8 @@ namespace caribou {
     /** Function to reconfigure the Caribou device
      */
     // Previously "loadConfig"?
-    //virtual void reconfigure() {};
-    
+    // virtual void reconfigure() {};
 
-    
     // Controlling the device
 
     /** Set register on the device
@@ -123,13 +120,12 @@ namespace caribou {
 
     /** Sending reset signal to the device
      */
-    //virtual void reset() = 0;
+    // virtual void reset() = 0;
 
     // Setting the acquisition clock/device clock?
     // Could be either the supplied clock from DAQ or internal clock divider...
-    //virtual void setClockFrequency();
+    // virtual void setClockFrequency();
 
-    
     // Programming the pixel matrix
 
     /** Configure the pixel matrix
@@ -138,11 +134,10 @@ namespace caribou {
     // Sometimes, pixel configs will have to be cached by child classes since
     // only programming of full matrix is supported by device...
     virtual void configureMatrix(std::string filename) = 0;
-    //virtual void configurePixel() = 0;
+    // virtual void configurePixel() = 0;
 
-    
     // Voltage regulators
-    
+
     // To set supply voltages, same question as above: how to define voltage names?
     // Separate functions to set target voltage and activate?
     // Purely virtual?
@@ -156,10 +151,10 @@ namespace caribou {
     virtual void voltageOff(std::string name) = 0;
 
     virtual void setCurrent(std::string name, double current) = 0;
-    //virtual double measureVoltage();
-    //virtual double measureCurrent();
+    // virtual double measureVoltage();
+    // virtual double measureCurrent();
 
-    //virtual double getTemperature();
+    // virtual double getTemperature();
 
     /** Read slow-ADC value by name of the input signal as defined by the device
      *
@@ -172,25 +167,23 @@ namespace caribou {
      *  Returns value in SI Volts
      */
     virtual double getADC(uint8_t channel) = 0;
-    
+
     // CaR CMOS signals
     // void enableSignal();
     // void disableSignal();
 
-    
     // Retrieving data
 
     // Two types:
     //  * trigger based: "events" are returned
     //  * shutter based: "frames" are returned
     // Both contain pixel(s), timestamp(s)
-    //virtual std::vector<caribou::event> getData();
+    // virtual std::vector<caribou::event> getData();
     // If no data available, throw caribou::NoDataAvailable exception instead of returning empty vector!
     // Otherwise synchronization of event-based detectors impossible
 
+  }; // class caribouDevice
 
-  }; //class caribouDevice
-
-} //namespace caribou
+} // namespace caribou
 
 #endif /* CARIBOU_API_H */

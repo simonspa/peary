@@ -4,9 +4,9 @@
 #ifndef CARIBOU_DATATYPES_H
 #define CARIBOU_DATATYPES_H
 
+#include <limits>
 #include <strings.h>
 #include <tuple>
-#include <limits>
 
 namespace caribou {
 
@@ -17,35 +17,33 @@ namespace caribou {
    *                 This allows to set registers which only occupy a
    *                 fraction of the full-size register to be written
    */
-  template<typename REG_T = uint8_t, typename MASK_T = uint8_t>
-  class register_t {
+  template <typename REG_T = uint8_t, typename MASK_T = uint8_t> class register_t {
   public:
     // If no address is given, also set the mask to zero:
-    register_t() : _address(0), _mask(0) {};
+    register_t() : _address(0), _mask(0){};
     // If no mask is given, default to accessing the full register:
-    register_t(REG_T address) : _address(address), _mask(std::numeric_limits<MASK_T>::max()) {};
-    register_t(REG_T address, MASK_T mask) : _address(address), _mask(mask) {};
+    register_t(REG_T address) : _address(address), _mask(std::numeric_limits<MASK_T>::max()){};
+    register_t(REG_T address, MASK_T mask) : _address(address), _mask(mask){};
 
     REG_T address() const { return _address; };
     MASK_T mask() const { return _mask; };
 
     MASK_T shift() const {
-      if(_mask > 0) return (ffs(_mask)-1);
-      else return 0;
+      if(_mask > 0)
+        return (ffs(_mask) - 1);
+      else
+        return 0;
     };
-    
-    template<typename T1, typename T2>
-    friend std::ostream& operator<<(std::ostream& os, const register_t<T1, T2>& rg);
+
+    template <typename T1, typename T2> friend std::ostream& operator<<(std::ostream& os, const register_t<T1, T2>& rg);
 
   private:
     REG_T _address;
     MASK_T _mask;
   };
 
-  template<typename T1, typename T2>
-  std::ostream& operator<<(std::ostream& os, const caribou::register_t<T1, T2>& rg) {
-    os << to_hex_string(rg._address) << " ("
-       << to_bit_string(rg._mask) << ")";
+  template <typename T1, typename T2> std::ostream& operator<<(std::ostream& os, const caribou::register_t<T1, T2>& rg) {
+    os << to_hex_string(rg._address) << " (" << to_bit_string(rg._mask) << ")";
     return os;
   }
 
@@ -53,9 +51,10 @@ namespace caribou {
    */
   class component_t {
   public:
-    component_t(std::string name) : _name(name) {};
-    virtual ~component_t() {};
-    std::string name() const {return _name; };
+    component_t(std::string name) : _name(name){};
+    virtual ~component_t(){};
+    std::string name() const { return _name; };
+
   private:
     std::string _name;
   };
@@ -64,12 +63,9 @@ namespace caribou {
    */
   class component_dac_t : public component_t {
   public:
-    component_dac_t(std::string name, uint8_t dacaddr, uint8_t dacout) :
-      component_t(name),
-      _dacaddress(dacaddr),
-      _dacoutput(dacout)
-    {};
-    virtual ~component_dac_t() {};
+    component_dac_t(std::string name, uint8_t dacaddr, uint8_t dacout)
+        : component_t(name), _dacaddress(dacaddr), _dacoutput(dacout){};
+    virtual ~component_dac_t(){};
 
     uint8_t dacaddress() const { return _dacaddress; };
     uint8_t dacoutput() const { return _dacoutput; };
@@ -88,12 +84,10 @@ namespace caribou {
    */
   class DCDC_CONVERTER_T : public component_dac_t {
   public:
-    DCDC_CONVERTER_T(std::string name, uint8_t dacaddr, uint8_t dacout) :
-      component_dac_t(name,dacaddr,dacout)
-    {};
-    ~DCDC_CONVERTER_T() {};
+    DCDC_CONVERTER_T(std::string name, uint8_t dacaddr, uint8_t dacout) : component_dac_t(name, dacaddr, dacout){};
+    ~DCDC_CONVERTER_T(){};
   };
-  
+
   /** Voltage Regulator Configuration
    *
    *  The parameters hold:
@@ -105,21 +99,17 @@ namespace caribou {
    */
   class VOLTAGE_REGULATOR_T : public component_dac_t {
   public:
-    VOLTAGE_REGULATOR_T(std::string name, uint8_t dacaddr, uint8_t dacout, uint8_t pwrswitch, uint8_t pwrmon) :
-      component_dac_t(name,dacaddr,dacout),
-      _powerswitch(pwrswitch),
-      _powermonitor(pwrmon)
-    {};
-    ~VOLTAGE_REGULATOR_T() {};
+    VOLTAGE_REGULATOR_T(std::string name, uint8_t dacaddr, uint8_t dacout, uint8_t pwrswitch, uint8_t pwrmon)
+        : component_dac_t(name, dacaddr, dacout), _powerswitch(pwrswitch), _powermonitor(pwrmon){};
+    ~VOLTAGE_REGULATOR_T(){};
 
     uint8_t pwrswitch() const { return _powerswitch; };
     uint8_t pwrmonitor() const { return _powermonitor; };
-  
+
   private:
     uint8_t _powerswitch;
     uint8_t _powermonitor;
   };
-
 
   /** Current Source Configuration
    *
@@ -131,14 +121,12 @@ namespace caribou {
    */
   class CURRENT_SOURCE_T : public component_dac_t {
   public:
-    CURRENT_SOURCE_T(std::string name, uint8_t dacaddr, uint8_t dacout, uint8_t polswitch) :
-      component_dac_t(name,dacaddr,dacout),
-      _polswitch(polswitch)
-    {};
-    ~CURRENT_SOURCE_T() {};
+    CURRENT_SOURCE_T(std::string name, uint8_t dacaddr, uint8_t dacout, uint8_t polswitch)
+        : component_dac_t(name, dacaddr, dacout), _polswitch(polswitch){};
+    ~CURRENT_SOURCE_T(){};
 
     uint8_t polswitch() const { return _polswitch; };
-  
+
   private:
     uint8_t _polswitch;
   };
@@ -150,12 +138,9 @@ namespace caribou {
    */
   class SLOW_ADC_CHANNEL_T : public component_t {
   public:
-    SLOW_ADC_CHANNEL_T(std::string name, uint8_t channel, uint8_t address) :
-      component_t(name),
-      _channel(channel),
-      _address(address)
-    {};
-    virtual ~SLOW_ADC_CHANNEL_T() {};
+    SLOW_ADC_CHANNEL_T(std::string name, uint8_t channel, uint8_t address)
+        : component_t(name), _channel(channel), _address(address){};
+    virtual ~SLOW_ADC_CHANNEL_T(){};
 
     uint8_t channel() const { return _channel; };
     uint8_t address() const { return _address; };
@@ -166,7 +151,7 @@ namespace caribou {
   };
 
   /**  Bias Voltage Regulator Configuration
-   *  
+   *
    *  - the name of the bias voltage
    *  - the DAC address
    *  - the corresponding DAC output pin
@@ -175,7 +160,7 @@ namespace caribou {
   typedef component_dac_t BIAS_REGULATOR_T;
 
   /**  Injection Bias Voltage Regulator Configuration
-   *  
+   *
    *  - the name of the injection bias
    *  - the DAC address
    *  - the corresponding DAC output pin

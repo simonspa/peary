@@ -5,10 +5,10 @@
 #ifndef CARIBOU_MIDDLEWARE_DEF
 #define CARIBOU_MIDDLEWARE_DEF
 
-#include "device.hpp"
 #include "configuration.hpp"
-#include "dictionary.hpp"
 #include "constants.hpp"
+#include "device.hpp"
+#include "dictionary.hpp"
 
 #include <stdint.h>
 #include <string>
@@ -18,7 +18,7 @@ namespace caribou {
 
   /** Forward declaration of the hardware abstraction layer, not including the header file!
    */
-  template<typename T> class caribouHAL;
+  template <typename T> class caribouHAL;
 
   /** Caribou Device class definition
    *
@@ -29,11 +29,9 @@ namespace caribou {
    *  of interfacing the devices independently via the common set of function alls, e.g.,
    *  from a GUI or a commandline interface.
    */
-  template<typename T>
-  class pearyDevice : public caribouDevice {
+  template <typename T> class pearyDevice : public caribouDevice {
 
   public:
-
     /** Default constructor for Caribou devices
      *
      */
@@ -99,23 +97,20 @@ namespace caribou {
     /** Function to reconfigure the Caribou device
      */
     // Previously "loadConfig"?
-    //virtual void reconfigure() {};
-    
+    // virtual void reconfigure() {};
 
-    
     // Controlling the device
     virtual void setRegister(std::string name, uint32_t value);
     virtual uint32_t getRegister(std::string name);
 
     /** Sending reset signal to the device
      */
-    //virtual void reset() = 0;
+    // virtual void reset() = 0;
 
     // Setting the acquisition clock/device clock?
     // Could be either the supplied clock from DAQ or internal clock divider...
-    //virtual void setClockFrequency();
+    // virtual void setClockFrequency();
 
-    
     // Programming the pixel matrix
 
     /** Configure the pixel matrix
@@ -124,11 +119,10 @@ namespace caribou {
     // Sometimes, pixel configs will have to be cached by child classes since
     // only programming of full matrix is supported by device...
     virtual void configureMatrix(std::string filename);
-    //virtual void configurePixel() = 0;
+    // virtual void configurePixel() = 0;
 
-    
     // Voltage regulators
-    
+
     // To set supply voltages, same question as above: how to define voltage names?
     // Separate functions to set target voltage and activate?
     // Purely virtual?
@@ -142,10 +136,10 @@ namespace caribou {
     void voltageOff(std::string name);
 
     void setCurrent(std::string name, double current);
-    //virtual double measureVoltage();
-    //virtual double measureCurrent();
+    // virtual double measureVoltage();
+    // virtual double measureCurrent();
 
-    //virtual double getTemperature();
+    // virtual double getTemperature();
 
     /** Read slow-ADC value by name of the input signal as defined by the device
      *
@@ -158,33 +152,31 @@ namespace caribou {
      *  Returns value in SI Volts
      */
     double getADC(uint8_t channel);
-    
+
     // CaR CMOS signals
     // void enableSignal();
     // void disableSignal();
 
-    
     // Retrieving data
 
-      // Raw and decoded data readback
-      void getRawData();
-      void getData();
-      
+    // Raw and decoded data readback
+    void getRawData();
+    void getData();
+
     // Two types:
     //  * trigger based: "events" are returned
     //  * shutter based: "frames" are returned
     // Both contain pixel(s), timestamp(s)
-    //virtual std::vector<caribou::event> getData();
+    // virtual std::vector<caribou::event> getData();
     // If no data available, throw caribou::NoDataAvailable exception instead of returning empty vector!
     // Otherwise synchronization of event-based detectors impossible
-
 
   protected:
     /** Instance of the Caribou hardware abstraction layer library
      *
      *  All register and hardware access should go through this interface.
      */
-    caribou::caribouHAL<T> * _hal;
+    caribou::caribouHAL<T>* _hal;
 
     /** Device configuration object
      */
@@ -192,14 +184,14 @@ namespace caribou {
 
     /** Register dictionary for the devices:
      */
-    caribou::register_dict<typename T::reg_type,typename T::data_type> _registers;
+    caribou::register_dict<typename T::reg_type, typename T::data_type> _registers;
 
     /** Periphery dictionary to access CaR components:
      */
     caribou::component_dict _periphery;
 
-  }; //class pearyDevice
+  }; // class pearyDevice
 
-} //namespace caribou
+} // namespace caribou
 
 #endif /* CARIBOU_MIDDLEWARE_DEF */

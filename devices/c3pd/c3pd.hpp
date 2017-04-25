@@ -5,25 +5,25 @@
 #ifndef DEVICE_C3PD_H
 #define DEVICE_C3PD_H
 
-#include "device.hpp"
-#include "pearydevice.hpp"
-#include "i2c.hpp"
 #include "c3pd_defaults.hpp"
+#include "device.hpp"
+#include "i2c.hpp"
+#include "pearydevice.hpp"
 
 namespace caribou {
   /** C3PD Device class definition
    */
   class C3PD : public pearyDevice<iface_i2c> {
-    
+
   public:
-    C3PD(const caribou::Configuration config) : pearyDevice(config, std::string(DEFAULT_DEVICEPATH),C3PD_DEFAULT_I2C) {};
+    C3PD(const caribou::Configuration config) : pearyDevice(config, std::string(DEFAULT_DEVICEPATH), C3PD_DEFAULT_I2C){};
     ~C3PD();
 
     std::string getName();
 
     /** Initializer function for C3PD
      */
-    void init() {};
+    void init(){};
 
     /** Turn on the power supply for the C3PD chip
      */
@@ -45,10 +45,9 @@ namespace caribou {
      */
     void powerStatusLog();
 
-    void exploreInterface() {};
+    void exploreInterface(){};
 
   private:
-
     // analog power supply
     // digital power supply
 
@@ -57,7 +56,6 @@ namespace caribou {
     // I2C interface
     // reset signal pin
     // power enable pin
-
   };
 
   /** Device generator
@@ -67,9 +65,9 @@ namespace caribou {
    *  for every class deriving from caribouDevice.
    */
   extern "C" {
-    caribouDevice * generator(const caribou::Configuration);
+  caribouDevice* generator(const caribou::Configuration);
   }
 
-} //namespace caribou
+} // namespace caribou
 
 #endif /* DEVICE_C3PD_H */

@@ -9,7 +9,6 @@
  */
 #define ADDR_FW_ID 0x0
 
-
 namespace caribou {
 
   /** Interfaces

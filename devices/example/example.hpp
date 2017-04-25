@@ -7,11 +7,11 @@
 #ifndef DEVICE_EXAMPLE_H
 #define DEVICE_EXAMPLE_H
 
-#include "device.hpp"
-#include "pearydevice.hpp"
-#include "loopback.hpp"
 #include "constants.hpp"
+#include "device.hpp"
 #include "example_defaults.hpp"
+#include "loopback.hpp"
+#include "pearydevice.hpp"
 
 namespace caribou {
 
@@ -22,7 +22,7 @@ namespace caribou {
    *  by using the device manager to instanciate the device object.
    */
   class example : public pearyDevice<iface_loopback> {
-    
+
   public:
     /** Device constructor
      *
@@ -31,9 +31,8 @@ namespace caribou {
      *  in the device class constructor since the interface type is only known once the
      *  child object (of this class) exists.
      */
-    example(const caribou::Configuration config) :
-      pearyDevice(config, std::string(DEFAULT_DEVICEPATH), DEFAULT_ADDRESS) {
-      _periphery.add("vd",PWR_OUT_1);
+    example(const caribou::Configuration config) : pearyDevice(config, std::string(DEFAULT_DEVICEPATH), DEFAULT_ADDRESS) {
+      _periphery.add("vd", PWR_OUT_1);
       _registers.add(EXAMPLE_REGISTERS);
     };
     ~example();
@@ -44,8 +43,8 @@ namespace caribou {
 
     /** Initializer function for Example chip
      */
-    void init() {};
-    
+    void init(){};
+
     /** Turn on the power supply for the Example chip
      */
     void powerOn();
@@ -64,9 +63,9 @@ namespace caribou {
 
     /** Report power status
      */
-    void powerStatusLog() {};
+    void powerStatusLog(){};
 
-    void exploreInterface() {};
+    void exploreInterface(){};
 
     /** Example function only available in this derived device class
      */
@@ -80,9 +79,9 @@ namespace caribou {
    *  for every class deriving from caribouDevice.
    */
   extern "C" {
-    caribouDevice * generator(const caribou::Configuration);
+  caribouDevice* generator(const caribou::Configuration);
   }
 
-} //namespace caribou
+} // namespace caribou
 
 #endif /* DEVICE_EXAMPLE_H */

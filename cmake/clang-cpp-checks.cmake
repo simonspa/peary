@@ -7,7 +7,7 @@ IF(NOT CHECK_CXX_SOURCE_FILES)
 ENDIF()
 
 # Adding clang-format check and formatter if found
-FIND_PROGRAM(CLANG_FORMAT "clang-format-3.9")
+FIND_PROGRAM(CLANG_FORMAT "clang-format")
 IF(CLANG_FORMAT)
     ADD_CUSTOM_TARGET(
         format
