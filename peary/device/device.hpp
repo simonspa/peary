@@ -84,6 +84,10 @@ namespace caribou {
      */
     virtual void daqStop() = 0;
 
+      /** Get data methods. Can return raw or decoded data **/
+      virtual void getRawData() = 0;
+      virtual void getData() = 0;
+      
     /** Report power status
      *  Method should use logINFO as an output
      */

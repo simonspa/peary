@@ -166,6 +166,10 @@ namespace caribou {
     
     // Retrieving data
 
+      // Raw and decoded data readback
+      void getRawData();
+      void getData();
+      
     // Two types:
     //  * trigger based: "events" are returned
     //  * shutter based: "frames" are returned
