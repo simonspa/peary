@@ -58,7 +58,9 @@ pearycli::pearycli() : c("# ") {
                     "CHANNEL_ID[1:8] DEVICE_ID");
   c.registerCommand(
     "powerStatusLog", powerStatusLog, "Perform a power and current measurement for the selected device", 1, "DEVICE_ID");
-  c.registerCommand("daqStart", daqStart, "Launches DAQ for the selected device", 1, "DEVICE_ID");
+  c.registerCommand("daqStart", daqStart, "Start DAQ for the selected device", 1, "DEVICE_ID");
+  c.registerCommand("daqStop", daqStop, "Stop DAQ for the selected device", 1, "DEVICE_ID");
+  c.registerCommand("getRawData", getRawData, "Retrieve raw data from the selected device", 1, "DEVICE_ID");
 }
 
 pearycli::~pearycli() {
@@ -297,6 +299,26 @@ int pearycli::daqStart(const std::vector<std::string>& input) {
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
     dev->daqStart();
+  } catch(caribou::DeviceException&) {
+    return ret::Error;
+  }
+  return ret::Ok;
+}
+
+int pearycli::daqStop(const std::vector<std::string>& input) {
+  try {
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
+    dev->daqStop();
+  } catch(caribou::DeviceException&) {
+    return ret::Error;
+  }
+  return ret::Ok;
+}
+
+int pearycli::getRawData(const std::vector<std::string>& input) {
+  try {
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
+    dev->getRawData();
   } catch(caribou::DeviceException&) {
     return ret::Error;
   }
