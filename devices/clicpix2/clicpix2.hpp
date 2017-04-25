@@ -60,7 +60,7 @@ namespace caribou {
 
     /** Start the data acquisition
      */
-    void daqStart() {};
+    void daqStart();
 
     /** Stop the data acquisition
      */
