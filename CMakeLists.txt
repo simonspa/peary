@@ -58,6 +58,14 @@ ENDIF(NOT IS_DIRECTORY ${CMAKE_SOURCE_DIR}/.git)
 IF(NOT SOURCE_PACKAGE)
   # Get the version from last git tag plus number of additional commits:
   FIND_PACKAGE(Git QUIET)
+
+  # Workaround for broken git detection on Yocto Poky
+  IF(NOT GIT_FOUND)
+    set(GIT_EXECUTABLE "/usr/bin/git")
+    set(GIT_FOUND true)
+    MESSAGE("-- Path of git executable forced to /usr/bin/git.")
+  ENDIF(NOT GIT_FOUND)
+
   IF(GIT_FOUND)
     EXEC_PROGRAM(git ${CMAKE_CURRENT_SOURCE_DIR} ARGS describe --tags HEAD OUTPUT_VARIABLE PEARY_LIB_VERSION)
     STRING(REGEX REPLACE "^release-" "" PEARY_LIB_VERSION ${PEARY_LIB_VERSION})

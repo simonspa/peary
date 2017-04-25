@@ -190,7 +190,7 @@ int pearycli::scanDAC(const std::vector<std::string> & input) {
     dev->setRegister("output_mux_DAC",output_mux_DAC[input.at(1)]);
 
     // Now sample through the DAC range and read the ADC at the "DAC_OUT" pin (VOL_IN_1)
-    for(int i = std::stoi(input.at(2)); i < std::stoi(input.at(3)); i++) {
+    for(int i = std::stoi(input.at(2)); i <= std::stoi(input.at(3)); i++) {
       dev->setRegister(input.at(1),i);
       // Wait a bit, in ms:
       mDelay(std::stoi(input.at(4)));
