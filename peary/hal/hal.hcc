@@ -1,19 +1,18 @@
 #ifndef CARIBOU_HAL_DEF
 #define CARIBOU_HAL_DEF
 
-#include <vector>
-#include <map>
-#include <tuple>
-#include <string>
 #include <cstdint>
+#include <map>
+#include <string>
+#include <tuple>
+#include <vector>
 
-#include "interface_manager.hpp"
 #include "interface.hpp"
+#include "interface_manager.hpp"
 
 namespace caribou {
 
-  template<typename T>
-  class caribouHAL {
+  template <typename T> class caribouHAL {
 
   public:
     /** Default constructor for creating a new HAL instance
@@ -34,39 +33,38 @@ namespace caribou {
      */
     uint32_t getFirmwareRegister(uint16_t address);
 
-    //Write data to a device which does not contain internal register
-    //If readout is intergralpart of write operations, the read values a returned by function. 
+    // Write data to a device which does not contain internal register
+    // If readout is intergralpart of write operations, the read values a returned by function.
     typename T::data_type send(const typename T::data_type& data);
 
-    //Write data to a device which does not contain internal register
-    //If readout is intergralpart of write operations, the read values a returned by function.
+    // Write data to a device which does not contain internal register
+    // If readout is intergralpart of write operations, the read values a returned by function.
     std::vector<typename T::data_type> send(const std::vector<typename T::data_type>& data);
 
-        //Write data to a device containing internal registers
-    //If readout is intergralpart of write operations, the read values a returned by function. 
-    std::pair<typename T::reg_type, typename T::data_type> send(const std::pair<typename T::reg_type, typename T::data_type> & data);
-    
-    //Write data to a device containing internal registers
-    //If readout is intergralpart of write operations, the read values a returned by function. 
-    std::vector<typename T::data_type> send(const typename T::reg_type& reg, const std::vector< typename T::data_type>& data);
+    // Write data to a device containing internal registers
+    // If readout is intergralpart of write operations, the read values a returned by function.
+    std::pair<typename T::reg_type, typename T::data_type>
+    send(const std::pair<typename T::reg_type, typename T::data_type>& data);
 
-  
-    //Write data to a device containing internal registers
-    //If readout is intergralpart of write operations, the read values a returned by function. 
-    std::vector<std::pair<typename T::reg_type, typename T::data_type> > send(const std::vector<std::pair<typename T::reg_type, typename T::data_type> >& data);
+    // Write data to a device containing internal registers
+    // If readout is intergralpart of write operations, the read values a returned by function.
+    std::vector<typename T::data_type> send(const typename T::reg_type& reg, const std::vector<typename T::data_type>& data);
 
-    //Read data from a device which does not contain internal register
+    // Write data to a device containing internal registers
+    // If readout is intergralpart of write operations, the read values a returned by function.
+    std::vector<std::pair<typename T::reg_type, typename T::data_type>>
+    send(const std::vector<std::pair<typename T::reg_type, typename T::data_type>>& data);
+
+    // Read data from a device which does not contain internal register
     std::vector<typename T::data_type> receive(const unsigned int length = 1);
-    
-    //Read data from a device containing internal registers
+
+    // Read data from a device containing internal registers
     std::vector<typename T::data_type> receive(const typename T::reg_type reg, const unsigned int length = 1);
 
-    
     /** Read data from managed device interface
      */
     std::vector<uint8_t> read(uint8_t address, uint8_t length);
 
-    
     /** Read the temperature from the TMP101 device
      *
      *  Returns temperature in degree Celsius with a precision of 0.0625degC
@@ -85,45 +83,46 @@ namespace caribou {
     /** Set the current source.
      * ~current~ is provided in uA.
      */
-    void setCurrentSource(const CURRENT_SOURCE_T source, const unsigned int current, const CURRENT_SOURCE_POLARISATION_T polarisation);
-    
+    void setCurrentSource(const CURRENT_SOURCE_T source,
+                          const unsigned int current,
+                          const CURRENT_SOURCE_POLARISATION_T polarisation);
+
     /** Enable/disable the voltage regulator
      *
-     *  If enable is true, the function enables first output 
+     *  If enable is true, the function enables first output
      *  of the coresponding DAC (PWR_ADJ_*). Afterwards, PWER_EN_* is asserted.
      *  If enable is false, the sequence is performed in the opposite direction.
      */
-    void powerVoltageRegulator(const VOLTAGE_REGULATOR_T regulator,const bool enable);
+    void powerVoltageRegulator(const VOLTAGE_REGULATOR_T regulator, const bool enable);
 
     /** Enables current source
      */
     void powerCurrentSource(const CURRENT_SOURCE_T source, const bool enable);
 
-    //The method sets SI5345 jitter attenuator/clock multiplier using a table generated by ClockBuilderPro
-    void configureSI5345(SI5345_REG_T const * const regs,const size_t length);
+    // The method sets SI5345 jitter attenuator/clock multiplier using a table generated by ClockBuilderPro
+    void configureSI5345(SI5345_REG_T const* const regs, const size_t length);
 
-    //The method return true when SI5345 jitter attenuator/clock multiplier is locked
+    // The method return true when SI5345 jitter attenuator/clock multiplier is locked
     bool isLockedSI5345();
 
-    //The method measures current
-    //It return value in SI A.
+    // The method measures current
+    // It return value in SI A.
     double measureCurrent(const VOLTAGE_REGULATOR_T regulator);
 
-    //The method measures power
-    //It return value in SI W.
+    // The method measures power
+    // It return value in SI W.
     double measurePower(const VOLTAGE_REGULATOR_T regulator);
 
-    //The method measures voltage
-    //It returns vale in SI V.
+    // The method measures voltage
+    // It returns vale in SI V.
     double measureVoltage(const VOLTAGE_REGULATOR_T regulator);
 
     double readSlowADC(const SLOW_ADC_CHANNEL_T channel);
 
   private:
-
-    //It's not possible to power on/off DCDC converter by software
+    // It's not possible to power on/off DCDC converter by software
     void setDCDCConverter(const DCDC_CONVERTER_T converter, const double voltage);
-    
+
     /** Device path of the configured device
      */
     std::string _devpath;
@@ -131,7 +130,7 @@ namespace caribou {
     /** Address of the configured device
      */
     uint32_t _devaddress;
-    
+
     /** Set output voltage on a DAC7678 voltage regulator
      *
      *  The input parameter should be provided in SI Volts
@@ -146,8 +145,8 @@ namespace caribou {
      */
     void setCurrentMonitor(const uint8_t device, const double maxExpectedCurrent);
 
-  }; //class caribouHAL
+  }; // class caribouHAL
 
-} //namespace caribou
+} // namespace caribou
 
 #endif /* CARIBOU_HAL_DEF */

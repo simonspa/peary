@@ -1,83 +1,84 @@
 #ifndef CARIBOU_DICT_H
 #define CARIBOU_DICT_H
 
+#include <algorithm>
 #include <initializer_list>
 #include <iostream>
 #include <map>
 #include <memory>
 #include <vector>
-#include <algorithm>
 
-#include "exceptions.hpp"
 #include "constants.hpp"
 #include "datatypes.hpp"
+#include "exceptions.hpp"
 #include "log.hpp"
 
 namespace caribou {
 
-  template<typename T1, typename T2>
-  class register_dict {
+  template <typename T1, typename T2> class register_dict {
   public:
-    register_dict() {};
-    virtual ~register_dict() {};
+    register_dict(){};
+    virtual ~register_dict(){};
 
     // Register new component alias:
     void add(std::string name, const register_t<T1, T2> reg) {
       std::transform(name.begin(), name.end(), name.begin(), ::tolower);
-      regs.insert(std::make_pair(name,reg));
+      regs.insert(std::make_pair(name, reg));
     }
 
-    void add(const std::vector<std::pair<std::string, register_t<T1, T2> > > reg) {
-      for (auto i : reg) add(i.first, i.second);
+    void add(const std::vector<std::pair<std::string, register_t<T1, T2>>> reg) {
+      for(auto i : reg)
+        add(i.first, i.second);
     }
 
     // Return register config for the name in question:
     register_t<T1, T2> get(std::string name) const {
       std::transform(name.begin(), name.end(), name.begin(), ::tolower);
-      try { return regs.at(name); }
-      catch(...) {
-	throw ConfigInvalid("Register name \"" + name + "\" unknown");
+      try {
+        return regs.at(name);
+      } catch(...) {
+        throw ConfigInvalid("Register name \"" + name + "\" unknown");
       }
     }
 
   private:
     /** Map fo human-readable names for periphery components
      */
-    std::map<std::string,register_t<T1, T2> > regs;
+    std::map<std::string, register_t<T1, T2>> regs;
   };
 
   class component_dict {
   public:
-    component_dict() {};
-    virtual ~component_dict() {};
+    component_dict(){};
+    virtual ~component_dict(){};
 
     // Register new component alias:
-    template<typename T>
-    void add(std::string name, T ptr) {
+    template <typename T> void add(std::string name, T ptr) {
       std::transform(name.begin(), name.end(), name.begin(), ::tolower);
-      comps.insert(std::make_pair(name,std::make_shared<T>(ptr)));
+      comps.insert(std::make_pair(name, std::make_shared<T>(ptr)));
     }
 
     // Return shared pointer to component config for the name in question:
-    template<typename T>
-    std::shared_ptr<T> get(std::string name) const {
+    template <typename T> std::shared_ptr<T> get(std::string name) const {
       try {
-	std::transform(name.begin(), name.end(), name.begin(), ::tolower);
-	std::shared_ptr<component_t> ptr = comps.at(name);
-	if(std::dynamic_pointer_cast<T>(ptr)) { return std::dynamic_pointer_cast<T>(ptr); }
-	else { throw ConfigInvalid("Component cannot be cast"); }
-      }
-      catch(...) {
-	throw ConfigInvalid("Component name \"" + name + "\" unknown");
+        std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+        std::shared_ptr<component_t> ptr = comps.at(name);
+        if(std::dynamic_pointer_cast<T>(ptr)) {
+          return std::dynamic_pointer_cast<T>(ptr);
+        } else {
+          throw ConfigInvalid("Component cannot be cast");
+        }
+      } catch(...) {
+        throw ConfigInvalid("Component name \"" + name + "\" unknown");
       }
     }
 
   private:
     /** Map fo human-readable names for periphery components
      */
-    std::map<std::string,std::shared_ptr<component_t>> comps;
+    std::map<std::string, std::shared_ptr<component_t>> comps;
   };
 
-} //namespace caribou
+} // namespace caribou
 
 #endif /* CARIBOU_DICT_H */

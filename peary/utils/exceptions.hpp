@@ -14,11 +14,10 @@ namespace caribou {
    */
   class caribouException : public std::exception {
   public:
-  caribouException(const std::string& what_arg)
-    : std::exception(),
-      ErrorMessage(what_arg) {};
-    ~caribouException() throw() {};
-    virtual const char* what() const throw(){ return ErrorMessage.c_str(); };
+    caribouException(const std::string& what_arg) : std::exception(), ErrorMessage(what_arg){};
+    ~caribouException() throw(){};
+    virtual const char* what() const throw() { return ErrorMessage.c_str(); };
+
   private:
     std::string ErrorMessage;
   };
@@ -30,14 +29,14 @@ namespace caribou {
    */
   class ConfigInvalid : public caribouException {
   public:
-  ConfigInvalid(const std::string& what_arg) : caribouException(what_arg) {}
+    ConfigInvalid(const std::string& what_arg) : caribouException(what_arg) {}
   };
 
   /** Exception for missing but requested configuration keys
    */
   class ConfigMissingKey : public caribouException {
   public:
-  ConfigMissingKey(const std::string& what_arg) : caribouException(what_arg) {}
+    ConfigMissingKey(const std::string& what_arg) : caribouException(what_arg) {}
   };
 
   /** Exception for missing but requested register information
@@ -47,7 +46,6 @@ namespace caribou {
     UndefinedRegister(const std::string& what_arg) : caribouException(what_arg) {}
   };
 
-  
   /** Exception for issues occuring during device setup, management and initialization
    *
    *  This comprises firmware problems as well as problems with missing device libraries.
@@ -55,7 +53,7 @@ namespace caribou {
    */
   class DeviceException : public caribouException {
   public:
-  DeviceException(const std::string& what_arg) : caribouException(what_arg) {}
+    DeviceException(const std::string& what_arg) : caribouException(what_arg) {}
   };
 
   /** Exception covering issues with loading of the peary device libraries by
@@ -63,16 +61,16 @@ namespace caribou {
    */
   class DeviceLibException : public DeviceException {
   public:
-  DeviceLibException(const std::string& what_arg) : DeviceException(what_arg) {}
+    DeviceLibException(const std::string& what_arg) : DeviceException(what_arg) {}
   };
 
-  /** Exception covering issues with the Caribou firmware such as missing 
+  /** Exception covering issues with the Caribou firmware such as missing
    *  firmware binaries, problems flashing the selected firmware or the request
    *  to configure an unsupported device
    */
   class FirmwareException : public DeviceException {
   public:
-  FirmwareException(const std::string& what_arg) : DeviceException(what_arg) {}
+    FirmwareException(const std::string& what_arg) : DeviceException(what_arg) {}
   };
 
   /** Exception class covering read/write issues during communication with
@@ -80,15 +78,14 @@ namespace caribou {
    */
   class CommunicationError : public DeviceException {
   public:
-  CommunicationError(const std::string& what_arg) : DeviceException(what_arg) {}
+    CommunicationError(const std::string& what_arg) : DeviceException(what_arg) {}
   };
 
-  
   /** Exception class for all Caribou exceptions related to data read from the devices
    */
   class DataException : public caribouException {
   public:
-  DataException(const std::string& what_arg) : caribouException(what_arg) {}
+    DataException(const std::string& what_arg) : caribouException(what_arg) {}
   };
 
   /** This exception class is used in case new data are requested but nothing available. Usually
@@ -98,14 +95,14 @@ namespace caribou {
    */
   class NoDataAvailable : public DataException {
   public:
-  NoDataAvailable(const std::string& what_arg) : DataException(what_arg) {}
+    NoDataAvailable(const std::string& what_arg) : DataException(what_arg) {}
   };
 
   /** Exception inidcating an incomplete data response
    */
   class DataIncomplete : public DataException {
   public:
-  DataIncomplete(const std::string& what_arg) : DataException(what_arg) {}
+    DataIncomplete(const std::string& what_arg) : DataException(what_arg) {}
   };
 
   /** Special case of DataIncomplete: data returned from a triggered device do not contain all events
@@ -113,16 +110,16 @@ namespace caribou {
   class DataMissingEvent : public DataIncomplete {
   public:
     uint32_t numberMissing;
-  DataMissingEvent(const std::string& what_arg, uint32_t nmiss) : DataIncomplete(what_arg), numberMissing(nmiss) {}
+    DataMissingEvent(const std::string& what_arg, uint32_t nmiss) : DataIncomplete(what_arg), numberMissing(nmiss) {}
   };
 
   /**  Exception class indicating corrupt data, i.e., the data is not decodable
    */
   class DataCorrupt : public DataException {
   public:
-  DataCorrupt(const std::string& what_arg) : DataException(what_arg) {}
+    DataCorrupt(const std::string& what_arg) : DataException(what_arg) {}
   };
- 
-} //namespace caribou
+
+} // namespace caribou
 
 #endif /* CARIBOU_EXCEPTIONS_H */

@@ -16,26 +16,24 @@
 
 /** Reference voltages, shunts, ...
  */
-#define CAR_VREF_4P0  4.096 // via TI REF5040
+#define CAR_VREF_4P0 4.096 // via TI REF5040
 #define CAR_INA226_R_SHUNT 0.01
 
-typedef enum {
-  PULL = 0, PUSH = 1 } CURRENT_SOURCE_POLARISATION_T;
+typedef enum { PULL = 0, PUSH = 1 } CURRENT_SOURCE_POLARISATION_T;
 
-typedef struct
-{
-	unsigned int address; /* 16-bit register address */
-	unsigned char value; /* 8-bit register data */
+typedef struct {
+  unsigned int address; /* 16-bit register address */
+  unsigned char value;  /* 8-bit register data */
 
 } SI5345_REG_T;
 
 /** Devices on I2C0
  */
-#define ADDR_BRIDGE  0x28 // SC18IS602B BRIDGE SPI/I2C
-#define ADDR_EEPROM  0xA0 // 24LC32A EEPROM, Board ID, 12bit memory
-#define ADDR_IOEXP   0x76 // PCA9539 IO Expander / Power switch
-#define ADDR_CLKGEN  0x68 // SI5345 Clock generator / PLL
-#define ADDR_TEMP    0x92 // TMP101 Temperature sensor
+#define ADDR_BRIDGE 0x28 // SC18IS602B BRIDGE SPI/I2C
+#define ADDR_EEPROM 0xA0 // 24LC32A EEPROM, Board ID, 12bit memory
+#define ADDR_IOEXP 0x76  // PCA9539 IO Expander / Power switch
+#define ADDR_CLKGEN 0x68 // SI5345 Clock generator / PLL
+#define ADDR_TEMP 0x92   // TMP101 Temperature sensor
 
 /** Devices on I2C1
  */
@@ -54,7 +52,7 @@ typedef struct
 
 /** Devices on I2C3
  */
-#define ADDR_ADC     0x48 // ADS7828 ADC 12BIT 50KSPS 8CH, Analog input range 0-4V
+#define ADDR_ADC 0x48     // ADS7828 ADC 12BIT 50KSPS 8CH, Analog input range 0-4V
 #define ADDR_DAC_U44 0x4A // DAC7678 DAC 12BIT I2C OCTAL 24VQFN
 #define ADDR_DAC_U45 0x4D
 #define ADDR_DAC_U46 0x4C
@@ -63,51 +61,49 @@ typedef struct
 #define ADDR_DAC_U49 0x4F
 #define ADDR_DAC_U50 0x49
 
-
 /** TMP101 Thermometer Registers Addresses
  */
 #define REG_TEMP_TEMP 0x00
 #define REG_TEMP_CONF 0x01
-#define REG_TEMP_LOW  0x02
+#define REG_TEMP_LOW 0x02
 #define REG_TEMP_HIGH 0x03
-
 
 /** DAC7678 Registers Addresses
  */
-#define REG_DAC_WRITE_CHANNEL  0x00 // Set DAC; last four bit indicate the channel number
+#define REG_DAC_WRITE_CHANNEL 0x00  // Set DAC; last four bit indicate the channel number
 #define REG_DAC_UPDATE_CHANNEL 0x10 // Update DAC; last four bit indicate the channel number
-#define REG_DAC_LDAC_CHANNEL   0x20 // Set DAC & update all; last four bit indicate the channel number
-#define REG_DAC_WRUP_CHANNEL   0x30 // Set & update DAC; last four bit indicate the channel number
-#define REG_DAC_POWER          0x40 // Power on/off DAC
-#define REG_DAC_CLEAR          0x50 // Write to clear code reg
-#define REG_DAC_LDAC           0x60 // Write to LDAC reg
-#define REG_DAC_RESET          0x70 // Software reset
-#define REG_DAC_MODE_STATIC    0x80 // Internal reference (static mode)
-#define REG_DAC_MODE_FLEX      0x90 // Internal reference (flexible mode)
+#define REG_DAC_LDAC_CHANNEL 0x20   // Set DAC & update all; last four bit indicate the channel number
+#define REG_DAC_WRUP_CHANNEL 0x30   // Set & update DAC; last four bit indicate the channel number
+#define REG_DAC_POWER 0x40          // Power on/off DAC
+#define REG_DAC_CLEAR 0x50          // Write to clear code reg
+#define REG_DAC_LDAC 0x60           // Write to LDAC reg
+#define REG_DAC_RESET 0x70          // Software reset
+#define REG_DAC_MODE_STATIC 0x80    // Internal reference (static mode)
+#define REG_DAC_MODE_FLEX 0x90      // Internal reference (flexible mode)
 
-#define REG_DAC_POWERUP        0x00 // Power up DAC(s)
-#define REG_DAC_POWERDOWN_1K   0x20 // Power down DAC(s) with 1KOhm to GND
+#define REG_DAC_POWERUP 0x00        // Power up DAC(s)
+#define REG_DAC_POWERDOWN_1K 0x20   // Power down DAC(s) with 1KOhm to GND
 #define REG_DAC_POWERDOWN_100K 0x40 // Power down DAC(s) with 100KOhm to GND
-#define REG_DAC_POWERDOWN_HZ   0x60 // Power down DAC(s), Vout is High-Z
+#define REG_DAC_POWERDOWN_HZ 0x60   // Power down DAC(s), Vout is High-Z
 
-#define REG_DAC_CHANNEL_VOUTA  0x00
-#define REG_DAC_CHANNEL_VOUTB  0x01
-#define REG_DAC_CHANNEL_VOUTC  0x02
-#define REG_DAC_CHANNEL_VOUTD  0x03
-#define REG_DAC_CHANNEL_VOUTE  0x04
-#define REG_DAC_CHANNEL_VOUTF  0x05
-#define REG_DAC_CHANNEL_VOUTG  0x06
-#define REG_DAC_CHANNEL_VOUTH  0x07
-#define REG_DAC_CHANNEL_ALL    0x0F
+#define REG_DAC_CHANNEL_VOUTA 0x00
+#define REG_DAC_CHANNEL_VOUTB 0x01
+#define REG_DAC_CHANNEL_VOUTC 0x02
+#define REG_DAC_CHANNEL_VOUTD 0x03
+#define REG_DAC_CHANNEL_VOUTE 0x04
+#define REG_DAC_CHANNEL_VOUTF 0x05
+#define REG_DAC_CHANNEL_VOUTG 0x06
+#define REG_DAC_CHANNEL_VOUTH 0x07
+#define REG_DAC_CHANNEL_ALL 0x0F
 
 /** INA226 register addresses
  */
 #define REG_ADC_CONFIGURATION 0x00
 #define REG_ADC_SHUNT_VOLTAGE 0x01
-#define REG_ADC_BUS_VOLTAGE   0x02
-#define REG_ADC_POWER         0x03
-#define REG_ADC_CURRENT       0x04
-#define REG_ADC_CALIBRATION   0x05
+#define REG_ADC_BUS_VOLTAGE 0x02
+#define REG_ADC_POWER 0x03
+#define REG_ADC_CURRENT 0x04
+#define REG_ADC_CALIBRATION 0x05
 
 /** PCA9539 Output register addresses
  */
@@ -145,14 +141,22 @@ const caribou::DCDC_CONVERTER_T LTM_VPWR1("LTM_VPWR1", ADDR_DAC_U49, REG_DAC_CHA
 const caribou::DCDC_CONVERTER_T LTM_VPWR2("LTM_VPWR2", ADDR_DAC_U49, REG_DAC_CHANNEL_VOUTD);
 const caribou::DCDC_CONVERTER_T LTM_VPWR3("LTM_VPWR3", ADDR_DAC_U49, REG_DAC_CHANNEL_VOUTB);
 
-const caribou::VOLTAGE_REGULATOR_T PWR_OUT_1("PWR_OUT_1", ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTA, REG_IOEXP_IO1_7, ADDR_MONITOR_U53);
-const caribou::VOLTAGE_REGULATOR_T PWR_OUT_2("PWR_OUT_2", ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTC, REG_IOEXP_IO1_6, ADDR_MONITOR_U52);
-const caribou::VOLTAGE_REGULATOR_T PWR_OUT_3("PWR_OUT_3", ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTE, REG_IOEXP_IO1_5, ADDR_MONITOR_U55);
-const caribou::VOLTAGE_REGULATOR_T PWR_OUT_4("PWR_OUT_4", ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTG, REG_IOEXP_IO1_4, ADDR_MONITOR_U54);
-const caribou::VOLTAGE_REGULATOR_T PWR_OUT_5("PWR_OUT_5", ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTB, REG_IOEXP_IO1_0, ADDR_MONITOR_U57);
-const caribou::VOLTAGE_REGULATOR_T PWR_OUT_6("PWR_OUT_6", ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTD, REG_IOEXP_IO1_1, ADDR_MONITOR_U56);
-const caribou::VOLTAGE_REGULATOR_T PWR_OUT_7("PWR_OUT_7", ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTF, REG_IOEXP_IO1_2, ADDR_MONITOR_U59);
-const caribou::VOLTAGE_REGULATOR_T PWR_OUT_8("PWR_OUT_8", ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTH, REG_IOEXP_IO1_3, ADDR_MONITOR_U58);
+const caribou::VOLTAGE_REGULATOR_T
+  PWR_OUT_1("PWR_OUT_1", ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTA, REG_IOEXP_IO1_7, ADDR_MONITOR_U53);
+const caribou::VOLTAGE_REGULATOR_T
+  PWR_OUT_2("PWR_OUT_2", ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTC, REG_IOEXP_IO1_6, ADDR_MONITOR_U52);
+const caribou::VOLTAGE_REGULATOR_T
+  PWR_OUT_3("PWR_OUT_3", ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTE, REG_IOEXP_IO1_5, ADDR_MONITOR_U55);
+const caribou::VOLTAGE_REGULATOR_T
+  PWR_OUT_4("PWR_OUT_4", ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTG, REG_IOEXP_IO1_4, ADDR_MONITOR_U54);
+const caribou::VOLTAGE_REGULATOR_T
+  PWR_OUT_5("PWR_OUT_5", ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTB, REG_IOEXP_IO1_0, ADDR_MONITOR_U57);
+const caribou::VOLTAGE_REGULATOR_T
+  PWR_OUT_6("PWR_OUT_6", ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTD, REG_IOEXP_IO1_1, ADDR_MONITOR_U56);
+const caribou::VOLTAGE_REGULATOR_T
+  PWR_OUT_7("PWR_OUT_7", ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTF, REG_IOEXP_IO1_2, ADDR_MONITOR_U59);
+const caribou::VOLTAGE_REGULATOR_T
+  PWR_OUT_8("PWR_OUT_8", ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTH, REG_IOEXP_IO1_3, ADDR_MONITOR_U58);
 
 const caribou::CURRENT_SOURCE_T CUR_1("CUR_1", ADDR_DAC_U47, REG_DAC_CHANNEL_VOUTB, REG_IOEXP_IO0_6);
 const caribou::CURRENT_SOURCE_T CUR_2("CUR_2", ADDR_DAC_U47, REG_DAC_CHANNEL_VOUTD, REG_IOEXP_IO0_7);

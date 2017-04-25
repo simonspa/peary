@@ -15,7 +15,7 @@ namespace caribou {
 
   /** Caribou Device Manager
    *
-   *  This class holds is the interface between the individual 
+   *  This class holds is the interface between the individual
    *  devices and the actual setup. It loads the required device
    *  device library at runtime, the device library is identified
    *  by the device name.
@@ -23,16 +23,15 @@ namespace caribou {
   class caribouDeviceMgr {
 
   public:
-
-    /** Default constructor 
+    /** Default constructor
      */
     caribouDeviceMgr();
 
-    /** Destructor 
+    /** Destructor
      */
     ~caribouDeviceMgr();
 
-    /** Method to get the caribouDevice instance. 
+    /** Method to get the caribouDevice instance.
      */
     caribouDevice* getDevice(size_t id);
 
@@ -40,7 +39,7 @@ namespace caribou {
      */
     std::vector<caribouDevice*> getDevices();
 
-    /** Method to add a new caribouDevice instance. 
+    /** Method to add a new caribouDevice instance.
      *  The input parameter is the library name of the device to
      *  be instanciated, the return value is the device ID
      *  assigned by the device manager
@@ -48,8 +47,7 @@ namespace caribou {
     size_t addDevice(std::string name, const caribou::Configuration config);
 
   private:
-
-    /** Map of the device library name and the actual pointer to the loaded library 
+    /** Map of the device library name and the actual pointer to the loaded library
      */
     std::map<std::string, void*> _deviceLibraries;
 
@@ -58,10 +56,8 @@ namespace caribou {
      */
     std::vector<caribouDevice*> _deviceList;
 
-  }; //class caribouDeviceMgr
+  }; // class caribouDeviceMgr
 
-} //namespace caribou
+} // namespace caribou
 
 #endif /* CARIBOU_DEVMGR_H */
-
-

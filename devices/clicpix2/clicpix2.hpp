@@ -5,14 +5,14 @@
 #ifndef DEVICE_CLICPIX2_H
 #define DEVICE_CLICPIX2_H
 
+#include <string>
+#include <vector>
+#include "Si5345-RevB-CLICpix2-Registers.h"
+#include "clicpix2_defaults.hpp"
+#include "configuration.hpp"
 #include "device.hpp"
 #include "pearydevice.hpp"
 #include "spi_CLICpix2.hpp"
-#include "clicpix2_defaults.hpp"
-#include "Si5345-RevB-CLICpix2-Registers.h"
-#include "configuration.hpp"
-#include <string>
-#include <vector>
 
 namespace caribou {
 
@@ -22,22 +22,21 @@ namespace caribou {
    *  Caribou device class interface.
    */
   class clicpix2 : public pearyDevice<iface_spi_CLICpix2> {
-    
+
   public:
-    clicpix2(const caribou::Configuration config) :
-      pearyDevice(config, std::string(DEFAULT_DEVICEPATH), 0) {
+    clicpix2(const caribou::Configuration config) : pearyDevice(config, std::string(DEFAULT_DEVICEPATH), 0) {
 
       // Set up periphery
-      _periphery.add("vddd",PWR_OUT_1);
-      _periphery.add("vdda",PWR_OUT_3);
-      _periphery.add("cmlbuffers_vdd",PWR_OUT_4);
-      _periphery.add("vddcml",PWR_OUT_5);
-      _periphery.add("cmlbuffers_vcco",PWR_OUT_7);
+      _periphery.add("vddd", PWR_OUT_1);
+      _periphery.add("vdda", PWR_OUT_3);
+      _periphery.add("cmlbuffers_vdd", PWR_OUT_4);
+      _periphery.add("vddcml", PWR_OUT_5);
+      _periphery.add("cmlbuffers_vcco", PWR_OUT_7);
 
-      _periphery.add("cml_iref",CUR_1);
-      _periphery.add("dac_iref",CUR_2);
+      _periphery.add("cml_iref", CUR_1);
+      _periphery.add("dac_iref", CUR_2);
 
-      _periphery.add("dac_out",VOL_IN_1);
+      _periphery.add("dac_out", VOL_IN_1);
 
       // Add the register definitions to the dictionary for convenient lookup of names:
       _registers.add(CLICPIX2_REGISTERS);
@@ -45,7 +44,7 @@ namespace caribou {
     ~clicpix2();
 
     std::string getName();
-    
+
     /** Initializer function for CLICpix2
      */
     void init();
@@ -64,7 +63,7 @@ namespace caribou {
 
     /** Stop the data acquisition
      */
-    void daqStop() {};
+    void daqStop(){};
 
     /** Report power status
      */
@@ -82,16 +81,16 @@ namespace caribou {
      * columns are flipped accordingly.
      */
     void configureMatrix(std::string filename);
-    
+
   private:
-    //The functions sets clocks required by CLICpix2 to operate
+    // The functions sets clocks required by CLICpix2 to operate
     void configureClock();
   };
 
   extern "C" {
-    caribouDevice * generator(const caribou::Configuration);
+  caribouDevice* generator(const caribou::Configuration);
   }
 
-} //namespace caribou
+} // namespace caribou
 
 #endif /* DEVICE_CLICPIX2_H */

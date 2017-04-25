@@ -1,28 +1,28 @@
 #ifndef CARIBOU_HAL_H
 #define CARIBOU_HAL_H
 
-#include <vector>
-#include <map>
-#include <tuple>
-#include <string>
 #include <cstdint>
+#include <map>
+#include <string>
+#include <tuple>
+#include <vector>
 
-#include "interface_manager.hpp"
 #include "interface.hpp"
+#include "interface_manager.hpp"
 
-#include "exceptions.hpp"
-#include "constants.hpp"
 #include "carboard.hpp"
-#include "utils.hpp"
+#include "constants.hpp"
+#include "exceptions.hpp"
 #include "log.hpp"
+#include "utils.hpp"
 
-#include "interface_manager.hpp"
 #include "interface.hpp"
+#include "interface_manager.hpp"
 
 #include "i2c.hpp"
+#include "loopback.hpp"
 #include "spi.hpp"
 #include "spi_CLICpix2.hpp"
-#include "loopback.hpp"
 
 #include "hal.hcc"
 #include "hal.tcc"
