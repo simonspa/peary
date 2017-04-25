@@ -107,30 +107,50 @@ namespace caribou {
      * Sets the column and row address of the pixel and initializes the latches to zero
      */
     pixelConfig(uint8_t column, uint8_t row) : m_column(column), m_row(row), m_latches(0){};
+    pixelConfig(uint8_t column, uint8_t row, bool mask, uint8_t threshold, bool cntmode, bool tpenable, bool longcnt)
+        : m_column(column), m_row(row), m_latches(0) {
+      SetMask(mask);
+      SetThreshold(threshold);
+      SetCountingMode(cntmode);
+      EnableTestpulse(tpenable);
+      LongCounter(longcnt);
+    };
 
     /* Mask setting of the pixel
      */
-    void SetMask(bool mask) { m_latches &= (mask << 13); }
+    void SetMask(bool mask) {
+      if(mask) m_latches |= (1 << 13);
+      else m_latches &= ~(1 << 13);
+    }
     bool GetMask() { return (m_latches >> 13) & 0x1; }
 
     /* Individual threshold adjustment (4bit)
      */
-    void SetThreshold(uint8_t thr_adjust) { m_latches &= ((thr_adjust << 8) & 0x0f); }
+    void SetThreshold(uint8_t thr_adjust) { m_latches = m_latches & 0xf0ff | ((thr_adjust & 0x0f) << 8); }
     uint8_t GetThreshold() { return (m_latches >> 8) & 0x0f; }
 
     /* Enable/disable counting mode
      */
-    void SetCountingMode(bool cntmo) { m_latches &= (cntmo << 3); }
+    void SetCountingMode(bool cntmo) {
+      if(cntmo) m_latches |= (1 << 3);
+      else m_latches &= ~(1 << 3);
+    }
     bool GetCountingMode() { return (m_latches >> 3) & 0x1; }
 
     /* Enable/disable testpulse circuit for this pixel
      */
-    void EnableTestpulse(bool tpen) { m_latches &= (tpen << 2); }
+    void EnableTestpulse(bool tpen) {
+      if(tpen) m_latches |= (1 << 2);
+      else m_latches &= ~(1 << 2);
+    }
     bool GetEnableTestpulse() { return (m_latches >> 2) & 0x1; }
 
     /* Enable/disable "long counter" mode (13bit ToA only)
      */
-    void LongCounter(bool lgcnt) { m_latches &= (lgcnt << 1); }
+    void LongCounter(bool lgcnt) {
+      if(lgcnt) m_latches |= (1 << 1);
+      else m_latches &= ~(1 << 1);
+    }
     bool GetLongCounter() { return (m_latches >> 1) & 0x1; }
 
     /* Member function to return single bit of the latches.
@@ -147,6 +167,14 @@ namespace caribou {
     uint8_t column() const { return m_column; }
 
     bool operator==(const pixelConfig& b) const { return (b.row() == this->row()) && (b.column() == this->column()); };
+
+    /** Overloaded ostream operator for simple printing of pixel data
+     */
+    friend std::ostream& operator<<(std::ostream& out, pixelConfig& px) {
+      out << "px [" << static_cast<int>(px.column()) << "," << static_cast<int>(px.row()) << "|" << px.GetMask() << "|"
+          << static_cast<int>(px.GetThreshold()) << "|" << px.GetCountingMode() <<"|" << px.GetEnableTestpulse() << "|" << px.GetLongCounter() << "]";
+      return out;
+    }
 
   private:
     uint8_t m_column;
