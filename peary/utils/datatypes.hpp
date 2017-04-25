@@ -4,6 +4,7 @@
 #ifndef CARIBOU_DATATYPES_H
 #define CARIBOU_DATATYPES_H
 
+#include <iostream>
 #include <limits>
 #include <strings.h>
 #include <tuple>
