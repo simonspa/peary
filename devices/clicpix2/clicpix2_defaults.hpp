@@ -27,6 +27,7 @@ namespace caribou {
 
 #define CLICPIX2_REGISTERS				\
   {							\
+    {"matrix_programming", register_t<>(0x04)},		\
     {"bias_disc_N", register_t<>(0x0A)},		\
     {"bias_disc_P", register_t<>(0x0C)},		\
     {"ikrum", register_t<>(0x0E)},			\

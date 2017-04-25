@@ -92,10 +92,6 @@ void clicpix2::powerOff() {
 void clicpix2::configureMatrix(std::string filename) {
 
   LOG(logDEBUG) << "Configuring the pixel matrix";
-  
-}
-
-void clicpix2::programMatrix() {
 
   // Use a boolean vector to construct full matrix data array:
   std::vector<bool> matrix;
@@ -120,7 +116,8 @@ void clicpix2::programMatrix() {
   // At the very end, write one 64bit word with zeros to blank matrix after readout:
   matrix.insert(matrix.end(),64,0);
 
-  std::vector<uint8_t> spi_data;
+  std::vector<std::pair<typename iface_spi_CLICpix2::reg_type, typename iface_spi_CLICpix2::data_type> > spi_data;
+  register_t<> reg = _registers.get("matrix_programming");
   
   // Read matrix in 8b chunks to send over SPI interface:
   uint8_t word = 0;
@@ -128,13 +125,13 @@ void clicpix2::programMatrix() {
     // Obey big-endianness of SPI: flip 8bit word endianness:
     word += (matrix.at(bit)<<(7-bit%8));
     if((bit+1)%8 == 0 ) {
-      spi_data.push_back(word);
+      spi_data.push_back(std::make_pair(reg.address(),word));
       word = 0;
     }
   }
 
   // Finally, send the data over the SPI interface:
-  //_hal->sendCommand(0x4,spi_data);
+  _hal->send(spi_data);
 }
 
 void clicpix2::configureClock() {

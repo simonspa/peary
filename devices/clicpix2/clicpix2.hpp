@@ -72,9 +72,6 @@ namespace caribou {
 
     void exploreInterface();
 
-    void configureMatrix(std::string filename);
-    
-  private:
     /* Routine to program the pixel matrix via the SPI interface
      *
      * This routine produces a bit matrix (using STL vector<bool>) which can
@@ -84,8 +81,9 @@ namespace caribou {
      * The endianness of the SPI interface is obeyed when sending the data and the
      * columns are flipped accordingly.
      */
-    void programMatrix();
-
+    void configureMatrix(std::string filename);
+    
+  private:
     //The functions sets clocks required by CLICpix2 to operate
     void configureClock();
   };
