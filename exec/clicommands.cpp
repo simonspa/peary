@@ -209,9 +209,9 @@ int pearycli::configureMatrix(const std::vector<std::string>& input) {
 }
 
 int pearycli::scanDAC(const std::vector<std::string>& input) {
-  std::map<std::string, int> output_mux_DAC{{"bias_disc_N", 1},
-                                            {"bias_disc_P", 2},
-                                            {"bias_thadj_DAC", 3},
+  std::map<std::string, int> output_mux_DAC{{"bias_disc_n", 1},
+                                            {"bias_disc_p", 2},
+                                            {"bias_thadj_dac", 3},
                                             {"bias_preamp_casc", 4},
                                             {"ikrum", 5},
                                             {"bias_preamp", 6},
@@ -220,11 +220,11 @@ int pearycli::scanDAC(const std::vector<std::string>& input) {
                                             {"bias_thadj_casc", 9},
                                             {"bias_mirror_casc", 10},
                                             {"vfbk", 11},
-                                            {"threshold_LSB", 12},
-                                            {"threshold_MSB", 12},
+                                            {"threshold_lsb", 12},
+                                            {"threshold_msb", 12},
                                             {"test_cap_2", 13},
-                                            {"test_cap_1_LSB", 14},
-                                            {"test_cap_1_MSB", 14}};
+                                            {"test_cap_1_lsb", 14},
+                                            {"test_cap_1_msb", 14}};
 
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(5)));
@@ -232,7 +232,9 @@ int pearycli::scanDAC(const std::vector<std::string>& input) {
     std::vector<std::pair<int, double>> data;
 
     // Set the register in output_mux_DAC:
-    dev->setRegister("output_mux_DAC", output_mux_DAC[input.at(1)]);
+    std::string dacname = input.at(1);
+    std::transform(dacname.begin(), dacname.end(), dacname.begin(), ::tolower);
+    dev->setRegister("output_mux_DAC", output_mux_DAC[dacname]);
 
     // Now sample through the DAC range and read the ADC at the "DAC_OUT" pin (VOL_IN_1)
     for(int i = std::stoi(input.at(2)); i <= std::stoi(input.at(3)); i++) {

@@ -95,7 +95,7 @@ void clicpix2::powerOff() {
 
 void clicpix2::configureMatrix(std::string filename) {
 
-  LOG(logDEBUG) << "Configuring the pixel matrix";
+  LOG(logDEBUG) << "Configuring the pixel matrix from file " << filename;
   readMatrix(filename);
   programMatrix();
   LOG(logDEBUG) << "...done!";
