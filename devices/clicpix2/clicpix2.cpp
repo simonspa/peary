@@ -4,6 +4,7 @@
 
 #include "clicpix2.hpp"
 #include <fcntl.h>
+#include <fstream>
 #include <sys/mman.h>
 #include "hal.hpp"
 #include "log.hpp"
@@ -95,6 +96,29 @@ void clicpix2::powerOff() {
 void clicpix2::configureMatrix(std::string filename) {
 
   LOG(logDEBUG) << "Configuring the pixel matrix";
+  readMatrix(filename);
+  programMatrix();
+  LOG(logDEBUG) << "...done!";
+}
+
+void clicpix2::readMatrix(std::string filename) {
+
+  LOG(logDEBUG) << "Reading pixel matrix file.";
+  std::ifstream pxfile(filename);
+  std::string line = "";
+  while(std::getline(pxfile, line)) {
+    if(!line.length() || '#' == line.at(0))
+      continue;
+    std::istringstream pxline(line);
+    int column, row, threshold, mask, cntmode, tpenable, longcnt;
+    if(pxline >> column >> row >> mask >> threshold >> cntmode >> tpenable >> longcnt) {
+      pixels[std::make_pair(column, row)] = pixelConfig(mask, threshold, cntmode, tpenable, longcnt);
+    }
+  }
+  LOG(logDEBUG) << "Now " << pixels.size() << " pixel configurations cached.";
+}
+
+void clicpix2::programMatrix() {
 
   // Use a boolean vector to construct full matrix data array:
   std::vector<bool> matrix;
@@ -106,20 +130,26 @@ void clicpix2::configureMatrix(std::string filename) {
       // Loop over all double columns
       for(size_t dcolumn = 0; dcolumn < 64; dcolumn++) {
         // Send one bit per double column to form one 64bit word
-        // FIXME matrix.push_back(pixels.at(row/2).at(2*dcolumn+row%2).GetBit(bit));
+        pixelConfig px = pixels[std::make_pair(row / 2, 2 * dcolumn + row % 2)];
+        matrix.push_back(px.GetBit(bit));
       }
     }
+    LOG(logDEBUGAPI) << "One pixel done: " << row << ", odd: " << (row % 2) << " (matrix: " << matrix.size() << "b)";
 
     // After every superpixel (16 pixels), add one flip-flop per double column:
     if((row + 1) % 16 == 0) {
       matrix.insert(matrix.end(), 64, 0);
+      LOG(logDEBUGAPI) << "Add superpixel flipflop for all double columns. (matrix: " << matrix.size() << "b)";
     }
   }
 
   // At the end of the column, add one flip-flop per double column:
   matrix.insert(matrix.end(), 64, 0);
+  LOG(logDEBUG) << "Full matrix size: " << matrix.size() << "b";
+
   // At the very end, write one 64bit word with zeros to blank matrix after readout:
   matrix.insert(matrix.end(), 64, 0);
+  LOG(logDEBUG) << "Full matrix size incl. clear: " << matrix.size() << "b";
 
   std::vector<std::pair<typename iface_spi_CLICpix2::reg_type, typename iface_spi_CLICpix2::data_type>> spi_data;
   register_t<> reg = _registers.get("matrix_programming");
@@ -135,8 +165,23 @@ void clicpix2::configureMatrix(std::string filename) {
     }
   }
 
+  // Heavy debug output: print the full matrix bits
+  IFLOG(logDEBUGHAL) {
+    for(size_t bit = 0; bit < matrix.size(); bit++) {
+      std::cout << matrix.at(bit);
+      word += (matrix.at(bit) << (7 - bit % 8));
+      if((bit + 1) % 8 == 0) {
+        std::cout << "." << static_cast<int>(word) << " ";
+        word = 0;
+      }
+      if((bit + 1) % 64 == 0)
+        std::cout << " (" << (bit + 1) / 64 << ")" << std::endl;
+    }
+  }
+
+  LOG(logDEBUG) << "Number of SPI commands: " << spi_data.size();
   // Finally, send the data over the SPI interface:
-  _hal->send(spi_data);
+  //_hal->send(spi_data);
 }
 
 void clicpix2::configureClock() {

@@ -73,6 +73,9 @@ namespace caribou {
 
     void exploreInterface();
 
+    void configureMatrix(std::string filename);
+
+  private:
     /* Routine to program the pixel matrix via the SPI interface
      *
      * This routine produces a bit matrix (using STL vector<bool>) which can
@@ -82,9 +85,16 @@ namespace caribou {
      * The endianness of the SPI interface is obeyed when sending the data and the
      * columns are flipped accordingly.
      */
-    void configureMatrix(std::string filename);
+    void programMatrix();
 
-  private:
+    /* Routine to read the pixel matrix configuration from file and store it
+     */
+    void readMatrix(std::string filename);
+
+    /* Map of pixelConfigs for configuration storage (col/row)
+     */
+    std::map<std::pair<uint8_t, uint8_t>, pixelConfig> pixels;
+
     // The functions sets clocks required by CLICpix2 to operate
     void configureClock();
   };
@@ -104,11 +114,10 @@ namespace caribou {
   public:
     /* Default constructor
      *
-     * Sets the column and row address of the pixel and initializes the latches to zero
+     * Initializes the pixel in a masked state
      */
-    pixelConfig(uint8_t column, uint8_t row) : m_column(column), m_row(row), m_latches(0){};
-    pixelConfig(uint8_t column, uint8_t row, bool mask, uint8_t threshold, bool cntmode, bool tpenable, bool longcnt)
-        : m_column(column), m_row(row), m_latches(0) {
+    pixelConfig() : m_latches(0x2000){};
+    pixelConfig(bool mask, uint8_t threshold, bool cntmode, bool tpenable, bool longcnt) : pixelConfig() {
       SetMask(mask);
       SetThreshold(threshold);
       SetCountingMode(cntmode);
@@ -119,37 +128,45 @@ namespace caribou {
     /* Mask setting of the pixel
      */
     void SetMask(bool mask) {
-      if(mask) m_latches |= (1 << 13);
-      else m_latches &= ~(1 << 13);
+      if(mask)
+        m_latches |= (1 << 13);
+      else
+        m_latches &= ~(1 << 13);
     }
     bool GetMask() { return (m_latches >> 13) & 0x1; }
 
     /* Individual threshold adjustment (4bit)
      */
-    void SetThreshold(uint8_t thr_adjust) { m_latches = m_latches & 0xf0ff | ((thr_adjust & 0x0f) << 8); }
+    void SetThreshold(uint8_t thr_adjust) { m_latches = (m_latches & 0xf0ff) | ((thr_adjust & 0x0f) << 8); }
     uint8_t GetThreshold() { return (m_latches >> 8) & 0x0f; }
 
     /* Enable/disable counting mode
      */
     void SetCountingMode(bool cntmo) {
-      if(cntmo) m_latches |= (1 << 3);
-      else m_latches &= ~(1 << 3);
+      if(cntmo)
+        m_latches |= (1 << 3);
+      else
+        m_latches &= ~(1 << 3);
     }
     bool GetCountingMode() { return (m_latches >> 3) & 0x1; }
 
     /* Enable/disable testpulse circuit for this pixel
      */
     void EnableTestpulse(bool tpen) {
-      if(tpen) m_latches |= (1 << 2);
-      else m_latches &= ~(1 << 2);
+      if(tpen)
+        m_latches |= (1 << 2);
+      else
+        m_latches &= ~(1 << 2);
     }
     bool GetEnableTestpulse() { return (m_latches >> 2) & 0x1; }
 
     /* Enable/disable "long counter" mode (13bit ToA only)
      */
     void LongCounter(bool lgcnt) {
-      if(lgcnt) m_latches |= (1 << 1);
-      else m_latches &= ~(1 << 1);
+      if(lgcnt)
+        m_latches |= (1 << 1);
+      else
+        m_latches &= ~(1 << 1);
     }
     bool GetLongCounter() { return (m_latches >> 1) & 0x1; }
 
@@ -158,27 +175,17 @@ namespace caribou {
      */
     bool GetBit(uint8_t bit) { return ((m_latches >> bit) & 0x1); }
 
-    /* Returns row address
-     */
-    uint8_t row() const { return m_row; }
-
-    /* Returns column address
-     */
-    uint8_t column() const { return m_column; }
-
-    bool operator==(const pixelConfig& b) const { return (b.row() == this->row()) && (b.column() == this->column()); };
+    uint16_t GetLatches() { return m_latches; }
 
     /** Overloaded ostream operator for simple printing of pixel data
      */
     friend std::ostream& operator<<(std::ostream& out, pixelConfig& px) {
-      out << "px [" << static_cast<int>(px.column()) << "," << static_cast<int>(px.row()) << "|" << px.GetMask() << "|"
-          << static_cast<int>(px.GetThreshold()) << "|" << px.GetCountingMode() <<"|" << px.GetEnableTestpulse() << "|" << px.GetLongCounter() << "]";
+      out << "px [" << px.GetMask() << "|" << static_cast<int>(px.GetThreshold()) << "|" << px.GetCountingMode() << "|"
+          << px.GetEnableTestpulse() << "|" << px.GetLongCounter() << "]";
       return out;
     }
 
   private:
-    uint8_t m_column;
-    uint8_t m_row;
     uint16_t m_latches;
   };
 
