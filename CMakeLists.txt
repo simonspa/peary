@@ -91,6 +91,18 @@ CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/cmake/config.cmake.h" "${CMAKE_CURRE
 INCLUDE_DIRECTORIES("${CMAKE_CURRENT_BINARY_DIR}")
 
 
+###################################
+# Load cpp format and check tools #
+###################################
+
+# Set the source files to clang-format
+FILE(GLOB_RECURSE
+     CHECK_CXX_SOURCE_FILES
+     devices/*.[ch]pp devices/*.[ht]cc exec/*.[ch]pp exec/*.[ht]cc peary/*.[ch]pp peary/*.[ht]cc
+     )
+INCLUDE("cmake/clang-cpp-checks.cmake")
+
+
 ##################################
 # Define build targets for peary #
 ##################################
