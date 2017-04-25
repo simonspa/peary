@@ -3,9 +3,10 @@
 
 #include <initializer_list>
 #include <iostream>
-#include <vector>
-#include <memory>
 #include <map>
+#include <memory>
+#include <vector>
+#include <algorithm>
 
 #include "exceptions.hpp"
 #include "constants.hpp"

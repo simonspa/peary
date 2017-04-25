@@ -4,8 +4,9 @@
 #ifndef CARIBOU_DATATYPES_H
 #define CARIBOU_DATATYPES_H
 
-#include <tuple>
 #include <strings.h>
+#include <tuple>
+#include <limits>
 
 namespace caribou {
 
