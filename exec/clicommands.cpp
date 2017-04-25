@@ -30,6 +30,7 @@ pearycli::pearycli() : c("# ") {
 
   c.registerCommand("setRegister", setRegister, "Set register REG_NAME to value REG_VALUE for the selected device",3,"REG_NAME REG_VALUE DEVICE_ID");
   c.registerCommand("getRegister", getRegister, "Read the value of register REG_NAME on the selected device",2,"REG_NAME DEVICE_ID");
+  c.registerCommand("configureMatrix", configureMatrix, "Configure the pixel matrix of the selected device with the trim/mask values for all pixels provided in the configuration file parameter FILE_NAME",2,"FILE_NAME DEVICE_ID");
 
   c.registerCommand("scanDAC", scanDAC, "Scan DAC DAC_NAME from value MIN to MAX and read the voltage from the ADC after DELAY milliseconds",5,"DAC_NAME MIN MAX DELAY[ms] DEVICE_ID");
   
@@ -167,6 +168,18 @@ int pearycli::getRegister(const std::vector<std::string> & input) {
     caribouDevice *dev = manager->getDevice(std::stoi(input.at(2)));
     uint32_t value = dev->getRegister(input.at(1));
     LOG(logINFO) << input.at(1) << " = " << value;
+  }
+  catch (caribou::caribouException &e) {
+    LOG(logERROR) << e.what();
+    return ret::Error;
+  }
+  return ret::Ok;
+}
+
+int pearycli::configureMatrix(const std::vector<std::string> & input) {
+  try {
+    caribouDevice *dev = manager->getDevice(std::stoi(input.at(2)));
+    dev->configureMatrix(input.at(1));
   }
   catch (caribou::caribouException &e) {
     LOG(logERROR) << e.what();

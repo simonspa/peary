@@ -156,6 +156,9 @@ namespace caribou {
     return static_cast<uint32_t>((regval & reg.mask()) >> reg.shift());
   }
 
+  template<typename T>
+  void pearyDevice<T>::configureMatrix(std::string) {}
+  
 }
 
 #endif /* CARIBOU_MIDDLEWARE_IMPL */

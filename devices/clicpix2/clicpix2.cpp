@@ -89,6 +89,12 @@ void clicpix2::powerOff() {
 
 }
 
+void clicpix2::configureMatrix(std::string filename) {
+
+  LOG(logDEBUG) << "Configuring the pixel matrix";
+  
+}
+
 void clicpix2::programMatrix() {
 
   // Use a boolean vector to construct full matrix data array:

@@ -133,7 +133,7 @@ namespace caribou {
     // Provide functions both for the full matrix and single pixels?
     // Sometimes, pixel configs will have to be cached by child classes since
     // only programming of full matrix is supported by device...
-    //virtual void configureMatrix() = 0;
+    virtual void configureMatrix(std::string filename) = 0;
     //virtual void configurePixel() = 0;
 
     

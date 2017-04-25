@@ -72,6 +72,8 @@ namespace caribou {
 
     void exploreInterface();
 
+    void configureMatrix(std::string filename);
+    
   private:
     /* Routine to program the pixel matrix via the SPI interface
      *
