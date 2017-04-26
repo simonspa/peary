@@ -27,7 +27,8 @@ namespace caribou {
 
 #define CLICPIX2_REGISTERS                                                                                                  \
   {                                                                                                                         \
-    {"matrix_programming", register_t<>(0x04)}, {"bias_disc_N", register_t<>(0x0A)}, {"bias_disc_P", register_t<>(0x0C)},   \
+      {"readout", register_t<>(0x02)}, \
+      {"matrix_programming", register_t<>(0x04)}, {"bias_disc_N", register_t<>(0x0A)}, {"bias_disc_P", register_t<>(0x0C)}, \
       {"ikrum", register_t<>(0x0E)}, {"bias_preamp", register_t<>(0x10)}, {"bias_thadj_DAC", register_t<>(0x12)},           \
       {"bias_buffers_1st", register_t<>(0x14, 0xF0)}, {"bias_buffers_2nd", register_t<>(0x14, 0x0F)},                       \
       {"bias_preamp_casc", register_t<>(0x16)}, {"bias_thadj_casc", register_t<>(0x18)},                                    \
