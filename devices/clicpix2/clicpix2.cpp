@@ -33,6 +33,25 @@ clicpix2::clicpix2(const caribou::Configuration config) : pearyDevice(config, st
 
   // Add the register definitions to the dictionary for convenient lookup of names:
   _registers.add(CLICPIX2_REGISTERS);
+
+  //Map CLICpix2 receiver
+  receiver_memfd = open("/dev/mem", O_RDWR | O_SYNC);
+  if(receiver_memfd == -1) {
+    throw DeviceException("Can't open /dev/mem.\n");
+  }
+
+  off_t dev_base = CLICpix2_BASE_ADDRESS;
+      
+  // Map one page of memory into user space such that the device is in that page, but it may not
+  // be at the start of the page.
+  receiver_map_base = mmap(0, MAP_SIZE, PROT_READ, MAP_SHARED, receiver_memfd, dev_base & ~MAP_MASK);
+  if(receiver_map_base == (void*)-1) {
+    throw DeviceException("Can't map the memory to user space.\n");
+  }
+
+  // get the address of the device in user space which will be an offset from the base
+  // that was mapped as memory is mapped at the start of a page
+  receiver_base = receiver_map_base + (dev_base & MAP_MASK);
 }
 
 
@@ -46,6 +65,13 @@ clicpix2::~clicpix2() {
 
   LOG(logINFO) << DEVICE_NAME << ": Shutdown, delete device.";
   powerOff();
+
+  //Unamp CLICpix2 receiver
+  if(munmap(receiver_base, MAP_SIZE) == -1) {
+    throw DeviceException("Can't unmap memory from user space.\n");
+  }
+
+  close(receiver_memfd);
 }
 
 void clicpix2::powerOn() {

@@ -81,6 +81,13 @@ namespace caribou {
 
     // The functions sets clocks required by CLICpix2 to operate
     void configureClock();
+
+    //CLICpix2 receiver memory map file descriptor
+    int receiver_memfd;
+    //CLICpix2 receiver memory map address
+    void* receiver_base;
+    //CLICpix2 reciver map base
+    void* receiver_map_base;
   };
 
   extern "C" {
