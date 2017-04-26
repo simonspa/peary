@@ -6,6 +6,7 @@
 #include <fcntl.h>
 #include <fstream>
 #include <sys/mman.h>
+#include <unistd.h>
 #include "hal.hpp"
 #include "log.hpp"
 #include "spi_CLICpix2.hpp"
@@ -303,44 +304,24 @@ void clicpix2::exploreInterface() {
 }
 
 void clicpix2::daqStart() {
-  const unsigned long CLICpix2_BASE_ADDRESS = 0x43C10000;
-  const unsigned long CLICpix2_DATA_OFFSET = 0;
-  const unsigned long MAP_SIZE = 4096;
-  const unsigned long MAP_MASK = (MAP_SIZE - 1);
 
-  int memfd;
-  void *mapped_base, *mapped_dev_base;
-  off_t dev_base = CLICpix2_BASE_ADDRESS;
+  LOG(logINFO) << DEVICE_NAME << " readout requested";
+  _hal->send( std::make_pair( 0x02, 0x00) );
+  
+  //One frame with 8 double columns readout without compression lasts 360.3us (data + carrier etenders = 28816 + 8 B)
+  //Sleep for 5ms
+  usleep(5000);
 
-  memfd = open("/dev/mem", O_RDWR | O_SYNC);
-  if(memfd == -1) {
-    throw DeviceException("Can't open /dev/mem.\n");
+  unsigned int packageSize = *((volatile unsigned long *) (receiver_base + CLICpix2_COUNTER_OFFSET) );
+  std::vector<uint32_t> package;
+  package.reserve(packageSize);
+  for(unsigned int i = 0; i < packageSize; ++i){
+    package.push_back( *((volatile unsigned long *) (receiver_base + CLICpix2_FIFO_OFFSET) ) );
+    usleep(1);
   }
-  LOG(logINFO) << DEVICE_NAME << "/dev/mem opened";
+  
+  LOG(logDEBUG) << DEVICE_NAME << "Read data:\n" << listVector(package, ", ", true);
 
-  // Map one page of memory into user space such that the device is in that page, but it may not
-  // be at the start of the page.
-
-  mapped_base = mmap(0, MAP_SIZE, PROT_READ, MAP_SHARED, memfd, dev_base & ~MAP_MASK);
-  if(mapped_base == (void*)-1) {
-    throw DeviceException("Can't map the memory to user space.\n");
-  }
-
-  // get the address of the device in user space which will be an offset from the base
-  // that was mapped as memory is mapped at the start of a page
-
-  //  mapped_dev_base = mapped_base + (dev_base & MAP_MASK);
-
-  //  LOG(logINFO) << DEVICE_NAME <<   to_hex_string( *((volatile unsigned long *) (mapped_dev_base + CLICpix2_DATA_OFFSET))
-  //  );
-
-  // unmap the memory before exiting
-  if(munmap(mapped_base, MAP_SIZE) == -1) {
-    throw DeviceException("Can't unmap memory from user space.\n");
-  }
-
-  close(memfd);
-  LOG(logINFO) << DEVICE_NAME << "/dev/mem closed";
 }
 
 caribouDevice* caribou::generator(const caribou::Configuration config) {
