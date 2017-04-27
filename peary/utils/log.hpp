@@ -67,6 +67,7 @@ namespace caribou {
     static TLogLevel& ReportingLevel();
     static std::string ToString(TLogLevel level);
     static TLogLevel FromString(const std::string& level);
+    std::string NowTime();
 
   protected:
     std::ostringstream os;
@@ -74,7 +75,6 @@ namespace caribou {
   private:
     caribouLog(const caribouLog&);
     caribouLog& operator=(const caribouLog&);
-    std::string NowTime();
   };
 
   template <typename T> caribouLog<T>::caribouLog() {}
@@ -218,6 +218,9 @@ namespace caribou {
     ;                                                                                                                       \
   else                                                                                                                      \
     caribou::Log().Get(level, __FILE_NAME__, __func__, __LINE__)
+
+#define LOGTIME								\
+  caribou::Log().NowTime()
 
 } // namespace caribou
 

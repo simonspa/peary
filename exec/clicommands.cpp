@@ -252,6 +252,7 @@ int pearycli::scanDAC(const std::vector<std::string>& input) {
     std::string filename = "dacscan_" + input.at(1) + ".csv";
     myfile.open(filename);
     myfile << "# pearycli > scanDAC\n";
+    myfile << "# Timestamp: " << LOGTIME << "\n";
     myfile << "# scanned DAC \"" << input.at(1) << "\", range " << input.at(2) << "-" << input.at(3) << "\n";
     myfile << "# with " << input.at(4) << "ms delay between setting register and ADC sampling.\n";
     for(auto i : data) {
