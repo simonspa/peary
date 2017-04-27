@@ -94,6 +94,21 @@ namespace caribou {
   caribouDevice* generator(const caribou::Configuration);
   }
 
+  //Basic pixel class
+  //The information is internally stored in the same way, the chip stores it, as
+  //a 14bit register.
+  //
+  //The individual values are set via the member functions of a specialized classes
+  class pixel{
+  public:
+    virtual ~pixel(){};
+  protected:
+    pixel() {};
+    pixel(uint16_t m_latches) : m_latches(m_latches) {};
+    uint16_t m_latches;
+  };
+    
+  
   /* CLICpix2 pixel configuration class
    *
    * Class to hold all information required to fully configure one pixel.
@@ -101,13 +116,13 @@ namespace caribou {
    * a 14bit register. The individual values are set via the member functions
    * and can be retrieved bitwise for convenience.
    */
-  class pixelConfig {
+  class pixelConfig : public virtual pixel{
   public:
     /* Default constructor
      *
      * Initializes the pixel in a masked state
      */
-    pixelConfig() : m_latches(0x2000){};
+    pixelConfig() : pixel(0x2000) {};
     pixelConfig(bool mask, uint8_t threshold, bool cntmode, bool tpenable, bool longcnt) : pixelConfig() {
       SetMask(mask);
       SetThreshold(threshold);
@@ -175,11 +190,52 @@ namespace caribou {
           << px.GetEnableTestpulse() << "|" << px.GetLongCounter() << "]";
       return out;
     }
-
-  private:
-    uint16_t m_latches;
   };
 
+  // CLICpix2 pixel readout class
+  // The individual values are set via the member functions
+  // and can be retrieved bitwise for convenience.
+  class pixelReadout : public virtual pixel{
+  public :
+    //Default constructor
+    //Disables the pixel
+    pixelReadout() : pixel (0x0) {};
+    pixelReadout(bool flag, uint8_t tot, uint8_t toa) : pixelReadout() {
+      SetFlag(flag);
+      SetTOT(tot);
+      SetTOA(toa);
+    }
+
+    //Flag setting of the pixel
+    void SetFlag(bool flag){
+      if(flag)
+	m_latches |= (1 << 13);
+      else
+        m_latches &= ~(1 << 13);
+    }
+    bool GetFlag() { return (m_latches >> 13) & 0x1; }
+
+    //TOT setting of the pixel (5bit)
+    void SetTOT(uint8_t tot){
+      m_latches = (m_latches & 0x80ff) | ( (tot & 0x1f) << 8); 
+    }
+    uint8_t GetTOT() { return (m_latches >> 8) & 0x1f; };
+
+    //TOA setting of the pixel (8bit)
+    void SetTOA(uint8_t toa){
+      m_latches = (m_latches & 0xff00) | toa; 
+    }
+    uint8_t GetTOA() { return m_latches & 0xff; };
+
+    /** Overloaded ostream operator for simple printing of pixel data
+     */
+    friend std::ostream& operator<<(std::ostream& out, pixelReadout& px) {
+      out << "px [" << px.GetFlag() << "|" << static_cast<int>(px.GetTOT()) << "|" << static_cast<int>(px.GetTOA()) << "]";
+      return out;
+    }
+    
+  };
+  
 } // namespace caribou
 
 #endif /* DEVICE_CLICPIX2_H */
