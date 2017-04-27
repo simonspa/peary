@@ -153,14 +153,22 @@ void clicpix2::readMatrix(std::string filename) {
 
   LOG(logDEBUG) << "Reading pixel matrix file.";
   std::ifstream pxfile(filename);
+  if(!pxfile.is_open()) {
+    LOG(logERROR) << "Could not open matrix file \"" << filename << "\"";
+    throw ConfigInvalid("Could not open matrix file \"" + filename + "\"");
+  }
+
   std::string line = "";
   while(std::getline(pxfile, line)) {
     if(!line.length() || '#' == line.at(0))
       continue;
+    LOG(logDEBUGHAL) << "Read line: " << line;
     std::istringstream pxline(line);
     int column, row, threshold, mask, cntmode, tpenable, longcnt;
     if(pxline >> column >> row >> mask >> threshold >> cntmode >> tpenable >> longcnt) {
-      pixels[std::make_pair(column, row)] = pixelConfig(mask, threshold, cntmode, tpenable, longcnt);
+      pixelConfig px(mask, threshold, cntmode, tpenable, longcnt);
+      pixels[std::make_pair(column, row)] = px;
+      LOG(logDEBUGHAL) << "  is pixel: " << px;
     }
   }
   LOG(logDEBUG) << "Now " << pixels.size() << " pixel configurations cached.";
