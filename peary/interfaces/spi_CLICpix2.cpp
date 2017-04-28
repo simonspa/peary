@@ -52,7 +52,7 @@ std::vector<std::pair<spi_reg_t, spi_t>> iface_spi_CLICpix2::write(const spi_add
 
   std::lock_guard<std::mutex> lock(mutex);
 
-  std::vector<uint8_t> _data(2 * (sizeof(spi_reg_t) + sizeof(spi_t)) * data.size());
+  std::vector<uint8_t> _data(2 * (sizeof(spi_reg_t) + sizeof(spi_t)) * data.size(), 0);
   std::unique_ptr<spi_ioc_transfer[]> tr(new spi_ioc_transfer[data.size()]());
   std::vector<std::pair<spi_reg_t, spi_t>> rx;
 
