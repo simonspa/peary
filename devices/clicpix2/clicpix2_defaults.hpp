@@ -24,14 +24,13 @@ namespace caribou {
 #define CLICpix2_CML_IREF_POL PUSH
 #define CLICpix2_DAC_IREF 13
 #define CLICpix2_DAC_IREF_POL PULL
-
-//CLICpix2 receiver
-#define CLICpix2_BASE_ADDRESS 0x43C10000
-#define CLICpix2_FIFO_OFFSET 0
-#define CLICpix2_COUNTER_OFFSET 4
-#define MAP_SIZE 4096
-#define MAP_MASK (MAP_SIZE - 1)
-
+  
+  //CLICpix2 receiver
+  const std::intptr_t CLICpix2_BASE_ADDRESS = 0x43C10000;
+  const std::intptr_t CLICpix2_FIFO_OFFSET = 0;
+  const std::intptr_t CLICpix2_COUNTER_OFFSET = 4;
+  const std::size_t MAP_SIZE = 4096;
+  const std::size_t MAP_MASK = MAP_SIZE - 1;
   
 #define CLICPIX2_REGISTERS                                                                                                  \
   {                                                                                                                         \
