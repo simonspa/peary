@@ -329,8 +329,15 @@ void clicpix2::daqStart() {
     usleep(1);
   }
   
-  LOG(logDEBUG) << DEVICE_NAME << "Read data:\n" << listVector(package, ", ", true);
+  LOG(logDEBUG) << DEVICE_NAME << "Read data:\n" << listVector(frame, ", ", true);
+  decodeFrame(frame);
+}
 
+void clicpix2::decodeFrame(const std::vector<uint32_t> frame){
+
+  clicpix2_frameDecoder decoder(false, false, false);
+  decoder.decode(frame);
+  LOG(logDEBUG) << DEVICE_NAME << "Decoded frame:\n" << decoder;
 }
 
 caribouDevice* caribou::generator(const caribou::Configuration config) {

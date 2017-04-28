@@ -14,6 +14,7 @@
 #include "pearydevice.hpp"
 #include "spi_CLICpix2.hpp"
 #include "clicpix2_pixels.hpp"
+#include "clicpix2_frameDecoder.hpp"
 
 namespace caribou {
 
@@ -82,6 +83,9 @@ namespace caribou {
 
     // The functions sets clocks required by CLICpix2 to operate
     void configureClock();
+
+    //Methods decodes frame
+    void decodeFrame(const std::vector<uint32_t> frame);
 
     //CLICpix2 receiver memory map file descriptor
     int receiver_memfd;
