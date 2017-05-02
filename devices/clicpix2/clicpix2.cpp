@@ -35,32 +35,33 @@ clicpix2::clicpix2(const caribou::Configuration config) : pearyDevice(config, st
   // Add the register definitions to the dictionary for convenient lookup of names:
   _registers.add(CLICPIX2_REGISTERS);
 
-  //Map CLICpix2 receiver
-  receiver_memfd = open("/dev/mem", O_RDWR | O_SYNC);
-  if(receiver_memfd == -1) {
+  //Get access to FPGA memory mapped registers
+  memfd = open("/dev/mem", O_RDWR | O_SYNC);
+  if(memfd == -1) {
     throw DeviceException("Can't open /dev/mem.\n");
   }
 
-  off_t dev_base = CLICpix2_BASE_ADDRESS;
-      
+  //Map CLICpix2 receiver
+  
   // Map one page of memory into user space such that the device is in that page, but it may not
   // be at the start of the page.
-  receiver_map_base = mmap(0, MAP_SIZE, PROT_READ, MAP_SHARED, receiver_memfd, dev_base & ~MAP_MASK);
+  receiver_map_base = mmap(0, CLICpix2_receiver_MAP_SIZE, PROT_READ, MAP_SHARED, memfd, CLICpix2_receiver_BASE_ADDRESS & ~CLICpix2_receiver_MAP_MASK);
   if(receiver_map_base == (void*)-1) {
     throw DeviceException("Can't map the memory to user space.\n");
   }
 
   // get the address of the device in user space which will be an offset from the base
   // that was mapped as memory is mapped at the start of a page
-  receiver_base = reinterpret_cast<void*>( reinterpret_cast<std::intptr_t>(receiver_map_base) + (dev_base & MAP_MASK) );
+  receiver_base = reinterpret_cast<void*>( reinterpret_cast<std::intptr_t>(receiver_map_base) + (CLICpix2_receiver_BASE_ADDRESS & CLICpix2_receiver_MAP_MASK) );
 }
 
 
 
 void clicpix2::init() {
-  LOG(logDEBUG) << "Initializing " << DEVICE_NAME;
+  LOG(logINFO) << "Initializing " << DEVICE_NAME;
   configureClock();
 }
+
 
 clicpix2::~clicpix2() {
 
@@ -68,11 +69,11 @@ clicpix2::~clicpix2() {
   powerOff();
 
   //Unamp CLICpix2 receiver
-  if(munmap(receiver_base, MAP_SIZE) == -1) {
+  if(munmap(receiver_base, CLICpix2_receiver_MAP_SIZE) == -1) {
     throw DeviceException("Can't unmap memory from user space.\n");
   }
 
-  close(receiver_memfd);
+  close(memfd);
 }
 
 void clicpix2::powerOn() {
@@ -242,7 +243,7 @@ void clicpix2::programMatrix() {
 }
 
 void clicpix2::configureClock() {
-  LOG(logINFO) << DEVICE_NAME << ": Configure clock";
+  LOG(logDEBUG) << DEVICE_NAME << ": Configure clock";
   _hal->configureSI5345((SI5345_REG_T const* const)si5345_revb_registers, SI5345_REVB_REG_CONFIG_NUM_REGS);
   // FIXME
   // while(! _hal-> isLockedSI5345() );
@@ -318,11 +319,11 @@ void clicpix2::daqStart() {
   //Sleep for 5ms
   usleep(5000);
 
-  unsigned int frameSize = *( reinterpret_cast< volatile uint32_t *>(reinterpret_cast<std::intptr_t>(receiver_base) + CLICpix2_COUNTER_OFFSET) );
+  unsigned int frameSize = *( reinterpret_cast< volatile uint32_t *>(reinterpret_cast<std::intptr_t>(receiver_base) + CLICpix2_receiver_COUNTER_OFFSET) );
   std::vector<uint32_t> frame;
   frame.reserve(frameSize);
   for(unsigned int i = 0; i < frameSize; ++i){
-    frame.emplace_back( *( reinterpret_cast< volatile uint32_t *>( reinterpret_cast<std::intptr_t>(receiver_base) + CLICpix2_FIFO_OFFSET) ) );
+    frame.emplace_back( *( reinterpret_cast< volatile uint32_t *>( reinterpret_cast<std::intptr_t>(receiver_base) + CLICpix2_receiver_FIFO_OFFSET) ) );
   }
   
   LOG(logDEBUG) << DEVICE_NAME << " Read raw SerDes data:\n" << listVector(frame, ", ", true);
