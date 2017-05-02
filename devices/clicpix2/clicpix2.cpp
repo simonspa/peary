@@ -328,7 +328,7 @@ void clicpix2::daqStart() {
     frame.emplace_back( *( reinterpret_cast< volatile uint32_t *>( reinterpret_cast<std::intptr_t>(receiver_base) + CLICpix2_FIFO_OFFSET) ) );
   }
   
-  LOG(logDEBUG) << DEVICE_NAME << "Read data:\n" << listVector(frame, ", ", true);
+  LOG(logDEBUG) << DEVICE_NAME << " Read raw SerDes data:\n" << listVector(frame, ", ", true);
   decodeFrame(frame);
 }
 
