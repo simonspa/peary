@@ -331,7 +331,7 @@ void clicpix2::daqStart() {
 
 void clicpix2::decodeFrame(const std::vector<uint32_t> frame){
 
-  clicpix2_frameDecoder decoder(false, false, false);
+  clicpix2_frameDecoder decoder(false, false);
   decoder.decode(frame);
   LOG(logDEBUG) << DEVICE_NAME << "Decoded frame:\n" << decoder;
 }

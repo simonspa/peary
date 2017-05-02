@@ -62,14 +62,13 @@ namespace caribou {
     uint16_t firstColumn;
 
     //Configutation
-    bool DCCompressionEnabled;
-    bool superPixelCompressionEnabled;
     bool pixelCompressionEnabled;
+    bool DCandSuperPixelCompressionEnabled;
     
   public :
-    clicpix2_frameDecoder(bool DCCompressionEnabled, bool superPixelCompressionEnabled,
-			  bool pixelCompressionEnabled) :  DCCompressionEnabled(DCCompressionEnabled), superPixelCompressionEnabled(superPixelCompressionEnabled),
-							   pixelCompressionEnabled(pixelCompressionEnabled) {};
+    clicpix2_frameDecoder(bool pixelCompressionEnabled, bool DCandSuperPixelCompressionEnabled) :
+      pixelCompressionEnabled(pixelCompressionEnabled), DCandSuperPixelCompressionEnabled(DCandSuperPixelCompressionEnabled) {};
+
     void decode(const std::vector<uint32_t> frame);
 
     /** Overloaded ostream operator for simple printing of pixel data

@@ -124,7 +124,7 @@ void clicpix2_frameDecoder::processDCbit(std::array< std::array<pixelReadout, 8>
     //super-pixel bit
     if( sp_counter == 0 ){
       if(data ||  //not empty super-pixel
-  	 ! superPixelCompressionEnabled ){  //or sp compression disabled
+  	 ! DCandSuperPixelCompressionEnabled ){  //or sp compression disabled
   	dc_counter++;
   	sp_counter++;
       }
@@ -173,7 +173,7 @@ void clicpix2_frameDecoder::processDCbit(std::array< std::array<pixelReadout, 8>
   else{
     if( dc_counter == static_cast<int>( 2 * ( CLICPIX2_ROW * CLICPIX2_PIXEL_SIZE + CLICPIX2_ROW / CLICPIX2_SUPERPIXEL_SIZE ) + 1) ){
       if(data ||  //not empty double-column
-	 ! DCCompressionEnabled )  //or collumn compression disabled
+	 ! DCandSuperPixelCompressionEnabled )  //or collumn compression disabled
 	dc_counter = 0;
       else{                        //empty double-column
 	for(auto i = 0; i< static_cast<int>( 2 * CLICPIX2_ROW ); ++i)
