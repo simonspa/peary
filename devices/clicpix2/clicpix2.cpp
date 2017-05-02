@@ -299,12 +299,9 @@ void clicpix2::exploreInterface() {
       throw DataCorrupt("Data written at address " + to_hex_string(pairvec[i].first) + " doesn't match with read value");
   LOG(logINFO) << "Sucess write-read back operation of regisers (addresses range 0x0a - 0x3E).";
 
-  unsigned int i = 10, y = 0;
   pairvec.clear();
-  for(auto r : pairvec) {
-    r.first = i;
-    i += 2;
-    r.second = default_rx[y++].second;
+  for(unsigned int i = 10, y=0; i < 63; i+=2) {
+    pairvec.push_back(std::make_pair(i, default_rx[y++].second) );
   }
   _hal->send(pairvec);
   LOG(logINFO) << DEVICE_NAME << "Reverting the defualt values of registers (addresses range 0x0a - 0x3E)";
