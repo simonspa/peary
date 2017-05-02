@@ -7,7 +7,7 @@
 
 using namespace caribou;
 
-const clicpix2_frameDecoder::WORD_TYPE clicpix2_frameDecoder::DELIMETER(1, 0xf7);
+const clicpix2_frameDecoder::WORD_TYPE clicpix2_frameDecoder::DELIMITER(1, 0xf7);
 
 void clicpix2_frameDecoder::decode(const std::vector<uint32_t> frame){
   std::vector<WORD_TYPE> dataVector = repackageFrame(frame);
@@ -18,7 +18,7 @@ void clicpix2_frameDecoder::decode(const std::vector<uint32_t> frame){
     decodeHeader( *data++ ); //header
     extractColumns(data, dataEnd);
   }
-  while( std::distance(data, dataEnd) && ~ ( std::distance(data, dataEnd) == 1 && *data == DELIMETER) );
+  while( std::distance(data, dataEnd) && ~ ( std::distance(data, dataEnd) == 1 && *data == DELIMITER) );
 
   //FIXEME: DECODE_LFSR_COUNTERS
   //For this one needs to know matrix configuration
@@ -60,7 +60,7 @@ void clicpix2_frameDecoder::extractColumns(std::vector<clicpix2_frameDecoder::WO
 
   do{
     WORD_TYPE word = *data++;
-    if(word == DELIMETER) //end of double column
+    if(word == DELIMITER) //end of double column
       break;
     if(word.is_control)
       throw DataException("Found control word different than delimeter");

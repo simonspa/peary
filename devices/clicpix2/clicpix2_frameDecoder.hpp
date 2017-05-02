@@ -41,7 +41,7 @@ namespace caribou {
     //Number of pixels in the super-pixel
     static const unsigned int CLICPIX2_SUPERPIXEL_SIZE = 16;
     static const unsigned int CLICPIX2_PIXEL_SIZE = 14;
-    static const WORD_TYPE DELIMETER;// = WORD_TYPE(1, 0xf7);
+    static const WORD_TYPE DELIMITER;// = WORD_TYPE(1, 0xf7);
 
     std::array< std::array<pixelReadout, CLICPIX2_COL>, CLICPIX2_ROW> matrix; //[row][column]
 
