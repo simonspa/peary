@@ -32,6 +32,17 @@ namespace caribou {
   const std::size_t CLICpix2_receiver_MAP_SIZE = 4096;
   const std::size_t CLICpix2_receiver_MAP_MASK = CLICpix2_receiver_MAP_SIZE - 1;
 
+  //CLIcpix2 control
+  const std::intptr_t CLICpix2_control_BASE_ADDRESS = 0x43C20000;
+  const std::intptr_t CLICpix2_control_OFFSET = 0;
+  const uint32_t CLICpix2_control_RESET_MASK = 0x1;
+  const uint32_t CLICpix2_control_PWR_PULSE_MASK = 0x100;
+  const uint32_t CLICpix2_control_SHUTTER_MASK = 0x10000;
+  const uint32_t CLICpix2_control_TP_MASK = 0x1000000;
+  
+  const std::size_t CLICpix2_control_MAP_SIZE = 4096;
+  const std::size_t CLICpix2_control_MAP_MASK = CLICpix2_control_MAP_SIZE - 1;
+
   
 #define CLICPIX2_REGISTERS                                                                                                  \
   {                                                                                                                         \

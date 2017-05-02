@@ -84,6 +84,10 @@ namespace caribou {
     // The functions sets clocks required by CLICpix2 to operate
     void configureClock();
 
+    // Reset the chip
+    // The reset signal is asserted for ~5us
+    void reset();
+
     //Methods decodes frame
     void decodeFrame(const std::vector<uint32_t> frame);
 
@@ -93,6 +97,11 @@ namespace caribou {
     void* receiver_base;
     //CLICpix2 reciver map base
     void* receiver_map_base;
+    //CLICpix2 control memory map address
+    void* control_base;
+    //CLICpix2 reciver map base
+    void* control_map_base;
+
   };
 
   extern "C" {
