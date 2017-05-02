@@ -333,7 +333,7 @@ void clicpix2::decodeFrame(const std::vector<uint32_t> frame){
 
   clicpix2_frameDecoder decoder(false, false);
   decoder.decode(frame);
-  LOG(logDEBUG) << DEVICE_NAME << "Decoded frame:\n" << decoder;
+  LOG(logDEBUG) << DEVICE_NAME << "Decoded frame [row][column]:\n" << decoder;
 }
 
 caribouDevice* caribou::generator(const caribou::Configuration config) {

@@ -188,8 +188,11 @@ void clicpix2_frameDecoder::processDCbit(std::array< std::array<pixelReadout, 8>
 namespace caribou{
   std::ostream& operator<<(std::ostream& out, const clicpix2_frameDecoder& decoder) {
     for( auto r = 0; r < static_cast<int>(clicpix2_frameDecoder::CLICPIX2_ROW); ++r )
-      for( auto c = 0; c < static_cast<int>(clicpix2_frameDecoder::CLICPIX2_COL); ++c )
+      for( auto c = 0; c < static_cast<int>(clicpix2_frameDecoder::CLICPIX2_COL); ++c ){
 	out << "[" << r << "][" << c << "] " << decoder.matrix[r][c] << ", ";
+	if(c%64 == 63)
+	  out << "\n";
+      }
     return out;
   }
 }
