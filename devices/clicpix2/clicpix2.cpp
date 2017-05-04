@@ -220,8 +220,7 @@ void clicpix2::programMatrix() {
       for(size_t dcolumn = 0; dcolumn < 64; dcolumn++) {
         // Send one bit per double column to form one 64bit word
         pixelConfig px = pixels[std::make_pair(row / 2, 2 * dcolumn + row % 2)];
-        //matrix.push_back(px.GetBit(bit));
-	matrix.push_back(0);
+        matrix.push_back(px.GetBit(bit));
       }
     }
     LOG(logDEBUGAPI) << "One pixel done: " << row << ", odd: " << (row % 2) << " (matrix: " << matrix.size() << "b)";
@@ -271,7 +270,7 @@ void clicpix2::programMatrix() {
 
   LOG(logDEBUG) << "Number of SPI commands: " << spi_data.size();
   // Finally, send the data over the SPI interface:
-  _hal->send(spi_data);
+  //_hal->send(spi_data);
 }
 
 void clicpix2::configureClock() {
