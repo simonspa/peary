@@ -69,7 +69,7 @@ clicpix2::clicpix2(const caribou::Configuration config) : pearyDevice(config, st
 
   //set defulat CLICpix2 control
   volatile uint32_t * control_reg = reinterpret_cast< volatile uint32_t *>( reinterpret_cast<std::intptr_t>(control_base) + CLICpix2_control_OFFSET);
-  *control_reg =  CLICpix2_control_PWR_PULSE_MASK;  //keep CLICpix2 in reset state
+  *control_reg =  0; //keep CLICpix2 in reset state
 }
 
 
