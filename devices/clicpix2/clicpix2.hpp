@@ -61,6 +61,9 @@ namespace caribou {
 
     void configureMatrix(std::string filename);
 
+    std::vector<uint32_t> getRawData();
+    std::vector<pixel> getData();
+
   private:
     /* Routine to program the pixel matrix via the SPI interface
      *
