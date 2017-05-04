@@ -74,6 +74,13 @@ int main(int argc, char* argv[]) {
       c.executeFile(execfile);
     }
 
+    LOG(logINFO) << "Welcome to pearyCLI.";
+    size_t ndev = c.manager->getDevices().size();
+    LOG(logINFO) << "Currently " << ndev << " devices configured.";
+    if(ndev == 0) {
+      LOG(logINFO) << "To add new devices use the \"add_device\" command.";
+    }
+
     // Loop in the console until exit.
     while(c.readLine() != ret::Quit)
       ;

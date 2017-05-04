@@ -11,6 +11,19 @@
 
 namespace caribou {
 
+  /** Basic pixel class
+   *  
+   *  Storage element for pixel configurations and pixel data.
+   *  To be implemented by the individual device classes, deriving
+   *  from this common base class.
+   */
+  class pixel {
+  public:
+    virtual ~pixel(){};
+  protected:
+    pixel() {};
+  };
+
   /** class to store a register configuration
    *
    *  @param address Address of the register in question

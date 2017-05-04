@@ -343,23 +343,7 @@ void clicpix2::exploreInterface() {
 }
 
 void clicpix2::daqStart() {
-
-  LOG(logINFO) << DEVICE_NAME << " readout requested";
-  _hal->send( std::make_pair( 0x02, 0x00) );
-  
-  //One frame with 8 double columns readout without compression lasts 360.3us (data + carrier etenders = 28816 + 8 B)
-  //Sleep for 5ms
-  usleep(5000);
-
-  unsigned int frameSize = *( reinterpret_cast< volatile uint32_t *>(reinterpret_cast<std::intptr_t>(receiver_base) + CLICpix2_receiver_COUNTER_OFFSET) );
-  std::vector<uint32_t> frame;
-  frame.reserve(frameSize);
-  for(unsigned int i = 0; i < frameSize; ++i){
-    frame.emplace_back( *( reinterpret_cast< volatile uint32_t *>( reinterpret_cast<std::intptr_t>(receiver_base) + CLICpix2_receiver_FIFO_OFFSET) ) );
-  }
-  
-  LOG(logDEBUG) << DEVICE_NAME << " Read raw SerDes data:\n" << listVector(frame, ", ", true);
-  decodeFrame(frame);
+  // Prepare chip for data acquisition
 }
 
 void clicpix2::decodeFrame(const std::vector<uint32_t> frame){
@@ -373,4 +357,31 @@ caribouDevice* caribou::generator(const caribou::Configuration config) {
   LOG(logDEBUG) << "Generator: " << DEVICE_NAME;
   clicpix2* mDevice = new clicpix2(config);
   return dynamic_cast<caribouDevice*>(mDevice);
+}
+
+std::vector<pixel> clicpix2::getData() {
+  decodeFrame(getRawData());
+  // FIXME neet to retrieve data from decoder
+  return std::vector<pixel>();
+}
+
+std::vector<uint32_t> clicpix2::getRawData() {
+
+  LOG(logINFO) << DEVICE_NAME << " readout requested";
+  this->setRegister("readout",0);
+  
+  // One frame with 8 double columns readout without compression lasts 360.3us
+  // (data + carrier extenders = 28816 + 8 B)
+  //Sleep for 5ms
+  mDelay(5);
+
+  unsigned int frameSize = *( reinterpret_cast< volatile uint32_t *>(reinterpret_cast<std::intptr_t>(receiver_base) + CLICpix2_receiver_COUNTER_OFFSET) );
+  std::vector<uint32_t> frame;
+  frame.reserve(frameSize);
+  for(unsigned int i = 0; i < frameSize; ++i){
+    frame.emplace_back( *( reinterpret_cast< volatile uint32_t *>( reinterpret_cast<std::intptr_t>(receiver_base) + CLICpix2_receiver_FIFO_OFFSET) ) );
+  }
+  
+  LOG(logDEBUG) << DEVICE_NAME << " Read raw SerDes data:\n" << listVector(frame, ", ", true);
+  return frame;
 }
