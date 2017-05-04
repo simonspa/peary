@@ -270,7 +270,7 @@ void clicpix2::programMatrix() {
 
   LOG(logDEBUG) << "Number of SPI commands: " << spi_data.size();
   // Finally, send the data over the SPI interface:
-  //_hal->send(spi_data);
+  _hal->send(spi_data);
 }
 
 void clicpix2::configureClock() {
