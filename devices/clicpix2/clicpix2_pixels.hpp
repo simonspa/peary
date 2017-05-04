@@ -4,6 +4,7 @@
 #define CLICPIX2_PIXELS_HPP
 
 #include <ostream>
+#include "datatypes.hpp"
 
 namespace caribou {
 
@@ -12,12 +13,12 @@ namespace caribou {
   //a 14bit register.
   //
   //The individual values are set via the member functions of a specialized classes
-  class pixel{
+  class clicpix2_pixel : public virtual pixel{
   public:
-    virtual ~pixel(){};
+    virtual ~clicpix2_pixel(){};
   protected:
-    pixel() {};
-    pixel(uint16_t m_latches) : m_latches(m_latches) {};
+    clicpix2_pixel() {};
+    clicpix2_pixel(uint16_t m_latches) : m_latches(m_latches) {};
     uint16_t m_latches;
   };
     
@@ -29,13 +30,13 @@ namespace caribou {
    * a 14bit register. The individual values are set via the member functions
    * and can be retrieved bitwise for convenience.
    */
-  class pixelConfig : public virtual pixel{
+  class pixelConfig : public virtual clicpix2_pixel{
   public:
     /* Default constructor
      *
      * Initializes the pixel in a masked state
      */
-    pixelConfig() : pixel(0x2000) {};
+    pixelConfig() : clicpix2_pixel(0x2000) {};
     pixelConfig(bool mask, uint8_t threshold, bool cntmode, bool tpenable, bool longcnt) : pixelConfig() {
       SetMask(mask);
       SetThreshold(threshold);
@@ -108,11 +109,11 @@ namespace caribou {
   // CLICpix2 pixel readout class
   // The individual values are set via the member functions
   // and can be retrieved bitwise for convenience.
-  class pixelReadout : public virtual pixel{
+  class pixelReadout : public virtual clicpix2_pixel{
   public :
     //Default constructor
     //Disables the pixel
-    pixelReadout() : pixel (0x0) {};
+    pixelReadout() : clicpix2_pixel (0x0) {};
     pixelReadout(bool flag, uint8_t tot, uint8_t toa) : pixelReadout() {
       SetFlag(flag);
       SetTOT(tot);
