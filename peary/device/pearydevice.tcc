@@ -136,12 +136,12 @@ namespace caribou {
   }
 
   // Data return functions, for raw or decoded data
-  template <typename T> void pearyDevice<T>::getRawData() {
+  template <typename T> std::vector<uint32_t> pearyDevice<T>::getRawData() {
     LOG(logCRITICAL) << "Raw data readback not implemented for this device";
     throw caribou::NoDataAvailable("Raw data readback not implemented for this device");
   }
 
-  template <typename T> void pearyDevice<T>::getData() {
+  template <typename T> std::vector<pixel> pearyDevice<T>::getData() {
     LOG(logCRITICAL) << "Decoded data readback not implemented for this device";
     throw caribou::NoDataAvailable("Decoded data readback not implemented for this device");
   }
