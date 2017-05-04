@@ -50,6 +50,7 @@ namespace caribou {
     static int daqStop(const std::vector<std::string>& input);
 
     static int getRawData(const std::vector<std::string>& input);
+    static int getData(const std::vector<std::string>& input);
 
     // Create new Peary device manager
     static caribou::caribouDeviceMgr* manager;
