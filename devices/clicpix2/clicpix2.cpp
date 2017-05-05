@@ -264,16 +264,18 @@ void clicpix2::programMatrix() {
 
   // Heavy debug output: print the full matrix bits
   IFLOG(logDEBUGHAL) {
+    std::stringstream s;
     for(size_t bit = 0; bit < matrix.size(); bit++) {
-      LOG(logDEBUG) << matrix.at(bit);
+      s << matrix.at(bit);
       word += (matrix.at(bit) << (7 - bit % 8));
       if((bit + 1) % 8 == 0) {
-        LOG(logDEBUG) << " ";
+        s << " ";
         word = 0;
       }
       if((bit + 1) % 64 == 0)
-        LOG(logDEBUG) << " (" << (bit + 1) / 64 << ")" << std::endl;
+        s << " (" << (bit + 1) / 64 << ")" << std::endl;
     }
+    LOG(logDEBUGHAL) << "Full matrix bits:\n" << s.str();
   }
 
   LOG(logDEBUG) << "Number of SPI commands: " << spi_data.size();
