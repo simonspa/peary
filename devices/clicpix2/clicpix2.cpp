@@ -212,8 +212,19 @@ void clicpix2::programMatrix() {
   // Use a boolean vector to construct full matrix data array:
   std::vector<bool> matrix;
 
+  // At the end of the column, add one flip-flop per double column:
+  LOG(logDEBUGAPI) << "Add EOC bits";
+  matrix.insert(matrix.end(), 64, 0);
+
   // Loop over all rows, start with lowest:
   for(size_t row = 0; row < 128; row++) {
+
+    // After every superpixel (16 pixels), add one flip-flop per double column:
+    if(row % 8 == 0) {
+      matrix.insert(matrix.end(), 64, 0);
+      LOG(logDEBUGAPI) << "Add superpixel flipflop for all double columns. (matrix: " << matrix.size() << "b)";
+    }
+
     // Perform snake pattern within double column:
     for(size_t col = 0; col < 2; col++) {
       // Store 14 bit per pixel:
@@ -230,15 +241,7 @@ void clicpix2::programMatrix() {
 		       << " done, matrix size: " << matrix.size() << "bit";
     }
     
-    // After every superpixel (16 pixels), add one flip-flop per double column:
-    if((row + 1) % 8 == 0) {
-      matrix.insert(matrix.end(), 64, 0);
-      LOG(logDEBUGAPI) << "Add superpixel flipflop for all double columns. (matrix: " << matrix.size() << "b)";
-    }
   }
-
-  // At the end of the column, add one flip-flop per double column:
-  matrix.insert(matrix.end(), 64, 0);
   LOG(logDEBUG) << "Full matrix size: " << matrix.size() << "b";
 
   // At the very end, write one 64bit word with zeros to blank matrix after readout:
@@ -265,7 +268,7 @@ void clicpix2::programMatrix() {
       std::cout << matrix.at(bit);
       word += (matrix.at(bit) << (7 - bit % 8));
       if((bit + 1) % 8 == 0) {
-        std::cout << "." << static_cast<int>(word) << " ";
+        std::cout << " ";
         word = 0;
       }
       if((bit + 1) % 64 == 0)
