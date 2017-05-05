@@ -212,23 +212,26 @@ void clicpix2::programMatrix() {
   // Use a boolean vector to construct full matrix data array:
   std::vector<bool> matrix;
 
-  // Loop over all (half-) rows, start with lowest:
-  for(size_t row = 0; row < 256; row++) {
-    // Store 14 bit per pixel:
-    for(int bit = 13; bit >= 0; bit--) {
-      // Loop over all double columns
-      for(size_t dcolumn = 0; dcolumn < 64; dcolumn++) {
-	LOG(logDEBUGHAL) << "bit " << bit << " of pixel " << (row / 2) << "," << (2*dcolumn+row%2);
-        // Send one bit per double column to form one 64bit word
-        pixelConfig px = pixels[std::make_pair(2 * dcolumn + row % 2, row / 2)];
-        matrix.push_back(px.GetBit(bit));
+  // Loop over all rows, start with lowest:
+  for(size_t row = 0; row < 128; row++) {
+    // Perform snake pattern within double column:
+    for(size_t col = 0; col < 2; col++) {
+      // Store 14 bit per pixel:
+      for(int bit = 13; bit >= 0; bit--) {
+	// Loop over all double columns
+	for(size_t dcolumn = 0; dcolumn < 64; dcolumn++) {
+	  LOG(logDEBUGHAL) << "bit " << bit << " of pixel " << row << "," << (2*dcolumn+((row+col)%2));
+	  // Send one bit per double column to form one 64bit word
+	  pixelConfig px = pixels[std::make_pair(2 * dcolumn + ((row+col)%2), row)];
+	  matrix.push_back(px.GetBit(bit));
+	}
       }
+      LOG(logDEBUGAPI) << "Pixel row " << row << ((row+col) % 2 ? " (odd)" : " (even)")
+		       << " done, matrix size: " << matrix.size() << "bit";
     }
-    LOG(logDEBUGAPI) << "Pixel row " << (row / 2) << (row % 2 ? " (odd)" : " (even)")
-		     << " done, matrix size: " << matrix.size() << "bit";
-
+    
     // After every superpixel (16 pixels), add one flip-flop per double column:
-    if((row + 1) % 16 == 0) {
+    if((row + 1) % 8 == 0) {
       matrix.insert(matrix.end(), 64, 0);
       LOG(logDEBUGAPI) << "Add superpixel flipflop for all double columns. (matrix: " << matrix.size() << "b)";
     }
