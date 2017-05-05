@@ -265,14 +265,14 @@ void clicpix2::programMatrix() {
   // Heavy debug output: print the full matrix bits
   IFLOG(logDEBUGHAL) {
     for(size_t bit = 0; bit < matrix.size(); bit++) {
-      std::cout << matrix.at(bit);
+      LOG(logDEBUG) << matrix.at(bit);
       word += (matrix.at(bit) << (7 - bit % 8));
       if((bit + 1) % 8 == 0) {
-        std::cout << " ";
+        LOG(logDEBUG) << " ";
         word = 0;
       }
       if((bit + 1) % 64 == 0)
-        std::cout << " (" << (bit + 1) / 64 << ")" << std::endl;
+        LOG(logDEBUG) << " (" << (bit + 1) / 64 << ")" << std::endl;
     }
   }
 
