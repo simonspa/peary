@@ -147,12 +147,10 @@ int main(int argc, char* argv[]) {
         if(running) {
           sprintf(buffer, "FAILED configuring - already running");
           LOG(logERROR) << buffer;
-        }
-        else if(configure()) {
+        } else if(configure()) {
           configured = true;
           sprintf(buffer, "OK configured");
-        }
-        else {
+        } else {
           configured = false;
           sprintf(buffer, "FAILED configuring");
         }
