@@ -254,8 +254,7 @@ void clicpix2::programMatrix() {
   // Read matrix in 8b chunks to send over SPI interface:
   uint8_t word = 0;
   for(size_t bit = 0; bit < matrix.size(); bit++) {
-    // Obey big-endianness of SPI: flip 8bit word endianness:
-    word += (matrix.at(bit) << (7 - bit % 8));
+    word |= (matrix.at(bit) << bit % 8);
     if((bit + 1) % 8 == 0) {
       spi_data.push_back(std::make_pair(reg.address(), word));
       word = 0;
