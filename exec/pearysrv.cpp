@@ -144,7 +144,7 @@ int main(int argc, char* argv[]) {
         cmd_recognised = true;
 
         // Already running!
-        else if(running) {
+        if(running) {
           sprintf(buffer, "FAILED configuring - already running");
           LOG(logERROR) << buffer;
         }
