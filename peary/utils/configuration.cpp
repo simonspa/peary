@@ -103,7 +103,8 @@ bool Configuration::SetSection(const std::string& section) {
 std::vector<std::string> Configuration::GetSections() {
   std::vector<std::string> sections;
   for(auto const& sec : m_config) {
-    if(!sec.first.empty()) sections.push_back(sec.first);
+    if(!sec.first.empty())
+      sections.push_back(sec.first);
   }
   return sections;
 }
