@@ -33,6 +33,9 @@ namespace caribou {
     static int powerOn(const std::vector<std::string>& input);
     static int powerOff(const std::vector<std::string>& input);
     static int setVoltage(const std::vector<std::string>& input);
+    static int getVoltage(const std::vector<std::string>& input);
+    static int getCurrent(const std::vector<std::string>& input);
+    static int getPower(const std::vector<std::string>& input);
     static int voltageOn(const std::vector<std::string>& input);
     static int voltageOff(const std::vector<std::string>& input);
 

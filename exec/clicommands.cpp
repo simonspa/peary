@@ -26,6 +26,22 @@ pearycli::pearycli() : c("# ") {
                     "Set the output voltage NAME to VALUE (in V) on the selected device",
                     3,
                     "NAME VALUE DEVICE_ID");
+  c.registerCommand("getVoltage",
+                    getVoltage,
+                    "Get the output voltage NAME (in V) on the selected device",
+                    2,
+                    "NAME DEVICE_ID");
+  c.registerCommand("getCurrent",
+                    getCurrent,
+                    "Get the output current NAME (in A) on the selected device",
+                    2,
+                    "NAME DEVICE_ID");
+  c.registerCommand("getPower",
+                    getPower,
+                    "Get the output power NAME (in W) on the selected device",
+                    2,
+                    "NAME DEVICE_ID");
+
   c.registerCommand("voltageOff", voltageOff, "Turn off output voltage NAME on the selected device", 2, "NAME DEVICE_ID");
   c.registerCommand("voltageOn", voltageOn, "Turn on output voltage NAME on the selected device", 2, "NAME DEVICE_ID");
 
@@ -152,6 +168,40 @@ int pearycli::setVoltage(const std::vector<std::string>& input) {
   }
   return ret::Ok;
 }
+
+int pearycli::getVoltage(const std::vector<std::string>& input) {
+  try {
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(2)));
+    LOG(logINFO) << "Voltage " << input.at(1) << "=" << dev->getVoltage(input.at(1)) << "V";
+  } catch(caribou::caribouException& e) {
+    LOG(logERROR) << e.what();
+    return ret::Error;
+  }
+  return ret::Ok;
+}
+
+int pearycli::getCurrent(const std::vector<std::string>& input) {
+  try {
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(2)));
+    LOG(logINFO) << "Current " << input.at(1) << "=" << dev->getCurrent(input.at(1)) << "A";
+  } catch(caribou::caribouException& e) {
+    LOG(logERROR) << e.what();
+    return ret::Error;
+  }
+  return ret::Ok;
+}
+
+int pearycli::getPower(const std::vector<std::string>& input) {
+  try {
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(2)));
+    LOG(logINFO) << "Power " << input.at(1) << "=" << dev->getVoltage(input.at(1)) << "W";
+  } catch(caribou::caribouException& e) {
+    LOG(logERROR) << e.what();
+    return ret::Error;
+  }
+  return ret::Ok;
+}
+
 
 int pearycli::voltageOn(const std::vector<std::string>& input) {
   try {
