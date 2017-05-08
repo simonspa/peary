@@ -9,14 +9,12 @@
 
 using namespace caribou;
 
-int my_socket, new_socket;
-
+caribou::caribouDeviceMgr* manager;
+  
 // Global functions
 bool configure();
 bool start_run(std::string prefix, int run_nr, std::string description);
 bool stop_run(std::string prefix);
-bool timestamp();
-void *timestamp_per_sec(void*);  // to run in a separate thread
 
 // Main thread
 int main(int argc, char *argv[]){
@@ -25,13 +23,13 @@ int main(int argc, char *argv[]){
   int prev_run_nr = -1;
   
   // TCP/IP server variables
+  int my_socket, new_socket;
   int portnumber = 4000;
   struct sockaddr_in address;
   socklen_t addrlen;
   pthread_t ts_thread = 0;
   int bufsize = 1024;
   char *buffer = (char *)malloc(bufsize);
-  char cmd[32];
   std::string rundir;
 
     std::vector<std::string> devices;
@@ -65,7 +63,7 @@ int main(int argc, char *argv[]){
 
 
   // Create new Peary device manager
-  caribou::caribouDeviceMgr* manager = new caribouDeviceMgr();
+  manager = new caribouDeviceMgr();
 
   // Create all Caribou devices instance:
   try {
@@ -117,10 +115,13 @@ int main(int argc, char *argv[]){
     //--------------- Run control ---------------//
     bool cmd_recognised = false;
     int cmd_length = 0;
-    char dummy[32];
+    char cmd[32];
     run_nr = -1;
     prev_run_nr = -1;
-    bool run_started = false;
+
+    // Simple state machine
+    bool configured = false;
+    bool running = false;
 
     // Loop listening for commands from the run control
     do {
@@ -136,70 +137,80 @@ int main(int argc, char *argv[]){
         sscanf(buffer, "%s", cmd);
       } else sprintf( cmd, "no_cmd" );
 
-      //======== Configure command
       if(strcmp(cmd,"configure") == 0){
         cmd_recognised = true;
-        LOG(logINFO) << "Configuring ...";
 
-        // Configure the system
+	// Already running!
+	else if(running) {
+	  sprintf(buffer,"FAILED configuring - already running");
+	  LOG(logERROR) << buffer;
+	}
+	else if(configure()) {
+	  configured = true;
+	  sprintf(buffer,"OK configured"); }
+	else {
+	  configured = false;
+	  sprintf(buffer,"FAILED configuring");
+	}
       }
       
-      //======== Start run command
       if(strcmp(cmd,"start_run") == 0){
         cmd_recognised = true;
-        LOG(logINFO) << "Starting run";
 
-        // Get the run number and comment (placed in output file header)
-	std::istringstream runInfo(buffer);
-	std::string description, dummy;
-        runInfo >> dummy >> run_nr >> description;
-        LOG(logINFO) << "Starting run " << run_nr;
-
+	// Not configured yet!
+	if(!configured) {
+	  sprintf(buffer,"FAILED start run - not configured");
+	  LOG(logERROR) << buffer;
+	}
+	// Already running!
+	else if(running) {
+	  sprintf(buffer,"FAILED start run - already running");
+	  LOG(logERROR) << buffer;
+	}
+	else {
+	  // Get the run number and comment (placed in output file header)
+	  std::istringstream runInfo(buffer);
+	  std::string description, dummy;
+	  runInfo >> dummy >> run_nr >> description;
+	  LOG(logINFO) << "Starting run " << run_nr;
 	
-        // Define the run directory
-        rundir = "Run" + to_string(run_nr);
+	  // Define the run directory
+	  rundir = "Run" + to_string(run_nr);
 
-	bool status = true; // FIXME START RUN
-
-        // Reply to the run control
-        if (status == true) {
-          run_started = true;
-          // Write the reply string to the run control
-          sprintf(buffer,"OK run %d started", run_nr);
-	  // Also log locally
-          LOG(logINFO) << buffer;
-        }else {
-          // Stop the DAQ threads
-          status = false; // FIXME STOP RUNS?
-	    // Write the reply string to the run control
-	    run_started = false;
-          sprintf(buffer,"FAILED start run %d status %d", run_nr, status);
-	  // Also log locally
-          LOG(logERROR) << buffer;
-        }
+	  // Reply to the run control
+	  if(start_run(rundir,run_nr,description)) {
+	    running = true;
+	    sprintf(buffer,"OK run %d started", run_nr);
+	    LOG(logINFO) << buffer;
+	  } else {
+	    running = false;
+	    sprintf(buffer,"FAILED start run %d", run_nr);
+	    LOG(logERROR) << buffer;
+	  }
+	}
       }
       
-      //======== Stop run command
       if (strcmp(cmd,"stop_run")==0) {
         cmd_recognised = true;
-        LOG(logINFO) << "Stopping run";
-        // Close the time-stamping thread
-        if (ts_thread) pthread_cancel( ts_thread );
-        // Tell the DAQ to stop
-	//        if ( !spidrctrl->closeShutter() )
-	//          tcout_spidr_err( "###closeShutter" );
-        bool status = stop_run(rundir);
-        
-        if (status == true) {
-          run_started = false;
-          sprintf(buffer,"OK run %d stopped", run_nr);
-          LOG(logINFO) << buffer;
-        }
-        else {
-          sprintf(buffer,"FAILED stop run %d status %d", run_nr, status);
-          LOG(logERROR) << buffer;
-        }
+
+	// Not running yet!
+	if(!running) {
+	  sprintf(buffer,"FAILED stop run - not running");
+	  LOG(logERROR) << buffer;
+	}
+	else {
+	  if(stop_run(rundir)) {
+	    running = false;
+	    sprintf(buffer,"OK run %d stopped", run_nr);
+	    LOG(logINFO) << buffer;
+	  }
+	  else {
+	    sprintf(buffer,"FAILED stop run %d", run_nr);
+	    LOG(logERROR) << buffer;
+	  }
+	}
       }
+
       // If we don't recognise the command
       if (!cmd_recognised && (cmd_length > 0)){
         sprintf(buffer,"FAILED unknown command");
@@ -209,7 +220,7 @@ int main(int argc, char *argv[]){
       // Finally, send a reply to the client
       if(cmd_length > 0){
         send( new_socket, buffer, strlen(buffer), 0);
-        LOG(logINFO) << "Sending reply to client: " << buffer;
+        LOG(logDEBUG) << "Sending reply to client: " << buffer;
       }
       
       // Don't finish until /q received
@@ -236,18 +247,54 @@ int main(int argc, char *argv[]){
 
 
 bool configure() {
+
+  // Fetch all active devices:
+  try {
+    size_t i = 0;
+    std::vector<caribouDevice*> devs = manager->getDevices();
+    for(auto d : devs) {
+      LOG(logINFO) << "Configuring device ID " << i << ": " << d->getName();
+      i++;
+    }
+  } catch(caribou::DeviceException& e) {
+    return false;
+  }
   return true;
 }
 
 bool start_run(std::string prefix, int runNo, std::string description) {
 
-  // Start the DAQ
+  // Fetch all active devices:
+  try {
+    size_t i = 0;
+    std::vector<caribouDevice*> devs = manager->getDevices();
+    for(auto d : devs) {
+      LOG(logINFO) << "Starting run for device ID " << i << ": " << d->getName();
+      // Start the DAQ
+      d->daqStart();
+      i++;
+    }
+  } catch(caribou::DeviceException& e) {
+    return false;
+  }
   return true;
 }
         
 
 bool stop_run(std::string runDirectory) {
   
-  // Stop the DAQ
+  // Fetch all active devices:
+  try {
+    size_t i = 0;
+    std::vector<caribouDevice*> devs = manager->getDevices();
+    for(auto d : devs) {
+      LOG(logINFO) << "Stopping run for device ID " << i << ": " << d->getName();
+      // Stop the DAQ
+      d->daqStop();
+      i++;
+    }
+  } catch(caribou::DeviceException& e) {
+    return false;
+  }
   return true;
 }
