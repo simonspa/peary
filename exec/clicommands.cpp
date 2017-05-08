@@ -26,21 +26,11 @@ pearycli::pearycli() : c("# ") {
                     "Set the output voltage NAME to VALUE (in V) on the selected device",
                     3,
                     "NAME VALUE DEVICE_ID");
-  c.registerCommand("getVoltage",
-                    getVoltage,
-                    "Get the output voltage NAME (in V) on the selected device",
-                    2,
-                    "NAME DEVICE_ID");
-  c.registerCommand("getCurrent",
-                    getCurrent,
-                    "Get the output current NAME (in A) on the selected device",
-                    2,
-                    "NAME DEVICE_ID");
-  c.registerCommand("getPower",
-                    getPower,
-                    "Get the output power NAME (in W) on the selected device",
-                    2,
-                    "NAME DEVICE_ID");
+  c.registerCommand(
+    "getVoltage", getVoltage, "Get the output voltage NAME (in V) on the selected device", 2, "NAME DEVICE_ID");
+  c.registerCommand(
+    "getCurrent", getCurrent, "Get the output current NAME (in A) on the selected device", 2, "NAME DEVICE_ID");
+  c.registerCommand("getPower", getPower, "Get the output power NAME (in W) on the selected device", 2, "NAME DEVICE_ID");
 
   c.registerCommand("voltageOff", voltageOff, "Turn off output voltage NAME on the selected device", 2, "NAME DEVICE_ID");
   c.registerCommand("voltageOn", voltageOn, "Turn on output voltage NAME on the selected device", 2, "NAME DEVICE_ID");
@@ -58,6 +48,17 @@ pearycli::pearycli() : c("# ") {
                     "the configuration file parameter FILE_NAME",
                     2,
                     "FILE_NAME DEVICE_ID");
+  c.registerCommand("configurePatternGenerator",
+                    configurePatternGenerator,
+                    "Configure the pattern generator of the FPGA for the selected device "
+                    "with the pattern provided in the configuration file FILE_NAME",
+                    2,
+                    "FILE_NAME DEVICE_ID");
+  c.registerCommand("triggerPatternGenerator",
+                    triggerPatternGenerator,
+                    "Trigger the execution of the programmed pattern generator once for the selected device",
+                    1,
+                    "DEVICE_ID");
 
   c.registerCommand("scanDAC",
                     scanDAC,
@@ -202,7 +203,6 @@ int pearycli::getPower(const std::vector<std::string>& input) {
   return ret::Ok;
 }
 
-
 int pearycli::voltageOn(const std::vector<std::string>& input) {
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(2)));
@@ -252,6 +252,28 @@ int pearycli::configureMatrix(const std::vector<std::string>& input) {
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(2)));
     dev->configureMatrix(input.at(1));
+  } catch(caribou::caribouException& e) {
+    LOG(logERROR) << e.what();
+    return ret::Error;
+  }
+  return ret::Ok;
+}
+
+int pearycli::configurePatternGenerator(const std::vector<std::string>& input) {
+  try {
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(2)));
+    dev->configurePatternGenerator(input.at(1));
+  } catch(caribou::caribouException& e) {
+    LOG(logERROR) << e.what();
+    return ret::Error;
+  }
+  return ret::Ok;
+}
+
+int pearycli::triggerPatternGenerator(const std::vector<std::string>& input) {
+  try {
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
+    dev->triggerPatternGenerator();
   } catch(caribou::caribouException& e) {
     LOG(logERROR) << e.what();
     return ret::Error;

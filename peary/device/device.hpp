@@ -126,6 +126,18 @@ namespace caribou {
     // Could be either the supplied clock from DAQ or internal clock divider...
     // virtual void setClockFrequency();
 
+    /** Configure the pattern generator
+     *
+     *
+     */
+    virtual void configurePatternGenerator(std::string filename) = 0;
+
+    /** Execute the pattern generator
+     *
+     *  Trigger the execution of the pattern generator once
+     */
+    virtual void triggerPatternGenerator() = 0;
+
     /** Configure the pixel matrix
      */
     // Provide functions both for the full matrix and single pixels?
@@ -152,7 +164,7 @@ namespace caribou {
     virtual double getVoltage(std::string name) = 0;
     virtual double getCurrent(std::string name) = 0;
     virtual double getPower(std::string name) = 0;
-    
+
     // virtual double getTemperature();
 
     /** Read slow-ADC value by name of the input signal as defined by the device

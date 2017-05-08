@@ -42,6 +42,8 @@ namespace caribou {
     static int setRegister(const std::vector<std::string>& input);
     static int getRegister(const std::vector<std::string>& input);
     static int configureMatrix(const std::vector<std::string>& input);
+    static int configurePatternGenerator(const std::vector<std::string>& input);
+    static int triggerPatternGenerator(const std::vector<std::string>& input);
 
     static int scanDAC(const std::vector<std::string>& input);
 

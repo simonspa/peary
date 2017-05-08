@@ -176,7 +176,20 @@ namespace caribou {
     throw caribou::NoDataAvailable("Decoded data readback not implemented for this device");
   }
 
-  template <typename T> void pearyDevice<T>::configureMatrix(std::string) {}
+  template <typename T> void pearyDevice<T>::configureMatrix(std::string) {
+    LOG(logCRITICAL) << "Programming of the pixel matrix not implemented for this device";
+    throw caribou::NoDataAvailable("Programming of the pixel matrix not implemented for this device");
+  }
+
+  template <typename T> void pearyDevice<T>::configurePatternGenerator(std::string filename) {
+    LOG(logCRITICAL) << "Pattern generator not implemented for this device";
+    throw caribou::NoDataAvailable("Pattern generator not implemented for this device");
+  }
+
+  template <typename T> void pearyDevice<T>::triggerPatternGenerator() {
+    LOG(logCRITICAL) << "Pattern generator not implemented for this device";
+    throw caribou::NoDataAvailable("Pattern generator not implemented for this device");
+  }
 
 } // namespace caribou
 
