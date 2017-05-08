@@ -24,36 +24,35 @@ namespace caribou {
 #define CLICpix2_CML_IREF_POL PUSH
 #define CLICpix2_DAC_IREF 13
 #define CLICpix2_DAC_IREF_POL PULL
-  
-  //CLICpix2 receiver
+
+  // CLICpix2 receiver
   const std::intptr_t CLICpix2_receiver_BASE_ADDRESS = 0x43C10000;
   const std::intptr_t CLICpix2_receiver_FIFO_OFFSET = 0;
   const std::intptr_t CLICpix2_receiver_COUNTER_OFFSET = 4;
   const std::size_t CLICpix2_receiver_MAP_SIZE = 4096;
   const std::size_t CLICpix2_receiver_MAP_MASK = CLICpix2_receiver_MAP_SIZE - 1;
 
-  //CLIcpix2 control
+  // CLIcpix2 control
   const std::intptr_t CLICpix2_control_BASE_ADDRESS = 0x43C20000;
   const std::intptr_t CLICpix2_control_OFFSET = 0;
   const uint32_t CLICpix2_control_RESET_MASK = 0x1;
   const uint32_t CLICpix2_control_PWR_PULSE_MASK = 0x100;
   const uint32_t CLICpix2_control_SHUTTER_MASK = 0x10000;
   const uint32_t CLICpix2_control_TP_MASK = 0x1000000;
-  
+
   const std::size_t CLICpix2_control_MAP_SIZE = 4096;
   const std::size_t CLICpix2_control_MAP_MASK = CLICpix2_control_MAP_SIZE - 1;
 
-  
 #define CLICPIX2_REGISTERS                                                                                                  \
   {                                                                                                                         \
-      {"readout", register_t<>(0x02)}, \
-      {"matrix_programming", register_t<>(0x04)}, {"bias_disc_N", register_t<>(0x0A)}, {"bias_disc_P", register_t<>(0x0C)}, \
-      {"ikrum", register_t<>(0x0E)}, {"bias_preamp", register_t<>(0x10)}, {"bias_thadj_DAC", register_t<>(0x12)},           \
-      {"bias_buffers_1st", register_t<>(0x14, 0xF0)}, {"bias_buffers_2nd", register_t<>(0x14, 0x0F)},                       \
-      {"bias_preamp_casc", register_t<>(0x16)}, {"bias_thadj_casc", register_t<>(0x18)},                                    \
-      {"bias_mirror_casc", register_t<>(0x1A)}, {"vfbk", register_t<>(0x1C)}, {"bias_disc_N_OFF", register_t<>(0x1E)},      \
-      {"bias_disc_P_OFF", register_t<>(0x20)}, {"bias_preamp_OFF", register_t<>(0x22)},                                     \
-      {"threshold_LSB", register_t<>(0x24)}, {"threshold_MSB", register_t<>(0x26)}, {"test_cap_1_LSB", register_t<>(0x28)}, \
+    {"readout", register_t<>(0x02)}, {"matrix_programming", register_t<>(0x04)}, {"bias_disc_N", register_t<>(0x0A)},       \
+      {"bias_disc_P", register_t<>(0x0C)}, {"ikrum", register_t<>(0x0E)}, {"bias_preamp", register_t<>(0x10)},              \
+      {"bias_thadj_DAC", register_t<>(0x12)}, {"bias_buffers_1st", register_t<>(0x14, 0xF0)},                               \
+      {"bias_buffers_2nd", register_t<>(0x14, 0x0F)}, {"bias_preamp_casc", register_t<>(0x16)},                             \
+      {"bias_thadj_casc", register_t<>(0x18)}, {"bias_mirror_casc", register_t<>(0x1A)}, {"vfbk", register_t<>(0x1C)},      \
+      {"bias_disc_N_OFF", register_t<>(0x1E)}, {"bias_disc_P_OFF", register_t<>(0x20)},                                     \
+      {"bias_preamp_OFF", register_t<>(0x22)}, {"threshold_LSB", register_t<>(0x24)},                                       \
+      {"threshold_MSB", register_t<>(0x26)}, {"test_cap_1_LSB", register_t<>(0x28)},                                        \
       {"test_cap_1_MSB", register_t<>(0x2A)}, {"test_cap_2", register_t<>(0x2C)}, {"output_mux_DAC", register_t<>(0x2E)},   \
                                                                                                                             \
       {"poweron_timer", register_t<>(0x30, 0x3F)}, {"pp_clk_div", register_t<>(0x30, 0xC0)},                                \

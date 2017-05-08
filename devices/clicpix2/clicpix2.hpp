@@ -9,12 +9,12 @@
 #include <vector>
 #include "Si5345-RevB-CLICpix2-Registers.h"
 #include "clicpix2_defaults.hpp"
+#include "clicpix2_frameDecoder.hpp"
+#include "clicpix2_pixels.hpp"
 #include "configuration.hpp"
 #include "device.hpp"
 #include "pearydevice.hpp"
 #include "spi_CLICpix2.hpp"
-#include "clicpix2_pixels.hpp"
-#include "clicpix2_frameDecoder.hpp"
 
 namespace caribou {
 
@@ -91,27 +91,25 @@ namespace caribou {
     // The reset signal is asserted for ~5us
     void reset();
 
-    //Methods decodes frame
+    // Methods decodes frame
     void decodeFrame(const std::vector<uint32_t> frame);
 
-    //Access to FPGA memory mapped registers
+    // Access to FPGA memory mapped registers
     int memfd;
-    //CLICpix2 receiver memory map address
+    // CLICpix2 receiver memory map address
     void* receiver_base;
-    //CLICpix2 reciver map base
+    // CLICpix2 reciver map base
     void* receiver_map_base;
-    //CLICpix2 control memory map address
+    // CLICpix2 control memory map address
     void* control_base;
-    //CLICpix2 reciver map base
+    // CLICpix2 reciver map base
     void* control_map_base;
-
   };
 
   extern "C" {
   caribouDevice* generator(const caribou::Configuration);
   }
 
-  
 } // namespace caribou
 
 #endif /* DEVICE_CLICPIX2_H */

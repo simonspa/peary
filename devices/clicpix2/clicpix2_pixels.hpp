@@ -1,4 +1,4 @@
-//Defines CLICpix2 pixels types
+// Defines CLICpix2 pixels types
 
 #ifndef CLICPIX2_PIXELS_HPP
 #define CLICPIX2_PIXELS_HPP
@@ -8,21 +8,21 @@
 
 namespace caribou {
 
-  //Basic pixel class
-  //The information is internally stored in the same way, the chip stores it, as
-  //a 14bit register.
+  // Basic pixel class
+  // The information is internally stored in the same way, the chip stores it, as
+  // a 14bit register.
   //
-  //The individual values are set via the member functions of a specialized classes
-  class clicpix2_pixel : public virtual pixel{
+  // The individual values are set via the member functions of a specialized classes
+  class clicpix2_pixel : public virtual pixel {
   public:
     virtual ~clicpix2_pixel(){};
+
   protected:
-    clicpix2_pixel() {};
-    clicpix2_pixel(uint16_t m_latches) : m_latches(m_latches) {};
+    clicpix2_pixel(){};
+    clicpix2_pixel(uint16_t m_latches) : m_latches(m_latches){};
     uint16_t m_latches;
   };
-    
-  
+
   /* CLICpix2 pixel configuration class
    *
    * Class to hold all information required to fully configure one pixel.
@@ -30,13 +30,13 @@ namespace caribou {
    * a 14bit register. The individual values are set via the member functions
    * and can be retrieved bitwise for convenience.
    */
-  class pixelConfig : public virtual clicpix2_pixel{
+  class pixelConfig : public virtual clicpix2_pixel {
   public:
     /* Default constructor
      *
      * Initializes the pixel in a masked state
      */
-    pixelConfig() : clicpix2_pixel(0x0000) {};
+    pixelConfig() : clicpix2_pixel(0x0000){};
     pixelConfig(bool mask, uint8_t threshold, bool cntmode, bool tpenable, bool longcnt) : pixelConfig() {
       SetMask(mask);
       SetThreshold(threshold);
@@ -109,51 +109,44 @@ namespace caribou {
   // CLICpix2 pixel readout class
   // The individual values are set via the member functions
   // and can be retrieved bitwise for convenience.
-  class pixelReadout : public virtual clicpix2_pixel{
-  public :
-    //Default constructor
-    //Disables the pixel
-    pixelReadout() : clicpix2_pixel (0x0) {};
+  class pixelReadout : public virtual clicpix2_pixel {
+  public:
+    // Default constructor
+    // Disables the pixel
+    pixelReadout() : clicpix2_pixel(0x0){};
     pixelReadout(bool flag, uint8_t tot, uint8_t toa) : pixelReadout() {
       SetFlag(flag);
       SetTOT(tot);
       SetTOA(toa);
     }
 
-    //Flag setting of the pixel
-    void SetFlag(bool flag){
+    // Flag setting of the pixel
+    void SetFlag(bool flag) {
       if(flag)
-	m_latches |= (1 << 13);
+        m_latches |= (1 << 13);
       else
         m_latches &= ~(1 << 13);
     }
     bool GetFlag() const { return (m_latches >> 13) & 0x1; }
 
-    //TOT setting of the pixel (5bit)
-    void SetTOT(uint8_t tot){
-      m_latches = (m_latches & 0x80ff) | ( (tot & 0x1f) << 8); 
-    }
+    // TOT setting of the pixel (5bit)
+    void SetTOT(uint8_t tot) { m_latches = (m_latches & 0x80ff) | ((tot & 0x1f) << 8); }
     uint8_t GetTOT() const { return (m_latches >> 8) & 0x1f; };
 
-    //TOA setting of the pixel (8bit)
-    void SetTOA(uint8_t toa){
-      m_latches = (m_latches & 0xff00) | toa; 
-    }
+    // TOA setting of the pixel (8bit)
+    void SetTOA(uint8_t toa) { m_latches = (m_latches & 0xff00) | toa; }
     uint8_t GetTOA() const { return m_latches & 0xff; };
 
-    //direct latch access
-    void setLatches(uint16_t latches){
-      m_latches = latches;
-    }
+    // direct latch access
+    void setLatches(uint16_t latches) { m_latches = latches; }
 
-    //set a dedicated bit of the latch
-    void setLatches(bool bit, uint8_t idx){
+    // set a dedicated bit of the latch
+    void setLatches(bool bit, uint8_t idx) {
       if(bit)
         m_latches |= (1 << idx);
       else
         m_latches &= ~(1 << idx);
     }
-
 
     /** Overloaded ostream operator for simple printing of pixel data
      */
@@ -161,10 +154,7 @@ namespace caribou {
       out << "px [" << px.GetFlag() << "|" << static_cast<int>(px.GetTOT()) << "|" << static_cast<int>(px.GetTOA()) << "]";
       return out;
     }
-    
   };
-
-  
 }
 
 #endif

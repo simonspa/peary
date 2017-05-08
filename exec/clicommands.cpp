@@ -62,7 +62,6 @@ pearycli::pearycli() : c("# ") {
   c.registerCommand("daqStop", daqStop, "Stop DAQ for the selected device", 1, "DEVICE_ID");
   c.registerCommand("getRawData", getRawData, "Retrieve raw data from the selected device", 1, "DEVICE_ID");
   c.registerCommand("getData", getData, "Retrieve decoded data from the selected device", 1, "DEVICE_ID");
-
 }
 
 pearycli::~pearycli() {

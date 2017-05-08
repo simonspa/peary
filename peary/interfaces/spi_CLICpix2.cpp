@@ -75,24 +75,22 @@ std::vector<std::pair<spi_reg_t, spi_t>> iface_spi_CLICpix2::write(const spi_add
 
     loop.pos += sizeof(spi_reg_t) + sizeof(spi_t);
 
-    //SPIDEV has limit of 2^7 words per transfer
+    // SPIDEV has limit of 2^7 words per transfer
     //(_IOC_SIZE has 14 bits indicates number of bytes taken by spi_ioc_transfer times number of messages)
-    if(loop.i % static_cast<int>(2<<7) == static_cast<int>( (2<<7)-1 ) ) //i % 2^7 == 2^7 - 1
-      if(ioctl(spiDesc,
-	       SPI_IOC_MESSAGE( static_cast<int>( (2<<7) ) ),
-	       &tr[loop.i - static_cast<int>( (2<<7)-1 )  ]
-	       ) < static_cast<int>( (2<<7) ) )
-	throw CommunicationError("Failed to access device " + devicePath + ": " + std::strerror(errno));
+    if(loop.i % static_cast<int>(2 << 7) == static_cast<int>((2 << 7) - 1)) // i % 2^7 == 2^7 - 1
+      if(ioctl(spiDesc, SPI_IOC_MESSAGE(static_cast<int>((2 << 7))), &tr[loop.i - static_cast<int>((2 << 7) - 1)]) <
+         static_cast<int>((2 << 7)))
+        throw CommunicationError("Failed to access device " + devicePath + ": " + std::strerror(errno));
   }
-  //SPIDEV has limit of 2^7 words
+  // SPIDEV has limit of 2^7 words
   //(_IOC_SIZE has 14 bits indicates number of bytes taken by spi_ioc_transfer times number of messages)
-  if( data.size() % static_cast<int>(2<<7) )
+  if(data.size() % static_cast<int>(2 << 7))
     if(ioctl(spiDesc,
-	     SPI_IOC_MESSAGE( data.size() % static_cast<int>(2<<7)),
-	     &tr[ data.size() / static_cast<int>(2<<7) * static_cast<int>( (2<<7) ) ]
-	     ) < data.size()  % static_cast<int>(2<<7) ) 
+             SPI_IOC_MESSAGE(data.size() % static_cast<int>(2 << 7)),
+             &tr[data.size() / static_cast<int>(2 << 7) * static_cast<int>((2 << 7))]) <
+       data.size() % static_cast<int>(2 << 7))
       throw CommunicationError("Failed to access device " + devicePath + ": " + std::strerror(errno));
-  
+
   // unpack
   rx.reserve(data.size());
   for(struct {

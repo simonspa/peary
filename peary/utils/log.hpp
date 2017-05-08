@@ -219,8 +219,7 @@ namespace caribou {
   else                                                                                                                      \
     caribou::Log().Get(level, __FILE_NAME__, __func__, __LINE__)
 
-#define LOGTIME								\
-  caribou::Log().NowTime()
+#define LOGTIME caribou::Log().NowTime()
 
 } // namespace caribou
 
