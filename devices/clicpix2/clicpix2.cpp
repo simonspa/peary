@@ -266,10 +266,8 @@ void clicpix2::programMatrix() {
     std::stringstream s;
     for(size_t bit = 0; bit < matrix.size(); bit++) {
       s << matrix.at(bit);
-      word += (matrix.at(bit) << (7 - bit % 8));
       if((bit + 1) % 8 == 0) {
         s << " ";
-        word = 0;
       }
       if((bit + 1) % 64 == 0)
         s << " (" << (bit + 1) / 64 << ")" << std::endl;
