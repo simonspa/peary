@@ -80,7 +80,7 @@ namespace caribou {
      */
     void readMatrix(std::string filename);
 
-    /* Map of pixelConfigs for configuration storage (col/row)
+    /* Map of pixelConfigs for configuration storage (row/col)
      */
     std::map<std::pair<uint8_t, uint8_t>, pixelConfig> pixels;
 

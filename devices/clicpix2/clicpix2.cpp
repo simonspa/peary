@@ -198,9 +198,9 @@ void clicpix2::readMatrix(std::string filename) {
     LOG(logDEBUGHAL) << "Read line: " << line;
     std::istringstream pxline(line);
     int column, row, threshold, mask, cntmode, tpenable, longcnt;
-    if(pxline >> column >> row >> mask >> threshold >> cntmode >> tpenable >> longcnt) {
+    if(pxline >> row >> column >> mask >> threshold >> cntmode >> tpenable >> longcnt) {
       pixelConfig px(mask, threshold, cntmode, tpenable, longcnt);
-      pixels[std::make_pair(column, row)] = px;
+      pixels[std::make_pair(row, column)] = px;
       LOG(logDEBUGHAL) << "  is pixel: " << px;
     }
   }
@@ -228,12 +228,12 @@ void clicpix2::programMatrix() {
     // Perform snake pattern within double column:
     for(size_t col = 0; col < 2; col++) {
       // Store 14 bit per pixel:
-      for(int bit = 13; bit >= 0; bit--) {
+      for(int bit = 13; bit >= 0; --bit) {
 	// Loop over all double columns
 	for(size_t dcolumn = 0; dcolumn < 64; dcolumn++) {
 	  LOG(logDEBUGHAL) << "bit " << bit << " of pixel " << row << "," << (2*dcolumn+((row+col)%2));
 	  // Send one bit per double column to form one 64bit word
-	  pixelConfig px = pixels[std::make_pair(2 * dcolumn + ((row+col)%2), row)];
+	  pixelConfig px = pixels[std::make_pair(row, 2 * dcolumn + ((row+col)%2))];
 	  matrix.push_back(px.GetBit(bit));
 	}
       }
