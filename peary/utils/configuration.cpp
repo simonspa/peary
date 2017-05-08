@@ -100,6 +100,14 @@ bool Configuration::SetSection(const std::string& section) {
   return true;
 }
 
+std::vector<std::string> Configuration::GetSections() {
+  std::vector<std::string> sections;
+  for(auto const& sec : m_config) {
+    sections.push_back(sec.first);
+  }
+  return sections;
+}
+
 std::string Configuration::Get(const std::string& key, const std::string& def) const {
   try {
     return GetString(key);
