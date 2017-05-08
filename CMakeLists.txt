@@ -127,6 +127,19 @@ ADD_SUBDIRECTORY(doc)
 # Define build targets for sample applications #
 ################################################
 
+# Build flag for the Timepix3 telescope DAQ server
+OPTION(BUILD_server "Build server for receiving commands from Run Control?" OFF)
+IF(BUILD_server)
+  # add target
+  ADD_EXECUTABLE(pearysrv "exec/pearysrv.cpp")
+  ADD_EXECUTABLE(dummyclient "exec/dummyclient.cpp")
+  TARGET_LINK_LIBRARIES(pearysrv ${PROJECT_NAME})
+  INSTALL(TARGETS pearysrv dummyclient
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib)
+ENDIF(BUILD_server)
+
 ADD_EXECUTABLE(peary_app "exec/sample_application.cpp")
 TARGET_LINK_LIBRARIES(peary_app ${PROJECT_NAME})
 
