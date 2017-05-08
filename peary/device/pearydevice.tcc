@@ -66,6 +66,36 @@ namespace caribou {
     _hal->powerVoltageRegulator(*ptr, false);
   }
 
+  template <typename T> double pearyDevice<T>::getVoltage(std::string name) {
+
+    // Resolve name against periphery dictionary
+    std::shared_ptr<VOLTAGE_REGULATOR_T> ptr = _periphery.get<VOLTAGE_REGULATOR_T>(name);
+    LOG(logDEBUG) << "Voltage to be measured: " << name << " on " << ptr->name();
+
+    // Send command to monitor via HAL
+    return _hal->measureVoltage(*ptr);
+  }
+
+  template <typename T> double pearyDevice<T>::getCurrent(std::string name) {
+
+    // Resolve name against periphery dictionary
+    std::shared_ptr<VOLTAGE_REGULATOR_T> ptr = _periphery.get<VOLTAGE_REGULATOR_T>(name);
+    LOG(logDEBUG) << "Current to be measured: " << name << " on " << ptr->name();
+
+    // Send command to monitor via HAL
+    return _hal->measureCurrent(*ptr);
+  }
+
+  template <typename T> double pearyDevice<T>::getPower(std::string name) {
+
+    // Resolve name against periphery dictionary
+    std::shared_ptr<VOLTAGE_REGULATOR_T> ptr = _periphery.get<VOLTAGE_REGULATOR_T>(name);
+    LOG(logDEBUG) << "Power to be measured: " << name << " on " << ptr->name();
+
+    // Send command to monitor via HAL
+    return _hal->measurePower(*ptr);
+  }
+
   template <typename T> double pearyDevice<T>::getADC(uint8_t channel) {
     try {
       std::vector<SLOW_ADC_CHANNEL_T> ch{VOL_IN_1, VOL_IN_2, VOL_IN_3, VOL_IN_4, VOL_IN_5, VOL_IN_6, VOL_IN_7, VOL_IN_8};

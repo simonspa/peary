@@ -126,8 +126,6 @@ namespace caribou {
     // Could be either the supplied clock from DAQ or internal clock divider...
     // virtual void setClockFrequency();
 
-    // Programming the pixel matrix
-
     /** Configure the pixel matrix
      */
     // Provide functions both for the full matrix and single pixels?
@@ -151,9 +149,10 @@ namespace caribou {
     virtual void voltageOff(std::string name) = 0;
 
     virtual void setCurrent(std::string name, double current) = 0;
-    // virtual double measureVoltage();
-    // virtual double measureCurrent();
-
+    virtual double getVoltage(std::string name) = 0;
+    virtual double getCurrent(std::string name) = 0;
+    virtual double getPower(std::string name) = 0;
+    
     // virtual double getTemperature();
 
     /** Read slow-ADC value by name of the input signal as defined by the device

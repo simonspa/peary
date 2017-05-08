@@ -136,8 +136,9 @@ namespace caribou {
     void voltageOff(std::string name);
 
     void setCurrent(std::string name, double current);
-    // virtual double measureVoltage();
-    // virtual double measureCurrent();
+    double getVoltage(std::string name);
+    double getCurrent(std::string name);
+    double getPower(std::string name);
 
     // virtual double getTemperature();
 
