@@ -2,7 +2,7 @@
 
   TCanvas *c = new TCanvas("c","",0,0,700,700);
   gStyle->SetPalette(1);
-  TH2D * h  = new TH2D("h", "", 128, 0, 127, 128, 0, 127);
+  TH2D * h  = new TH2D("h", "", 128, 0, 128, 128, 0, 128);
 
   std::string filename = "debug.txt";
 
@@ -20,7 +20,7 @@
       int column, row, mask;
       if(pxline >> row >> column >> mask) {
 	std::cout << row << " " << column << " " << mask << "\n";
-	h->SetBinContent(column, row, mask);
+	h->SetBinContent(column+1, row+1, mask);
 	if(mask) masks++;
       }
     }
