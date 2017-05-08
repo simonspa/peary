@@ -77,10 +77,10 @@ void clicpix2_frameDecoder::extractColumns(std::vector<clicpix2_frameDecoder::WO
   for(unsigned int r=0; r < 256; ++r)
     for(unsigned int c=0; c<pow(2,rcr); c++){
       switch(r%4) {
-      case 0 : matrix[r/2][c*2*64/pow(2,rcr) + firstColumn*2    ] = pixels_dc[r][c]; //left column
-      case 1 : matrix[r/2][c*2*64/pow(2,rcr) + firstColumn*2 + 1] = pixels_dc[r][c]; //right column
-      case 2 : matrix[r/2][c*2*64/pow(2,rcr) + firstColumn*2 + 1] = pixels_dc[r][c]; //right column
-      case 3 : matrix[r/2][c*2*64/pow(2,rcr) + firstColumn*2  ] = pixels_dc[r][c]; //left column
+      case 0 : matrix[r/2][c*2*64/pow(2,rcr) + firstColumn*2    ] = pixels_dc[r][c]; break; //left column
+      case 1 : matrix[r/2][c*2*64/pow(2,rcr) + firstColumn*2 + 1] = pixels_dc[r][c]; break; //right column
+      case 2 : matrix[r/2][c*2*64/pow(2,rcr) + firstColumn*2 + 1] = pixels_dc[r][c]; break; //right column
+      case 3 : matrix[r/2][c*2*64/pow(2,rcr) + firstColumn*2  ] = pixels_dc[r][c]; break; //left column
       }
     }
 }
@@ -88,13 +88,14 @@ void clicpix2_frameDecoder::extractColumns(std::vector<clicpix2_frameDecoder::WO
 void clicpix2_frameDecoder::unraveDC(std::array< std::array<pixelReadout, 8>, CLICPIX2_ROW * 2> &pixels_dc, std::array<int,8> &dc_counter,
 			    std::array<int,8> &sp_counter, std::array<int,8> &row_index, std::array<int,8> &row_slice, const uint8_t data){
 
-      //unravel the double-columns
+  //unravel the double-columns
   switch(rcr){
   case 1 :
     for(int i=0; i < 8; i+=2){
       processDCbit( pixels_dc, dc_counter[0], sp_counter[0], row_index[0], 0, row_slice[0], (data >> (i) ) & 0x1 );
       processDCbit( pixels_dc, dc_counter[1], sp_counter[1], row_index[1], 1, row_slice[1], (data >> (i+1) ) & 0x1 );
     }
+    break;
   case 2 :
     for(int i=0; i < 8; i+=4) {
       processDCbit( pixels_dc, dc_counter[0], sp_counter[0], row_index[0], 0, row_slice[0], (data >> (i) ) & 0x1 );
@@ -102,6 +103,7 @@ void clicpix2_frameDecoder::unraveDC(std::array< std::array<pixelReadout, 8>, CL
       processDCbit( pixels_dc, dc_counter[2], sp_counter[2], row_index[2], 2, row_slice[2], (data >> (i+2) ) & 0x1 );
       processDCbit( pixels_dc, dc_counter[3], sp_counter[3], row_index[3], 3, row_slice[3], (data >> (i+3) ) & 0x1 );
     }
+    break;
   case 3 :
     for(int i=0; i < 8; i+=8) {
       processDCbit( pixels_dc, dc_counter[0], sp_counter[0], row_index[0], 0, row_slice[0], (data >> (i) ) & 0x1 );
@@ -113,6 +115,7 @@ void clicpix2_frameDecoder::unraveDC(std::array< std::array<pixelReadout, 8>, CL
       processDCbit( pixels_dc, dc_counter[6], sp_counter[6], row_index[6], 6, row_slice[6], (data >> (i+6) ) & 0x1 );
       processDCbit( pixels_dc, dc_counter[7], sp_counter[7], row_index[7], 7, row_slice[7], (data >> (i+7) ) & 0x1 );
     }
+    break;
   }
 }
 
