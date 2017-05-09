@@ -41,7 +41,8 @@ clicpix2::clicpix2(const caribou::Configuration config) : pearyDevice(config, st
   }
 
   // Map CLICpix2 receiver
-
+  void* receiver_map_base;
+    
   // Map one page of memory into user space such that the device is in that page, but it may not
   // be at the start of the page.
   receiver_map_base = mmap(0,
@@ -60,6 +61,7 @@ clicpix2::clicpix2(const caribou::Configuration config) : pearyDevice(config, st
                                           (CLICPIX2_RECEIVER_BASE_ADDRESS & CLICPIX2_RECEIVER_MAP_MASK));
 
   // Map CLICpix2 control
+  void* control_map_base;
 
   // Map one page of memory into user space such that the device is in that page, but it may not
   // be at the start of the page.
