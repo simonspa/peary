@@ -26,22 +26,28 @@ namespace caribou {
 #define CLICpix2_DAC_IREF_POL PULL
 
   // CLICpix2 receiver
-  const std::intptr_t CLICpix2_receiver_BASE_ADDRESS = 0x43C10000;
-  const std::intptr_t CLICpix2_receiver_FIFO_OFFSET = 0;
-  const std::intptr_t CLICpix2_receiver_COUNTER_OFFSET = 4;
-  const std::size_t CLICpix2_receiver_MAP_SIZE = 4096;
-  const std::size_t CLICpix2_receiver_MAP_MASK = CLICpix2_receiver_MAP_SIZE - 1;
+  const std::intptr_t CLICPIX2_RECEIVER_BASE_ADDRESS = 0x43C10000;
+  const std::intptr_t CLICPIX2_RECEIVER_FIFO_OFFSET = 0;
+  const std::intptr_t CLICPIX2_RECEIVER_COUNTER_OFFSET = 4;
+  const std::size_t CLICPIX2_RECEIVER_MAP_SIZE = 4096;
+  const std::size_t CLICPIX2_RECEIVER_MAP_MASK = CLICPIX2_RECEIVER_MAP_SIZE - 1;
 
   // CLIcpix2 control
-  const std::intptr_t CLICpix2_control_BASE_ADDRESS = 0x43C20000;
-  const std::intptr_t CLICpix2_control_OFFSET = 0;
-  const uint32_t CLICpix2_control_RESET_MASK = 0x1;
-  const uint32_t CLICpix2_control_PWR_PULSE_MASK = 0x100;
-  const uint32_t CLICpix2_control_SHUTTER_MASK = 0x10000;
-  const uint32_t CLICpix2_control_TP_MASK = 0x1000000;
+  const std::intptr_t CLICPIX2_CONTROL_BASE_ADDRESS = 0x43C20000;
+  const std::intptr_t CLICPIX2_RESET_OFFSET = 0;
+  const std::intptr_t CLICPIX2_WAVE_CONTROL_OFFSET = 4;
+  const std::intptr_t CLICPIX2_WAVE_EVENTS_OFFSET = 8;
 
-  const std::size_t CLICpix2_control_MAP_SIZE = 4096;
-  const std::size_t CLICpix2_control_MAP_MASK = CLICpix2_control_MAP_SIZE - 1;
+  const uint32_t CLICPIX2_CONTROL_RESET_MASK = 0x1;
+  const uint32_t CLICPIX2_CONTROL_WAVE_GENERATOR_ENABLE_MASK = 0x1;
+  const uint32_t CLICPIX2_CONTROL_WAVE_GENERATOR_LOOP_MODE_MASK = 0x2;
+  const uint32_t CLICPIX2_CONTROL_WAVE_GENERATOR_EVENTS_TP_MASK = 0x80000000;
+  const uint32_t CLICPIX2_CONTROL_WAVE_GENERATOR_EVENTS_PWR_PULSE_MASK = 0x40000000;
+  const uint32_t CLICPIX2_CONTROL_WAVE_GENERATOR_EVENTS_SHUTTER_MASK = 0x20000000;
+  const uint32_t CLICPIX2_CONTROL_WAVE_GENERATOR_EVENTS_NEXT_EVENT_TIME_MASK = 0x1FFFFFFF;
+  
+  const std::size_t CLICPIX2_CONTROL_MAP_SIZE = 4096;
+  const std::size_t CLICPIX2_CONTROL_MAP_MASK = CLICPIX2_CONTROL_MAP_SIZE - 1;
 
 #define CLICPIX2_REGISTERS                                                                                                  \
   {                                                                                                                         \

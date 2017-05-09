@@ -45,11 +45,11 @@ clicpix2::clicpix2(const caribou::Configuration config) : pearyDevice(config, st
   // Map one page of memory into user space such that the device is in that page, but it may not
   // be at the start of the page.
   receiver_map_base = mmap(0,
-                           CLICpix2_receiver_MAP_SIZE,
+                           CLICPIX2_RECEIVER_MAP_SIZE,
                            PROT_READ,
                            MAP_SHARED,
                            memfd,
-                           CLICpix2_receiver_BASE_ADDRESS & ~CLICpix2_receiver_MAP_MASK);
+                           CLICPIX2_RECEIVER_BASE_ADDRESS & ~CLICPIX2_RECEIVER_MAP_MASK);
   if(receiver_map_base == (void*)-1) {
     throw DeviceException("Can't map the memory to user space.\n");
   }
@@ -57,18 +57,18 @@ clicpix2::clicpix2(const caribou::Configuration config) : pearyDevice(config, st
   // get the address of the device in user space which will be an offset from the base
   // that was mapped as memory is mapped at the start of a page
   receiver_base = reinterpret_cast<void*>(reinterpret_cast<std::intptr_t>(receiver_map_base) +
-                                          (CLICpix2_receiver_BASE_ADDRESS & CLICpix2_receiver_MAP_MASK));
+                                          (CLICPIX2_RECEIVER_BASE_ADDRESS & CLICPIX2_RECEIVER_MAP_MASK));
 
   // Map CLICpix2 control
 
   // Map one page of memory into user space such that the device is in that page, but it may not
   // be at the start of the page.
   control_map_base = mmap(0,
-                          CLICpix2_control_MAP_SIZE,
+                          CLICPIX2_CONTROL_MAP_SIZE,
                           PROT_READ | PROT_WRITE,
                           MAP_SHARED,
                           memfd,
-                          CLICpix2_control_BASE_ADDRESS & ~CLICpix2_control_MAP_MASK);
+                          CLICPIX2_CONTROL_BASE_ADDRESS & ~CLICPIX2_CONTROL_MAP_MASK);
   if(control_map_base == (void*)-1) {
     throw DeviceException("Can't map the memory to user space.\n");
   }
@@ -76,11 +76,11 @@ clicpix2::clicpix2(const caribou::Configuration config) : pearyDevice(config, st
   // get the address of the device in user space which will be an offset from the base
   // that was mapped as memory is mapped at the start of a page
   control_base = reinterpret_cast<void*>(reinterpret_cast<std::intptr_t>(control_map_base) +
-                                         (CLICpix2_control_BASE_ADDRESS & CLICpix2_control_MAP_MASK));
+                                         (CLICPIX2_CONTROL_BASE_ADDRESS & CLICPIX2_CONTROL_MAP_MASK));
 
   // set defulat CLICpix2 control
   volatile uint32_t* control_reg =
-    reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + CLICpix2_control_OFFSET);
+    reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + CLICPIX2_RESET_OFFSET);
   *control_reg = 0; // keep CLICpix2 in reset state
 }
 
@@ -93,10 +93,10 @@ void clicpix2::init() {
 void clicpix2::reset() {
   LOG(logDEBUG) << "Reseting " << DEVICE_NAME;
   volatile uint32_t* control_reg =
-    reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + CLICpix2_control_OFFSET);
-  *control_reg &= ~(CLICpix2_control_RESET_MASK); // assert reset
+    reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + CLICPIX2_RESET_OFFSET);
+  *control_reg &= ~(CLICPIX2_CONTROL_RESET_MASK); // assert reset
   usleep(500000);
-  *control_reg |= CLICpix2_control_RESET_MASK; // deny reset
+  *control_reg |= CLICPIX2_CONTROL_RESET_MASK; // deny reset
 }
 
 clicpix2::~clicpix2() {
@@ -105,12 +105,12 @@ clicpix2::~clicpix2() {
   powerOff();
 
   // Unamp CLICpix2 receiver
-  if(munmap(receiver_base, CLICpix2_receiver_MAP_SIZE) == -1) {
+  if(munmap(receiver_base, CLICPIX2_RECEIVER_MAP_SIZE) == -1) {
     throw DeviceException("Can't unmap memory from user space.\n");
   }
 
   // Unamp CLICpix2 control
-  if(munmap(control_base, CLICpix2_control_MAP_SIZE) == -1) {
+  if(munmap(control_base, CLICPIX2_CONTROL_MAP_SIZE) == -1) {
     throw DeviceException("Can't unmap memory from user space.\n");
   }
 
@@ -390,12 +390,12 @@ std::vector<uint32_t> clicpix2::getRawData() {
   mDelay(5);
 
   unsigned int frameSize = *(
-    reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(receiver_base) + CLICpix2_receiver_COUNTER_OFFSET));
+    reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(receiver_base) + CLICPIX2_RECEIVER_COUNTER_OFFSET));
   std::vector<uint32_t> frame;
   frame.reserve(frameSize);
   for(unsigned int i = 0; i < frameSize; ++i) {
     frame.emplace_back(*(
-      reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(receiver_base) + CLICpix2_receiver_FIFO_OFFSET)));
+      reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(receiver_base) + CLICPIX2_RECEIVER_FIFO_OFFSET)));
   }
 
   LOG(logDEBUG) << DEVICE_NAME << " Read raw SerDes data:\n" << listVector(frame, ", ", true);
