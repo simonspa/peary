@@ -19,10 +19,18 @@ namespace caribou {
    */
   class pixel {
   public:
+    pixel(){};
     virtual ~pixel(){};
 
+    /** Overloaded ostream operator for printing of pixel data
+     */
+    friend std::ostream& operator<<(std::ostream& out, const pixel& px) {
+      px.print(out);
+      return out;
+    }
+
   protected:
-    pixel(){};
+    virtual void print(std::ostream&) const {};
   };
 
   /** class to store a register configuration

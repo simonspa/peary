@@ -17,6 +17,23 @@ namespace caribou {
   public:
     virtual ~clicpix2_pixel(){};
 
+    // direct latch access
+    void setLatches(uint16_t latches) { m_latches = latches; }
+
+    // set a dedicated bit of the latch
+    void setLatches(bool bit, uint8_t idx) {
+      if(bit)
+        m_latches |= (1 << idx);
+      else
+        m_latches &= ~(1 << idx);
+    }
+
+    /* Member function to return single bit of the latches.
+     */
+    bool GetBit(uint8_t bit) { return ((m_latches >> bit) & 0x1); }
+
+    uint16_t GetLatches() const { return m_latches; }
+
   protected:
     clicpix2_pixel(){};
     clicpix2_pixel(uint16_t m_latches) : m_latches(m_latches){};
@@ -90,19 +107,11 @@ namespace caribou {
     }
     bool GetLongCounter() const { return (m_latches >> 1) & 0x1; }
 
-    /* Member function to return single bit of the latches.
-     * Used for programming the pixel matrix
+    /** Overloaded print function for ostream operator
      */
-    bool GetBit(uint8_t bit) { return ((m_latches >> bit) & 0x1); }
-
-    uint16_t GetLatches() const { return m_latches; }
-
-    /** Overloaded ostream operator for simple printing of pixel data
-     */
-    friend std::ostream& operator<<(std::ostream& out, const pixelConfig& px) {
-      out << "px [" << px.GetMask() << "|" << static_cast<int>(px.GetThreshold()) << "|" << px.GetCountingMode() << "|"
-          << px.GetEnableTestpulse() << "|" << px.GetLongCounter() << "]";
-      return out;
+    void print(std::ostream& out) const {
+      out << "px [" << this->GetMask() << "|" << static_cast<int>(this->GetThreshold()) << "|" << this->GetCountingMode()
+          << "|" << this->GetEnableTestpulse() << "|" << this->GetLongCounter() << "]";
     }
   };
 
@@ -137,22 +146,11 @@ namespace caribou {
     void SetTOA(uint8_t toa) { m_latches = (m_latches & 0xff00) | toa; }
     uint8_t GetTOA() const { return m_latches & 0xff; };
 
-    // direct latch access
-    void setLatches(uint16_t latches) { m_latches = latches; }
-
-    // set a dedicated bit of the latch
-    void setLatches(bool bit, uint8_t idx) {
-      if(bit)
-        m_latches |= (1 << idx);
-      else
-        m_latches &= ~(1 << idx);
-    }
-
-    /** Overloaded ostream operator for simple printing of pixel data
+    /** Overloaded print function for ostream operator
      */
-    friend std::ostream& operator<<(std::ostream& out, const pixelReadout& px) {
-      out << "px [" << px.GetFlag() << "|" << static_cast<int>(px.GetTOT()) << "|" << static_cast<int>(px.GetTOA()) << "]";
-      return out;
+    void print(std::ostream& out) const {
+      out << "px [" << this->GetFlag() << "|" << static_cast<int>(this->GetTOT()) << "|" << static_cast<int>(this->GetTOA())
+          << "]";
     }
   };
 }
