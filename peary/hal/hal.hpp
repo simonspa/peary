@@ -6,6 +6,8 @@
 #include <string>
 #include <tuple>
 #include <vector>
+#include <fcntl.h>
+#include <sys/mman.h>
 
 #include "interface.hpp"
 #include "interface_manager.hpp"
