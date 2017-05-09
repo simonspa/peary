@@ -60,6 +60,7 @@ namespace caribou {
     void exploreInterface();
 
     void configureMatrix(std::string filename);
+    void configurePatternGenerator(std::string filename);
 
     std::vector<uint32_t> getRawData();
     std::vector<pixel> getData();
