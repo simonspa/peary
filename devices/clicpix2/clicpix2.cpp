@@ -231,6 +231,48 @@ void clicpix2::triggerPatternGenerator() {
 void clicpix2::configurePatternGenerator(std::string filename) {
 
   LOG(logDEBUG) << "Programming pattern generator.";
+  std::vector<uint32_t> patterns;
+
+  std::ifstream pgfile(filename);
+  if(!pgfile.is_open()) {
+    LOG(logERROR) << "Could not open pattern generator configuration file \"" << filename << "\"";
+    throw ConfigInvalid("Could not open pattern generator configuration file \"" + filename + "\"");
+  }
+
+  std::string line = "";
+  while(std::getline(pgfile, line)) {
+    if(!line.length() || '#' == line.at(0))
+      continue;
+    std::istringstream pgline(line);
+    std::string signals;
+    uint32_t duration;
+    if(pgline >> signals >> duration) {
+      uint32_t pattern = 0;
+
+      std::stringstream ss(signals);
+      while(ss.good()) {
+        std::string substr;
+        getline(ss, substr, ',');
+        if(substr == "PWR") {
+          pattern |= CLICPIX2_CONTROL_WAVE_GENERATOR_EVENTS_PWR_PULSE_MASK;
+        } else if(substr == "TP") {
+          pattern |= CLICPIX2_CONTROL_WAVE_GENERATOR_EVENTS_TP_MASK;
+        } else if(substr == "SH") {
+          pattern |= CLICPIX2_CONTROL_WAVE_GENERATOR_EVENTS_SHUTTER_MASK;
+        } else {
+          LOG(logERROR) << "Unrecognized pattern for pattern generator: " << substr << " - ignoring.";
+        }
+      }
+      pattern |= (duration & CLICPIX2_CONTROL_WAVE_GENERATOR_EVENTS_DURATION_MASK);
+      LOG(logDEBUGHAL) << "PG signals: " << signals << " duration: " << duration << " pattern: " << to_bit_string(pattern);
+      patterns.push_back(pattern);
+    }
+  }
+  LOG(logDEBUG) << "Now " << patterns.size() << " patterns cached.";
+  if(patterns.size() > 32) {
+    LOG(logCRITICAL) << "Pattern generator contains too many statements, maximum allowed: 32.";
+    throw ConfigInvalid("Pattern generator too long");
+  }
 
   volatile uint32_t* wave_control =
     reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + CLICPIX2_WAVE_CONTROL_OFFSET);
@@ -238,36 +280,13 @@ void clicpix2::configurePatternGenerator(std::string filename) {
   // Switch loop mode off:
   *wave_control &= ~(CLICPIX2_CONTROL_WAVE_GENERATOR_LOOP_MODE_MASK);
 
-  for(size_t reg = 0; reg < 32; reg++) {
+  for(size_t reg = 0; reg < patterns.size(); reg++) {
     volatile uint32_t* wave_event = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) +
-                                                                         CLICPIX2_WAVE_EVENTS_OFFSET + (reg << 2) );
-
-    uint32_t content = 0;
-    if(reg == 0) {
-      content |= CLICPIX2_CONTROL_WAVE_GENERATOR_EVENTS_PWR_PULSE_MASK;
-      content |= (200 & CLICPIX2_CONTROL_WAVE_GENERATOR_EVENTS_DURATION_MASK);
-    }
-    if(reg == 1) {
-      content |= CLICPIX2_CONTROL_WAVE_GENERATOR_EVENTS_PWR_PULSE_MASK | CLICPIX2_CONTROL_WAVE_GENERATOR_EVENTS_SHUTTER_MASK;
-      content |= (100 & CLICPIX2_CONTROL_WAVE_GENERATOR_EVENTS_DURATION_MASK);
-    }
-    if(reg == 2) {
-      content |= CLICPIX2_CONTROL_WAVE_GENERATOR_EVENTS_PWR_PULSE_MASK |
-                 CLICPIX2_CONTROL_WAVE_GENERATOR_EVENTS_SHUTTER_MASK | CLICPIX2_CONTROL_WAVE_GENERATOR_EVENTS_TP_MASK;
-      content |= (50 & CLICPIX2_CONTROL_WAVE_GENERATOR_EVENTS_DURATION_MASK);
-    }
-    if(reg == 3) {
-      content |= CLICPIX2_CONTROL_WAVE_GENERATOR_EVENTS_PWR_PULSE_MASK | CLICPIX2_CONTROL_WAVE_GENERATOR_EVENTS_SHUTTER_MASK;
-      content |= (100 & CLICPIX2_CONTROL_WAVE_GENERATOR_EVENTS_DURATION_MASK);
-    }
-    if(reg == 4) {
-      content |= CLICPIX2_CONTROL_WAVE_GENERATOR_EVENTS_PWR_PULSE_MASK;
-      content |= (0 & CLICPIX2_CONTROL_WAVE_GENERATOR_EVENTS_DURATION_MASK);
-    }
-
-    LOG(logDEBUG) << "Wave " << reg << ": " << to_bit_string(content);
-    *wave_event = content;
+                                                                         CLICPIX2_WAVE_EVENTS_OFFSET + (reg << 2));
+    *wave_event = patterns.at(reg);
   }
+
+  LOG(logDEBUG) << "Done configuring pattern generator.";
 }
 
 void clicpix2::programMatrix() {
