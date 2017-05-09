@@ -139,7 +139,7 @@ namespace caribou {
     bool GetFlag() const { return (m_latches >> 13) & 0x1; }
 
     // TOT setting of the pixel (5bit)
-    void SetTOT(uint8_t tot) { m_latches = (m_latches & 0x80ff) | ((tot & 0x1f) << 8); }
+    void SetTOT(uint8_t tot) { m_latches = (m_latches & 0xe0ff) | ((tot & 0x1f) << 8); }
     uint8_t GetTOT() const { return (m_latches >> 8) & 0x1f; };
 
     // TOA setting of the pixel (8bit)
