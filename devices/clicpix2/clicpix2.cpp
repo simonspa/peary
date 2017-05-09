@@ -216,6 +216,62 @@ void clicpix2::readMatrix(std::string filename) {
   LOG(logDEBUG) << "Now " << pixels.size() << " pixel configurations cached.";
 }
 
+void clicpix2::triggerPatternGenerator() {
+
+  LOG(logINFO) << "Triggering pattern generator once.";
+
+  // Write into enable register of pattern generator:
+  volatile uint32_t* wave_control =
+    reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + CLICPIX2_WAVE_CONTROL_OFFSET);
+
+  // Toggle on:
+  *wave_control &= ~(CLICPIX2_CONTROL_WAVE_GENERATOR_ENABLE_MASK);
+  usleep(5000);
+  *wave_control |= CLICPIX2_CONTROL_WAVE_GENERATOR_ENABLE_MASK;
+}
+void clicpix2::configurePatternGenerator(std::string filename) {
+
+  LOG(logDEBUG) << "Programming pattern generator.";
+
+  volatile uint32_t* wave_control =
+    reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + CLICPIX2_WAVE_CONTROL_OFFSET);
+
+  // Switch loop mode off:
+  *wave_control &= ~(CLICPIX2_CONTROL_WAVE_GENERATOR_LOOP_MODE_MASK);
+
+  for(size_t reg = 0; reg < 32; reg++) {
+    volatile uint32_t* wave_event = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) +
+                                                                         CLICPIX2_WAVE_EVENTS_OFFSET + reg);
+
+    uint32_t content = 0;
+    if(reg == 0) {
+      content |= CLICPIX2_CONTROL_WAVE_GENERATOR_EVENTS_PWR_PULSE_MASK;
+      content |= (10 & CLICPIX2_CONTROL_WAVE_GENERATOR_EVENTS_NEXT_EVENT_TIME_MASK);
+    }
+    if(reg == 1) {
+      content |= CLICPIX2_CONTROL_WAVE_GENERATOR_EVENTS_PWR_PULSE_MASK | CLICPIX2_CONTROL_WAVE_GENERATOR_EVENTS_SHUTTER_MASK;
+      LOG(logDEBUG) << content;
+      content |= (10 & CLICPIX2_CONTROL_WAVE_GENERATOR_EVENTS_NEXT_EVENT_TIME_MASK);
+    }
+    if(reg == 2) {
+      content |= CLICPIX2_CONTROL_WAVE_GENERATOR_EVENTS_PWR_PULSE_MASK |
+                 CLICPIX2_CONTROL_WAVE_GENERATOR_EVENTS_SHUTTER_MASK | CLICPIX2_CONTROL_WAVE_GENERATOR_EVENTS_TP_MASK;
+      content |= (1000 & CLICPIX2_CONTROL_WAVE_GENERATOR_EVENTS_NEXT_EVENT_TIME_MASK);
+    }
+    if(reg == 3) {
+      content |= CLICPIX2_CONTROL_WAVE_GENERATOR_EVENTS_PWR_PULSE_MASK | CLICPIX2_CONTROL_WAVE_GENERATOR_EVENTS_SHUTTER_MASK;
+      content |= (10 & CLICPIX2_CONTROL_WAVE_GENERATOR_EVENTS_NEXT_EVENT_TIME_MASK);
+    }
+    if(reg == 4) {
+      content |= CLICPIX2_CONTROL_WAVE_GENERATOR_EVENTS_PWR_PULSE_MASK;
+      content |= (0 & CLICPIX2_CONTROL_WAVE_GENERATOR_EVENTS_NEXT_EVENT_TIME_MASK);
+    }
+
+    LOG(logDEBUG) << "Wave " << reg << ": " << to_bit_string(content);
+    *wave_event = content;
+  }
+}
+
 void clicpix2::programMatrix() {
 
   // Use a boolean vector to construct full matrix data array:
