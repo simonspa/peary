@@ -226,7 +226,6 @@ void clicpix2::triggerPatternGenerator() {
 
   // Toggle on:
   *wave_control &= ~(CLICPIX2_CONTROL_WAVE_GENERATOR_ENABLE_MASK);
-  usleep(5000);
   *wave_control |= CLICPIX2_CONTROL_WAVE_GENERATOR_ENABLE_MASK;
 }
 void clicpix2::configurePatternGenerator(std::string filename) {
