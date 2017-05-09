@@ -241,7 +241,7 @@ void clicpix2::configurePatternGenerator(std::string filename) {
 
   for(size_t reg = 0; reg < 32; reg++) {
     volatile uint32_t* wave_event = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) +
-                                                                         CLICPIX2_WAVE_EVENTS_OFFSET + reg);
+                                                                         CLICPIX2_WAVE_EVENTS_OFFSET + (reg << 2) );
 
     uint32_t content = 0;
     if(reg == 0) {
