@@ -41,6 +41,15 @@ namespace caribou {
       }
     }
 
+    // Return all register names:
+    std::vector<std::string> getNames() const {
+      std::vector<std::string> names;
+      for(auto reg : regs) {
+        names.push_back(reg.first);
+      }
+      return names;
+    }
+
   private:
     /** Map fo human-readable names for periphery components
      */

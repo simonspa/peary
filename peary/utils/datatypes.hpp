@@ -43,13 +43,15 @@ namespace caribou {
   template <typename REG_T = uint8_t, typename MASK_T = uint8_t> class register_t {
   public:
     // If no address is given, also set the mask to zero:
-    register_t() : _address(0), _mask(0){};
+    register_t() : _address(0), _mask(0), _value(0){};
     // If no mask is given, default to accessing the full register:
-    register_t(REG_T address) : _address(address), _mask(std::numeric_limits<MASK_T>::max()){};
-    register_t(REG_T address, MASK_T mask) : _address(address), _mask(mask){};
+    register_t(REG_T address) : _address(address), _mask(std::numeric_limits<MASK_T>::max()), _value(0){};
+    register_t(REG_T address, MASK_T mask) : _address(address), _mask(mask), _value(0){};
+    register_t(REG_T address, MASK_T mask, MASK_T value) : _address(address), _mask(mask), _value(value){};
 
     REG_T address() const { return _address; };
     MASK_T mask() const { return _mask; };
+    MASK_T value() const { return _value; };
 
     MASK_T shift() const {
       if(_mask > 0)
@@ -63,6 +65,7 @@ namespace caribou {
   private:
     REG_T _address;
     MASK_T _mask;
+    MASK_T _value;
   };
 
   template <typename T1, typename T2> std::ostream& operator<<(std::ostream& os, const caribou::register_t<T1, T2>& rg) {
