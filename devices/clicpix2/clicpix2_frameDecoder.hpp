@@ -76,6 +76,10 @@ namespace caribou {
     void decode(const std::vector<uint32_t> frame);
     pearydata getZerosuppressedFrame();
 
+    static const uint16_t lfsr13_lut[8191];
+    static const uint8_t lfsr8_lut[255];
+    static const uint8_t lfsr5_lut[31];
+
     /** Overloaded ostream operator for simple printing of pixel data
      */
     friend std::ostream& operator<<(std::ostream& out, const clicpix2_frameDecoder& decoder);

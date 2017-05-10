@@ -2,7 +2,11 @@ SET(NAME "CLICpix2")
 
 SET(SOURCEFILES
   clicpix2.cpp
-  clicpix2_frameDecoder.cpp )
+  clicpix2_frameDecoder.cpp
+  clicpix2_frameDecoder_lfsr13.cpp
+  clicpix2_frameDecoder_lfsr8.cpp
+  clicpix2_frameDecoder_lfsr5.cpp
+  )
 
 INCLUDE_DIRECTORIES(.)
 
