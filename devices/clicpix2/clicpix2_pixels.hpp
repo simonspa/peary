@@ -149,8 +149,7 @@ namespace caribou {
     /** Overloaded print function for ostream operator
      */
     void print(std::ostream& out) const {
-      out << "px [" << this->GetFlag() << "|" << static_cast<int>(this->GetTOT()) << "|" << static_cast<int>(this->GetTOA())
-          << "]";
+      out << this->GetFlag() << "," << static_cast<int>(this->GetTOT()) << "," << static_cast<int>(this->GetTOA());
     }
   };
 }

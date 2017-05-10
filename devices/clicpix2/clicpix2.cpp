@@ -220,7 +220,7 @@ void clicpix2::readMatrix(std::string filename) {
 
 void clicpix2::triggerPatternGenerator() {
 
-  LOG(logINFO) << "Triggering pattern generator once.";
+  LOG(logDEBUG) << "Triggering pattern generator once.";
 
   // Write into enable register of pattern generator:
   volatile uint32_t* wave_control =
@@ -455,7 +455,7 @@ pearydata clicpix2::getData() {
 
 std::vector<uint32_t> clicpix2::getRawData() {
 
-  LOG(logINFO) << DEVICE_NAME << " readout requested";
+  LOG(logDEBUG) << DEVICE_NAME << " readout requested";
   this->setRegister("readout", 0);
 
   // One frame with 8 double columns readout without compression lasts 360.3us
