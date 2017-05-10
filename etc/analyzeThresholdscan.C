@@ -1,8 +1,10 @@
 {
 
   TCanvas *c = new TCanvas("c","",0,0,700,700);
+  TCanvas *c2 = new TCanvas("c2","",0,0,700,700);
   gStyle->SetPalette(1);
   TH2D * h  = new TH2D("h", "", 128, 0, 128, 128, 0, 128);
+  TH1D * h2  = new TH1D("h", "", 256, 0, 255);
 
   std::string filename = "thrscan_threshold_MSB.csv";
 
@@ -37,12 +39,21 @@
       if(!pixel_seen[column][row]) {
 	std::cout << "Seen pixel " << column << "," << row << std::endl;
 	h->SetBinContent(column+1, row+1, thr);
+	h2->Fill(thr,1);
 	pixel_seen[column][row] = true;
 	pixels++;
       }
     }
 
     std::cout << pixels << " pixels responded" << std::endl;
+    h->GetXaxis()->SetTitle("column");
+    h->GetZaxis()->SetTitle("1st response at thr_MSB");
+    h->GetYaxis()->SetTitle("row");
+    c->cd();
     h->Draw("colz");
+    c2->cd();
+    h2->GetXaxis()->SetTitle("1st response at threshold_MSB");
+    h2->GetYaxis()->SetTitle("# pixels");
+    h2->Draw();
   }
 }
