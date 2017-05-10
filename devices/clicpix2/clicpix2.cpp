@@ -211,11 +211,11 @@ void clicpix2::readMatrix(std::string filename) {
     int column, row, threshold, mask, cntmode, tpenable, longcnt;
     if(pxline >> row >> column >> mask >> threshold >> cntmode >> tpenable >> longcnt) {
       pixelConfig px(mask, threshold, cntmode, tpenable, longcnt);
-      pixels[std::make_pair(row, column)] = px;
+      pixelsConfig[std::make_pair(row, column)] = px;
       LOG(logDEBUGHAL) << "  is pixel: " << px;
     }
   }
-  LOG(logDEBUG) << "Now " << pixels.size() << " pixel configurations cached.";
+  LOG(logDEBUG) << "Now " << pixelsConfig.size() << " pixel configurations cached.";
 }
 
 void clicpix2::triggerPatternGenerator() {
@@ -317,7 +317,7 @@ void clicpix2::programMatrix() {
         for(size_t dcolumn = 0; dcolumn < 64; dcolumn++) {
           LOG(logDEBUGHAL) << "bit " << bit << " of pixel " << row << "," << (2 * dcolumn + ((row + col) % 2));
           // Send one bit per double column to form one 64bit word
-          pixelConfig px = pixels[std::make_pair(row, 2 * dcolumn + ((row + col) % 2))];
+          pixelConfig px = pixelsConfig[std::make_pair(row, 2 * dcolumn + ((row + col) % 2))];
           matrix.push_back(px.GetBit(bit));
         }
       }
