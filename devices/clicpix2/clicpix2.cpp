@@ -42,7 +42,7 @@ clicpix2::clicpix2(const caribou::Configuration config) : pearyDevice(config, st
 
   // Map CLICpix2 receiver
   void* receiver_map_base;
-    
+
   // Map one page of memory into user space such that the device is in that page, but it may not
   // be at the start of the page.
   receiver_map_base = mmap(0,
@@ -435,11 +435,12 @@ void clicpix2::daqStart() {
   // Prepare chip for data acquisition
 }
 
-void clicpix2::decodeFrame(const std::vector<uint32_t> frame) {
+std::map<std::pair<uint16_t, uint16_t>, caribou::pixel> clicpix2::decodeFrame(const std::vector<uint32_t> frame) {
 
   clicpix2_frameDecoder decoder(false, false);
   decoder.decode(frame);
   LOG(logDEBUG) << DEVICE_NAME << "Decoded frame [row][column]:\n" << decoder;
+  return decoder.getZerosuppressedFrame();
 }
 
 caribouDevice* caribou::generator(const caribou::Configuration config) {

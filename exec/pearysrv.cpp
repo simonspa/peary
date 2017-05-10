@@ -20,14 +20,12 @@ bool stop_run(std::string prefix);
 int main(int argc, char* argv[]) {
 
   int run_nr;
-  int prev_run_nr = -1;
 
   // TCP/IP server variables
   int my_socket, new_socket;
   int portnumber = 4000;
   struct sockaddr_in address;
   socklen_t addrlen;
-  pthread_t ts_thread = 0;
   int bufsize = 1024;
   char* buffer = (char*)malloc(bufsize);
   std::string rundir;
@@ -89,8 +87,9 @@ int main(int argc, char* argv[]) {
     }
 
     // Create a socket and start listening for commands from run control
-    if((my_socket = socket(AF_INET, SOCK_STREAM, 0)) > 0)
+    if((my_socket = socket(AF_INET, SOCK_STREAM, 0)) > 0) {
       LOG(logINFO) << "Socket created";
+    }
 
     // Set up which port to listen to
     address.sin_family = AF_INET;
@@ -111,15 +110,15 @@ int main(int argc, char* argv[]) {
 
     // Wait for client to connect (will block until client connects)
     new_socket = accept(my_socket, (struct sockaddr*)&address, &addrlen);
-    if(new_socket > 0)
+    if(new_socket > 0) {
       LOG(logINFO) << "Client " << inet_ntoa(address.sin_addr) << " is connected";
+    }
 
     //--------------- Run control ---------------//
     bool cmd_recognised = false;
     int cmd_length = 0;
     char cmd[32];
     run_nr = -1;
-    prev_run_nr = -1;
 
     // Simple state machine
     bool configured = false;
@@ -259,7 +258,7 @@ bool configure() {
   return true;
 }
 
-bool start_run(std::string prefix, int runNo, std::string description) {
+bool start_run(std::string, int, std::string) {
 
   // Fetch all active devices:
   try {
@@ -277,7 +276,7 @@ bool start_run(std::string prefix, int runNo, std::string description) {
   return true;
 }
 
-bool stop_run(std::string runDirectory) {
+bool stop_run(std::string) {
 
   // Fetch all active devices:
   try {
