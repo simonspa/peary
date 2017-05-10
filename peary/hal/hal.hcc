@@ -125,7 +125,7 @@ namespace caribou {
 
     // Caribou control memory map address
     void* control_base;
-    
+
     // It's not possible to power on/off DCDC converter by software
     void setDCDCConverter(const DCDC_CONVERTER_T converter, const double voltage);
 

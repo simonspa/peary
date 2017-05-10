@@ -146,6 +146,10 @@ namespace caribou {
     void SetTOA(uint8_t toa) { m_latches = (m_latches & 0xff00) | toa; }
     uint8_t GetTOA() const { return m_latches & 0xff; };
 
+    // LongCounter
+    void SetLongCounter(uint16_t lgcnt) { m_latches = (m_latches & 0xe000) | lgcnt; }
+    uint16_t GetLongCounter() const { return m_latches & 0xe00; }
+
     /** Overloaded print function for ostream operator
      */
     void print(std::ostream& out) const {

@@ -94,7 +94,7 @@ namespace caribou {
     void reset();
 
     // Methods decodes frame
-    pearydata decodeFrame(const std::vector<uint32_t> frame);
+    pearydata decodeFrame(const std::vector<uint32_t>& frame);
 
     // Access to FPGA memory mapped registers
     int memfd;

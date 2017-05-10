@@ -9,7 +9,8 @@ using namespace caribou;
 
 const clicpix2_frameDecoder::WORD_TYPE clicpix2_frameDecoder::DELIMITER(1, 0xf7);
 
-void clicpix2_frameDecoder::decode(const std::vector<uint32_t> frame) {
+void clicpix2_frameDecoder::decode(const std::vector<uint32_t>& frame,
+                                   const std::map<std::pair<uint8_t, uint8_t>, pixelConfig>& pixelConfig) {
   std::vector<WORD_TYPE> dataVector = repackageFrame(frame);
   auto data = dataVector.cbegin();
   auto dataEnd = dataVector.cend();
@@ -19,8 +20,7 @@ void clicpix2_frameDecoder::decode(const std::vector<uint32_t> frame) {
     extractColumns(data, dataEnd);
   } while(std::distance(data, dataEnd) && ~(std::distance(data, dataEnd) == 1 && *data == DELIMITER));
 
-  // FIXEME: DECODE_LFSR_COUNTERS
-  // For this one needs to know matrix configuration
+  decodeCounter(pixelConfig);
 }
 
 pearydata clicpix2_frameDecoder::getZerosuppressedFrame() {
@@ -38,7 +38,7 @@ pearydata clicpix2_frameDecoder::getZerosuppressedFrame() {
   return decframe;
 }
 
-std::vector<clicpix2_frameDecoder::WORD_TYPE> clicpix2_frameDecoder::repackageFrame(const std::vector<uint32_t> frame) {
+std::vector<clicpix2_frameDecoder::WORD_TYPE> clicpix2_frameDecoder::repackageFrame(const std::vector<uint32_t>& frame) {
   std::vector<WORD_TYPE> data;
   for(auto const& it : frame) {
     data.emplace_back((it >> 17) & 0x1, (it >> 8) & 0xFF); // MSByte
@@ -230,6 +230,20 @@ void clicpix2_frameDecoder::processDCbit(std::array<std::array<pixelReadout, 8>,
           pixels_dc[row_index++][col_index].setLatches(0x00);
 
         dc_counter = 2 * (CLICPIX2_ROW * CLICPIX2_PIXEL_SIZE + CLICPIX2_ROW / CLICPIX2_SUPERPIXEL_SIZE); // 3600
+      }
+    }
+  }
+}
+
+void clicpix2_frameDecoder::decodeCounter(const std::map<std::pair<uint8_t, uint8_t>, pixelConfig>& pixelConfig) {
+
+  for(auto r = 0; r < static_cast<int>(clicpix2_frameDecoder::CLICPIX2_ROW); ++r) {
+    for(auto c = 0; c < static_cast<int>(clicpix2_frameDecoder::CLICPIX2_COL); ++c) {
+      if(pixelConfig.at(std::make_pair(r, c)).GetLongCounter()) {
+        matrix[r][c].SetLongCounter(lfsr13_lut[matrix[r][c].GetLongCounter()]);
+      } else {
+        matrix[r][c].SetTOT(lfsr5_lut[matrix[r][c].GetTOT()]);
+        matrix[r][c].SetTOA(lfsr8_lut[matrix[r][c].GetTOA()]);
       }
     }
   }

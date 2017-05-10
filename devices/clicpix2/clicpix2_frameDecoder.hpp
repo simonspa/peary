@@ -41,7 +41,7 @@ namespace caribou {
     std::array<std::array<pixelReadout, CLICPIX2_COL>, CLICPIX2_ROW> matrix; //[row][column]
 
     // repackage uint32_t words into WORD_TYPE
-    std::vector<WORD_TYPE> repackageFrame(const std::vector<uint32_t> frame);
+    std::vector<WORD_TYPE> repackageFrame(const std::vector<uint32_t>& frame);
     void decodeHeader(const WORD_TYPE word);
     void extractColumns(std::vector<WORD_TYPE>::const_iterator& data, std::vector<WORD_TYPE>::const_iterator dataEnd);
     void unraveDC(std::array<std::array<pixelReadout, 8>, CLICPIX2_ROW * 2>& pixels_dc,
@@ -57,6 +57,7 @@ namespace caribou {
                       const int col_index,
                       int& row_slice,
                       const bool data);
+    void decodeCounter(const std::map<std::pair<uint8_t, uint8_t>, pixelConfig>& pixelConfig);
 
     // current RCR register value
     uint8_t rcr;
@@ -73,7 +74,7 @@ namespace caribou {
         : pixelCompressionEnabled(pixelCompressionEnabled),
           DCandSuperPixelCompressionEnabled(DCandSuperPixelCompressionEnabled){};
 
-    void decode(const std::vector<uint32_t> frame);
+    void decode(const std::vector<uint32_t>& frame, const std::map<std::pair<uint8_t, uint8_t>, pixelConfig>& pixelConfig);
     pearydata getZerosuppressedFrame();
 
     static const uint16_t lfsr13_lut[8191];
