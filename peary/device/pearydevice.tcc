@@ -171,7 +171,7 @@ namespace caribou {
     throw caribou::NoDataAvailable("Raw data readback not implemented for this device");
   }
 
-  template <typename T> std::vector<pixel> pearyDevice<T>::getData() {
+  template <typename T> pearydata pearyDevice<T>::getData() {
     LOG(logCRITICAL) << "Decoded data readback not implemented for this device";
     throw caribou::NoDataAvailable("Decoded data readback not implemented for this device");
   }
@@ -181,7 +181,7 @@ namespace caribou {
     throw caribou::NoDataAvailable("Programming of the pixel matrix not implemented for this device");
   }
 
-  template <typename T> void pearyDevice<T>::configurePatternGenerator(std::string filename) {
+  template <typename T> void pearyDevice<T>::configurePatternGenerator(std::string) {
     LOG(logCRITICAL) << "Pattern generator not implemented for this device";
     throw caribou::NoDataAvailable("Pattern generator not implemented for this device");
   }

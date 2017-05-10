@@ -7,7 +7,7 @@
 
 #include "configuration.hpp"
 #include "constants.hpp"
-#include "dictionary.hpp"
+#include "datatypes.hpp"
 
 #include <stdint.h>
 #include <string>
@@ -85,7 +85,7 @@ namespace caribou {
 
     /** Get data methods. Can return raw or decoded data **/
     virtual std::vector<uint32_t> getRawData() = 0;
-    virtual std::vector<pixel> getData() = 0;
+    virtual pearydata getData() = 0;
 
     /** Report power status
      *  Method should use logINFO as an output

@@ -6,6 +6,8 @@
 
 #include <iostream>
 #include <limits>
+#include <map>
+#include <memory>
 #include <strings.h>
 #include <tuple>
 
@@ -32,6 +34,14 @@ namespace caribou {
   protected:
     virtual void print(std::ostream&) const {};
   };
+
+  /** Data returned by the peary device interface
+   *
+   *  Depending on the detector type operated, this can either be one frame
+   *  read from the device, or one triggered event. The caribou::pixel pointer
+   *  can be any type of data deriving from the pixel base class
+   */
+  typedef std::map<std::pair<uint16_t, uint16_t>, std::unique_ptr<pixel>> pearydata;
 
   /** class to store a register configuration
    *

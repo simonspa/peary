@@ -165,7 +165,7 @@ namespace caribou {
 
     // Raw and decoded data readback
     std::vector<uint32_t> getRawData();
-    std::vector<caribou::pixel> getData();
+    pearydata getData();
 
     // Two types:
     //  * trigger based: "events" are returned
