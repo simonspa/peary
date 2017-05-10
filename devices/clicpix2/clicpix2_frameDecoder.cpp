@@ -23,6 +23,21 @@ void clicpix2_frameDecoder::decode(const std::vector<uint32_t> frame) {
   // For this one needs to know matrix configuration
 }
 
+pearydata clicpix2_frameDecoder::getZerosuppressedFrame() {
+  pearydata decframe;
+
+  for(auto r = 0; r < static_cast<int>(clicpix2_frameDecoder::CLICPIX2_ROW); ++r) {
+    for(auto c = 0; c < static_cast<int>(clicpix2_frameDecoder::CLICPIX2_COL); ++c) {
+      // Only return pixels with flag set:
+      if(matrix[r][c].GetFlag()) {
+        decframe[std::make_pair(c, r)] = std::make_unique<pixelReadout>(matrix[r][c]);
+        continue;
+      }
+    }
+  }
+  return decframe;
+}
+
 std::vector<clicpix2_frameDecoder::WORD_TYPE> clicpix2_frameDecoder::repackageFrame(const std::vector<uint32_t> frame) {
   std::vector<WORD_TYPE> data;
   for(auto const& it : frame) {

@@ -435,7 +435,7 @@ void clicpix2::daqStart() {
   // Prepare chip for data acquisition
 }
 
-std::map<std::pair<uint16_t, uint16_t>, caribou::pixel> clicpix2::decodeFrame(const std::vector<uint32_t> frame) {
+pearydata clicpix2::decodeFrame(const std::vector<uint32_t> frame) {
 
   clicpix2_frameDecoder decoder(false, false);
   decoder.decode(frame);
@@ -449,10 +449,8 @@ caribouDevice* caribou::generator(const caribou::Configuration config) {
   return dynamic_cast<caribouDevice*>(mDevice);
 }
 
-std::vector<pixel> clicpix2::getData() {
-  decodeFrame(getRawData());
-  // FIXME neet to retrieve data from decoder
-  return std::vector<pixel>();
+pearydata clicpix2::getData() {
+  return decodeFrame(getRawData());
 }
 
 std::vector<uint32_t> clicpix2::getRawData() {

@@ -74,6 +74,7 @@ namespace caribou {
           DCandSuperPixelCompressionEnabled(DCandSuperPixelCompressionEnabled){};
 
     void decode(const std::vector<uint32_t> frame);
+    pearydata getZerosuppressedFrame();
 
     /** Overloaded ostream operator for simple printing of pixel data
      */

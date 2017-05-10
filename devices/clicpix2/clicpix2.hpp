@@ -64,7 +64,7 @@ namespace caribou {
     void triggerPatternGenerator();
 
     std::vector<uint32_t> getRawData();
-    std::vector<pixel> getData();
+    pearydata getData();
 
   private:
     /* Routine to program the pixel matrix via the SPI interface
@@ -94,7 +94,7 @@ namespace caribou {
     void reset();
 
     // Methods decodes frame
-    void decodeFrame(const std::vector<uint32_t> frame);
+    pearydata decodeFrame(const std::vector<uint32_t> frame);
 
     // Access to FPGA memory mapped registers
     int memfd;
