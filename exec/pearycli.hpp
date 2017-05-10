@@ -46,6 +46,7 @@ namespace caribou {
     static int triggerPatternGenerator(const std::vector<std::string>& input);
 
     static int scanDAC(const std::vector<std::string>& input);
+    static int scanThreshold(const std::vector<std::string>& input);
 
     static int exploreInterface(const std::vector<std::string>& input);
     static int getADC(const std::vector<std::string>& input);

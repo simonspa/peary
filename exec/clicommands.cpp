@@ -65,6 +65,12 @@ pearycli::pearycli() : c("# ") {
                     "Scan DAC DAC_NAME from value MIN to MAX and read the voltage from the ADC after DELAY milliseconds",
                     5,
                     "DAC_NAME MIN MAX DELAY[ms] DEVICE_ID");
+  c.registerCommand("scanThreshold",
+                    scanThreshold,
+                    "Scan Threshold DAC DAC_NAME from value MIN to MAX, send a test pulse via the pattern generator after "
+                    "DELAY milliseconds and read back the data from the pixel matrix",
+                    5,
+                    "DAC_NAME MIN MAX DELAY[ms] DEVICE_ID");
 
   c.registerCommand(
     "exploreInterface", exploreInterface, "Perform an interface communication test on the selected devce", 1, "DEVICE_ID");
@@ -404,8 +410,47 @@ int pearycli::getRawData(const std::vector<std::string>& input) {
 int pearycli::getData(const std::vector<std::string>& input) {
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
-    dev->getData();
+    pearydata data = dev->getData();
+    for(auto& px : data) {
+      LOG(logINFO) << px.first.first << "|" << px.first.second << " : " << *px.second;
+    }
   } catch(caribou::DeviceException&) {
+    return ret::Error;
+  }
+  return ret::Ok;
+}
+
+int pearycli::scanThreshold(const std::vector<std::string>& input) {
+
+  try {
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(5)));
+
+    std::ofstream myfile;
+    std::string filename = "thrscan_" + input.at(1) + ".csv";
+    myfile.open(filename);
+    myfile << "# pearycli > scanThreshold\n";
+    myfile << "# Timestamp: " << LOGTIME << "\n";
+    myfile << "# scanned DAC \"" << input.at(1) << "\", range " << input.at(2) << "-" << input.at(3) << "\n";
+    myfile << "# with " << input.at(4) << "ms delay between setting register and sending test pulse.\n";
+
+    // Sample through the DAC range, trigger the PG and read back the data
+    for(int i = std::stoi(input.at(2)); i <= std::stoi(input.at(3)); i++) {
+      dev->setRegister(input.at(1), i);
+      // Wait a bit, in ms:
+      mDelay(std::stoi(input.at(4)));
+      // Send pattern:
+      dev->triggerPatternGenerator();
+      // Read the data:
+      pearydata frame = dev->getData();
+      for(auto& px : frame) {
+        // LOG(logINFO) << "Thr " << i << ": " << px.first.first << "|" << px.first.second << " : " << *px.second;
+        myfile << i << "," << px.first.first << "," << px.first.second << "," << (*px.second) << "\n";
+      }
+    }
+
+    LOG(logINFO) << "Data writte to file: \"" << filename << "\"";
+  } catch(caribou::caribouException& e) {
+    LOG(logERROR) << e.what();
     return ret::Error;
   }
   return ret::Ok;
