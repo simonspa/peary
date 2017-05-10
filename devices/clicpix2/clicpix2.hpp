@@ -98,14 +98,12 @@ namespace caribou {
 
     // Access to FPGA memory mapped registers
     int memfd;
+
     // CLICpix2 receiver memory map address
     void* receiver_base;
-    // CLICpix2 reciver map base
-    void* receiver_map_base;
+
     // CLICpix2 control memory map address
     void* control_base;
-    // CLICpix2 reciver map base
-    void* control_map_base;
   };
 
   extern "C" {

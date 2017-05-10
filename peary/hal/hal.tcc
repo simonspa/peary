@@ -10,6 +10,49 @@ namespace caribou {
   caribouHAL<T>::caribouHAL(std::string device_path, uint32_t device_address)
       : _devpath(device_path), _devaddress(device_address) {
 
+    // Get access to FPGA memory mapped registers
+    memfd = open("/dev/mem", O_RDWR | O_SYNC);
+    if(memfd == -1) {
+      throw DeviceException("Can't open /dev/mem.\n");
+    }
+
+    // Map Caribou control
+    void* control_map_base;
+
+    // Map one page of memory into user space such that the device is in that page, but it may not
+    // be at the start of the page.
+    control_map_base = mmap(0,
+			    CARIBOU_CONTROL_MAP_SIZE,
+			    PROT_READ | PROT_WRITE,
+			    MAP_SHARED,
+			    memfd,
+			    CARIBOU_CONTROL_BASE_ADDRESS & ~CARIBOU_CONTROL_MAP_MASK);
+    if(control_map_base == (void*)-1) {
+      throw DeviceException("Can't map the memory to user space.\n");
+    }
+
+    // get the address of the device in user space which will be an offset from the base
+    // that was mapped as memory is mapped at the start of a page
+    control_base = reinterpret_cast<void*>(reinterpret_cast<std::intptr_t>(control_map_base) +
+					   (CARIBOU_CONTROL_BASE_ADDRESS & CARIBOU_CONTROL_MAP_MASK));
+
+    // set default CLICpix2 control
+    volatile uint32_t* firmwareVersion_reg =
+      reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + CARIBOU_FIRMWARE_VERSION_OFFSET);
+
+    
+    const uint32_t firwareVersion = *firmwareVersion_reg;
+    const uint8_t day = (firwareVersion >> 27) & 0x1F;
+    const uint8_t month = (firwareVersion >> 23) & 0xF;
+    const uint32_t year = 2000 + ((firwareVersion >> 17) & 0x3F );
+    const uint8_t hour =  (firwareVersion >> 12) & 0x1F;
+    const uint8_t minute =  (firwareVersion >> 6) & 0x3F;
+    const uint8_t second  =  firwareVersion  & 0x3F;
+
+    LOG(logQUIET) << "Firmware version: " << to_hex_string(firwareVersion)
+		  << " (" << static_cast<int>(day) << "/" << static_cast<int>(month) << "/" << static_cast<int>(year)
+		  << " " << static_cast<int>(hour) << ":" << static_cast<int>(minute) << ":" << static_cast<int>(second) << ")";
+    
     T& dev_iface = interface_manager::getInterface<T>(_devpath);
     LOG(logDEBUGHAL) << "Perpared HAL for accessing device with interface at " << dev_iface.devicePath;
 
@@ -36,7 +79,14 @@ namespace caribou {
     // setDCDCConverter(LTM_VPWR3, 5 );
   }
 
-  template <typename T> caribouHAL<T>::~caribouHAL() {}
+  template <typename T> caribouHAL<T>::~caribouHAL() {
+    // Unamp Caribou control
+    if(munmap(control_base, CARIBOU_CONTROL_MAP_SIZE) == -1) {
+      throw DeviceException("Can't unmap memory from user space.\n");
+    }
+    
+    close(memfd);
+  }
 
   template <typename T> typename T::data_type caribouHAL<T>::send(const typename T::data_type& data) {
     return interface_manager::getInterface<T>(_devpath).write(_devaddress, data);

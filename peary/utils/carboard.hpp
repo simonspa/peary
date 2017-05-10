@@ -27,6 +27,13 @@ typedef struct {
 
 } SI5345_REG_T;
 
+//Caribou control addresses
+const std::intptr_t CARIBOU_CONTROL_BASE_ADDRESS = 0x43C30000;
+const std::intptr_t CARIBOU_FIRMWARE_VERSION_OFFSET = 0;
+const std::size_t CARIBOU_CONTROL_MAP_SIZE = 4096;
+const std::size_t CARIBOU_CONTROL_MAP_MASK = CARIBOU_CONTROL_MAP_SIZE - 1;
+
+
 /** Devices on I2C0
  */
 #define ADDR_BRIDGE 0x28 // SC18IS602B BRIDGE SPI/I2C
