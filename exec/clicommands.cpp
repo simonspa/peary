@@ -65,12 +65,13 @@ pearycli::pearycli() : c("# ") {
                     "Scan DAC DAC_NAME from value MIN to MAX and read the voltage from the ADC after DELAY milliseconds",
                     5,
                     "DAC_NAME MIN MAX DELAY[ms] DEVICE_ID");
-  c.registerCommand("scanThreshold",
-                    scanThreshold,
-                    "Scan Threshold DAC DAC_NAME from value MIN to MAX, send a test pulse via the pattern generator after "
-                    "DELAY milliseconds and read back the data from the pixel matrix",
-                    5,
-                    "DAC_NAME MIN MAX DELAY[ms] DEVICE_ID");
+  c.registerCommand(
+    "scanThreshold",
+    scanThreshold,
+    "Scan Threshold DAC DAC_NAME from value MAX down to MIN, send a test pulse via the pattern generator after "
+    "DELAY milliseconds and read back the data from the pixel matrix",
+    5,
+    "DAC_NAME MAX MIN DELAY[ms] DEVICE_ID");
 
   c.registerCommand(
     "exploreInterface", exploreInterface, "Perform an interface communication test on the selected devce", 1, "DEVICE_ID");
@@ -315,6 +316,11 @@ int pearycli::scanDAC(const std::vector<std::string>& input) {
     std::transform(dacname.begin(), dacname.end(), dacname.begin(), ::tolower);
     dev->setRegister("output_mux_DAC", output_mux_DAC[dacname]);
 
+    if(std::stoi(input.at(2)) > std::stoi(input.at(3))) {
+      LOG(logERROR) << "Range invalid";
+      return ret::Error;
+    }
+
     // Now sample through the DAC range and read the ADC at the "DAC_OUT" pin (VOL_IN_1)
     for(int i = std::stoi(input.at(2)); i <= std::stoi(input.at(3)); i++) {
       dev->setRegister(input.at(1), i);
@@ -433,8 +439,13 @@ int pearycli::scanThreshold(const std::vector<std::string>& input) {
     myfile << "# scanned DAC \"" << input.at(1) << "\", range " << input.at(2) << "-" << input.at(3) << "\n";
     myfile << "# with " << input.at(4) << "ms delay between setting register and sending test pulse.\n";
 
+    if(std::stoi(input.at(2)) < std::stoi(input.at(3))) {
+      LOG(logERROR) << "Range invalid";
+      return ret::Error;
+    }
+
     // Sample through the DAC range, trigger the PG and read back the data
-    for(int i = std::stoi(input.at(2)); i <= std::stoi(input.at(3)); i++) {
+    for(int i = std::stoi(input.at(2)); i >= std::stoi(input.at(3)); i--) {
       dev->setRegister(input.at(1), i);
       // Wait a bit, in ms:
       mDelay(std::stoi(input.at(4)));
