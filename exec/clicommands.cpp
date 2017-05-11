@@ -68,10 +68,10 @@ pearycli::pearycli() : c("# ") {
   c.registerCommand(
     "scanThreshold",
     scanThreshold,
-    "Scan Threshold DAC DAC_NAME from value MAX down to MIN, send a test pulse via the pattern generator after "
-    "DELAY milliseconds and read back the data from the pixel matrix",
-    5,
-    "DAC_NAME MAX MIN DELAY[ms] DEVICE_ID");
+    "Scan Threshold DAC DAC_NAME from value MAX down to MIN, open the shutter via the pattern generator after "
+    "DELAY milliseconds and read back the data from the pixel matrix. This is repeated REPEAT times for every threshold",
+    6,
+    "DAC_NAME MAX MIN DELAY[ms] REPEAT DEVICE_ID");
 
   c.registerCommand(
     "exploreInterface", exploreInterface, "Perform an interface communication test on the selected devce", 1, "DEVICE_ID");
@@ -440,15 +440,16 @@ int pearycli::flushMatrix(const std::vector<std::string>& input) {
 int pearycli::scanThreshold(const std::vector<std::string>& input) {
 
   try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(5)));
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(6)));
 
     std::ofstream myfile;
     std::string filename = "thrscan_" + input.at(1) + ".csv";
     myfile.open(filename);
     myfile << "# pearycli > scanThreshold\n";
     myfile << "# Timestamp: " << LOGTIME << "\n";
-    myfile << "# scanned DAC \"" << input.at(1) << "\", range " << input.at(2) << "-" << input.at(3) << "\n";
-    myfile << "# with " << input.at(4) << "ms delay between setting register and sending test pulse.\n";
+    myfile << "# scanned DAC \"" << input.at(1) << "\", range " << input.at(2) << "-" << input.at(3) << ", " << input.at(5)
+           << " times\n";
+    myfile << "# with " << input.at(4) << "ms delay between setting register and reading matrix.\n";
 
     if(std::stoi(input.at(2)) < std::stoi(input.at(3))) {
       LOG(logERROR) << "Range invalid";
@@ -459,15 +460,23 @@ int pearycli::scanThreshold(const std::vector<std::string>& input) {
     for(int i = std::stoi(input.at(2)); i >= std::stoi(input.at(3)); i--) {
       LOG(logINFO) << "Threshold " << i;
       dev->setRegister(input.at(1), i);
-      // Wait a bit, in ms:
-      mDelay(std::stoi(input.at(4)));
-      // Send pattern:
-      dev->triggerPatternGenerator();
-      // Read the data:
-      pearydata frame = dev->getData();
-      for(auto& px : frame) {
-        myfile << i << "," << px.first.first << "," << px.first.second << "," << (*px.second) << "\n";
+
+      std::stringstream responses;
+      responses << "Pixel responses: ";
+      for(int j = 0; j < std::stoi(input.at(5)); j++) {
+        // Wait a bit, in ms:
+        mDelay(std::stoi(input.at(4)));
+        // Send pattern:
+        dev->triggerPatternGenerator();
+        // Read the data:
+        pearydata frame = dev->getData();
+        for(auto& px : frame) {
+          myfile << i << "," << px.first.first << "," << px.first.second << "," << (*px.second) << "\n";
+        }
+        responses << frame.size() << " ";
+        mDelay(std::stoi(input.at(4)));
       }
+      LOG(logINFO) << responses.str();
     }
 
     LOG(logINFO) << "Data writte to file: \"" << filename << "\"";
