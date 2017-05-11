@@ -1,5 +1,6 @@
 #include <fstream>
 #include <iostream>
+#include <signal.h>
 
 #include "../extern/cpp-readline/src/Console.hpp"
 #include "pearycli.hpp"
@@ -14,7 +15,22 @@ using ret = cr::ReturnCode;
 
 caribou::caribouDeviceMgr* pearycli::manager = new caribouDeviceMgr();
 
+void termination_handler(int s) {
+  std::cout << "\n";
+  LOG(logINFO) << "Caught user signal \"" << s << "\", ending processes.";
+  delete pearycli::manager;
+  exit(1);
+}
+
 int main(int argc, char* argv[]) {
+
+  struct sigaction sigIntHandler;
+
+  sigIntHandler.sa_handler = termination_handler;
+  sigemptyset(&sigIntHandler.sa_mask);
+  sigIntHandler.sa_flags = 0;
+
+  sigaction(SIGINT, &sigIntHandler, NULL);
 
   std::vector<std::string> devices;
   std::string configfile = "", execfile = "";
