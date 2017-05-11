@@ -86,6 +86,7 @@ pearycli::pearycli() : c("# ") {
   c.registerCommand("daqStop", daqStop, "Stop DAQ for the selected device", 1, "DEVICE_ID");
   c.registerCommand("getRawData", getRawData, "Retrieve raw data from the selected device", 1, "DEVICE_ID");
   c.registerCommand("getData", getData, "Retrieve decoded data from the selected device", 1, "DEVICE_ID");
+  c.registerCommand("flushMatrix", flushMatrix, "Retrieve data from the selected device and discard it", 1, "DEVICE_ID");
 }
 
 pearycli::~pearycli() {
@@ -420,6 +421,16 @@ int pearycli::getData(const std::vector<std::string>& input) {
     for(auto& px : data) {
       LOG(logINFO) << px.first.first << "|" << px.first.second << " : " << *px.second;
     }
+  } catch(caribou::DeviceException&) {
+    return ret::Error;
+  }
+  return ret::Ok;
+}
+
+int pearycli::flushMatrix(const std::vector<std::string>& input) {
+  try {
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
+    pearydata data = dev->getData();
   } catch(caribou::DeviceException&) {
     return ret::Error;
   }
