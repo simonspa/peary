@@ -195,6 +195,7 @@ void clicpix2::configureMatrix(std::string filename) {
 
 void clicpix2::readMatrix(std::string filename) {
 
+  size_t masked = 0;
   LOG(logDEBUG) << "Reading pixel matrix file.";
   std::ifstream pxfile(filename);
   if(!pxfile.is_open()) {
@@ -213,9 +214,11 @@ void clicpix2::readMatrix(std::string filename) {
       pixelConfig px(mask, threshold, cntmode, tpenable, longcnt);
       pixelsConfig[std::make_pair(row, column)] = px;
       LOG(logDEBUGHAL) << "  is pixel: " << px;
+      if(mask)
+        masked++;
     }
   }
-  LOG(logDEBUG) << "Now " << pixelsConfig.size() << " pixel configurations cached.";
+  LOG(logINFO) << "Now " << pixelsConfig.size() << " pixel configurations cached, " << masked << " of which are masked";
 }
 
 void clicpix2::triggerPatternGenerator() {
