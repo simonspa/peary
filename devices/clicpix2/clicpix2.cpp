@@ -461,13 +461,18 @@ std::vector<uint32_t> clicpix2::getRawData() {
   LOG(logDEBUG) << DEVICE_NAME << " readout requested";
   this->setRegister("readout", 0);
 
-  // One frame with 8 double columns readout without compression lasts 360.3us
-  // (data + carrier extenders = 28816 + 8 B)
-  // Sleep for 5ms
-  mDelay(5);
-
-  unsigned int frameSize = *(
+  // Poll data until frameSize doesn't change anymore
+  unsigned int frameSize, frameSize_previous;
+  frameSize = *(
     reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(receiver_base) + CLICPIX2_RECEIVER_COUNTER_OFFSET));
+  do {
+    frameSize_previous = frameSize;
+    usleep(100);
+    frameSize = *(reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(receiver_base) +
+                                                       CLICPIX2_RECEIVER_COUNTER_OFFSET));
+
+  } while(frameSize != frameSize_previous);
+
   std::vector<uint32_t> frame;
   frame.reserve(frameSize);
   for(unsigned int i = 0; i < frameSize; ++i) {
