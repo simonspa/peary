@@ -97,7 +97,7 @@ void clicpix2::reset() {
   volatile uint32_t* control_reg =
     reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + CLICPIX2_RESET_OFFSET);
   *control_reg &= ~(CLICPIX2_CONTROL_RESET_MASK); // assert reset
-  usleep(500000);
+  usleep(1);
   *control_reg |= CLICPIX2_CONTROL_RESET_MASK; // deny reset
 }
 
@@ -369,8 +369,8 @@ void clicpix2::programMatrix() {
 void clicpix2::configureClock() {
   LOG(logDEBUG) << DEVICE_NAME << ": Configure clock";
   _hal->configureSI5345((SI5345_REG_T const* const)si5345_revb_registers, SI5345_REVB_REG_CONFIG_NUM_REGS);
-  // FIXME
-  // while(! _hal-> isLockedSI5345() );
+  while(!_hal->isLockedSI5345())
+    ;
 }
 
 void clicpix2::powerStatusLog() {
