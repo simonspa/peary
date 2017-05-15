@@ -63,10 +63,6 @@ namespace caribou {
      */
     virtual std::string getDeviceName() = 0;
 
-    /** Initialize the device (ex.set the required clock otuputs etc.).
-     */
-    virtual void init() = 0;
-
     /** Turn on the power supply for the attached device
      */
     virtual void powerOn() = 0;
@@ -97,10 +93,11 @@ namespace caribou {
      */
     virtual void exploreInterface() = 0;
 
-    /** Function to reconfigure the Caribou device
+    /** Initialize the device (ex.set the required clock otuputs etc.).
+     *  Function to configure the Caribou device by setting all DACs to the values
+     *  provided via the initial configuration object
      */
-    // Previously "loadConfig"?
-    // virtual void reconfigure() {};
+    virtual void configure() = 0;
 
     // Controlling the device
 

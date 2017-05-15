@@ -35,7 +35,7 @@ namespace caribou {
 
     /** Initializer function for CLICpix2
      */
-    void init();
+    void configure();
 
     /** Turn on the power supply for the CLICpix2 chip
      */

@@ -86,10 +86,13 @@ clicpix2::clicpix2(const caribou::Configuration config) : pearyDevice(config, st
   *control_reg = 0; // keep CLICpix2 in reset state
 }
 
-void clicpix2::init() {
-  LOG(logINFO) << "Initializing " << DEVICE_NAME;
+void clicpix2::configure() {
+  LOG(logINFO) << "Configuring " << DEVICE_NAME;
   configureClock();
   reset();
+  mDelay(10);
+
+  // FIXME set all DACs provided with config
 }
 
 void clicpix2::reset() {

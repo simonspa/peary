@@ -191,6 +191,11 @@ namespace caribou {
     throw caribou::NoDataAvailable("Pattern generator not implemented for this device");
   }
 
+  template <typename T> void pearyDevice<T>::configure() {
+    LOG(logCRITICAL) << "Device configuration not implemented for this device";
+    throw caribou::NoDataAvailable("Device configuration not implemented for this device");
+  }
+
 } // namespace caribou
 
 #endif /* CARIBOU_MIDDLEWARE_IMPL */

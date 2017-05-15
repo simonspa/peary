@@ -18,7 +18,9 @@ pearycli::pearycli() : c("# ") {
   c.registerCommand("verbosity", verbosity, "Changes the logging verbosity", 1, "LOGLEVEL");
   c.registerCommand("delay", delay, "Adds a delay in Milliseconds", 1, "DELAY_MS");
 
-  c.registerCommand("init", init, "Initialize the selected device", 1, "DEVICE_ID");
+  c.registerCommand("init", configure, "Initialize and configure the selected device", 1, "DEVICE_ID");
+  c.registerCommand("configure", configure, "Initialize and configure the selected device", 1, "DEVICE_ID");
+
   c.registerCommand("powerOn", powerOn, "Power up the selected device", 1, "DEVICE_ID");
   c.registerCommand("powerOff", powerOff, "Power down the selected device", 1, "DEVICE_ID");
   c.registerCommand("setVoltage",
@@ -137,10 +139,10 @@ int pearycli::delay(const std::vector<std::string>& input) {
   return ret::Ok;
 }
 
-int pearycli::init(const std::vector<std::string>& input) {
+int pearycli::configure(const std::vector<std::string>& input) {
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
-    dev->init();
+    dev->configure();
   } catch(caribou::DeviceException&) {
     return ret::Error;
   }

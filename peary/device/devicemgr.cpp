@@ -98,6 +98,5 @@ size_t caribouDeviceMgr::addDevice(std::string name, const caribou::Configuratio
     throw caribou::DeviceException(e.what());
   }
 
-  // FIXME initialize device here? requires configuration!
   return device_id;
 }

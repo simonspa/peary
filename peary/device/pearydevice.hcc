@@ -94,10 +94,7 @@ namespace caribou {
      */
     virtual void exploreInterface() = 0;
 
-    /** Function to reconfigure the Caribou device
-     */
-    // Previously "loadConfig"?
-    // virtual void reconfigure() {};
+    virtual void configure();
 
     // Controlling the device
     virtual void setRegister(std::string name, uint32_t value);
