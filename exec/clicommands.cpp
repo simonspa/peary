@@ -69,9 +69,10 @@ pearycli::pearycli() : c("# ") {
     "scanThreshold",
     scanThreshold,
     "Scan Threshold DAC DAC_NAME from value MAX down to MIN, open the shutter via the pattern generator after "
-    "DELAY milliseconds and read back the data from the pixel matrix. This is repeated REPEAT times for every threshold",
-    6,
-    "DAC_NAME MAX MIN DELAY[ms] REPEAT DEVICE_ID");
+    "DELAY milliseconds and read back the data from the pixel matrix. This is repeated REPEAT times for every threshold"
+    "Data are saved in the FILE_NAME.csv file",
+    7,
+    "DAC_NAME MAX MIN DELAY[ms] REPEAT FILE_NAME DEVICE_ID");
 
   c.registerCommand(
     "exploreInterface", exploreInterface, "Perform an interface communication test on the selected devce", 1, "DEVICE_ID");
@@ -440,10 +441,10 @@ int pearycli::flushMatrix(const std::vector<std::string>& input) {
 int pearycli::scanThreshold(const std::vector<std::string>& input) {
 
   try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(6)));
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(7)));
 
     std::ofstream myfile;
-    std::string filename = "thrscan_" + input.at(1) + ".csv";
+    std::string filename = input.at(6) + ".csv";
     myfile.open(filename);
     myfile << "# pearycli > scanThreshold\n";
     myfile << "# Timestamp: " << LOGTIME << "\n";
