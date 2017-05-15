@@ -267,6 +267,8 @@ void clicpix2::configurePatternGenerator(std::string filename) {
           pattern |= CLICPIX2_CONTROL_WAVE_GENERATOR_EVENTS_TP_MASK;
         } else if(substr == "SH") {
           pattern |= CLICPIX2_CONTROL_WAVE_GENERATOR_EVENTS_SHUTTER_MASK;
+        } else if(substr == "NONE") {
+          // Add nothing
         } else {
           LOG(logERROR) << "Unrecognized pattern for pattern generator: " << substr << " - ignoring.";
         }
