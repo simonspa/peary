@@ -327,7 +327,7 @@ namespace caribou {
     iface_i2c& i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C0);
     i2c.write(ADDR_CLKGEN, std::make_pair(0x01, 0x00)); // set first page
     std::vector<i2c_t> rx = i2c.read(ADDR_CLKGEN, static_cast<uint8_t>(0x0E));
-    if(rx[0] & 0x1) {
+    if(rx[0] & 0x2) {
       LOG(logDEBUGHAL) << "SI5345 is not locked";
       return false;
     } else {

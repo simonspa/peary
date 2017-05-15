@@ -97,7 +97,7 @@ void clicpix2::reset() {
   volatile uint32_t* control_reg =
     reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + CLICPIX2_RESET_OFFSET);
   *control_reg &= ~(CLICPIX2_CONTROL_RESET_MASK); // assert reset
-  usleep(500000);
+  usleep(1);
   *control_reg |= CLICPIX2_CONTROL_RESET_MASK; // deny reset
 }
 
@@ -369,8 +369,8 @@ void clicpix2::programMatrix() {
 void clicpix2::configureClock() {
   LOG(logDEBUG) << DEVICE_NAME << ": Configure clock";
   _hal->configureSI5345((SI5345_REG_T const* const)si5345_revb_registers, SI5345_REVB_REG_CONFIG_NUM_REGS);
-  // FIXME
-  // while(! _hal-> isLockedSI5345() );
+  while(!_hal->isLockedSI5345())
+    ;
 }
 
 void clicpix2::powerStatusLog() {
@@ -461,13 +461,18 @@ std::vector<uint32_t> clicpix2::getRawData() {
   LOG(logDEBUG) << DEVICE_NAME << " readout requested";
   this->setRegister("readout", 0);
 
-  // One frame with 8 double columns readout without compression lasts 360.3us
-  // (data + carrier extenders = 28816 + 8 B)
-  // Sleep for 5ms
-  mDelay(5);
-
-  unsigned int frameSize = *(
+  // Poll data until frameSize doesn't change anymore
+  unsigned int frameSize, frameSize_previous;
+  frameSize = *(
     reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(receiver_base) + CLICPIX2_RECEIVER_COUNTER_OFFSET));
+  do {
+    frameSize_previous = frameSize;
+    usleep(100);
+    frameSize = *(reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(receiver_base) +
+                                                       CLICPIX2_RECEIVER_COUNTER_OFFSET));
+
+  } while(frameSize != frameSize_previous);
+
   std::vector<uint32_t> frame;
   frame.reserve(frameSize);
   for(unsigned int i = 0; i < frameSize; ++i) {
