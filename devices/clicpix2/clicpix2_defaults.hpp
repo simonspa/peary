@@ -63,7 +63,7 @@ namespace caribou {
                                                                                                                             \
       {"poweron_timer", register_t<>(0x30, 0x3F)}, {"pp_clk_div", register_t<>(0x30, 0xC0)},                                \
                                                                                                                             \
-      {"poweroff_timer", register_t<>(0x32, 0x3F)}, {"pp_en", register_t<>(0x32, 0x40)},                                    \
+      {"poweroff_timer", register_t<>(0x32, 0x3F)}, {"pp_en_n", register_t<>(0x32, 0x40)},                                  \
                                                                                                                             \
       {"pulsegen_counts_LSB", register_t<>(0x34)}, {"pulsegen_counts_MSB", register_t<>(0x36, 0x1F)},                       \
       {"pulsegen_delay_LSB", register_t<>(0x38)}, {"pulsegen_delay_MSB", register_t<>(0x3A, 0x1F)},                         \
