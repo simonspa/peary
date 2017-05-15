@@ -11,6 +11,7 @@ obj/
 *.log
 *.dat
 *.txt
+*.csv
 
 # ignore backup files of any sort of editor:
 ~*
