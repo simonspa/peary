@@ -88,6 +88,14 @@ namespace caribou {
     DataException(const std::string& what_arg) : caribouException(what_arg) {}
   };
 
+  /** Exception class thrown when requesting data in a format which is not available
+   *  (e.g. for CLICpix2, asking for TOT in long-counting mode)
+   */
+  class WrongDataFormat : public DataException {
+  public:
+    WrongDataFormat(const std::string& what_arg) : DataException(what_arg) {}
+  };
+
   /** This exception class is used in case new data are requested but nothing available. Usually
    *  this is not critical and should be caught by the caller. E.g. when runninng a DAQ with
    *  external triggering and constant event polling it can not be ensured that data

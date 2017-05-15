@@ -5,6 +5,7 @@
 
 #include <ostream>
 #include "datatypes.hpp"
+#include "exceptions.hpp"
 
 namespace caribou {
 
@@ -122,7 +123,7 @@ namespace caribou {
   public:
     // Default constructor
     // Disables the pixel
-    pixelReadout() : clicpix2_pixel(0x0){};
+    pixelReadout() : clicpix2_pixel(0x0), longflag(false){};
     pixelReadout(bool flag, uint8_t tot, uint8_t toa) : pixelReadout() {
       SetFlag(flag);
       SetTOT(tot);
@@ -140,21 +141,46 @@ namespace caribou {
 
     // TOT setting of the pixel (5bit)
     void SetTOT(uint8_t tot) { m_latches = (m_latches & 0xe0ff) | ((tot & 0x1f) << 8); }
-    uint8_t GetTOT() const { return (m_latches >> 8) & 0x1f; };
+    uint8_t GetTOT() const {
+      if(longflag)
+        throw WrongDataFormat("LongCnt set, no TOT available.");
+      else
+        return (m_latches >> 8) & 0x1f;
+    };
 
     // TOA setting of the pixel (8bit)
-    void SetTOA(uint8_t toa) { m_latches = (m_latches & 0xff00) | toa; }
-    uint8_t GetTOA() const { return m_latches & 0xff; };
+    void SetTOA(uint16_t toa) {
+      m_latches = (m_latches & 0xe000) | toa;
+      longflag = true;
+    }
+    void SetTOA(uint8_t toa) {
+      m_latches = (m_latches & 0xff00) | toa;
+      longflag = false;
+    }
+    uint16_t GetTOA() const {
+      if(longflag)
+        return m_latches & 0x1fff;
+      else
+        return m_latches & 0x00ff;
+    };
 
-    // LongCounter
-    void SetLongCounter(uint16_t lgcnt) { m_latches = (m_latches & 0xe000) | lgcnt; }
-    uint16_t GetLongCounter() const { return m_latches & 0xe00; }
+    // Counter
+    void SetCounter(uint16_t cnt) { return SetTOA(cnt); }
+    void SetCounter(uint8_t cnt) { return SetTOA(cnt); }
+    uint16_t GetCounter() const { return GetTOA(); }
 
     /** Overloaded print function for ostream operator
      */
     void print(std::ostream& out) const {
-      out << this->GetFlag() << "," << static_cast<int>(this->GetTOT()) << "," << static_cast<int>(this->GetTOA());
+      out << this->GetFlag();
+      if(!longflag) {
+        out << "," << static_cast<int>(this->GetTOT());
+      }
+      out << "," << static_cast<int>(this->GetTOA());
     }
+
+  private:
+    bool longflag;
   };
 }
 

@@ -240,7 +240,7 @@ void clicpix2_frameDecoder::decodeCounter(const std::map<std::pair<uint8_t, uint
   for(auto r = 0; r < static_cast<int>(clicpix2_frameDecoder::CLICPIX2_ROW); ++r) {
     for(auto c = 0; c < static_cast<int>(clicpix2_frameDecoder::CLICPIX2_COL); ++c) {
       if(pixelConfig.at(std::make_pair(r, c)).GetLongCounter()) {
-        matrix[r][c].SetLongCounter(lfsr13_lut[matrix[r][c].GetLongCounter()]);
+        matrix[r][c].SetCounter(lfsr13_lut[matrix[r][c].GetCounter()]);
       } else {
         matrix[r][c].SetTOT(lfsr5_lut[matrix[r][c].GetTOT()]);
         matrix[r][c].SetTOA(lfsr8_lut[matrix[r][c].GetTOA()]);
