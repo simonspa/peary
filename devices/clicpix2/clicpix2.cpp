@@ -17,7 +17,8 @@ std::string clicpix2::getName() {
   return DEVICE_NAME;
 }
 
-clicpix2::clicpix2(const caribou::Configuration config) : pearyDevice(config, std::string(DEFAULT_DEVICEPATH), 0) {
+clicpix2::clicpix2(const caribou::Configuration config)
+    : pearyDevice(config, std::string(DEFAULT_DEVICEPATH), 0), pg_total_length(0) {
 
   // Set up periphery
   _periphery.add("vddd", PWR_OUT_1);
@@ -235,7 +236,11 @@ void clicpix2::triggerPatternGenerator() {
   // Toggle on:
   *wave_control &= ~(CLICPIX2_CONTROL_WAVE_GENERATOR_ENABLE_MASK);
   *wave_control |= CLICPIX2_CONTROL_WAVE_GENERATOR_ENABLE_MASK;
+
+  // Wait for its length before returning:
+  usleep(pg_total_length / 10);
 }
+
 void clicpix2::configurePatternGenerator(std::string filename) {
 
   LOG(logDEBUG) << "Programming pattern generator.";
@@ -248,6 +253,7 @@ void clicpix2::configurePatternGenerator(std::string filename) {
   }
 
   std::string line = "";
+  pg_total_length = 0;
   while(std::getline(pgfile, line)) {
     if(!line.length() || '#' == line.at(0))
       continue;
@@ -276,9 +282,11 @@ void clicpix2::configurePatternGenerator(std::string filename) {
       pattern |= (duration & CLICPIX2_CONTROL_WAVE_GENERATOR_EVENTS_DURATION_MASK);
       LOG(logDEBUGHAL) << "PG signals: " << signals << " duration: " << duration << " pattern: " << to_bit_string(pattern);
       patterns.push_back(pattern);
+      pg_total_length += duration;
     }
   }
   LOG(logDEBUG) << "Now " << patterns.size() << " patterns cached.";
+  LOG(logDEBUG) << "Total length " << pg_total_length << " clk cycles.";
   if(patterns.size() > 32) {
     LOG(logCRITICAL) << "Pattern generator contains too many statements, maximum allowed: 32.";
     throw ConfigInvalid("Pattern generator too long");

@@ -104,6 +104,9 @@ namespace caribou {
 
     // CLICpix2 control memory map address
     void* control_base;
+
+    // Total pattern generator length
+    uint32_t pg_total_length;
   };
 
   extern "C" {
