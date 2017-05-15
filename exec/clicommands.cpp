@@ -69,10 +69,12 @@ pearycli::pearycli() : c("# ") {
     "scanThreshold",
     scanThreshold,
     "Scan Threshold DAC DAC_NAME from value MAX down to MIN, open the shutter via the pattern generator after "
-    "DELAY milliseconds and read back the data from the pixel matrix. This is repeated REPEAT times for every threshold"
+    "DELAY_PATTERN milliseconds and finaly after additional DELAY_READOUT millisecond it read back the data from the pixel "
+    "matrix."
+    "The sequence is repeated REPEAT times for every threshold"
     "Data are saved in the FILE_NAME.csv file",
-    7,
-    "DAC_NAME MAX MIN DELAY[ms] REPEAT FILE_NAME DEVICE_ID");
+    8,
+    "DAC_NAME MAX MIN DELAY_PATTERN[ms] DELAY_READOUT[ms] REPEAT FILE_NAME DEVICE_ID");
 
   c.registerCommand(
     "exploreInterface", exploreInterface, "Perform an interface communication test on the selected devce", 1, "DEVICE_ID");
@@ -441,16 +443,17 @@ int pearycli::flushMatrix(const std::vector<std::string>& input) {
 int pearycli::scanThreshold(const std::vector<std::string>& input) {
 
   try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(7)));
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(8)));
 
     std::ofstream myfile;
-    std::string filename = input.at(6) + ".csv";
+    std::string filename = input.at(7) + ".csv";
     myfile.open(filename);
     myfile << "# pearycli > scanThreshold\n";
     myfile << "# Timestamp: " << LOGTIME << "\n";
-    myfile << "# scanned DAC \"" << input.at(1) << "\", range " << input.at(2) << "-" << input.at(3) << ", " << input.at(5)
+    myfile << "# scanned DAC \"" << input.at(1) << "\", range " << input.at(2) << "-" << input.at(3) << ", " << input.at(6)
            << " times\n";
-    myfile << "# with " << input.at(4) << "ms delay between setting register and reading matrix.\n";
+    myfile << "# with " << input.at(4) << "ms delay between setting register and reading matrix and " << input.at(5)
+           << " beteen pattern generator trigger and data readout.\n";
 
     if(std::stoi(input.at(2)) < std::stoi(input.at(3))) {
       LOG(logERROR) << "Range invalid";
@@ -464,11 +467,12 @@ int pearycli::scanThreshold(const std::vector<std::string>& input) {
 
       std::stringstream responses;
       responses << "Pixel responses: ";
-      for(int j = 0; j < std::stoi(input.at(5)); j++) {
+      for(int j = 0; j < std::stoi(input.at(6)); j++) {
         // Wait a bit, in ms:
         mDelay(std::stoi(input.at(4)));
         // Send pattern:
         dev->triggerPatternGenerator();
+        mDelay(std::stoi(input.at(5)));
         // Read the data:
         pearydata frame = dev->getData();
         for(auto& px : frame) {
