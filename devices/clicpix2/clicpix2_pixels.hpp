@@ -114,6 +114,17 @@ namespace caribou {
       out << "px [" << this->GetMask() << "|" << static_cast<int>(this->GetThreshold()) << "|" << this->GetCountingMode()
           << "|" << this->GetEnableTestpulse() << "|" << this->GetLongCounter() << "]";
     }
+
+    /** Overloaded comparison operators
+     */
+    bool operator==(const pixelConfig& rhs) const {
+      if(this->GetLatches() == rhs.GetLatches()) {
+        return true;
+      }
+      return false;
+    }
+
+    bool operator!=(const pixelConfig& rhs) const { return !(*this == rhs); }
   };
 
   // CLICpix2 pixel readout class
