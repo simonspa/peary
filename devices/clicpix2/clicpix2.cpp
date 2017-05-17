@@ -196,10 +196,27 @@ void clicpix2::configureMatrix(std::string filename) {
   LOG(logDEBUG) << "Configuring the pixel matrix from file " << filename;
   readMatrix(filename);
   programMatrix();
+
   // Read back the matrix configuration and thus clear it:
   LOG(logDEBUG) << "Flushing matrix...";
-  pearydata matrixconf = getData();
-  LOG(logDEBUG) << "...done!";
+
+  std::vector<uint32_t> frame = getRawData();
+  clicpix2_frameDecoder decoder(false, false);
+  decoder.decode(frame, pixelsConfig, false);
+
+  for(auto& px : pixelsConfig) {
+
+    // Fetch readback value for this pixel:
+    pixelReadout pxv = decoder.get(px.first.second, px.first.first);
+
+    // Compare with value read from the matrix:
+    if(px.second != pxv) {
+      LOG(logERROR) << "Matrix configuration of pixel " << static_cast<int>(px.first.first) << ","
+                    << static_cast<int>(px.first.second) << " does not match:";
+      LOG(logERROR) << to_bit_string(px.second.GetLatches()) << " " << to_bit_string(pxv.GetLatches());
+    }
+  }
+  LOG(logINFO) << "Verified matrix configuration.";
 }
 
 void clicpix2::readMatrix(std::string filename) {
