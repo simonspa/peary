@@ -158,13 +158,14 @@ namespace caribou {
         return (m_latches >> 8) & 0x1f;
     };
 
-    // TOA setting of the pixel (8bit)
+    // TOA setting of the pixel (13bit)
     void SetTOA(uint16_t toa) {
-      m_latches = (m_latches & 0xe000) | toa;
+      m_latches = (m_latches & 0xe000) | (toa & 0x1fff);
       longflag = true;
     }
+    // TOA setting of the pixel (8bit)
     void SetTOA(uint8_t toa) {
-      m_latches = (m_latches & 0xff00) | toa;
+      m_latches = (m_latches & 0xff00) | (toa & 0x00ff);
       longflag = false;
     }
     uint16_t GetTOA() const {
