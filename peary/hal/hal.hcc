@@ -12,7 +12,14 @@
 
 namespace caribou {
 
-  template <typename T> class caribouHAL {
+  // Base class to share configuration variable between different caribouHAL specialisations
+  class caribouHALbase {
+  protected:
+    // General reset of the CaR board done
+    static bool generalResetDone;
+  };
+
+  template <typename T> class caribouHAL : public caribouHALbase {
 
   public:
     /** Default constructor for creating a new HAL instance
@@ -150,6 +157,10 @@ namespace caribou {
     /** Set current/power monitor
      */
     void setCurrentMonitor(const uint8_t device, const double maxExpectedCurrent);
+
+    /** General reset of the CaR board
+     */
+    void generalReset();
 
   }; // class caribouHAL
 

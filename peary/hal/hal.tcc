@@ -6,6 +6,8 @@
 
 namespace caribou {
 
+  bool caribouHALbase::generalResetDone = false;
+
   template <typename T>
   caribouHAL<T>::caribouHAL(std::string device_path, uint32_t device_address)
       : _devpath(device_path), _devaddress(device_address) {
@@ -36,7 +38,7 @@ namespace caribou {
     control_base = reinterpret_cast<void*>(reinterpret_cast<std::intptr_t>(control_map_base) +
                                            (CARIBOU_CONTROL_BASE_ADDRESS & CARIBOU_CONTROL_MAP_MASK));
 
-    // set default CLICpix2 control
+    // set default  Caribout control
     volatile uint32_t* firmwareVersion_reg =
       reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + CARIBOU_FIRMWARE_VERSION_OFFSET);
 
@@ -55,6 +57,11 @@ namespace caribou {
     T& dev_iface = interface_manager::getInterface<T>(_devpath);
     LOG(logDEBUGHAL) << "Perpared HAL for accessing device with interface at " << dev_iface.devicePath;
 
+    if(!generalResetDone) // CaR board needs to be reset
+      generalReset();
+  }
+
+  template <typename T> void caribouHAL<T>::generalReset() {
     // Disable all Voltage Regulators
     LOG(logDEBUGHAL) << "Disabling all Voltage regulators";
     iface_i2c& i2c0 = interface_manager::getInterface<iface_i2c>(BUS_I2C0);
@@ -76,6 +83,7 @@ namespace caribou {
     // setDCDCConverter(LTM_VPWR1, 5 );
     // setDCDCConverter(LTM_VPWR2, 5 );
     // setDCDCConverter(LTM_VPWR3, 5 );
+    generalResetDone = true;
   }
 
   template <typename T> caribouHAL<T>::~caribouHAL() {
