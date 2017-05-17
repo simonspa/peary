@@ -35,6 +35,17 @@ namespace caribou {
 
     uint16_t GetLatches() const { return m_latches; }
 
+    /** Overloaded comparison operators
+     */
+    bool operator==(const clicpix2_pixel& rhs) const {
+      if(this->GetLatches() == rhs.GetLatches()) {
+        return true;
+      }
+      return false;
+    }
+
+    bool operator!=(const clicpix2_pixel& rhs) const { return !(*this == rhs); }
+
   protected:
     clicpix2_pixel(){};
     clicpix2_pixel(uint16_t m_latches) : m_latches(m_latches){};
@@ -114,22 +125,10 @@ namespace caribou {
       out << "px [" << this->GetMask() << "|" << static_cast<int>(this->GetThreshold()) << "|" << this->GetCountingMode()
           << "|" << this->GetEnableTestpulse() << "|" << this->GetLongCounter() << "]";
     }
-
-    /** Overloaded comparison operators
-     */
-    bool operator==(const pixelConfig& rhs) const {
-      if(this->GetLatches() == rhs.GetLatches()) {
-        return true;
-      }
-      return false;
-    }
-
-    bool operator!=(const pixelConfig& rhs) const { return !(*this == rhs); }
   };
 
   // CLICpix2 pixel readout class
   // The individual values are set via the member functions
-  // and can be retrieved bitwise for convenience.
   class pixelReadout : public virtual clicpix2_pixel {
   public:
     // Default constructor
