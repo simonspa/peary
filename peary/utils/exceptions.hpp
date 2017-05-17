@@ -64,6 +64,13 @@ namespace caribou {
     DeviceLibException(const std::string& what_arg) : DeviceException(what_arg) {}
   };
 
+  /** Exception covering issues with the device implementation such as missing functions
+   */
+  class DeviceImplException : public DeviceException {
+  public:
+    DeviceImplException(const std::string& what_arg) : DeviceException(what_arg) {}
+  };
+
   /** Exception covering issues with the Caribou firmware such as missing
    *  firmware binaries, problems flashing the selected firmware or the request
    *  to configure an unsupported device
