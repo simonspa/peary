@@ -1,5 +1,6 @@
 #include <arpa/inet.h>
 #include <fstream>
+#include <signal.h>
 #include <sys/socket.h>
 
 #include "configuration.hpp"
@@ -10,19 +11,36 @@
 using namespace caribou;
 
 caribou::caribouDeviceMgr* manager;
+int my_socket, new_socket;
 
 // Global functions
 bool configure();
 bool start_run(std::string prefix, int run_nr, std::string description);
 bool stop_run(std::string prefix);
 
+void termination_handler(int s) {
+  std::cout << "\n";
+  LOG(logINFO) << "Caught user signal \"" << s << "\", ending processes.";
+  delete manager;
+  close(new_socket);
+  close(my_socket);
+  exit(1);
+}
+
 // Main thread
 int main(int argc, char* argv[]) {
+
+  struct sigaction sigIntHandler;
+
+  sigIntHandler.sa_handler = termination_handler;
+  sigemptyset(&sigIntHandler.sa_mask);
+  sigIntHandler.sa_flags = 0;
+
+  sigaction(SIGINT, &sigIntHandler, NULL);
 
   int run_nr;
 
   // TCP/IP server variables
-  int my_socket, new_socket;
   int portnumber = 4000;
   struct sockaddr_in address;
   socklen_t addrlen;
@@ -76,7 +94,9 @@ int main(int argc, char* argv[]) {
 
     // Spawn all devices found in the configuration file
     for(auto d : config.GetSections()) {
-
+      if(!config.SetSection(d)) {
+        throw caribou::ConfigInvalid("Could not set configuration section for device.");
+      }
       size_t device_id = manager->addDevice(d, config);
       LOG(logINFO) << "Manager returned device ID " << device_id << ", fetching device...";
 
