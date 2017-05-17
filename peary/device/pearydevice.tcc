@@ -178,22 +178,38 @@ namespace caribou {
 
   template <typename T> void pearyDevice<T>::configureMatrix(std::string) {
     LOG(logCRITICAL) << "Programming of the pixel matrix not implemented for this device";
-    throw caribou::NoDataAvailable("Programming of the pixel matrix not implemented for this device");
+    throw caribou::DeviceImplException("Programming of the pixel matrix not implemented for this device");
   }
 
   template <typename T> void pearyDevice<T>::configurePatternGenerator(std::string) {
     LOG(logCRITICAL) << "Pattern generator not implemented for this device";
-    throw caribou::NoDataAvailable("Pattern generator not implemented for this device");
+    throw caribou::DeviceImplException("Pattern generator not implemented for this device");
   }
 
   template <typename T> void pearyDevice<T>::triggerPatternGenerator() {
     LOG(logCRITICAL) << "Pattern generator not implemented for this device";
-    throw caribou::NoDataAvailable("Pattern generator not implemented for this device");
+    throw caribou::DeviceImplException("Pattern generator not implemented for this device");
   }
 
   template <typename T> void pearyDevice<T>::configure() {
-    LOG(logCRITICAL) << "Device configuration not implemented for this device";
-    throw caribou::NoDataAvailable("Device configuration not implemented for this device");
+
+    // Read pattern generator from the configuration and program it:
+    std::string pg = _config.Get("patterngenerator", "");
+    if(!pg.empty()) {
+      LOG(logINFO) << "Found pattern generator in configuration, programming...";
+      configurePatternGenerator(pg);
+    } else {
+      LOG(logINFO) << "No pattern generator found in configuration.";
+    }
+
+    // Read matrix file from the configuration and program it:
+    std::string matrix = _config.Get("matrix", "");
+    if(!matrix.empty()) {
+      LOG(logINFO) << "Found pixel matrix setup in configuration, programming...";
+      configureMatrix(matrix);
+    } else {
+      LOG(logINFO) << "No pixel matrix configuration setting found.";
+    }
   }
 
 } // namespace caribou

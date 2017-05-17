@@ -13,7 +13,7 @@ namespace caribou {
       : _devpath(device_path), _devaddress(device_address) {
 
     // Get access to FPGA memory mapped registers
-    memfd = open("/dev/mem", O_RDWR | O_SYNC);
+    memfd = open(MEM_PATH, O_RDWR | O_SYNC);
     if(memfd == -1) {
       throw DeviceException("Can't open /dev/mem.\n");
     }
