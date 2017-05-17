@@ -11,7 +11,7 @@
 
 /** Memory device of FPGA
  */
-#define MEM_PATH "/tmp/mem"
+#define MEM_PATH "/dev/mem"
 
 namespace caribou {
 
