@@ -36,7 +36,7 @@ clicpix2::clicpix2(const caribou::Configuration config)
   _registers.add(CLICPIX2_REGISTERS);
 
   // Get access to FPGA memory mapped registers
-  memfd = open("/dev/mem", O_RDWR | O_SYNC);
+  memfd = open(MEM_PATH, O_RDWR | O_SYNC);
   if(memfd == -1) {
     throw DeviceException("Can't open /dev/mem.\n");
   }
@@ -476,6 +476,7 @@ std::vector<uint32_t> clicpix2::getRawData() {
 
   LOG(logDEBUG) << DEVICE_NAME << " readout requested";
   this->setRegister("readout", 0);
+  std::vector<uint32_t> frame;
 
   // Poll data until frameSize doesn't change anymore
   unsigned int frameSize, frameSize_previous;
@@ -489,7 +490,6 @@ std::vector<uint32_t> clicpix2::getRawData() {
 
   } while(frameSize != frameSize_previous);
 
-  std::vector<uint32_t> frame;
   frame.reserve(frameSize);
   for(unsigned int i = 0; i < frameSize; ++i) {
     frame.emplace_back(*(

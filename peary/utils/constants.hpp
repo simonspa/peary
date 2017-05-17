@@ -9,6 +9,10 @@
  */
 #define ADDR_FW_ID 0x0
 
+/** Memory device of FPGA
+ */
+#define MEM_PATH "/tmp/mem"
+
 namespace caribou {
 
   /** Interfaces
