@@ -194,6 +194,9 @@ void clicpix2::configureMatrix(std::string filename) {
   LOG(logDEBUG) << "Configuring the pixel matrix from file " << filename;
   readMatrix(filename);
   programMatrix();
+  // Read back the matrix configuration and thus clear it:
+  LOG(logDEBUG) << "Flushing matrix...";
+  pearydata matrixconf = getData();
   LOG(logDEBUG) << "...done!";
 }
 
