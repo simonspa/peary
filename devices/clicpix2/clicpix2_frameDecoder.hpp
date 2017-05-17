@@ -74,9 +74,12 @@ namespace caribou {
         : pixelCompressionEnabled(pixelCompressionEnabled),
           DCandSuperPixelCompressionEnabled(DCandSuperPixelCompressionEnabled){};
 
-    void decode(const std::vector<uint32_t>& frame, const std::map<std::pair<uint8_t, uint8_t>, pixelConfig>& pixelConfig);
+    void decode(const std::vector<uint32_t>& frame,
+                const std::map<std::pair<uint8_t, uint8_t>, pixelConfig>& pixelConfig,
+                bool decodeCnt = true);
     pearydata getZerosuppressedFrame();
 
+    pixelReadout get(const unsigned int row, const unsigned int column) { return matrix[row][column]; };
     static const uint16_t lfsr13_lut[8191];
     static const uint8_t lfsr8_lut[255];
     static const uint8_t lfsr5_lut[31];
