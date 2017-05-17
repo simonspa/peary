@@ -94,6 +94,8 @@ void clicpix2::configure() {
   mDelay(10);
 
   // FIXME set all DACs provided with config
+  // Call the base class configuration function:
+  pearyDevice<iface_spi_CLICpix2>::configure();
 }
 
 void clicpix2::reset() {
