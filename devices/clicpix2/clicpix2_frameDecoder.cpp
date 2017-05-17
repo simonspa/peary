@@ -10,7 +10,8 @@ using namespace caribou;
 const clicpix2_frameDecoder::WORD_TYPE clicpix2_frameDecoder::DELIMITER(1, 0xf7);
 
 void clicpix2_frameDecoder::decode(const std::vector<uint32_t>& frame,
-                                   const std::map<std::pair<uint8_t, uint8_t>, pixelConfig>& pixelConfig) {
+                                   const std::map<std::pair<uint8_t, uint8_t>, pixelConfig>& pixelConfig,
+                                   bool decodeCnt) {
   std::vector<WORD_TYPE> dataVector = repackageFrame(frame);
   auto data = dataVector.cbegin();
   auto dataEnd = dataVector.cend();
@@ -20,7 +21,8 @@ void clicpix2_frameDecoder::decode(const std::vector<uint32_t>& frame,
     extractColumns(data, dataEnd);
   } while(std::distance(data, dataEnd) && ~(std::distance(data, dataEnd) == 1 && *data == DELIMITER));
 
-  decodeCounter(pixelConfig);
+  if(decodeCnt)
+    decodeCounter(pixelConfig);
 }
 
 pearydata clicpix2_frameDecoder::getZerosuppressedFrame() {
