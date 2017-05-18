@@ -41,10 +41,10 @@ namespace caribou {
    * \return An object of type T with the value represented in x, or if
    *         that is not valid then the value of def.
    */
-  template <typename T> inline T from_string(const std::string& x, const T& def = 0) {
+  template <typename T> inline T from_string(const std::string& x) {
     if(x == "")
-      return def;
-    T ret = def;
+      throw ConfigInvalidKey("Empty key");
+    T ret = T();
     std::istringstream s(x);
     s >> ret;
     char remain = '\0';
@@ -54,23 +54,22 @@ namespace caribou {
     return ret;
   }
 
-  template <> inline std::string from_string(const std::string& x, const std::string& def) { return x == "" ? def : x; }
-
-  template <> int64_t from_string(const std::string& x, const int64_t& def);
-
-  template <> uint64_t from_string(const std::string& x, const uint64_t& def);
-
-  template <> inline int32_t from_string(const std::string& x, const int32_t& def) {
-    return static_cast<int32_t>(from_string(x, (int64_t)def));
+  template <> inline std::string from_string(const std::string& x) {
+    if(x == "")
+      throw ConfigInvalidKey("Empty key");
+    else
+      return x;
   }
 
-  template <> inline uint32_t from_string(const std::string& x, const uint32_t& def) {
-    return static_cast<uint32_t>(from_string(x, (uint64_t)def));
-  }
+  template <> int64_t from_string(const std::string& x);
 
-  template <> inline uint8_t from_string(const std::string& x, const uint8_t& def) {
-    return static_cast<uint8_t>(from_string(x, (int64_t)def));
-  }
+  template <> uint64_t from_string(const std::string& x);
+
+  template <> inline int32_t from_string(const std::string& x) { return static_cast<int32_t>(from_string<int64_t>(x)); }
+
+  template <> inline uint32_t from_string(const std::string& x) { return static_cast<uint32_t>(from_string<uint64_t>(x)); }
+
+  template <> inline uint8_t from_string(const std::string& x) { return static_cast<uint8_t>(from_string<uint64_t>(x)); }
 
   /** Converts any type to a string.
    * \param x The value to be converted.
@@ -114,7 +113,11 @@ namespace caribou {
     std::string item;
     T def = T();
     while(std::getline(ss, item, delim)) {
-      elems.push_back(from_string(item, def));
+      try {
+        elems.push_back(from_string<T>(item));
+      } catch(ConfigInvalidKey&) {
+        elems.push_back(def);
+      }
     }
     return elems;
   }

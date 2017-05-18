@@ -29,7 +29,7 @@ namespace caribou {
     int64_t Get(const std::string& key, int64_t def) const;
     uint64_t Get(const std::string& key, uint64_t def) const;
     template <typename T> T Get(const std::string& key, T def) const {
-      return caribou::from_string(Get(key, caribou::to_string(def)), def);
+      return caribou::from_string<T>(Get(key, caribou::to_string(def)));
     }
     template <typename T> std::vector<T> Get(const std::string& key, std::vector<T> def) const {
       return split(Get(key, std::string()), def, ',');

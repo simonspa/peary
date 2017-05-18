@@ -120,7 +120,7 @@ std::string Configuration::Get(const std::string& key, const std::string& def) c
 
 double Configuration::Get(const std::string& key, double def) const {
   try {
-    return from_string(GetString(key), def);
+    return from_string<double>(GetString(key));
   } catch(const std::exception&) {
     // ignore: return default
   }

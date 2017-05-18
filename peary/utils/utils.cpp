@@ -35,9 +35,9 @@ std::string caribou::trim(const std::string& s) {
   return std::string(s, b, e - b + 1);
 }
 
-template <> int64_t caribou::from_string(const std::string& x, const int64_t& def) {
+template <> int64_t caribou::from_string(const std::string& x) {
   if(x == "")
-    return def;
+    throw ConfigInvalidKey("Empty key");
   const char* start = x.c_str();
   size_t end = 0;
   int base = 10;
@@ -57,9 +57,9 @@ template <> int64_t caribou::from_string(const std::string& x, const int64_t& de
   return result;
 }
 
-template <> uint64_t caribou::from_string(const std::string& x, const uint64_t& def) {
+template <> uint64_t caribou::from_string(const std::string& x) {
   if(x == "")
-    return def;
+    throw ConfigInvalidKey("Empty key");
   const char* start = x.c_str();
   size_t end = 0;
   int base = 10;

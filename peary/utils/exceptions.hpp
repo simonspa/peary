@@ -32,6 +32,11 @@ namespace caribou {
     ConfigInvalid(const std::string& what_arg) : caribouException(what_arg) {}
   };
 
+  class ConfigInvalidKey : public ConfigInvalid {
+  public:
+    ConfigInvalidKey(const std::string& what_arg) : ConfigInvalid(what_arg) {}
+  };
+
   /** Exception for missing but requested configuration keys
    */
   class ConfigMissingKey : public caribouException {
