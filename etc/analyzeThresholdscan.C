@@ -31,15 +31,23 @@
 	else if(i == 1) column = atoi(value.c_str());
 	else if(i == 2) row = atoi(value.c_str());
 	else if(i == 3) flag = atoi(value.c_str());
-	else if(i == 4) tot = atoi(value.c_str());
-	else if(i == 5) toa = atoi(value.c_str());
+	else if(i == 4) cnt = atoi(value.c_str());
+	else if(i == 5) longcnt = atoi(value.c_str());
 	i++;
       }
       
       if(!pixel_seen[column][row]) {
 	std::cout << "Seen pixel " << column << "," << row << std::endl;
 	h->SetBinContent(column+1, row+1, thr);
-	h2->Fill(thr,1);
+	  
+	// Proper entry
+	if(i == 5) {
+	  h2->Fill(thr,cnt);
+	}
+	else if(i == 6) {
+	  h2->Fill(thr,longcnt);
+	}
+
 	pixel_seen[column][row] = true;
 	pixels++;
       }
