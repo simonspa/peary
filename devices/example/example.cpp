@@ -25,7 +25,17 @@ void example::powerOn() {
   LOG(logDEBUG) << DEVICE_NAME << " config sets DAC_TEST=" << dac_test;
 
   LOG(logINFO) << "Register from dictionary: " << _registers.get("vthreshold");
+  LOG(logINFO) << "Register value from config: " << _config.Get("vthreshold", EXAMPLE_DAC_TEST);
   this->setRegister("vthreshold", _config.Get("dac_test", EXAMPLE_DAC_TEST));
+
+  // Vectors can be read directly from the config and passed to an interface
+  LOG(logINFO) << listVector(_config.Get("sample_registers", std::vector<uint8_t>{EXAMPLE_DAC_VEC}));
+
+  try {
+    LOG(logINFO) << "Register value from config without default: " << _config.Get<uint8_t>("vthr");
+  } catch(ConfigMissingKey& e) {
+    LOG(logERROR) << e.what();
+  }
 }
 
 void example::powerOff() {
