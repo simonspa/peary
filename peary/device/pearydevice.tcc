@@ -193,6 +193,19 @@ namespace caribou {
 
   template <typename T> void pearyDevice<T>::configure() {
 
+    // Set all registers provided in the configuratio file, skip those which are not set:
+    std::vector<std::string> dacs = _registers.getNames();
+    LOG(logINFO) << "Setting registers from configuration:";
+    for(auto i : dacs) {
+      try {
+        typename T::data_type value = _config.Get<typename T::data_type>(i);
+        this->setRegister(i, value);
+        LOG(logINFO) << "Set register \"" << i << "\" = " << static_cast<int>(value) << " (" << to_hex_string(value) << ")";
+      } catch(ConfigMissingKey& e) {
+        LOG(logDEBUG) << "Could not find key \"" << i << "\" in the configuration, skipping.";
+      }
+    }
+
     // Read pattern generator from the configuration and program it:
     std::string pg = _config.Get("patterngenerator", "");
     if(!pg.empty()) {
