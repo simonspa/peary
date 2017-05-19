@@ -207,7 +207,7 @@ void clicpix2::configureMatrix(std::string filename) {
   for(auto& px : pixelsConfig) {
 
     // Fetch readback value for this pixel:
-    pixelReadout pxv = decoder.get(px.first.second, px.first.first);
+    pixelReadout pxv = decoder.get(px.first.first, px.first.second);
 
     // Compare with value read from the matrix:
     if(px.second != pxv) {
