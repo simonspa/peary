@@ -58,8 +58,11 @@
   
     std::cout << pixels << " pixels responded" << std::endl;
     h->GetXaxis()->SetTitle("column");
-    h->GetZaxis()->SetTitle("1st response at thr_MSB");
+    h->GetZaxis()->SetTitle("pixel counter (13 bit)");
+    h->GetZaxis()->SetTitleOffset(1.5);
     h->GetYaxis()->SetTitle("row");
+    h->GetYaxis()->SetTitleOffset(1.5);
+
     c->cd();
     h->Draw("colz");
     c2->cd();
