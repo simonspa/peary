@@ -1,0 +1,25 @@
+# Pattern Generator configuration
+# Commaseparated list of signals to be turned on and duration time of signals
+# in units of clock cycles
+# End the pattern generator with a zero duration
+PWR		 4000
+PWR,SH		 100
+PWR		 200
+PWR,SH		 100
+PWR		 200
+PWR,SH		 100
+PWR		 200
+PWR,SH		 100
+PWR		 200
+PWR,SH		 100
+PWR		 200
+PWR,SH		 100
+PWR		 200
+PWR,SH		 100
+PWR		 200
+PWR,SH		 100
+PWR		 200
+PWR,SH		 100
+PWR		 200
+PWR,SH		 100
+PWR		 0 
