@@ -451,6 +451,8 @@ int pearycli::scanThreshold(const std::vector<std::string>& input) {
     std::string filename = input.at(6) + ".csv";
     myfile.open(filename);
     myfile << "# pearycli > scanThreshold\n";
+    myfile << "# Software version: " << dev->getVersion();
+    myfile << "# Firmware version: " << dev->getFirmwareVersion();
     myfile << "# Timestamp: " << LOGTIME << "\n";
     myfile << "# scanned DAC \"" << input.at(1) << "\", range " << input.at(2) << "-" << input.at(3) << ", " << input.at(5)
            << " times\n";
