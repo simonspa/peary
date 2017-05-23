@@ -18,6 +18,18 @@ namespace caribou {
       throw DeviceException("Can't open /dev/mem.\n");
     }
 
+    // Log the firmware
+    LOG(logQUIET) << getFirmwareVersion();
+
+    T& dev_iface = interface_manager::getInterface<T>(_devpath);
+    LOG(logDEBUGHAL) << "Perpared HAL for accessing device with interface at " << dev_iface.devicePath;
+
+    if(!generalResetDone) // CaR board needs to be reset
+      generalReset();
+  }
+
+  template <typename T> std::string caribouHAL<T>::getFirmwareVersion() {
+
     // Map Caribou control
     void* control_map_base;
 
@@ -50,15 +62,12 @@ namespace caribou {
     const uint8_t minute = (firwareVersion >> 6) & 0x3F;
     const uint8_t second = firwareVersion & 0x3F;
 
-    LOG(logQUIET) << "Firmware version: " << to_hex_string(firwareVersion) << " (" << static_cast<int>(day) << "/"
-                  << static_cast<int>(month) << "/" << static_cast<int>(year) << " " << static_cast<int>(hour) << ":"
-                  << static_cast<int>(minute) << ":" << static_cast<int>(second) << ")";
+    std::stringstream s;
+    s << "Firmware version: " << to_hex_string(firwareVersion) << " (" << static_cast<int>(day) << "/"
+      << static_cast<int>(month) << "/" << static_cast<int>(year) << " " << static_cast<int>(hour) << ":"
+      << static_cast<int>(minute) << ":" << static_cast<int>(second) << ")";
 
-    T& dev_iface = interface_manager::getInterface<T>(_devpath);
-    LOG(logDEBUGHAL) << "Perpared HAL for accessing device with interface at " << dev_iface.devicePath;
-
-    if(!generalResetDone) // CaR board needs to be reset
-      generalReset();
+    return s.str();
   }
 
   template <typename T> void caribouHAL<T>::generalReset() {

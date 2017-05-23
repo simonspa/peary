@@ -34,6 +34,10 @@ namespace caribou {
      */
     uint8_t getCaRBoardID();
 
+    /** Return human-readable string of firmware version and build timestamp
+     */
+    std::string getFirmwareVersion();
+
     /** Read value from a firmware register
      *
      *  @param address : address of the register to be read
