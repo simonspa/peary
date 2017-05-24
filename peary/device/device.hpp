@@ -118,6 +118,7 @@ namespace caribou {
      *  is identified by its human-readable name.
      */
     virtual uint32_t getRegister(std::string name) = 0;
+    virtual std::vector<std::pair<std::string, uint32_t>> getRegisters() = 0;
 
     /** Sending reset signal to the device
      */

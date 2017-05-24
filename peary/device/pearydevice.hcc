@@ -103,6 +103,7 @@ namespace caribou {
     // Controlling the device
     virtual void setRegister(std::string name, uint32_t value);
     virtual uint32_t getRegister(std::string name);
+    virtual std::vector<std::pair<std::string, uint32_t>> getRegisters();
 
     /** Sending reset signal to the device
      */

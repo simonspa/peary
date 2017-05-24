@@ -152,6 +152,25 @@ namespace caribou {
     _hal->send(std::make_pair(reg.address(), regval));
   }
 
+  template <typename T> std::vector<std::pair<std::string, uint32_t>> pearyDevice<T>::getRegisters() {
+
+    std::vector<std::pair<std::string, uint32_t>> regvalues;
+
+    // Retrieve all registers from the device:
+    std::vector<std::string> regs = _registers.getNames();
+    for(auto r : regs) {
+      try {
+        regvalues.push_back(std::make_pair(r, this->getRegister(r)));
+        LOG(logDEBUG) << "Retrieved register \"" << r << "\" = " << static_cast<int>(regvalues.back().second) << " ("
+                      << to_hex_string(regvalues.back().second) << ")";
+      } catch(CommunicationError& e) {
+        LOG(logDEBUG) << "Failed to retrieve register \"" << r << "\" from the device.";
+      }
+    }
+
+    return regvalues;
+  }
+
   template <typename T> uint32_t pearyDevice<T>::getRegister(std::string name) {
 
     // Resolve name against register dictionary:
