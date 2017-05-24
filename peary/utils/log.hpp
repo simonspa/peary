@@ -38,6 +38,7 @@ namespace caribou {
       GREEN = 32,
       YELLOW = 33,
       BLUE = 34,
+      CYAN = 36,
       DEFAULT = 39,
     };
 
@@ -127,6 +128,8 @@ namespace caribou {
       os << color::YELLOW;
     if(level == logINTERFACE)
       os << color::GRAY;
+    if(level == logQUIET)
+      os << color::CYAN;
 
     os << std::setw(8) << ToString(level) << ": ";
 
