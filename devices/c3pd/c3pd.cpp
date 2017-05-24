@@ -33,6 +33,7 @@ std::string C3PD::getName() {
 void C3PD::powerUp() {
   LOG(logINFO) << DEVICE_NAME << ": Powering up C3PD";
 
+  // Power rails:
   LOG(logDEBUG) << " VDDD";
   _hal->setVoltageRegulator(PWR_OUT_2, _config.Get("vddd", C3PD_VDDD), _config.Get("vddd_current", C3PD_VDDD_CURRENT));
   _hal->powerVoltageRegulator(PWR_OUT_2, true);
@@ -41,9 +42,14 @@ void C3PD::powerUp() {
   _hal->setVoltageRegulator(PWR_OUT_6, _config.Get("vdda", C3PD_VDDA), _config.Get("vdda_current", C3PD_VDDA_CURRENT));
   _hal->powerVoltageRegulator(PWR_OUT_6, true);
 
-  // Fixme: Bias voltage below
-  // LOG(logDEBUG) << " Reference voltage";
-  // voltageSet("c3pd_ref",C3PD_REF);
+  // Bias voltages:
+  LOG(logDEBUG) << " Reference voltage";
+  _hal->setBiasRegulator(BIAS_2, _config.Get("vdda", C3PD_REF));
+  _hal->powerBiasRegulator(BIAS_2, true);
+
+  LOG(logDEBUG) << " Analog-In";
+  _hal->setBiasRegulator(BIAS_1, _config.Get("ain", C3PD_AIN));
+  _hal->powerBiasRegulator(BIAS_1, true);
 }
 
 void C3PD::powerDown() {
@@ -54,6 +60,12 @@ void C3PD::powerDown() {
 
   LOG(logDEBUG) << "Power off VDDD";
   _hal->powerVoltageRegulator(PWR_OUT_2, false);
+
+  LOG(logDEBUG) << "Turn off AIN";
+  _hal->powerBiasRegulator(BIAS_1, true);
+
+  LOG(logDEBUG) << "Turn off REF";
+  _hal->powerBiasRegulator(BIAS_2, true);
 }
 
 void C3PD::daqStart() {
