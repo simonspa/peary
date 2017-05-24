@@ -492,10 +492,20 @@ int pearycli::scanThreshold(const std::vector<std::string>& input) {
       for(int j = 0; j < std::stoi(input.at(5)); j++) {
         // Wait a bit, in ms:
         mDelay(std::stoi(input.at(4)));
-        // Send pattern:
-        dev->triggerPatternGenerator();
-        // Read the data:
-        pearydata frame = dev->getData();
+
+        pearydata frame;
+        try {
+          // Send pattern:
+          dev->triggerPatternGenerator();
+          // Read the data:
+          frame = dev->getData();
+        } catch(caribou::DataException& e) {
+          // Retrieval failed, retry once more before aborting:
+          LOG(logWARNING) << e.what() << ", retyring once.";
+          dev->triggerPatternGenerator();
+          frame = dev->getData();
+        }
+
         for(auto& px : frame) {
           myfile << i << "," << px.first.first << "," << px.first.second << "," << (*px.second) << "\n";
         }
