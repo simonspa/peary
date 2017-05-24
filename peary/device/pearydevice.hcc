@@ -72,13 +72,21 @@ namespace caribou {
      */
     std::string getDeviceName();
 
+    /** Call the device's powerUp() function and toggle the powered state
+     */
+    void powerOn();
+
     /** Turn on the power supply for the attached device
      */
-    virtual void powerOn() = 0;
+    virtual void powerUp() = 0;
+
+    /** Call the device's powerDown() function and toggle the powered state
+     */
+    void powerOff();
 
     /** Turn off power for the attached device
      */
-    virtual void powerOff() = 0;
+    virtual void powerDown() = 0;
 
     /** Start the data acquisition
      */

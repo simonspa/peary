@@ -27,11 +27,11 @@ namespace caribou {
 
     /** Turn on the power supply for the C3PD chip
      */
-    void powerOn();
+    void powerUp();
 
     /** Turn off the C3PD power
      */
-    void powerOff();
+    void powerDown();
 
     /** Start the data acquisition
      */

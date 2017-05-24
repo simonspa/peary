@@ -42,6 +42,25 @@ namespace caribou {
 
   template <typename T> std::string pearyDevice<T>::getDeviceName() { return std::string(); }
 
+  template <typename T> void pearyDevice<T>::powerOn() {
+    if(_is_powered) {
+      LOG(logWARNING) << "Device " << getName() << " already powered.";
+    } else {
+      this->powerUp();
+      _is_powered = true;
+    }
+  }
+
+  template <typename T> void pearyDevice<T>::powerOff() {
+    if(!_is_powered) {
+      LOG(logWARNING) << "Device " << getName() << " already off.";
+    } else {
+      this->powerDown();
+      _is_powered = false;
+      _is_configured = false;
+    }
+  }
+
   template <typename T> void pearyDevice<T>::setVoltage(std::string name, double voltage) {
 
     // Resolve name against periphery dictionary
@@ -218,6 +237,11 @@ namespace caribou {
 
   template <typename T> void pearyDevice<T>::configure() {
 
+    if(!_is_powered) {
+      LOG(logERROR) << "Device " << getName() << " is not powered!";
+      return;
+    }
+
     // Set all registers provided in the configuratio file, skip those which are not set:
     std::vector<std::string> dacs = _registers.getNames();
     LOG(logINFO) << "Setting registers from configuration:";
@@ -248,6 +272,8 @@ namespace caribou {
     } else {
       LOG(logINFO) << "No pixel matrix configuration setting found.";
     }
+
+    _is_configured = true;
   }
 
 } // namespace caribou

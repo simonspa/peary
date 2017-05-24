@@ -125,7 +125,7 @@ clicpix2::~clicpix2() {
   close(memfd);
 }
 
-void clicpix2::powerOn() {
+void clicpix2::powerUp() {
   LOG(logINFO) << DEVICE_NAME << ": Powering up CLICpix2";
 
   LOG(logDEBUG) << " CMLBUFFERS_VDD";
@@ -166,7 +166,7 @@ void clicpix2::powerOn() {
   // _hal->powerCurrentSource(CUR_2, true);
 }
 
-void clicpix2::powerOff() {
+void clicpix2::powerDown() {
   LOG(logINFO) << DEVICE_NAME << ": Power off CLICpix2";
 
   LOG(logDEBUG) << "Power off CML_IREF";

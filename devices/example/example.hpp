@@ -47,11 +47,11 @@ namespace caribou {
 
     /** Turn on the power supply for the Example chip
      */
-    void powerOn();
+    void powerUp();
 
     /** Turn off the Example power
      */
-    void powerOff();
+    void powerDown();
 
     /** Start the data acquisition
      */

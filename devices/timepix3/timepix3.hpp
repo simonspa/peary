@@ -35,11 +35,11 @@ namespace caribou {
 
     /** Turn on the power supply for the Timepix3 chip
      */
-    void powerOn(){};
+    void powerUp(){};
 
     /** Turn off the Timepix3 power
      */
-    void powerOff(){};
+    void powerDown(){};
 
     /** Start the data acquisition
      */

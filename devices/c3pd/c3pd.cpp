@@ -17,7 +17,7 @@ std::string C3PD::getName() {
   return DEVICE_NAME;
 }
 
-void C3PD::powerOn() {
+void C3PD::powerUp() {
   LOG(logINFO) << DEVICE_NAME << ": Powering up C3PD";
 
   LOG(logDEBUG) << " VDDD";
@@ -33,7 +33,7 @@ void C3PD::powerOn() {
   // voltageSet("c3pd_ref",C3PD_REF);
 }
 
-void C3PD::powerOff() {
+void C3PD::powerDown() {
   LOG(logINFO) << DEVICE_NAME << ": Power off C3PD";
 
   LOG(logDEBUG) << "Power off VDDA";

@@ -39,11 +39,11 @@ namespace caribou {
 
     /** Turn on the power supply for the CLICpix2 chip
      */
-    void powerOn();
+    void powerUp();
 
     /** Turn off the CLICpix2 power
      */
-    void powerOff();
+    void powerDown();
 
     /** Start the data acquisition
      */

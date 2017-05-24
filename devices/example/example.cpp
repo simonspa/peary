@@ -17,7 +17,7 @@ std::string example::getName() {
   return DEVICE_NAME;
 }
 
-void example::powerOn() {
+void example::powerUp() {
   LOG(logINFO) << DEVICE_NAME << ": Power on.";
 
   // Read a DAC value from the config if it exists, otherwise take default
@@ -38,7 +38,7 @@ void example::powerOn() {
   }
 }
 
-void example::powerOff() {
+void example::powerDown() {
   LOG(logINFO) << DEVICE_NAME << ": Power off.";
 }
 
