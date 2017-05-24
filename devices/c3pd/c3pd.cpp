@@ -10,7 +10,6 @@ using namespace caribou;
 
 C3PD::~C3PD() {
   LOG(logINFO) << DEVICE_NAME << ": Shutdown, delete device.";
-  powerOff();
 }
 
 std::string C3PD::getName() {
