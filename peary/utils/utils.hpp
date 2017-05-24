@@ -167,6 +167,19 @@ namespace caribou {
     return os.str();
   }
 
+  template <typename T1>
+  std::string listVector(std::vector<std::pair<std::string, T1>> vec, std::string separator = ", ", bool hex = false) {
+    std::stringstream os;
+    for(auto it : vec) {
+      if(hex)
+        os << it.first << ":" << to_hex_string(it.second);
+      else
+        os << it.first << ":" << static_cast<unsigned int>(it.second);
+      os << separator;
+    }
+    return os.str();
+  }
+
 } // namespace caribou
 
 #endif /* CARIBOU_UTILS_H */
