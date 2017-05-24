@@ -13,6 +13,11 @@ void clicpix2_frameDecoder::decode(const std::vector<uint32_t>& frame,
                                    const std::map<std::pair<uint8_t, uint8_t>, pixelConfig>& pixelConfig,
                                    bool decodeCnt) {
   std::vector<WORD_TYPE> dataVector = repackageFrame(frame);
+
+  if(dataVector.empty()) {
+    throw caribou::DataException("Frame is empty");
+  }
+
   auto data = dataVector.cbegin();
   auto dataEnd = dataVector.cend();
 

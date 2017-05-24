@@ -202,21 +202,26 @@ void clicpix2::configureMatrix(std::string filename) {
 
   std::vector<uint32_t> frame = getRawData();
   clicpix2_frameDecoder decoder(false, false);
-  decoder.decode(frame, pixelsConfig, false);
 
-  for(auto& px : pixelsConfig) {
+  try {
+    decoder.decode(frame, pixelsConfig, false);
 
-    // Fetch readback value for this pixel:
-    pixelReadout pxv = decoder.get(px.first.first, px.first.second);
+    for(auto& px : pixelsConfig) {
 
-    // Compare with value read from the matrix:
-    if(px.second != pxv) {
-      LOG(logERROR) << "Matrix configuration of pixel " << static_cast<int>(px.first.first) << ","
-                    << static_cast<int>(px.first.second) << " does not match:";
-      LOG(logERROR) << to_bit_string(px.second.GetLatches()) << " " << to_bit_string(pxv.GetLatches());
+      // Fetch readback value for this pixel:
+      pixelReadout pxv = decoder.get(px.first.first, px.first.second);
+
+      // Compare with value read from the matrix:
+      if(px.second != pxv) {
+        LOG(logERROR) << "Matrix configuration of pixel " << static_cast<int>(px.first.first) << ","
+                      << static_cast<int>(px.first.second) << " does not match:";
+        LOG(logERROR) << to_bit_string(px.second.GetLatches()) << " " << to_bit_string(pxv.GetLatches());
+      }
     }
+    LOG(logINFO) << "Verified matrix configuration.";
+  } catch(caribou::DataException& e) {
+    LOG(logERROR) << e.what();
   }
-  LOG(logINFO) << "Verified matrix configuration.";
 }
 
 void clicpix2::readMatrix(std::string filename) {
