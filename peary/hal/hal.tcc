@@ -188,6 +188,29 @@ namespace caribou {
     powerDAC(true, converter.dacaddress(), converter.dacoutput());
   }
 
+  template <typename T> void caribouHAL<T>::setBiasRegulator(const BIAS_REGULATOR_T regulator, const double voltage) {
+    LOG(logDEBUGHAL) << "Setting bias " << voltage << "V "
+                     << "on " << regulator.name();
+
+    if(voltage > 3.2 || voltage < 0)
+      throw ConfigInvalid("Trying to set bias regulator to " + std::to_string(voltage) + " V (range is 0-3.2 V)");
+
+    setDACVoltage(regulator.dacaddress(), regulator.dacoutput(), voltage);
+  }
+
+  template <typename T> void caribouHAL<T>::powerBiasRegulator(const BIAS_REGULATOR_T regulator, const bool enable) {
+
+    iface_i2c& i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C0);
+
+    if(enable) {
+      LOG(logDEBUGHAL) << "Powering up " << regulator.name();
+      powerDAC(true, regulator.dacaddress(), regulator.dacoutput());
+    } else {
+      LOG(logDEBUGHAL) << "Powering down " << regulator.name();
+      powerDAC(false, regulator.dacaddress(), regulator.dacoutput());
+    }
+  }
+
   template <typename T>
   void caribouHAL<T>::setVoltageRegulator(const VOLTAGE_REGULATOR_T regulator,
                                           const double voltage,

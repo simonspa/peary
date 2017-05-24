@@ -82,6 +82,20 @@ namespace caribou {
      */
     double readTemperature();
 
+    /** Set bias voltage
+     *
+     *  The input parameter should be provided in SI Volts.
+     *  The function sets the proper voltage in the DAC corresponding to the selected bias.
+     *  The output of the DAC is not enabled.
+     */
+    void setBiasRegulator(const BIAS_REGULATOR_T regulator, const double voltage);
+
+    /** Enable/disable the voltage regulator
+     *
+     *  Enables or disables the output of the coresponding DAC.
+     */
+    void powerBiasRegulator(const BIAS_REGULATOR_T regulator, const bool enable);
+
     /** Set output voltage of a voltage regulator
      *
      *  The input parameter should be provided in SI Volts and Amps.
