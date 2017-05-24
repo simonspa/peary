@@ -26,11 +26,7 @@ namespace caribou {
     _hal = new caribouHAL<T>(_config.Get("devicepath", devpath), _config.Get("deviceaddress", devaddr));
   }
 
-  template <typename T> pearyDevice<T>::~pearyDevice() {
-    // Power down the device:
-    powerOff();
-    delete _hal;
-  }
+  template <typename T> pearyDevice<T>::~pearyDevice() { delete _hal; }
 
   template <typename T> std::string pearyDevice<T>::getVersion() { return std::string(PACKAGE_STRING); }
 
