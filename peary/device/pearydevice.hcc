@@ -196,6 +196,15 @@ namespace caribou {
      */
     caribou::component_dict _periphery;
 
+  private:
+    /** State indicating powering of the device
+     */
+    bool _is_powered;
+
+    /** State indicating the configuration of the device
+     */
+    bool _is_configured;
+
   }; // class pearyDevice
 
 } // namespace caribou
