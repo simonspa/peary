@@ -110,6 +110,7 @@ void clicpix2::reset() {
 clicpix2::~clicpix2() {
 
   LOG(logINFO) << DEVICE_NAME << ": Shutdown, delete device.";
+  powerOff();
 
   // Unamp CLICpix2 receiver
   if(munmap(receiver_base, CLICPIX2_RECEIVER_MAP_SIZE) == -1) {
