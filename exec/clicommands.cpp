@@ -255,6 +255,9 @@ int pearycli::getRegister(const std::vector<std::string>& input) {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(2)));
     uint32_t value = dev->getRegister(input.at(1));
     LOG(logINFO) << input.at(1) << " = " << value;
+  } catch(caribou::NoDataAvailable& e) {
+    LOG(logWARNING) << e.what();
+    return ret::Ok;
   } catch(caribou::caribouException& e) {
     LOG(logERROR) << e.what();
     return ret::Error;
