@@ -51,14 +51,14 @@ namespace caribou {
 
 #define CLICPIX2_REGISTERS                                                                                                  \
   {                                                                                                                         \
-    {"readout", register_t<>(0x02)}, {"matrix_programming", register_t<>(0x04)}, {"bias_disc_N", register_t<>(0x0A)},       \
-      {"bias_disc_P", register_t<>(0x0C)}, {"ikrum", register_t<>(0x0E)}, {"bias_preamp", register_t<>(0x10)},              \
-      {"bias_thadj_DAC", register_t<>(0x12)}, {"bias_buffers_1st", register_t<>(0x14, 0xF0)},                               \
-      {"bias_buffers_2nd", register_t<>(0x14, 0x0F)}, {"bias_preamp_casc", register_t<>(0x16)},                             \
-      {"bias_thadj_casc", register_t<>(0x18)}, {"bias_mirror_casc", register_t<>(0x1A)}, {"vfbk", register_t<>(0x1C)},      \
-      {"bias_disc_N_OFF", register_t<>(0x1E)}, {"bias_disc_P_OFF", register_t<>(0x20)},                                     \
-      {"bias_preamp_OFF", register_t<>(0x22)}, {"threshold_LSB", register_t<>(0x24)},                                       \
-      {"threshold_MSB", register_t<>(0x26)}, {"test_cap_1_LSB", register_t<>(0x28)},                                        \
+    {"readout", register_t<>(0x02, 0xFF, true)}, {"matrix_programming", register_t<>(0x04, 0xFF, true)},                    \
+      {"bias_disc_N", register_t<>(0x0A)}, {"bias_disc_P", register_t<>(0x0C)}, {"ikrum", register_t<>(0x0E)},              \
+      {"bias_preamp", register_t<>(0x10)}, {"bias_thadj_DAC", register_t<>(0x12)},                                          \
+      {"bias_buffers_1st", register_t<>(0x14, 0xF0)}, {"bias_buffers_2nd", register_t<>(0x14, 0x0F)},                       \
+      {"bias_preamp_casc", register_t<>(0x16)}, {"bias_thadj_casc", register_t<>(0x18)},                                    \
+      {"bias_mirror_casc", register_t<>(0x1A)}, {"vfbk", register_t<>(0x1C)}, {"bias_disc_N_OFF", register_t<>(0x1E)},      \
+      {"bias_disc_P_OFF", register_t<>(0x20)}, {"bias_preamp_OFF", register_t<>(0x22)},                                     \
+      {"threshold_LSB", register_t<>(0x24)}, {"threshold_MSB", register_t<>(0x26)}, {"test_cap_1_LSB", register_t<>(0x28)}, \
       {"test_cap_1_MSB", register_t<>(0x2A)}, {"test_cap_2", register_t<>(0x2C)}, {"output_mux_DAC", register_t<>(0x2E)},   \
                                                                                                                             \
       {"poweron_timer", register_t<>(0x30, 0x3F)}, {"pp_clk_div", register_t<>(0x30, 0xC0)},                                \
