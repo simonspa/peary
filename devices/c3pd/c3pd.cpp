@@ -8,6 +8,19 @@
 
 using namespace caribou;
 
+C3PD::C3PD(const caribou::Configuration config) : pearyDevice(config, std::string(DEFAULT_DEVICEPATH), C3PD_DEFAULT_I2C) {
+
+  // Set up periphery
+  _periphery.add("vddd", PWR_OUT_2);
+  _periphery.add("vdda", PWR_OUT_6);
+
+  _periphery.add("ain", BIAS_1);
+  _periphery.add("ref", BIAS_2);
+
+  // Add the register definitions to the dictionary for convenient lookup of names:
+  _registers.add(C3PD_REGISTERS);
+}
+
 C3PD::~C3PD() {
   LOG(logINFO) << DEVICE_NAME << ": Shutdown, delete device.";
   powerOff();

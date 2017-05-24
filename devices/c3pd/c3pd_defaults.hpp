@@ -57,25 +57,13 @@ namespace caribou {
 
 /** Dictionary for register address/name lookup for C3PD
  */
-#define C3PD_DICT                                                                                                           \
+#define C3PD_REGISTERS                                                                                                      \
   {                                                                                                                         \
-    {"gcr", registerConfig<>(0x00, 255)}, {"isg", registerConfig<>(0x01, 255)}, {"ani", registerConfig<>(0x02, 255)},       \
-      {"ano", registerConfig<>(0x03, 255)}, {"vbpre", registerConfig<>(0x04, 255)},                                         \
-      {"vbpcas", registerConfig<>(0x05, 255)}, {"vboalf", registerConfig<>(0x06, 255)},                                     \
-      {"vboahf", registerConfig<>(0x07, 255)}, {"vbls", registerConfig<>(0x08, 255)},                                       \
-      {"vbfbk", registerConfig<>(0x09, 255)}, {"vbs", registerConfig<>(0x0A, 255)}, {"vbsp", registerConfig<>(0x0B, 255)},  \
-      {"vbpreoff", registerConfig<>(0x0C, 255)}, {"vblsoff", registerConfig<>(0x0D, 255)},                                  \
-      {"vbtp", registerConfig<>(0x0E, 255)},                                                                                \
-  }
-
-/** Periphery CaR components for C3PD
- */
-#define C3PD_PERIPHERY                                                                                                      \
-  {                                                                                                                         \
-    {"vddd", registerConfig<>(ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTC, 16)},                                                    \
-      {"vdda", registerConfig<>(ADDR_DAC_U50, REG_DAC_CHANNEL_VOUTD, 16)},                                                  \
-      {"ref", registerConfig<>(ADDR_DAC_U44, REG_DAC_CHANNEL_VOUTC, 16)},                                                   \
-      {"ain", registerConfig<>(ADDR_DAC_U44, REG_DAC_CHANNEL_VOUTA, 16)},                                                   \
+    {"gcr", register_t<>(0x00)}, {"isg", register_t<>(0x01)}, {"ani", register_t<>(0x02)}, {"ano", register_t<>(0x03)},     \
+      {"vbpre", register_t<>(0x04)}, {"vbpcas", register_t<>(0x05)}, {"vboalf", register_t<>(0x06)},                        \
+      {"vboahf", register_t<>(0x07)}, {"vbls", register_t<>(0x08)}, {"vbfbk", register_t<>(0x09)},                          \
+      {"vbs", register_t<>(0x0A)}, {"vbsp", register_t<>(0x0B)}, {"vbpreoff", register_t<>(0x0C)},                          \
+      {"vblsoff", register_t<>(0x0D)}, {"vbtp", register_t<>(0x0E)},                                                        \
   }
 
 } // namespace caribou
