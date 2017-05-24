@@ -477,9 +477,14 @@ int pearycli::scanThreshold(const std::vector<std::string>& input) {
            << " times\n";
     myfile << "# with " << input.at(4) << "ms delay between setting register and reading matrix.\n";
 
+    if(std::stoi(input.at(2)) < std::stoi(input.at(3))) {
+      LOG(logERROR) << "Range invalid";
+      return ret::Error;
+    }
+
     // Sample through the DAC range, trigger the PG and read back the data
     for(int i = std::stoi(input.at(2)); i >= std::stoi(input.at(3)); i--) {
-      LOG(logINFO) << input.at(1) << " = " << i;
+      LOG(logINFO) << "Threshold " << i;
       dev->setRegister(input.at(1), i);
 
       std::stringstream responses;
