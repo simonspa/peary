@@ -468,6 +468,7 @@ int pearycli::scanThreshold(const std::vector<std::string>& input) {
     myfile << "# pearycli > scanThreshold\n";
     myfile << "# Software version: " << dev->getVersion() << "\n";
     myfile << "# Firmware version: " << dev->getFirmwareVersion() << "\n";
+    myfile << "# Register state: " << listVector(dev->getRegisters()) << "\n";
     myfile << "# Timestamp: " << LOGTIME << "\n";
     myfile << "# scanned DAC \"" << input.at(1) << "\", range " << input.at(2) << "-" << input.at(3) << ", " << input.at(5)
            << " times\n";
