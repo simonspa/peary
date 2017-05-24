@@ -197,8 +197,11 @@ namespace caribou {
    *  - the DAC address
    *  - the corresponding DAC output pin
    */
-  // FIXME cannot do this, otherwise casting is ambiguous for the two!
-  typedef component_dac_t BIAS_REGULATOR_T;
+  class BIAS_REGULATOR_T : public component_dac_t {
+  public:
+    BIAS_REGULATOR_T(std::string name, uint8_t dacaddr, uint8_t dacout) : component_dac_t(name, dacaddr, dacout){};
+    ~BIAS_REGULATOR_T(){};
+  };
 
   /**  Injection Bias Voltage Regulator Configuration
    *
