@@ -484,7 +484,7 @@ int pearycli::scanThreshold(const std::vector<std::string>& input) {
 
     // Sample through the DAC range, trigger the PG and read back the data
     for(int i = std::stoi(input.at(2)); i >= std::stoi(input.at(3)); i--) {
-      LOG(logINFO) << "Threshold " << i;
+      LOG(logINFO) << input.at(1) << " = " << i;
       dev->setRegister(input.at(1), i);
 
       std::stringstream responses;
