@@ -30,7 +30,7 @@ namespace caribou {
     /** Default constructor for Caribou devices
      *
      */
-    caribouDevice(const caribou::Configuration){};
+    caribouDevice(const caribou::Configuration);
 
     /** Default destructor for Caribou devices
      */
@@ -42,7 +42,7 @@ namespace caribou {
 
     /** Return the software version string for reference
      */
-    virtual std::string getVersion() = 0;
+    std::string getVersion();
 
     /** Return the firmware version
      */

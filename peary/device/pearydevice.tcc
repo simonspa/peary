@@ -14,37 +14,17 @@
 #include "pearydevice.hpp"
 
 #include <string>
-#include "config.h"
 
 namespace caribou {
 
   template <typename T>
   pearyDevice<T>::pearyDevice(const caribou::Configuration config, std::string devpath, uint32_t devaddr)
       : caribouDevice(config), _hal(nullptr), _config(config), _is_powered(false), _is_configured(false) {
-    LOG(logQUIET) << "New Caribou device instance, version " << getVersion();
-
-    if(caribouDevice::isManaged()) {
-      LOG(logQUIET) << "This device is managed through the device manager.";
-    } else {
-      LOG(logQUIET) << "Unmanaged device.";
-
-      // Check for running device manager:
-      if(check_flock("pearydevmgr.lock")) {
-        throw caribou::caribouException("Found running device manager instance.");
-      }
-
-      // Acquire lock for pearydevice:
-      if(!acquire_flock("pearydev.lock")) {
-        throw caribou::caribouException("Found running device instance.");
-      }
-    }
 
     _hal = new caribouHAL<T>(_config.Get("devicepath", devpath), _config.Get("deviceaddress", devaddr));
   }
 
   template <typename T> pearyDevice<T>::~pearyDevice() { delete _hal; }
-
-  template <typename T> std::string pearyDevice<T>::getVersion() { return std::string(PACKAGE_STRING); }
 
   template <typename T> std::string pearyDevice<T>::getFirmwareVersion() { return _hal->getFirmwareVersion(); }
 

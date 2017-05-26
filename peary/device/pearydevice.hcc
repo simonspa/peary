@@ -41,10 +41,6 @@ namespace caribou {
      */
     virtual ~pearyDevice();
 
-    /** Return the software version string for reference
-     */
-    std::string getVersion();
-
     /** Return the firmware version string for reference
      */
     std::string getFirmwareVersion();
