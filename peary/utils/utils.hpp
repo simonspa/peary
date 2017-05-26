@@ -17,6 +17,14 @@
 
 namespace caribou {
 
+  /** Function to check for lock on file
+   */
+  bool check_flock(std::string filename);
+
+  /** Function to acquire lock on file
+   */
+  bool acquire_flock(std::string filename);
+
   /** Delay helper function
    *  Uses usleep() to wait the given time in milliseconds
    */

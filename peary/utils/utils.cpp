@@ -1,8 +1,42 @@
 
 #include <cstdint>
+#include <sys/file.h>
 
 #include "exceptions.hpp"
+#include "log.hpp"
 #include "utils.hpp"
+
+bool caribou::check_flock(std::string filename) {
+
+  std::string file = "/var/lock/" + filename;
+  int fd = open(file.c_str(), O_RDWR | O_CREAT, 0666); // open or create lockfile
+
+  if(flock(fd, LOCK_EX | LOCK_NB) == -1) {
+    if(errno == EWOULDBLOCK) {
+      LOG(logDEBUG) << "File " << file << "is locked.";
+      return true;
+    } else {
+      throw caribouException("Error in checking file lock of " + file);
+    }
+  } else {
+    flock(fd, LOCK_UN);
+    LOG(logDEBUG) << "File " << file << "is unlocked.";
+    return false;
+  }
+}
+
+bool caribou::acquire_flock(std::string filename) {
+
+  std::string file = "/var/lock/" + filename;
+  int fd = open(file.c_str(), O_RDWR | O_CREAT, 0666); // open or create lockfile
+
+  if(flock(fd, LOCK_EX | LOCK_NB) == -1) {
+    LOG(logCRITICAL) << "Cannot get lock on " << file;
+    return false;
+  }
+  LOG(logDEBUG) << "Acquired lock on " << file;
+  return true;
+}
 
 uint8_t caribou::reverseByte(uint8_t n) {
 
