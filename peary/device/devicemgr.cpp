@@ -17,6 +17,17 @@ using namespace caribou;
 
 caribouDeviceMgr::caribouDeviceMgr() : _deviceList() {
   LOG(logDEBUG) << "New Caribou device manager";
+
+  if(check_flock("pearydev.lock")) {
+    throw caribou::caribouException("Found running device instance, cannot start manager.");
+  }
+
+  if(!acquire_flock("pearydevmgr.lock")) {
+    throw caribou::caribouException("Found running device manager instance.");
+  }
+
+  // Mark all instanciated devices as managed:
+  caribou::caribouDevice::managedDevice = true;
 }
 
 caribouDeviceMgr::~caribouDeviceMgr() {

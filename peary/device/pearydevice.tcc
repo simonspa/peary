@@ -23,6 +23,22 @@ namespace caribou {
       : caribouDevice(config), _hal(nullptr), _config(config), _is_powered(false), _is_configured(false) {
     LOG(logQUIET) << "New Caribou device instance, version " << getVersion();
 
+    if(caribouDevice::isManaged()) {
+      LOG(logQUIET) << "This device is managed through the device manager.";
+    } else {
+      LOG(logQUIET) << "Unmanaged device.";
+
+      // Check for running device manager:
+      if(check_flock("pearydevmgr.lock")) {
+        throw caribou::caribouException("Found running device manager instance.");
+      }
+
+      // Acquire lock for pearydevice:
+      if(!acquire_flock("pearydev.lock")) {
+        throw caribou::caribouException("Found running device instance.");
+      }
+    }
+
     _hal = new caribouHAL<T>(_config.Get("devicepath", devpath), _config.Get("deviceaddress", devaddr));
   }
 
