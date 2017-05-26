@@ -98,7 +98,7 @@ namespace caribou {
   template <typename T> caribouHAL<T>::~caribouHAL() {
     // Unamp Caribou control
     if(munmap(control_base, CARIBOU_CONTROL_MAP_SIZE) == -1) {
-      throw DeviceException("Can't unmap memory from user space.\n");
+      LOG(logCRITICAL) << "Can't unmap memory from user space.";
     }
 
     close(memfd);
@@ -199,8 +199,6 @@ namespace caribou {
   }
 
   template <typename T> void caribouHAL<T>::powerBiasRegulator(const BIAS_REGULATOR_T regulator, const bool enable) {
-
-    iface_i2c& i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C0);
 
     if(enable) {
       LOG(logDEBUGHAL) << "Powering up " << regulator.name();

@@ -114,12 +114,12 @@ clicpix2::~clicpix2() {
 
   // Unamp CLICpix2 receiver
   if(munmap(receiver_base, CLICPIX2_RECEIVER_MAP_SIZE) == -1) {
-    throw DeviceException("Can't unmap memory from user space.\n");
+    LOG(logCRITICAL) << "Can't unmap CLICpix2 receiver memory from user space.";
   }
 
   // Unamp CLICpix2 control
   if(munmap(control_base, CLICPIX2_CONTROL_MAP_SIZE) == -1) {
-    throw DeviceException("Can't unmap memory from user space.\n");
+    LOG(logCRITICAL) << "Can't unmap CLICpix2 control memory from user space.";
   }
 
   close(memfd);
