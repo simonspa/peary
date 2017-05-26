@@ -36,6 +36,10 @@ namespace caribou {
      */
     virtual ~caribouDevice(){};
 
+    /** Indicator flag for managed devices
+     */
+    bool isManaged() { return managedDevice; };
+
     /** Return the software version string for reference
      */
     virtual std::string getVersion() = 0;
@@ -195,6 +199,15 @@ namespace caribou {
     // If no data available, throw caribou::NoDataAvailable exception instead of returning empty vector!
     // Otherwise synchronization of event-based detectors impossible
 
+  private:
+    /** Private static status flag if devices are managed
+     *
+     *  This is used by the caribou::pearyDevice class to check for other running devices
+     */
+    static bool managedDevice;
+
+    // Make the device manager a friend class to allow toggling the caribouDevice::managedDevice flag
+    friend class caribouDeviceMgr;
   }; // class caribouDevice
 
 } // namespace caribou

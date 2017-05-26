@@ -14,6 +14,7 @@ OPTION(INTERFACE_LOOP "Build Caribou Loopback interface?" ON)
 SET(LIB_SOURCE_FILES
   # device manager
   "device/devicemgr.cpp"
+  "device/device.cpp"
   # interface manager
   "interfaces/interface_manager.cpp"
   # utilities
