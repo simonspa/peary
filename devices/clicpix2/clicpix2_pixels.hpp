@@ -65,7 +65,7 @@ namespace caribou {
      *
      * Initializes the pixel in a masked state
      */
-    pixelConfig() : clicpix2_pixel(0x0000){};
+    pixelConfig() : clicpix2_pixel(0x2000){};
     pixelConfig(bool mask, uint8_t threshold, bool cntmode, bool tpenable, bool longcnt) : pixelConfig() {
       SetMask(mask);
       SetThreshold(threshold);
