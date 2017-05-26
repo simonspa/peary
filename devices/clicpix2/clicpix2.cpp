@@ -213,9 +213,9 @@ void clicpix2::configureMatrix(std::string filename) {
 
       // Compare with value read from the matrix:
       if(px.second != pxv) {
-        LOG(logERROR) << "Matrix configuration of pixel " << static_cast<int>(px.first.first) << ","
-                      << static_cast<int>(px.first.second) << " does not match:";
-        LOG(logERROR) << to_bit_string(px.second.GetLatches()) << " " << to_bit_string(pxv.GetLatches());
+        LOG(logERROR) << "Matrix configuration of pixel " << static_cast<int>(px.first.second) << ","
+                      << static_cast<int>(px.first.first) << " does not match:";
+        LOG(logERROR) << to_bit_string(px.second.GetLatches()) << " != " << to_bit_string(pxv.GetLatches());
       }
     }
     LOG(logINFO) << "Verified matrix configuration.";
