@@ -35,7 +35,9 @@ namespace caribou {
  */
 #define EXAMPLE_REGISTERS                                                                                                   \
   {                                                                                                                         \
-    {"vthreshold", register_t<>(0x5)}, {"vkrum", register_t<>(0x6, 0x0f)}, { "vadc", register_t<>(0x6) }                    \
+    {"vthreshold", register_t<>(0x5)}, {"vkrum", register_t<>(0x6, 0x0f)}, {"vadc", register_t<>(0x6)},                     \
+      {"readonly", register_t<>(0x5, 0xff, true, false)}, {"writeonly", register_t<>(0x5, 0xff, false, true)},              \
+      {"special", register_t<>(0x5, 0xff, true, true, true)},                                                               \
   }
 
 #define EXAMPLE_PERIPHERY                                                                                                   \

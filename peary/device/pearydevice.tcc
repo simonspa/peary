@@ -146,6 +146,11 @@ namespace caribou {
 
     // Resolve name against register dictionary:
     register_t<typename T::reg_type, typename T::data_type> reg = _registers.get(name);
+
+    if(!reg.writable()) {
+      throw caribou::RegisterTypeMismatch("Trying to write to register with \"nowrite\" flag: " + name);
+    }
+
     LOG(logDEBUG) << "Register to be set: " << name << " (" << to_hex_string(reg.address()) << ")";
 
     // Obey the mask:
@@ -178,7 +183,8 @@ namespace caribou {
         regvalues.push_back(std::make_pair(r, this->getRegister(r)));
         LOG(logDEBUG) << "Retrieved register \"" << r << "\" = " << static_cast<int>(regvalues.back().second) << " ("
                       << to_hex_string(regvalues.back().second) << ")";
-      } catch(NoDataAvailable& e) {
+      } catch(RegisterTypeMismatch& e) {
+        LOG(logDEBUG) << "Omitting writeonly register \"" << r << "\"";
       } catch(CommunicationError& e) {
         LOG(logDEBUG) << "Failed to retrieve register \"" << r << "\" from the device.";
       }
@@ -193,8 +199,8 @@ namespace caribou {
     register_t<typename T::reg_type, typename T::data_type> reg = _registers.get(name);
     LOG(logDEBUG) << "Register to be read: " << name << " (" << to_hex_string(reg.address()) << ")";
 
-    if(reg.special()) {
-      throw caribou::NoDataAvailable("Trying to read register with \"special\" flag: " + name);
+    if(!reg.readable()) {
+      throw caribou::RegisterTypeMismatch("Trying to read register with \"noread\" flag: " + name);
     }
 
     typename T::data_type regval = _hal->receive(reg.address()).front();

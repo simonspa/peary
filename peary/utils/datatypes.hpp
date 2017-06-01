@@ -54,18 +54,24 @@ namespace caribou {
   template <typename REG_T = uint8_t, typename MASK_T = uint8_t> class register_t {
   public:
     // If no address is given, also set the mask to zero:
-    register_t() : _address(0), _mask(0), _value(0), _special(false){};
+    register_t() : _address(0), _mask(0), _value(0), _special(false), _readable(true), _writable(true){};
     // If no mask is given, default to accessing the full register:
-    register_t(REG_T address) : _address(address), _mask(std::numeric_limits<MASK_T>::max()), _value(0), _special(false){};
-    register_t(REG_T address, MASK_T mask) : _address(address), _mask(mask), _value(0), _special(false){};
-    register_t(REG_T address, MASK_T mask, bool special) : _address(address), _mask(mask), _value(0), _special(special){};
-    register_t(REG_T address, MASK_T mask, MASK_T value, bool special = false)
-        : _address(address), _mask(mask), _value(value), _special(false){};
+    register_t(REG_T address)
+        : _address(address), _mask(std::numeric_limits<MASK_T>::max()), _value(0), _special(false), _readable(true),
+          _writable(true){};
+    register_t(REG_T address, MASK_T mask)
+        : _address(address), _mask(mask), _value(0), _special(false), _readable(true), _writable(true){};
+    register_t(REG_T address, MASK_T mask, bool readable, bool writable, bool special = false)
+        : _address(address), _mask(mask), _value(0), _special(special), _readable(readable), _writable(writable){};
+    register_t(REG_T address, MASK_T mask, MASK_T value, bool readable = true, bool writable = true, bool special = false)
+        : _address(address), _mask(mask), _value(value), _special(special), _readable(readable), _writable(writable){};
 
     REG_T address() const { return _address; };
     MASK_T mask() const { return _mask; };
     MASK_T value() const { return _value; };
     bool special() const { return _special; };
+    bool writable() const { return _writable; }
+    bool readable() const { return _readable; }
 
     MASK_T shift() const {
       if(_mask > 0)
@@ -81,10 +87,18 @@ namespace caribou {
     MASK_T _mask;
     MASK_T _value;
     bool _special;
+    bool _readable;
+    bool _writable;
   };
 
   template <typename T1, typename T2> std::ostream& operator<<(std::ostream& os, const caribou::register_t<T1, T2>& rg) {
     os << to_hex_string(rg._address) << " (" << to_bit_string(rg._mask) << ")";
+    if(rg._writable && rg._readable)
+      os << " RW";
+    else if(!rg._writable && rg._readable)
+      os << " RO";
+    else if(rg._writable && !rg._readable)
+      os << " WO";
     return os;
   }
 

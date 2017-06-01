@@ -39,16 +39,30 @@ namespace caribou {
 
   /** Exception for missing but requested configuration keys
    */
-  class ConfigMissingKey : public caribouException {
+  class ConfigMissingKey : public ConfigInvalid {
   public:
-    ConfigMissingKey(const std::string& what_arg) : caribouException(what_arg) {}
+    ConfigMissingKey(const std::string& what_arg) : ConfigInvalid(what_arg) {}
+  };
+
+  /** Exception for invalid register configurations
+   */
+  class RegisterInvalid : public ConfigInvalid {
+  public:
+    RegisterInvalid(const std::string& what_arg) : ConfigInvalid(what_arg) {}
   };
 
   /** Exception for missing but requested register information
    */
-  class UndefinedRegister : public caribouException {
+  class UndefinedRegister : public RegisterInvalid {
   public:
-    UndefinedRegister(const std::string& what_arg) : caribouException(what_arg) {}
+    UndefinedRegister(const std::string& what_arg) : RegisterInvalid(what_arg) {}
+  };
+
+  /** Exception for mismatch in register configuration and request (e.g. wiritng to a readonly register)
+   */
+  class RegisterTypeMismatch : public RegisterInvalid {
+  public:
+    RegisterTypeMismatch(const std::string& what_arg) : RegisterInvalid(what_arg) {}
   };
 
   /** Exception for issues occuring during device setup, management and initialization
