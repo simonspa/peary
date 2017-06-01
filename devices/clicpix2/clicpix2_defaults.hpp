@@ -58,7 +58,8 @@ namespace caribou {
       {"bias_preamp_casc", register_t<>(0x16)}, {"bias_thadj_casc", register_t<>(0x18)},                                    \
       {"bias_mirror_casc", register_t<>(0x1A)}, {"vfbk", register_t<>(0x1C)}, {"bias_disc_N_OFF", register_t<>(0x1E)},      \
       {"bias_disc_P_OFF", register_t<>(0x20)}, {"bias_preamp_OFF", register_t<>(0x22)},                                     \
-      {"threshold_LSB", register_t<>(0x24)}, {"threshold_MSB", register_t<>(0x26)}, {"test_cap_1_LSB", register_t<>(0x28)}, \
+      {"threshold_LSB", register_t<>(0x24)}, {"threshold_MSB", register_t<>(0x26)},                                         \
+      {"threshold", register_t<>(0x26, 0xFF, false, true, true)}, {"test_cap_1_LSB", register_t<>(0x28)},                   \
       {"test_cap_1_MSB", register_t<>(0x2A)}, {"test_cap_2", register_t<>(0x2C)}, {"output_mux_DAC", register_t<>(0x2E)},   \
                                                                                                                             \
       {"poweron_timer", register_t<>(0x30, 0x3F)}, {"pp_clk_div", register_t<>(0x30, 0xC0)},                                \

@@ -66,6 +66,8 @@ namespace caribou {
     std::vector<uint32_t> getRawData();
     pearydata getData();
 
+    void setSpecialRegister(std::string name, uint32_t value);
+
   private:
     /* Routine to program the pixel matrix via the SPI interface
      *

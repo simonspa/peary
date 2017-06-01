@@ -70,6 +70,8 @@ namespace caribou {
     /** Example function only available in this derived device class
      */
     void exampleCall();
+
+    void setSpecialRegister(std::string name, uint32_t value);
   };
 
   /** Device generator

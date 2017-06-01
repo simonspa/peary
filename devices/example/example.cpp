@@ -56,6 +56,11 @@ void example::exampleCall() {
   _hal->send(_config.Get("sample-registers", std::vector<uint8_t>{EXAMPLE_DAC_VEC}));
 }
 
+void example::setSpecialRegister(std::string name, uint32_t value) {
+
+  LOG(logDEBUG) << "Treating special register \"" << name << "\"";
+}
+
 caribouDevice* caribou::generator(const caribou::Configuration config) {
   LOG(logDEBUG) << "Generator: " << DEVICE_NAME;
   example* mDevice = new example(config);

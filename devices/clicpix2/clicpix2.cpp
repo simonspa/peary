@@ -125,6 +125,21 @@ clicpix2::~clicpix2() {
   close(memfd);
 }
 
+void clicpix2::setSpecialRegister(std::string name, uint32_t value) {
+
+  if(name == "treshold") {
+    // Get thresold LSB and MSB
+    register_t<typename iface_spi_CLICpix2::reg_type, typename iface_spi_CLICpix2::data_type> lsb =
+      _registers.get("threshold_lsb");
+    register_t<typename iface_spi_CLICpix2::reg_type, typename iface_spi_CLICpix2::data_type> msb =
+      _registers.get("threshold_msb");
+
+    // FIXME implement llokup table for linearized threshold DAC
+  } else {
+    throw RegisterInvalid("Unknown register with \"special\" flag: " + name);
+  }
+}
+
 void clicpix2::powerUp() {
   LOG(logINFO) << DEVICE_NAME << ": Powering up CLICpix2";
 
