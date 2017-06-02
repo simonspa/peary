@@ -208,6 +208,12 @@ void clicpix2::powerDown() {
 
 void clicpix2::configureMatrix(std::string filename) {
 
+  // Temporarily switch off any compression algorithm:
+  uint32_t comp = this->getRegister("comp");
+  uint32_t sp_comp = this->getRegister("sp_comp");
+  this->setRegister("comp", 0);
+  this->setRegister("sp_comp", 0);
+
   LOG(logDEBUG) << "Configuring the pixel matrix from file " << filename;
   readMatrix(filename);
   programMatrix();
@@ -237,6 +243,10 @@ void clicpix2::configureMatrix(std::string filename) {
   } catch(caribou::DataException& e) {
     LOG(logERROR) << e.what();
   }
+
+  // Reset compression state to previous values:
+  this->setRegister("comp", comp);
+  this->setRegister("sp_comp", sp_comp);
 }
 
 void clicpix2::readMatrix(std::string filename) {
@@ -417,6 +427,7 @@ void clicpix2::programMatrix() {
   }
 
   LOG(logDEBUG) << "Number of SPI commands: " << spi_data.size();
+
   // Finally, send the data over the SPI interface:
   _hal->send(spi_data);
 }
