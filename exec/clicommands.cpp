@@ -66,9 +66,11 @@ pearycli::pearycli() : c("# ") {
 
   c.registerCommand("scanDAC",
                     scanDAC,
-                    "Scan DAC DAC_NAME from value MIN to MAX and read the voltage from the ADC after DELAY milliseconds",
-                    5,
-                    "DAC_NAME MIN MAX DELAY[ms] DEVICE_ID");
+                    "Scan DAC DAC_NAME from value MIN to MAX and read the voltage from the ADC after DELAY milliseconds. "
+                    "The sequence is repeated REPEAT times for every DAC setting. "
+                    "Data are saved in the FILE_NAME.csv file",
+                    7,
+                    "DAC_NAME MIN MAX DELAY[ms] REPEAT FILE_NAME DEVICE_ID");
   c.registerCommand(
     "scanThreshold",
     scanThreshold,
@@ -343,7 +345,7 @@ int pearycli::scanDAC(const std::vector<std::string>& input) {
                                             {"test_cap_1_msb", 14}};
 
   try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(5)));
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(7)));
 
     std::vector<std::pair<int, double>> data;
 
@@ -370,11 +372,15 @@ int pearycli::scanDAC(const std::vector<std::string>& input) {
 
     // Write CSV file
     std::ofstream myfile;
-    std::string filename = "dacscan_" + input.at(1) + ".csv";
+    std::string filename = input.at(6) + ".csv";
     myfile.open(filename);
     myfile << "# pearycli > scanDAC\n";
+    myfile << "# Software version: " << dev->getVersion() << "\n";
+    myfile << "# Firmware version: " << dev->getFirmwareVersion() << "\n";
+    myfile << "# Register state: " << listVector(dev->getRegisters()) << "\n";
     myfile << "# Timestamp: " << LOGTIME << "\n";
-    myfile << "# scanned DAC \"" << input.at(1) << "\", range " << input.at(2) << "-" << input.at(3) << "\n";
+    myfile << "# scanned DAC \"" << input.at(1) << "\", range " << input.at(2) << "-" << input.at(3) << ", " << input.at(5)
+           << " times\n";
     myfile << "# with " << input.at(4) << "ms delay between setting register and ADC sampling.\n";
     for(auto i : data) {
       myfile << i.first << "," << i.second << "\n";
