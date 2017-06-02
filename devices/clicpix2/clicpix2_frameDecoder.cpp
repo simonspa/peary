@@ -4,6 +4,7 @@
 #include <cmath>
 #include <iterator>
 #include "exceptions.hpp"
+#include "utils.hpp"
 
 using namespace caribou;
 
@@ -55,13 +56,15 @@ std::vector<clicpix2_frameDecoder::WORD_TYPE> clicpix2_frameDecoder::repackageFr
 }
 
 void clicpix2_frameDecoder::decodeHeader(const clicpix2_frameDecoder::WORD_TYPE word) {
-  if(word.is_control != 0)
-    throw DataException("Packet header should be a regular data word");
+  if(word.is_control != 0) {
+    throw DataException("Packet header should be a regular data word: " + to_hex_string(word.word));
+  }
 
   rcr = (word.word >> 6) & 0x3;
 
-  if(rcr == 0)
+  if(rcr == 0) {
     throw DataException("Unsupported RCR in packet header");
+  }
 
   firstColumn = word.word & 0x1F;
 }
@@ -102,7 +105,7 @@ void clicpix2_frameDecoder::extractColumns(std::vector<clicpix2_frameDecoder::WO
     if(word == DELIMITER) // end of double column
       break;
     if(word.is_control)
-      throw DataException("Found control word different than delimeter");
+      throw DataException("Found control word different than delimiter");
 
     unraveDC(pixels_dc, dc_counter, sp_counter, row_index, row_slice, word.word);
   } while(std::distance(data, dataEnd));

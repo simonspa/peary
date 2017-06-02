@@ -24,7 +24,7 @@ namespace caribou {
 
       bool operator==(const WORD_TYPE& a) const { return a.is_control == is_control && a.word == word; };
 
-      bool operator!=(const WORD_TYPE& a) const { return a.is_control != is_control && a.word != word; };
+      bool operator!=(const WORD_TYPE& a) const { return a.is_control != is_control || a.word != word; };
 
       bool is_control;
       uint8_t word;
