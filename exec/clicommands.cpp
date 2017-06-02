@@ -361,13 +361,19 @@ int pearycli::scanDAC(const std::vector<std::string>& input) {
 
     // Now sample through the DAC range and read the ADC at the "DAC_OUT" pin (VOL_IN_1)
     for(int i = std::stoi(input.at(2)); i <= std::stoi(input.at(3)); i++) {
-      dev->setRegister(input.at(1), i);
-      // Wait a bit, in ms:
-      mDelay(std::stoi(input.at(4)));
-      // Read the ADC
-      double adc = dev->getADC("DAC_OUT");
-      LOG(logINFO) << "DAC " << input.at(1) << " " << i << " = " << adc << "V";
-      data.push_back(std::make_pair(i, adc));
+
+      std::stringstream responses;
+      responses << input.at(1) << " " << i << " = ";
+      for(int j = 0; j < std::stoi(input.at(5)); j++) {
+        dev->setRegister(input.at(1), i);
+        // Wait a bit, in ms:
+        mDelay(std::stoi(input.at(4)));
+        // Read the ADC
+        double adc = dev->getADC("DAC_OUT");
+        responses << adc << "V ";
+        data.push_back(std::make_pair(i, adc));
+      }
+      LOG(logINFO) << responses.str();
     }
 
     // Write CSV file
