@@ -448,7 +448,10 @@ int pearycli::daqStop(const std::vector<std::string>& input) {
 int pearycli::getRawData(const std::vector<std::string>& input) {
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
-    dev->getRawData();
+    std::vector<uint32_t> rawdata = dev->getRawData();
+    LOG(logINFO) << listVector(rawdata, ", ", true);
+  } catch(caribou::DataException& e) {
+    LOG(logERROR) << e.what();
   } catch(caribou::DeviceException&) {
     return ret::Error;
   }
@@ -462,6 +465,8 @@ int pearycli::getData(const std::vector<std::string>& input) {
     for(auto& px : data) {
       LOG(logINFO) << px.first.first << "|" << px.first.second << " : " << *px.second;
     }
+  } catch(caribou::DataException& e) {
+    LOG(logERROR) << e.what();
   } catch(caribou::DeviceException&) {
     return ret::Error;
   }
