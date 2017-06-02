@@ -11,6 +11,8 @@
 #include "log.hpp"
 #include "spi_CLICpix2.hpp"
 
+#include "clicpix2_threshold.hpp"
+
 using namespace caribou;
 
 std::string clicpix2::getName() {
@@ -127,14 +129,16 @@ clicpix2::~clicpix2() {
 
 void clicpix2::setSpecialRegister(std::string name, uint32_t value) {
 
-  if(name == "treshold") {
-    // Get thresold LSB and MSB
-    register_t<typename iface_spi_CLICpix2::reg_type, typename iface_spi_CLICpix2::data_type> lsb =
-      _registers.get("threshold_lsb");
-    register_t<typename iface_spi_CLICpix2::reg_type, typename iface_spi_CLICpix2::data_type> msb =
-      _registers.get("threshold_msb");
+  if(name == "threshold") {
+    // Linear threshold via lookup table
 
-    // FIXME implement llokup table for linearized threshold DAC
+    // Get threshold LSB and MSB
+    std::pair<uint8_t, uint8_t> dacs = threshold.at(value);
+    LOG(logDEBUG) << "Threshold lookup: " << value << " = " << static_cast<int>(dacs.first) << "-"
+                  << static_cast<int>(dacs.second);
+    // Set the two values:
+    this->setRegister("threshold_msb", dacs.first);
+    this->setRegister("threshold_lsb", dacs.second);
   } else {
     throw RegisterInvalid("Unknown register with \"special\" flag: " + name);
   }
