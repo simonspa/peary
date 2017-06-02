@@ -359,6 +359,9 @@ int pearycli::scanDAC(const std::vector<std::string>& input) {
       return ret::Error;
     }
 
+    // Store the old setting of the DAC:
+    uint32_t dac = dev->getRegister(input.at(1));
+
     // Now sample through the DAC range and read the ADC at the "DAC_OUT" pin (VOL_IN_1)
     for(int i = std::stoi(input.at(2)); i <= std::stoi(input.at(3)); i++) {
 
@@ -375,6 +378,9 @@ int pearycli::scanDAC(const std::vector<std::string>& input) {
       }
       LOG(logINFO) << responses.str();
     }
+
+    // Restore the old setting of the DAC:
+    dev->setRegister(input.at(1), dac);
 
     // Write CSV file
     std::ofstream myfile;
@@ -511,6 +517,9 @@ int pearycli::scanThreshold(const std::vector<std::string>& input) {
       return ret::Error;
     }
 
+    // Store the old setting of the DAC:
+    uint32_t dac = dev->getRegister(input.at(1));
+
     // Sample through the DAC range, trigger the PG and read back the data
     for(int i = std::stoi(input.at(2)); i >= std::stoi(input.at(3)); i--) {
       LOG(logINFO) << input.at(1) << " = " << i;
@@ -543,6 +552,9 @@ int pearycli::scanThreshold(const std::vector<std::string>& input) {
       }
       LOG(logINFO) << responses.str();
     }
+
+    // Restore the old setting of the DAC:
+    dev->setRegister(input.at(1), dac);
 
     LOG(logINFO) << "Data writte to file: \"" << filename << "\"";
   } catch(caribou::caribouException& e) {
