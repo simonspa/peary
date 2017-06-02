@@ -18,6 +18,7 @@ pearycli::pearycli() : c("# ") {
   c.registerCommand("verbosity", verbosity, "Changes the logging verbosity", 1, "LOGLEVEL");
   c.registerCommand("delay", delay, "Adds a delay in Milliseconds", 1, "DELAY_MS");
 
+  c.registerCommand("version", version, "Print software and firmware version of the selected device", 1, "DEVICE_ID");
   c.registerCommand("init", configure, "Initialize and configure the selected device", 1, "DEVICE_ID");
   c.registerCommand("configure", configure, "Initialize and configure the selected device", 1, "DEVICE_ID");
 
@@ -140,6 +141,17 @@ int pearycli::verbosity(const std::vector<std::string>& input) {
 
 int pearycli::delay(const std::vector<std::string>& input) {
   mDelay(std::stoi(input.at(1)));
+  return ret::Ok;
+}
+
+int pearycli::version(const std::vector<std::string>& input) {
+  try {
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
+    LOG(logQUIET) << dev->getVersion();
+    LOG(logQUIET) << dev->getFirmwareVersion();
+  } catch(caribou::DeviceException&) {
+    return ret::Error;
+  }
   return ret::Ok;
 }
 
