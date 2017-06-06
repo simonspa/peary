@@ -338,6 +338,7 @@ int pearycli::scanDAC(const std::vector<std::string>& input) {
                                             {"bias_thadj_casc", 9},
                                             {"bias_mirror_casc", 10},
                                             {"vfbk", 11},
+                                            {"threshold", 12},
                                             {"threshold_lsb", 12},
                                             {"threshold_msb", 12},
                                             {"test_cap_2", 13},
@@ -359,8 +360,12 @@ int pearycli::scanDAC(const std::vector<std::string>& input) {
       return ret::Error;
     }
 
-    // Store the old setting of the DAC:
-    uint32_t dac = dev->getRegister(input.at(1));
+    uint32_t dac = 0;
+    try {
+      // Store the old setting of the DAC:
+      dac = dev->getRegister(input.at(1));
+    } catch(caribou::RegisterTypeMismatch&) {
+    }
 
     // Now sample through the DAC range and read the ADC at the "DAC_OUT" pin (VOL_IN_1)
     for(int i = std::stoi(input.at(2)); i <= std::stoi(input.at(3)); i++) {
