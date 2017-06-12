@@ -17,6 +17,8 @@ C3PD::C3PD(const caribou::Configuration config) : pearyDevice(config, std::strin
   _periphery.add("ain", BIAS_1);
   _periphery.add("ref", BIAS_2);
 
+  _periphery.add("aout", VOL_IN_2);
+
   // Add the register definitions to the dictionary for convenient lookup of names:
   _registers.add(C3PD_REGISTERS);
 }
