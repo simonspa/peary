@@ -510,7 +510,14 @@ void clicpix2::daqStart() {
 
 pearydata clicpix2::decodeFrame(const std::vector<uint32_t>& frame) {
 
-  clicpix2_frameDecoder decoder(false, false);
+  // FIXME not very efficient to always query the device...
+  // Need a way to cache register values in the device!
+  // Maybe via "special register" treatment?
+
+  uint32_t comp = this->getRegister("comp");
+  uint32_t sp_comp = this->getRegister("sp_comp");
+
+  clicpix2_frameDecoder decoder((bool)comp, (bool)sp_comp);
   decoder.decode(frame, pixelsConfig);
   LOG(logDEBUG) << DEVICE_NAME << "Decoded frame [row][column]:\n" << decoder;
   return decoder.getZerosuppressedFrame();
