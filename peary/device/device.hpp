@@ -165,6 +165,8 @@ namespace caribou {
 
     virtual void voltageOn(std::string name) = 0;
     virtual void voltageOff(std::string name) = 0;
+    virtual void biasOn(std::string name) = 0;
+    virtual void biasOff(std::string name) = 0;
 
     virtual void setCurrent(std::string name, double current) = 0;
     virtual double getVoltage(std::string name) = 0;
