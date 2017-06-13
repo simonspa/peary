@@ -24,7 +24,7 @@ namespace caribou {
 
     /** Initializer function for C3PD
      */
-    void init(){};
+    void configure();
 
     /** Turn on the power supply for the C3PD chip
      */
@@ -57,6 +57,16 @@ namespace caribou {
     // I2C interface
     // reset signal pin
     // power enable pin
+
+    // Reset the chip
+    // The reset signal is asserted for ~5us
+    void reset();
+
+    // Access to FPGA memory mapped registers
+    int memfd;
+
+    // C3PD control memory map address
+    void* control_base;
   };
 
   /** Device generator

@@ -35,6 +35,14 @@ namespace caribou {
 #define C3PD_REF 1.0
 #define C3PD_AIN 0.0
 
+  // C3PD control
+  const std::intptr_t C3PD_CONTROL_BASE_ADDRESS = 0x43C20000;
+  const std::intptr_t C3PD_RESET_OFFSET = 88;
+
+  const uint32_t C3PD_CONTROL_RESET_MASK = 0x1;
+  const std::size_t C3PD_CONTROL_MAP_SIZE = 4096;
+  const std::size_t C3PD_CONTROL_MAP_MASK = C3PD_CONTROL_MAP_SIZE - 1;
+
 /** C3PD Routing
  *
  *  C3PD_VDDD -> SEAF F1/F2 -> (ADDR_MONITOR_U52) -> ADDR_DAC_U50 (VOUTC)
