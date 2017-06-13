@@ -92,7 +92,7 @@ namespace caribou {
     void configureClock();
 
     // Reset the chip
-    // The reset signal is asserted for ~5us
+    // The reset signal is asserted for ~1us
     void reset();
 
     // Methods decodes frame
