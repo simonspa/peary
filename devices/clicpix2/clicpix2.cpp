@@ -231,10 +231,15 @@ void clicpix2::configureMatrix(std::string filename) {
   try {
     decoder.decode(frame, pixelsConfig, false);
 
-    for(auto& px : pixelsConfig) {
+    for(const auto& px : pixelsConfig) {
 
       // Fetch readback value for this pixel:
       pixelReadout pxv = decoder.get(px.first.first, px.first.second);
+
+      // The flag bit if the readout is returned as (mask | (threshold & 0x1)), thus resetting to mask state only:
+      if(pxv.GetBit(8)) {
+        pxv.SetFlag(px.second.GetMask());
+      }
 
       // Compare with value read from the matrix:
       if(px.second != pxv) {
