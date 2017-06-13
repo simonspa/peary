@@ -101,7 +101,14 @@ pearycli::pearycli() : c("# ") {
   c.registerCommand("daqStart", daqStart, "Start DAQ for the selected device", 1, "DEVICE_ID");
   c.registerCommand("daqStop", daqStop, "Stop DAQ for the selected device", 1, "DEVICE_ID");
   c.registerCommand("getRawData", getRawData, "Retrieve raw data from the selected device", 1, "DEVICE_ID");
-  c.registerCommand("getData", getData, "Retrieve decoded data from the selected device", 1, "DEVICE_ID");
+  c.registerCommand("getData", getData, "Retrieve decoded data from the selected device.", 1, "DEVICE_ID");
+  c.registerCommand("acquire",
+                    acquire,
+                    "Acquire NUM events/frames from the selected device. For every event/frame, the pattern generator is "
+                    "triggered once and a readout of the device is attemopted. Prints all pixel hist if LONG is set to 1, "
+                    "else just the number of pixel responses.",
+                    3,
+                    "NUM LONG[0/1] DEVICE_ID");
   c.registerCommand("flushMatrix", flushMatrix, "Retrieve data from the selected device and discard it", 1, "DEVICE_ID");
 }
 
@@ -525,6 +532,44 @@ int pearycli::getData(const std::vector<std::string>& input) {
   } catch(caribou::DataException& e) {
     LOG(logERROR) << e.what();
   } catch(caribou::DeviceException&) {
+    return ret::Error;
+  }
+  return ret::Ok;
+}
+
+int pearycli::acquire(const std::vector<std::string>& input) {
+  try {
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(3)));
+
+    for(int n = 0; n < std::stoi(input.at(1)); n++) {
+      try {
+        pearydata data;
+        try {
+          // Send pattern:
+          dev->triggerPatternGenerator();
+          // Read the data:
+          data = dev->getData();
+        } catch(caribou::DataException& e) {
+          // Retrieval failed, retry once more before aborting:
+          LOG(logWARNING) << e.what() << ", retyring once.";
+          mDelay(10);
+          data = dev->getData();
+        }
+
+        if(std::stoi(input.at(2))) {
+          LOG(logINFO) << "===== " << n << " =====";
+          for(auto& px : data) {
+            LOG(logINFO) << px.first.first << "|" << px.first.second << " : " << *px.second;
+          }
+        } else {
+          LOG(logINFO) << n << " | " << data.size() << " pixel responses";
+        }
+      } catch(caribou::DataException& e) {
+        continue;
+      }
+    }
+  } catch(caribou::DeviceException& e) {
+    LOG(logCRITICAL) << e.what();
     return ret::Error;
   }
   return ret::Ok;
