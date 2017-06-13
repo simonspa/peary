@@ -630,7 +630,7 @@ int pearycli::scanThreshold(const std::vector<std::string>& input) {
         } catch(caribou::DataException& e) {
           // Retrieval failed, retry once more before aborting:
           LOG(logWARNING) << e.what() << ", retyring once.";
-          dev->triggerPatternGenerator();
+          mDelay(10);
           frame = dev->getData();
         }
 
