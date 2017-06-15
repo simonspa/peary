@@ -53,6 +53,9 @@ C3PD::C3PD(const caribou::Configuration config) : pearyDevice(config, std::strin
 void C3PD::configure() {
   LOG(logINFO) << "Configuring " << DEVICE_NAME;
   reset();
+
+  // Call the base class configuration function:
+  pearyDevice<iface_i2c>::configure();
 }
 
 void C3PD::reset() {
