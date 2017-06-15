@@ -37,7 +37,7 @@ namespace caribou {
 
   // C3PD control
   const std::intptr_t C3PD_CONTROL_BASE_ADDRESS = 0x43C20000;
-  const std::intptr_t C3PD_RESET_OFFSET = 88;
+  const std::intptr_t C3PD_RESET_OFFSET = 0x88;
 
   const uint32_t C3PD_CONTROL_RESET_MASK = 0x1;
   const std::size_t C3PD_CONTROL_MAP_SIZE = 4096;
