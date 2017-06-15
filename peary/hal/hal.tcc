@@ -22,8 +22,9 @@ namespace caribou {
     T& dev_iface = interface_manager::getInterface<T>(_devpath);
     LOG(logDEBUGHAL) << "Perpared HAL for accessing device with interface at " << dev_iface.devicePath;
 
-    if(!generalResetDone) // CaR board needs to be reset
+    if(!caribou::caribouHALbase::generalResetDone) { // CaR board needs to be reset
       generalReset();
+    }
   }
 
   template <typename T> std::string caribouHAL<T>::getFirmwareVersion() {
