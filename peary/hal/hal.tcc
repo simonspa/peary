@@ -6,8 +6,6 @@
 
 namespace caribou {
 
-  bool caribouHALbase::generalResetDone = false;
-
   template <typename T>
   caribouHAL<T>::caribouHAL(std::string device_path, uint32_t device_address)
       : _devpath(device_path), _devaddress(device_address) {
@@ -92,7 +90,7 @@ namespace caribou {
     // setDCDCConverter(LTM_VPWR1, 5 );
     // setDCDCConverter(LTM_VPWR2, 5 );
     // setDCDCConverter(LTM_VPWR3, 5 );
-    generalResetDone = true;
+    caribou::caribouHALbase::generalResetDone = true;
   }
 
   template <typename T> caribouHAL<T>::~caribouHAL() {

@@ -15,6 +15,8 @@ SET(LIB_SOURCE_FILES
   # device manager
   "device/devicemgr.cpp"
   "device/device.cpp"
+  # HAL base
+  "hal/halbase.cpp"
   # interface manager
   "interfaces/interface_manager.cpp"
   # utilities
