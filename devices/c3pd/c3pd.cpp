@@ -90,7 +90,7 @@ void C3PD::powerUp() {
 
   // Bias voltages:
   LOG(logDEBUG) << " Reference voltage";
-  _hal->setBiasRegulator(BIAS_2, _config.Get("vdda", C3PD_REF));
+  _hal->setBiasRegulator(BIAS_2, _config.Get("ref", C3PD_REF));
   _hal->powerBiasRegulator(BIAS_2, true);
 
   LOG(logDEBUG) << " Analog-In";
