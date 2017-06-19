@@ -25,7 +25,7 @@ void clicpix2_frameDecoder::decode(const std::vector<uint32_t>& frame,
   do {
     decodeHeader(*data++); // header
     extractColumns(data, dataEnd);
-  } while(std::distance(data, dataEnd) && ~(std::distance(data, dataEnd) == 1 && *data == DELIMITER));
+  } while(std::distance(data, dataEnd) && !(std::distance(data, dataEnd) == 1 && *data == DELIMITER));
 
   if(decodeCnt)
     decodeCounter(pixelConfig);
