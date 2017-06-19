@@ -56,7 +56,7 @@ void example::exampleCall() {
   _hal->send(_config.Get("sample-registers", std::vector<uint8_t>{EXAMPLE_DAC_VEC}));
 }
 
-void example::setSpecialRegister(std::string name, uint32_t value) {
+void example::setSpecialRegister(std::string name, uint32_t) {
 
   LOG(logDEBUG) << "Treating special register \"" << name << "\"";
 }
