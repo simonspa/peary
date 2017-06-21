@@ -31,6 +31,7 @@ namespace caribou {
 
     static int version(const std::vector<std::string>& input);
     static int configure(const std::vector<std::string>& input);
+    static int reset(const std::vector<std::string>& input);
     static int powerOn(const std::vector<std::string>& input);
     static int powerOff(const std::vector<std::string>& input);
     static int setVoltage(const std::vector<std::string>& input);

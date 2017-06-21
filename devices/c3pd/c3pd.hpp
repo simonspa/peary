@@ -48,6 +48,10 @@ namespace caribou {
 
     void exploreInterface(){};
 
+    // Reset the chip
+    // The reset signal is asserted for ~5us
+    void reset();
+
   private:
     // analog power supply
     // digital power supply
@@ -57,10 +61,6 @@ namespace caribou {
     // I2C interface
     // reset signal pin
     // power enable pin
-
-    // Reset the chip
-    // The reset signal is asserted for ~5us
-    void reset();
 
     // Access to FPGA memory mapped registers
     int memfd;

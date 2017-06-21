@@ -21,6 +21,7 @@ pearycli::pearycli() : c("# ") {
   c.registerCommand("version", version, "Print software and firmware version of the selected device", 1, "DEVICE_ID");
   c.registerCommand("init", configure, "Initialize and configure the selected device", 1, "DEVICE_ID");
   c.registerCommand("configure", configure, "Initialize and configure the selected device", 1, "DEVICE_ID");
+  c.registerCommand("reset", reset, "Send reset signal to the selected device", 1, "DEVICE_ID");
 
   c.registerCommand("powerOn", powerOn, "Power up the selected device", 1, "DEVICE_ID");
   c.registerCommand("powerOff", powerOff, "Power down the selected device", 1, "DEVICE_ID");
@@ -175,6 +176,16 @@ int pearycli::configure(const std::vector<std::string>& input) {
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
     dev->configure();
+  } catch(caribou::DeviceException&) {
+    return ret::Error;
+  }
+  return ret::Ok;
+}
+
+int pearycli::reset(const std::vector<std::string>& input) {
+  try {
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
+    dev->reset();
   } catch(caribou::DeviceException&) {
     return ret::Error;
   }

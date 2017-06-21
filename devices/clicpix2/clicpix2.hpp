@@ -68,6 +68,10 @@ namespace caribou {
 
     void setSpecialRegister(std::string name, uint32_t value);
 
+    // Reset the chip
+    // The reset signal is asserted for ~1us
+    void reset();
+
   private:
     /* Routine to program the pixel matrix via the SPI interface
      *
@@ -90,10 +94,6 @@ namespace caribou {
 
     // The functions sets clocks required by CLICpix2 to operate
     void configureClock();
-
-    // Reset the chip
-    // The reset signal is asserted for ~1us
-    void reset();
 
     // Methods decodes frame
     pearydata decodeFrame(const std::vector<uint32_t>& frame);

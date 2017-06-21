@@ -253,15 +253,20 @@ namespace caribou {
     return static_cast<uint32_t>((regval & reg.mask()) >> reg.shift());
   }
 
+  template <typename T> void pearyDevice<T>::reset() {
+    LOG(logCRITICAL) << "Reset functionality not implemented for this device";
+    throw caribou::DeviceImplException("Reset functionality not implemented for this device");
+  }
+
   // Data return functions, for raw or decoded data
   template <typename T> std::vector<uint32_t> pearyDevice<T>::getRawData() {
     LOG(logCRITICAL) << "Raw data readback not implemented for this device";
-    throw caribou::NoDataAvailable("Raw data readback not implemented for this device");
+    throw caribou::DeviceImplException("Raw data readback not implemented for this device");
   }
 
   template <typename T> pearydata pearyDevice<T>::getData() {
     LOG(logCRITICAL) << "Decoded data readback not implemented for this device";
-    throw caribou::NoDataAvailable("Decoded data readback not implemented for this device");
+    throw caribou::DeviceImplException("Decoded data readback not implemented for this device");
   }
 
   template <typename T> void pearyDevice<T>::configureMatrix(std::string) {

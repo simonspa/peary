@@ -126,7 +126,7 @@ namespace caribou {
 
     /** Sending reset signal to the device
      */
-    // virtual void reset() = 0;
+    virtual void reset() = 0;
 
     // Setting the acquisition clock/device clock?
     // Could be either the supplied clock from DAQ or internal clock divider...

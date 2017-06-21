@@ -59,7 +59,7 @@ void C3PD::configure() {
 }
 
 void C3PD::reset() {
-  LOG(logDEBUG) << "Reseting " << DEVICE_NAME;
+  LOG(logDEBUG) << "Resetting " << DEVICE_NAME;
   volatile uint32_t* control_reg =
     reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + C3PD_RESET_OFFSET);
   *control_reg &= ~(C3PD_CONTROL_RESET_MASK); // assert reset
