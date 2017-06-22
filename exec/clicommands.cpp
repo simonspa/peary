@@ -645,8 +645,14 @@ int pearycli::scanThreshold(const std::vector<std::string>& input) {
       return ret::Error;
     }
 
-    // Store the old setting of the DAC:
-    uint32_t dac = dev->getRegister(input.at(1));
+    // Store the old setting of the DAC if possible:
+    uint32_t dac = 0;
+    bool dac_cached = false;
+    try {
+      dac = dev->getRegister(input.at(1));
+      dac_cached = true;
+    } catch(caribou::RegisterTypeMismatch&) {
+    }
 
     // Sample through the DAC range, trigger the PG and read back the data
     for(int i = std::stoi(input.at(2)); i >= std::stoi(input.at(3)); i--) {
@@ -682,7 +688,9 @@ int pearycli::scanThreshold(const std::vector<std::string>& input) {
     }
 
     // Restore the old setting of the DAC:
-    dev->setRegister(input.at(1), dac);
+    if(dac_cached) {
+      dev->setRegister(input.at(1), dac);
+    }
 
     LOG(logINFO) << "Data writte to file: \"" << filename << "\"";
   } catch(caribou::caribouException& e) {
