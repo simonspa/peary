@@ -570,11 +570,15 @@ int pearycli::acquire(const std::vector<std::string>& input) {
       try {
         pearydata data;
         try {
-          // Send pattern:
-          dev->triggerPatternGenerator();
-          // Trigger DEV2
-          if(testpulses)
+          if(testpulses) {
+            // Send pattern:
+            dev->triggerPatternGenerator(false);
+            // Trigger DEV2
             dev2->setRegister(input.at(4), 1);
+          } else {
+            // Send pattern:
+            dev->triggerPatternGenerator(true);
+          }
           // Wait
           mDelay(100);
           // Read the data:

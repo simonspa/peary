@@ -61,7 +61,7 @@ namespace caribou {
 
     void configureMatrix(std::string filename);
     void configurePatternGenerator(std::string filename);
-    void triggerPatternGenerator();
+    void triggerPatternGenerator(bool sleep);
 
     std::vector<uint32_t> getRawData();
     pearydata getData();

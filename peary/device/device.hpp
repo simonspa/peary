@@ -141,8 +141,9 @@ namespace caribou {
     /** Execute the pattern generator
      *
      *  Trigger the execution of the pattern generator once
+     *  @param sleep wait for execution of pattern generator before returning
      */
-    virtual void triggerPatternGenerator() = 0;
+    virtual void triggerPatternGenerator(bool sleep = true) = 0;
 
     /** Configure the pixel matrix
      */

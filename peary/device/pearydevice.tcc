@@ -279,7 +279,7 @@ namespace caribou {
     throw caribou::DeviceImplException("Pattern generator not implemented for this device");
   }
 
-  template <typename T> void pearyDevice<T>::triggerPatternGenerator() {
+  template <typename T> void pearyDevice<T>::triggerPatternGenerator(bool) {
     LOG(logCRITICAL) << "Pattern generator not implemented for this device";
     throw caribou::DeviceImplException("Pattern generator not implemented for this device");
   }

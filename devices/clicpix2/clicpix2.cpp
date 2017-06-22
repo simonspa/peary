@@ -286,7 +286,7 @@ void clicpix2::readMatrix(std::string filename) {
   LOG(logINFO) << "Now " << pixelsConfig.size() << " pixel configurations cached, " << masked << " of which are masked";
 }
 
-void clicpix2::triggerPatternGenerator() {
+void clicpix2::triggerPatternGenerator(bool sleep) {
 
   LOG(logDEBUG) << "Triggering pattern generator once.";
 
@@ -298,8 +298,9 @@ void clicpix2::triggerPatternGenerator() {
   *wave_control &= ~(CLICPIX2_CONTROL_WAVE_GENERATOR_ENABLE_MASK);
   *wave_control |= CLICPIX2_CONTROL_WAVE_GENERATOR_ENABLE_MASK;
 
-  // Wait for its length before returning:
-  usleep(pg_total_length / 10);
+  // Wait for its lengcth before returning:
+  if(sleep)
+    usleep(pg_total_length / 10);
 }
 
 void clicpix2::configurePatternGenerator(std::string filename) {

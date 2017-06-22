@@ -122,7 +122,7 @@ namespace caribou {
     // Programming the pixel matrix
 
     virtual void configurePatternGenerator(std::string filename);
-    virtual void triggerPatternGenerator();
+    virtual void triggerPatternGenerator(bool sleep);
 
     /** Configure the pixel matrix
      */
