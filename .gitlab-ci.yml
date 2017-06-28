@@ -10,7 +10,7 @@ peary:
   script:
     - mkdir build
     - cd build
-    - cmake -DBUILD_example=ON ..
+    - cmake -DBUILD_example=ON -DBUILD_server=ON ..
     - make
 
 #peary-mac:
