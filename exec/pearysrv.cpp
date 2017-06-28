@@ -11,7 +11,7 @@
 using namespace caribou;
 
 caribou::caribouDeviceMgr* manager;
-int my_socket, new_socket;
+int my_socket;
 
 // Global functions
 bool configure();
@@ -22,7 +22,6 @@ void termination_handler(int s) {
   std::cout << "\n";
   LOG(logINFO) << "Caught user signal \"" << s << "\", ending processes.";
   delete manager;
-  close(new_socket);
   close(my_socket);
   exit(1);
 }
@@ -40,13 +39,10 @@ int main(int argc, char* argv[]) {
 
   int run_nr;
 
-  // TCP/IP server variables
-  int portnumber = 4000;
-  struct sockaddr_in address;
-  socklen_t addrlen;
   int bufsize = 1024;
   char* buffer = (char*)malloc(bufsize);
   std::string rundir;
+  std::string ipaddress;
 
   std::vector<std::string> devices;
   std::string configfile = "";
@@ -57,7 +53,7 @@ int main(int argc, char* argv[]) {
       std::cout << "Help:" << std::endl;
       std::cout << "-v verbosity   verbosity level, default INFO" << std::endl;
       std::cout << "-c configfile  configuration file to be used" << std::endl;
-      std::cout << "-r portnumber  start TCP/IP server listening on given port" << std::endl;
+      std::cout << "-i ip          connect to runcontrol on that ip" << std::endl;
       std::cout << "-d dirname     sets output directy path to given folder" << std::endl;
       return 0;
     } else if(!strcmp(argv[i], "-v")) {
@@ -66,9 +62,9 @@ int main(int argc, char* argv[]) {
     } else if(!strcmp(argv[i], "-c")) {
       configfile = std::string(argv[++i]);
       continue;
-    } else if(!strcmp(argv[i], "-r")) {
-      portnumber = std::stoi(argv[++i]);
-      LOG(logINFO) << "Starting Peary control server, listening on port " << portnumber;
+    } else if(!strcmp(argv[i], "-i")) {
+      ipaddress = argv[++i];
+      LOG(logINFO) << "Connecting to runcontrol at " << ipaddress;
       continue;
     } else if(!strcmp(argv[i], "-d")) {
       continue;
@@ -106,33 +102,27 @@ int main(int argc, char* argv[]) {
       dev->powerOn();
     }
 
-    // Create a socket and start listening for commands from run control
-    if((my_socket = socket(AF_INET, SOCK_STREAM, 0)) > 0) {
-      LOG(logINFO) << "Socket created";
-    }
+    // Configure Socket and address
+	int portnumber = 8890;
 
-    // Set up which port to listen to
+    struct sockaddr_in address;
     address.sin_family = AF_INET;
-    address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(portnumber);
+    inet_aton(ipaddress.c_str(), &(address.sin_addr));
+    int my_socket = socket(AF_INET, SOCK_STREAM, 0);
 
-    // Bind the socket
-    if(bind(my_socket, (struct sockaddr*)&address, sizeof(address)) == 0)
-      LOG(logINFO) << "Binding Socket";
-    else {
-      LOG(logCRITICAL) << "Socket binding failed";
-      throw CommunicationError("Socket binding failed");
-    }
+    std::stringstream ss;
+    ss << inet_ntoa(address.sin_addr);
 
-    // Wait for communication from the run control
-    listen(my_socket, 3);
-    addrlen = sizeof(struct sockaddr_in);
+	// Connect to Runcontrol
+	int retval = ::connect(my_socket, (struct sockaddr*)&address, sizeof(address));
 
-    // Wait for client to connect (will block until client connects)
-    new_socket = accept(my_socket, (struct sockaddr*)&address, &addrlen);
-    if(new_socket > 0) {
-      LOG(logINFO) << "Client " << inet_ntoa(address.sin_addr) << " is connected";
-    }
+	if(retval == 0) {
+	    std::cout << "Connection to server at " << ss.str() << " established" << std::endl;
+	} else {
+	    std::cout << "Connection to server at " << ss.str() << " failed, errno " << errno << std::endl;
+	}
+
 
     //--------------- Run control ---------------//
     bool cmd_recognised = false;
@@ -148,9 +138,9 @@ int main(int argc, char* argv[]) {
     do {
 
       // Wait for new command
-      cmd_length = recv(new_socket, buffer, bufsize, 0);
+      cmd_length = recv(my_socket, buffer, bufsize, 0);
       cmd_recognised = false;
-
+	  //LOG(logDEBUG) << "cmd_length: " << cmd_length;
       // Display the command and load it into the command string
       if(cmd_length > 0) {
         buffer[cmd_length] = '\0';
@@ -235,17 +225,10 @@ int main(int argc, char* argv[]) {
         LOG(logERROR) << "Unknown command: " << buffer;
       }
 
-      // Finally, send a reply to the client
-      if(cmd_length > 0) {
-        send(new_socket, buffer, strlen(buffer), 0);
-        LOG(logDEBUG) << "Sending reply to client: " << buffer;
-      }
-
       // Don't finish until /q received
     } while(strcmp(buffer, "/q"));
 
     // When finished, close the sockets
-    close(new_socket);
     close(my_socket);
 
     // And end that whole thing correcly:
