@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
 
   int bufsize = 1024;
   char* buffer = (char*)malloc(bufsize);
-  std::string rundir;
+  std::string rundir = ".";
   std::string ipaddress;
 
   std::vector<std::string> devices;
@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
       std::cout << "-v verbosity   verbosity level, default INFO" << std::endl;
       std::cout << "-c configfile  configuration file to be used" << std::endl;
       std::cout << "-i ip          connect to runcontrol on that ip" << std::endl;
-      std::cout << "-d dirname     sets output directy path to given folder (TODO: to be implemented!)" << std::endl;
+      std::cout << "-d dirname     sets output directy path to given folder, folder has to exist" << std::endl;
       return 0;
     } else if(!strcmp(argv[i], "-v")) {
       Log::ReportingLevel() = Log::FromString(std::string(argv[++i]));
@@ -71,6 +71,7 @@ int main(int argc, char* argv[]) {
       LOG(logINFO) << "Connecting to runcontrol at " << ipaddress;
       continue;
     } else if(!strcmp(argv[i], "-d")) {
+      rundir = std::string(argv[++i]);
       continue;
     } else {
       std::cout << "Unrecognized option: " << argv[i] << std::endl;
@@ -211,10 +212,10 @@ int main(int argc, char* argv[]) {
           LOG(logINFO) << "Starting run " << run_nr;
 
           // Define the run directory
-          rundir = "Run" + to_string(run_nr);
+          std::string dir = rundir + "/Run" + to_string(run_nr);
           framecounter = 0;
           // Reply to the run control
-          if(start_run(rundir, run_nr, description)) {
+          if(start_run(dir, run_nr, description)) {
             running = true;
             sprintf(buffer, "OK run %d started", run_nr);
             LOG(logINFO) << buffer;
@@ -305,7 +306,7 @@ bool start_run(std::string rundir, int run_nr, std::string) {
       if(dev->getName() == "CLICpix2") {
         mkdir(rundir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
         std::string filename = rundir + "/run" + to_string(run_nr) + ".csv";
-        LOG(logINFO) << rundir;
+        LOG(logINFO) << "Writing data to " << rundir;
         myfile.open(filename);
         // myfile << "# pearycli > acquire\n";
         myfile << "# Software version: " << dev->getVersion() << "\n";
