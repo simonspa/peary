@@ -169,7 +169,7 @@ int main(int argc, char* argv[]) {
       // Display the command and load it into the command string
       if(cmd_length > 0) {
         buffer[cmd_length] = '\0';
-        LOG(logDEBUG) << "Message received: " << buffer;
+        LOG(logINFO) << "Message received: " << buffer;
         sscanf(buffer, "%s", cmd);
       } else
         sprintf(cmd, "no_cmd");
@@ -285,6 +285,12 @@ bool configure() {
     for(auto d : devs) {
       LOG(logINFO) << "Configuring device ID " << i << ": " << d->getName();
       d->configure();
+      d->powerStatusLog();
+      if (d->getName()=="C3PD")
+      {
+	d->setBias("ref",1);
+	d->setBias("ain",0.75);
+      }
       i++;
     }
   } catch(caribou::DeviceException& e) {
@@ -363,6 +369,7 @@ bool getFrame() {
         for(auto& px : data) {
           myfile << px.first.first << "," << px.first.second << "," << (*px.second) << "\n";
         }
+        LOG(logINFO) << framecounter << " | " << data.size() << " pixel responses";
         framecounter++;
       } catch(caribou::DataException& e) {
         continue;
