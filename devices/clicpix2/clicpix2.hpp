@@ -72,6 +72,10 @@ namespace caribou {
     // The reset signal is asserted for ~1us
     void reset();
 
+    /** Equalize the threshold level
+    */
+    void equalize();
+
   private:
     /* Routine to program the pixel matrix via the SPI interface
      *

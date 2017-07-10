@@ -514,6 +514,8 @@ void clicpix2::daqStart() {
   // Prepare chip for data acquisition
 }
 
+void clicpix2::equalize() {}
+
 pearydata clicpix2::decodeFrame(const std::vector<uint32_t>& frame) {
 
   // FIXME not very efficient to always query the device...

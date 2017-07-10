@@ -3,6 +3,7 @@
 #include <signal.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
+#include <vector>
 
 #include "configuration.hpp"
 #include "devicemgr.hpp"
@@ -21,6 +22,7 @@ bool configure();
 bool start_run(std::string prefix, int run_nr, std::string description);
 bool stop_run(std::string prefix);
 bool getFrame();
+std::vector<std::string> split(std::string str, char delimiter);
 
 void termination_handler(int s) {
   std::cout << "\n";
@@ -138,6 +140,7 @@ int main(int argc, char* argv[]) {
     bool configured = false;
     bool running = false;
 
+    std::vector<std::string> commands;
     // Loop listening for commands from the run control
     do {
 
@@ -167,10 +170,15 @@ int main(int argc, char* argv[]) {
       cmd_recognised = false;
       // LOG(logDEBUG) << "cmd_length: " << cmd_length;
       // Display the command and load it into the command string
-      if(cmd_length > 0) {
+      // if(cmd_length > 0) {
+      if(commands.size() > 0 || cmd_length > 0) {
         buffer[cmd_length] = '\0';
         LOG(logINFO) << "Message received: " << buffer;
-        sscanf(buffer, "%s", cmd);
+        std::vector<std::string> spl;
+        spl = split(std::string(buffer), '\n');
+        for(int k = 0; k < spl.size(); k++)
+          commands.push_back(spl[k]);
+        sscanf(commands[0].c_str(), "%s", cmd);
       } else
         sprintf(cmd, "no_cmd");
 
@@ -286,10 +294,9 @@ bool configure() {
       LOG(logINFO) << "Configuring device ID " << i << ": " << d->getName();
       d->configure();
       d->powerStatusLog();
-      if (d->getName()=="C3PD")
-      {
-	d->setBias("ref",1);
-	d->setBias("ain",0.75);
+      if(d->getName() == "C3PD") {
+        d->setBias("ref", 1);
+        d->setBias("ain", 0.75);
       }
       i++;
     }
@@ -378,4 +385,14 @@ bool getFrame() {
   }
 
   return true;
+}
+
+std::vector<std::string> split(std::string str, char delimiter) {
+  std::vector<std::string> internal;
+  std::stringstream ss(str); // Turn the string into a stream.
+  std::string tok;
+  while(getline(ss, tok, delimiter)) {
+    internal.push_back(tok);
+  }
+  return internal;
 }
