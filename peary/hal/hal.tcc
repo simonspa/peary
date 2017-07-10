@@ -11,11 +11,11 @@ namespace caribou {
       : _devpath(device_path), _devaddress(device_address) {
 
     // Get access to FPGA memory mapped registers
-    /*   memfd = open(MEM_PATH, O_RDWR | O_SYNC);
-       if(memfd == -1) {
-         throw DeviceException("Can't open /dev/mem.\n");
-       }
-   */
+    memfd = open(MEM_PATH, O_RDWR | O_SYNC);
+    if(memfd == -1) {
+      throw DeviceException("Can't open /dev/mem.\n");
+    }
+
     // Log the firmware
     LOG(logQUIET) << getFirmwareVersion();
 
@@ -28,7 +28,7 @@ namespace caribou {
   }
 
   template <typename T> std::string caribouHAL<T>::getFirmwareVersion() {
-    return "0";
+
     // Map Caribou control
     void* control_map_base;
 
