@@ -177,8 +177,14 @@ int main(int argc, char* argv[]) {
         std::vector<std::string> spl;
         spl = split(std::string(buffer), '\n');
         for(int k = 0; k < spl.size(); k++)
-          commands.push_back(spl[k]);
+        {
+	  commands.push_back(spl[k]);
+	  LOG(logINFO)<<"commands["<<k<<"]: "<<commands[k];
+	}
         sscanf(commands[0].c_str(), "%s", cmd);
+	sprintf(buffer,"%s",commands[0].c_str());
+	LOG(logINFO)<<buffer;
+	commands.erase(commands.begin());
       } else
         sprintf(cmd, "no_cmd");
 
@@ -214,7 +220,8 @@ int main(int argc, char* argv[]) {
           LOG(logERROR) << buffer;
         } else {
           // Get the run number and comment (placed in output file header)
-          std::istringstream runInfo(buffer);
+	  LOG(logINFO)<<"Buffer: "<<buffer;         
+	  std::istringstream runInfo(buffer);
           std::string description, dummy;
           runInfo >> dummy >> run_nr >> description;
           LOG(logINFO) << "Starting run " << run_nr;
