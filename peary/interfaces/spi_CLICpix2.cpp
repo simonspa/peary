@@ -38,8 +38,8 @@ std::pair<spi_reg_t, spi_t> iface_spi_CLICpix2::write(const spi_address_t&, cons
   }
 
   uint16_t* rx_raw = (uint16_t*)_data.data();
-  std::pair<spi_reg_t, spi_t> rx(static_cast<spi_reg_t>(rx_raw[0] >> 6),
-                                 static_cast<spi_t>(((rx_raw[0] & (0x3F)) << 2) | ((rx_raw[1] & 0xc000) >> 14)));
+  std::pair<spi_reg_t, spi_t> rx(static_cast<spi_reg_t>(rx_raw[0] >> 5),
+                                 static_cast<spi_t>(((rx_raw[0] & (0x1F)) << 3) | ((rx_raw[1] & 0xe000) >> 13)));
 
   LOG(logINTERFACE) << "SPI device " << devicePath << ": Register " << to_hex_string(data.first) << " Wrote data \""
                     << to_hex_string(data.second) << "\" Read data \"" << to_hex_string(rx.second) << "\"";
@@ -101,8 +101,8 @@ std::vector<std::pair<spi_reg_t, spi_t>> iface_spi_CLICpix2::write(const spi_add
       ++loop.i) {
 
     uint16_t* rx_raw = (uint16_t*)(_data.data() + loop.pos);
-    rx.push_back(std::make_pair(static_cast<spi_reg_t>(rx_raw[0] >> 6),
-                                static_cast<spi_t>(((rx_raw[0] & (0x3F)) << 2) | ((rx_raw[1] & 0xc000) >> 14))));
+    rx.push_back(std::make_pair(static_cast<spi_reg_t>(rx_raw[0] >> 5),
+                                static_cast<spi_t>(((rx_raw[0] & (0x1F)) << 3) | ((rx_raw[1] & 0xe000) >> 13))));
     loop.pos += 2 * (sizeof(spi_t) + sizeof(spi_reg_t));
   }
 
