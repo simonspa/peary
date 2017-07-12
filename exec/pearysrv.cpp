@@ -378,8 +378,12 @@ bool getFrame() {
           mDelay(10);
           data = dev->getData();
         }
+        std::vector<uint64_t> timestamps = dev->timestampsPatternGenerator();
         myfile << "===== " << framecounter << " =====\n";
-        for(auto& px : data) {
+        for(const auto& timestamp : timestamps) {
+          myfile << (timestamp >> 48) << ":" << (timestamp & 0xffffffffffff) << "\n";
+        }
+        for(const auto& px : data) {
           myfile << px.first.first << "," << px.first.second << "," << (*px.second) << "\n";
         }
         LOG(logINFO) << framecounter << " | " << data.size() << " pixel responses";
