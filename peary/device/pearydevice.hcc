@@ -123,6 +123,7 @@ namespace caribou {
 
     virtual void configurePatternGenerator(std::string filename);
     virtual void triggerPatternGenerator(bool sleep);
+    virtual std::vector<uint64_t> timestampsPatternGenerator();
 
     /** Configure the pixel matrix
      */

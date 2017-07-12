@@ -145,6 +145,9 @@ namespace caribou {
      */
     virtual void triggerPatternGenerator(bool sleep = true) = 0;
 
+    // Return timestamps for the execeuted sequence in the pattern generator.
+    virtual std::vector<uint64_t> timestampsPatternGenerator() = 0;
+
     /** Configure the pixel matrix
      */
     // Provide functions both for the full matrix and single pixels?

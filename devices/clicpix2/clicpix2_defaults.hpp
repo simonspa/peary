@@ -37,6 +37,8 @@ namespace caribou {
   const std::intptr_t CLICPIX2_RESET_OFFSET = 0;
   const std::intptr_t CLICPIX2_WAVE_CONTROL_OFFSET = 4;
   const std::intptr_t CLICPIX2_WAVE_EVENTS_OFFSET = 8;
+  const std::intptr_t CLICPIX2_TIMESTAMPS_LSB_OFFSET = 0x8c;
+  const std::intptr_t CLICPIX2_TIMESTAMPS_MSB_OFFSET = 0x90;
 
   const uint32_t CLICPIX2_CONTROL_RESET_MASK = 0x1;
   const uint32_t CLICPIX2_CONTROL_WAVE_GENERATOR_ENABLE_MASK = 0x1;

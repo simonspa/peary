@@ -66,6 +66,9 @@ namespace caribou {
     std::vector<uint32_t> getRawData();
     pearydata getData();
 
+    // Method returns stored timestamps
+    std::vector<uint64_t> timestampsPatternGenerator();
+
     void setSpecialRegister(std::string name, uint32_t value);
 
     // Reset the chip

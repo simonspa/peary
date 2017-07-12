@@ -566,3 +566,32 @@ std::vector<uint32_t> clicpix2::getRawData() {
   LOG(logDEBUG) << DEVICE_NAME << " Read raw SerDes data:\n" << listVector(frame, ", ", true);
   return frame;
 }
+
+std::vector<uint64_t> clicpix2::timestampsPatternGenerator() {
+
+  std::vector<uint64_t> timestamps;
+  LOG(logDEBUG) << DEVICE_NAME << " Requesting timestamps";
+
+  // Write into enable register of pattern generator:
+  volatile uint32_t* timestamp_lsb =
+    reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + CLICPIX2_TIMESTAMPS_LSB_OFFSET);
+  volatile uint32_t* timestamp_msb =
+    reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + CLICPIX2_TIMESTAMPS_MSB_OFFSET);
+
+  uint64_t timestamp;
+
+  // dummy readout
+  if((*timestamp_msb & 0x80000000) != 0) {
+    LOG(logWARNING) << DEVICE_NAME << " Timestamps FIFO is empty: ";
+    return timestamps;
+  }
+
+  do {
+    timestamp = *timestamp_lsb;
+    timestamp |= (static_cast<uint64_t>(*timestamp_msb) << 32);
+    timestamps.push_back(timestamp & 0x7ffffffffffff);
+  } while(!(timestamp & 0x8000000000000000));
+  LOG(logDEBUG) << DEVICE_NAME << " Received timestamps: " << listVector(timestamps, ",", false);
+
+  return timestamps;
+}
