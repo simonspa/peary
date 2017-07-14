@@ -369,7 +369,6 @@ bool getFrame() {
         pearydata data;
         try {
           dev->triggerPatternGenerator(true);
-          mDelay(100);
           // Read the data:
           data = dev->getData();
         } catch(caribou::DataException& e) {
