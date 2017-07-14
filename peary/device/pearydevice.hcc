@@ -141,16 +141,13 @@ namespace caribou {
     // Do they need to be virtual? Maybe implement in baseclass (always same for CaR)
     // and only look up correct regulator according to name from child class dictionary?
     void setVoltage(std::string name, double voltage);
-    void voltageOn(std::string name);
-    void voltageOff(std::string name);
-
     void setBias(std::string name, double voltage);
-    void biasOn(std::string name);
-    void biasOff(std::string name);
-
     void setInjectionBias(std::string name, double voltage);
-
     void setCurrent(std::string name, int current, bool polarity);
+
+    void switchOn(std::string name) { return switchPeripheryComponent(name, true); };
+    void switchOff(std::string name) { return switchPeripheryComponent(name, false); };
+
     double getVoltage(std::string name);
     double getCurrent(std::string name);
     double getPower(std::string name);
@@ -214,6 +211,10 @@ namespace caribou {
     /** State indicating the configuration of the device
      */
     bool _is_configured;
+
+    /** Switcher function for periphery component (turns them on/off)
+     */
+    void switchPeripheryComponent(std::string name, bool enable);
 
   }; // class pearyDevice
 

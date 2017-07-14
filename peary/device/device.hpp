@@ -167,10 +167,8 @@ namespace caribou {
     virtual void setBias(std::string name, double voltage) = 0;
     virtual void setInjectionBias(std::string name, double voltage) = 0;
 
-    virtual void voltageOn(std::string name) = 0;
-    virtual void voltageOff(std::string name) = 0;
-    virtual void biasOn(std::string name) = 0;
-    virtual void biasOff(std::string name) = 0;
+    virtual void switchOn(std::string name) = 0;
+    virtual void switchOff(std::string name) = 0;
 
     virtual void setCurrent(std::string name, int current, bool polarity) = 0;
     virtual double getVoltage(std::string name) = 0;

@@ -63,24 +63,25 @@ namespace caribou {
     _hal->setVoltageRegulator(*ptr, voltage);
   }
 
-  template <typename T> void pearyDevice<T>::voltageOn(std::string name) {
+  template <typename T> void pearyDevice<T>::switchPeripheryComponent(std::string name, bool enable) {
 
     // Resolve name against periphery dictionary
-    std::shared_ptr<VOLTAGE_REGULATOR_T> ptr = _periphery.get<VOLTAGE_REGULATOR_T>(name);
-    LOG(logDEBUG) << "Regulator to be powered up: " << name << " on " << ptr->name();
+    std::shared_ptr<component_t> ptr = _periphery.get<component_t>(name);
+    LOG(logDEBUG) << "Periphery to be switched " << (enable ? "on" : "off") << ": " << name << " on " << ptr->name();
 
-    // Send command to voltage regulators via HAL
-    _hal->powerVoltageRegulator(*ptr, true);
-  }
-
-  template <typename T> void pearyDevice<T>::voltageOff(std::string name) {
-
-    // Resolve name against periphery dictionary
-    std::shared_ptr<VOLTAGE_REGULATOR_T> ptr = _periphery.get<VOLTAGE_REGULATOR_T>(name);
-    LOG(logDEBUG) << "Regulator to be powered down: " << name << " on " << ptr->name();
-
-    // Send command to voltage regulators via HAL
-    _hal->powerVoltageRegulator(*ptr, false);
+    // Send command to appropriate switches via HAL
+    if(std::dynamic_pointer_cast<VOLTAGE_REGULATOR_T>(ptr)) {
+      // Voltage regulators
+      _hal->powerVoltageRegulator(*std::dynamic_pointer_cast<VOLTAGE_REGULATOR_T>(ptr), enable);
+    } else if(std::dynamic_pointer_cast<BIAS_REGULATOR_T>(ptr)) {
+      // Bias regulators
+      _hal->powerBiasRegulator(*std::dynamic_pointer_cast<BIAS_REGULATOR_T>(ptr), enable);
+    } else if(std::dynamic_pointer_cast<CURRENT_SOURCE_T>(ptr)) {
+      // Current sources
+      _hal->powerCurrentSource(*std::dynamic_pointer_cast<CURRENT_SOURCE_T>(ptr), enable);
+    } else {
+      throw ConfigInvalid("HAL does not provide a switch for this component.");
+    }
   }
 
   template <typename T> double pearyDevice<T>::getVoltage(std::string name) {
@@ -142,26 +143,6 @@ namespace caribou {
 
     // Send command to bias regulators via HAL
     _hal->setBiasRegulator(*ptr, voltage);
-  }
-
-  template <typename T> void pearyDevice<T>::biasOn(std::string name) {
-
-    // Resolve name against periphery dictionary
-    std::shared_ptr<BIAS_REGULATOR_T> ptr = _periphery.get<BIAS_REGULATOR_T>(name);
-    LOG(logDEBUG) << "Bias regulator to be switched on: " << name << " on " << ptr->name();
-
-    // Send command to bias regulators via HAL
-    _hal->powerBiasRegulator(*ptr, true);
-  }
-
-  template <typename T> void pearyDevice<T>::biasOff(std::string name) {
-
-    // Resolve name against periphery dictionary
-    std::shared_ptr<BIAS_REGULATOR_T> ptr = _periphery.get<BIAS_REGULATOR_T>(name);
-    LOG(logDEBUG) << "Bias regulator to be switched off: " << name << " on " << ptr->name();
-
-    // Send command to bias regulators via HAL
-    _hal->powerBiasRegulator(*ptr, false);
   }
 
   template <typename T> void pearyDevice<T>::setInjectionBias(std::string, double) {}
