@@ -166,7 +166,17 @@ namespace caribou {
 
   template <typename T> void pearyDevice<T>::setInjectionBias(std::string, double) {}
 
-  template <typename T> void pearyDevice<T>::setCurrent(std::string, double) {}
+  template <typename T> void pearyDevice<T>::setCurrent(std::string name, int current, bool polarity) {
+
+    // Resolve name against periphery dictionary
+    std::shared_ptr<CURRENT_SOURCE_T> ptr = _periphery.get<CURRENT_SOURCE_T>(name);
+    LOG(logDEBUG) << "Current source to be configured: " << name << " on " << ptr->name();
+
+    CURRENT_SOURCE_POLARISATION_T pol = static_cast<CURRENT_SOURCE_POLARISATION_T>(polarity);
+
+    // Send command to current source via HAL
+    _hal->setCurrentSource(*ptr, current, pol);
+  }
 
   template <typename T> void pearyDevice<T>::setRegister(std::string name, uint32_t value) {
 

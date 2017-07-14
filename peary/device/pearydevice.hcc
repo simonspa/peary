@@ -149,7 +149,8 @@ namespace caribou {
     void biasOff(std::string name);
 
     void setInjectionBias(std::string name, double voltage);
-    void setCurrent(std::string name, double current);
+
+    void setCurrent(std::string name, int current, bool polarity);
     double getVoltage(std::string name);
     double getCurrent(std::string name);
     double getPower(std::string name);

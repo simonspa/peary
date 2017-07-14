@@ -172,7 +172,7 @@ namespace caribou {
     virtual void biasOn(std::string name) = 0;
     virtual void biasOff(std::string name) = 0;
 
-    virtual void setCurrent(std::string name, double current) = 0;
+    virtual void setCurrent(std::string name, int current, bool polarity) = 0;
     virtual double getVoltage(std::string name) = 0;
     virtual double getCurrent(std::string name) = 0;
     virtual double getPower(std::string name) = 0;
