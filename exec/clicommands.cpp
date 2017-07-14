@@ -47,10 +47,20 @@ pearycli::pearycli() : c("# ") {
     "getCurrent", getCurrent, "Get the output current NAME (in A) on the selected device", 2, "NAME DEVICE_ID");
   c.registerCommand("getPower", getPower, "Get the output power NAME (in W) on the selected device", 2, "NAME DEVICE_ID");
 
-  c.registerCommand("voltageOff", voltageOff, "Turn off output voltage NAME on the selected device", 2, "NAME DEVICE_ID");
-  c.registerCommand("voltageOn", voltageOn, "Turn on output voltage NAME on the selected device", 2, "NAME DEVICE_ID");
-  c.registerCommand("biasOff", biasOff, "Turn off bias voltage NAME on the selected device", 2, "NAME DEVICE_ID");
-  c.registerCommand("biasOn", biasOn, "Turn on bias voltage NAME on the selected device", 2, "NAME DEVICE_ID");
+  c.registerCommand("voltageOff", switchOff, "Turn off output voltage NAME on the selected device", 2, "NAME DEVICE_ID");
+  c.registerCommand("voltageOn", switchOn, "Turn on output voltage NAME on the selected device", 2, "NAME DEVICE_ID");
+  c.registerCommand("switchOn",
+                    switchOn,
+                    "Switch on the periphery component identified by NAME and controlled by the selected device",
+                    2,
+                    "NAME DEVICE_ID");
+  c.registerCommand("switchOff",
+                    switchOff,
+                    "Switch off the periphery component identified by NAME and controlled by the selected device",
+                    2,
+                    "NAME DEVICE_ID");
+  c.registerCommand("biasOff", switchOff, "Turn off bias voltage NAME on the selected device", 2, "NAME DEVICE_ID");
+  c.registerCommand("biasOn", switchOn, "Turn on bias voltage NAME on the selected device", 2, "NAME DEVICE_ID");
 
   c.registerCommand("setRegister",
                     setRegister,
@@ -287,10 +297,10 @@ int pearycli::getPower(const std::vector<std::string>& input) {
   return ret::Ok;
 }
 
-int pearycli::voltageOn(const std::vector<std::string>& input) {
+int pearycli::switchOn(const std::vector<std::string>& input) {
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(2)));
-    dev->voltageOn(input.at(1));
+    dev->switchOn(input.at(1));
   } catch(caribou::caribouException& e) {
     LOG(logERROR) << e.what();
     return ret::Error;
@@ -298,32 +308,10 @@ int pearycli::voltageOn(const std::vector<std::string>& input) {
   return ret::Ok;
 }
 
-int pearycli::voltageOff(const std::vector<std::string>& input) {
+int pearycli::switchOff(const std::vector<std::string>& input) {
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(2)));
-    dev->voltageOff(input.at(1));
-  } catch(caribou::caribouException& e) {
-    LOG(logERROR) << e.what();
-    return ret::Error;
-  }
-  return ret::Ok;
-}
-
-int pearycli::biasOn(const std::vector<std::string>& input) {
-  try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(2)));
-    dev->biasOn(input.at(1));
-  } catch(caribou::caribouException& e) {
-    LOG(logERROR) << e.what();
-    return ret::Error;
-  }
-  return ret::Ok;
-}
-
-int pearycli::biasOff(const std::vector<std::string>& input) {
-  try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(2)));
-    dev->biasOff(input.at(1));
+    dev->switchOff(input.at(1));
   } catch(caribou::caribouException& e) {
     LOG(logERROR) << e.what();
     return ret::Error;
