@@ -259,7 +259,7 @@ namespace caribou {
                      << "on " << source.name();
 
     if(current > 1000)
-      throw ConfigInvalid("Tring to set current source to " + std::to_string(current) + " uA (max is 1000uA)");
+      throw ConfigInvalid("Trying to set current source to " + std::to_string(current) + " uA (max is 1000uA)");
 
     // set DAC
     setDACVoltage(source.dacaddress(), source.dacoutput(), (current * CAR_VREF_4P0) / 1000);
@@ -269,8 +269,10 @@ namespace caribou {
     auto mask = i2c.read(ADDR_IOEXP, 0x02, 1)[0];
 
     if(polarisation == PULL) {
+      LOG(logDEBUGHAL) << "Polarity switch (" << to_hex_string(source.polswitch()) << ") set to PULL";
       mask &= ~(1 << source.polswitch());
     } else if(polarisation == PUSH) {
+      LOG(logDEBUGHAL) << "Polarity switch (" << to_hex_string(source.polswitch()) << ") set to PUSH";
       mask |= 1 << source.polswitch();
     } else {
       throw ConfigInvalid("Invalid polarity setting provided");
