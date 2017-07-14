@@ -443,10 +443,18 @@ void clicpix2::programMatrix() {
 }
 
 void clicpix2::configureClock() {
-  LOG(logDEBUG) << DEVICE_NAME << ": Configure clock";
-  _hal->configureSI5345((SI5345_REG_T const* const)si5345_revb_registers, SI5345_REVB_REG_CONFIG_NUM_REGS);
-  while(!_hal->isLockedSI5345())
-    ;
+
+  // Check of we should configure for external or internal clock, default to external:
+  if(_config.Get<bool>("clock_internal", false)) {
+    LOG(logDEBUG) << DEVICE_NAME << ": Configure internal clock source, free running, not locking";
+    _hal->configureSI5345((SI5345_REG_T const* const)si5345_revb_registers_free, SI5345_REVB_REG_CONFIG_NUM_REGS_FREE);
+  } else {
+    LOG(logDEBUG) << DEVICE_NAME << ": Configure external clock source, locked to TLU input clock";
+    _hal->configureSI5345((SI5345_REG_T const* const)si5345_revb_registers, SI5345_REVB_REG_CONFIG_NUM_REGS);
+    LOG(logDEBUG) << "Waiting for clock to lock...";
+    while(!_hal->isLockedSI5345())
+      ;
+  }
 }
 
 void clicpix2::powerStatusLog() {
