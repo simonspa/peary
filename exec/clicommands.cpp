@@ -107,11 +107,12 @@ pearycli::pearycli() : c("# ") {
     "acquire",
     acquire,
     "Acquire NUM events/frames from the selected device (1). For every event/frame, the pattern generator is "
-    "triggered once and a readout of the device is attempted. Prints all pixel hist if LONG is set to 1, "
-    "else just the number of pixel responses. If TPEN is set, always write to geister REG on DEVICE_ID_2 after starting the "
+    "triggered once and a readout of the device is attempted. Prints all pixel hits if LONG is set to 1, "
+    "else just the number of pixel responses. OPTIONAL: If the two additional arguments are provided, always write to "
+    "register REG on DEVICE_ID_2 after starting the "
     "pattern generator.",
-    7,
-    "NUM LONG[0/1] TPEN REG FILENAME DEVICE_ID_1 DEVICE_ID_2");
+    4,
+    "NUM LONG[0/1] FILENAME DEVICE_ID_1 [REG DEVICE_ID_2]");
   c.registerCommand("flushMatrix", flushMatrix, "Retrieve data from the selected device and discard it", 1, "DEVICE_ID");
 }
 
@@ -552,11 +553,10 @@ int pearycli::getData(const std::vector<std::string>& input) {
 
 int pearycli::acquire(const std::vector<std::string>& input) {
   try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(6)));
-    caribouDevice* dev2 = manager->getDevice(std::stoi(input.at(7)));
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(4)));
 
     std::ofstream myfile;
-    std::string filename = input.at(5) + ".csv";
+    std::string filename = input.at(3) + ".csv";
     myfile.open(filename);
     myfile << "# pearycli > acquire\n";
     myfile << "# Software version: " << dev->getVersion() << "\n";
@@ -564,7 +564,13 @@ int pearycli::acquire(const std::vector<std::string>& input) {
     myfile << "# Register state: " << listVector(dev->getRegisters()) << "\n";
     myfile << "# Timestamp: " << LOGTIME << "\n";
 
-    bool testpulses = static_cast<bool>(std::stoi(input.at(3)));
+    bool testpulses = false;
+    caribouDevice* dev2 = nullptr;
+    // Only with optional arguments provided:
+    if(input.size() == 7) {
+      dev2 = manager->getDevice(std::stoi(input.at(6)));
+      testpulses = true;
+    }
 
     for(int n = 0; n < std::stoi(input.at(1)); n++) {
       try {
@@ -574,7 +580,7 @@ int pearycli::acquire(const std::vector<std::string>& input) {
             // Send pattern:
             dev->triggerPatternGenerator(false);
             // Trigger DEV2
-            dev2->setRegister(input.at(4), 1);
+            dev2->setRegister(input.at(5), 1);
           } else {
             // Send pattern:
             dev->triggerPatternGenerator(true);
@@ -584,8 +590,9 @@ int pearycli::acquire(const std::vector<std::string>& input) {
           // Read the data:
           data = dev->getData();
           // Reset DEV2 testpulse
-          if(testpulses)
-            dev2->setRegister(input.at(4), 0);
+          if(testpulses) {
+            dev2->setRegister(input.at(5), 0);
+          }
         } catch(caribou::DataException& e) {
           // Retrieval failed, retry once more before aborting:
           LOG(logWARNING) << e.what() << ", retyring once.";
