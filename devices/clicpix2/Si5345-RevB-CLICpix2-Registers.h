@@ -20,13 +20,10 @@
 #ifndef SI5345_REVB_REG_CONFIG_HEADER
 #define SI5345_REVB_REG_CONFIG_HEADER
 
+#include "datatypes.hpp"
+using namespace caribou;
+
 #define SI5345_REVB_REG_CONFIG_NUM_REGS 386
-
-typedef struct {
-  unsigned int address; /* 16-bit register address */
-  unsigned char value;  /* 8-bit register data */
-
-} si5345_revb_register_t;
 
 si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_REGS] = {
 

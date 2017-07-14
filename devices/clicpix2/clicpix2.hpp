@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include "Si5345-RevB-CLICpix2-Registers.h"
+#include "Si5345-RevB-CLICpix2-Registers_freeRunningMode.h"
 #include "clicpix2_defaults.hpp"
 #include "clicpix2_frameDecoder.hpp"
 #include "clicpix2_pixels.hpp"

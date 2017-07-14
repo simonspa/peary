@@ -17,18 +17,15 @@
  *
  */
 
-#ifndef SI5345_REVB_REG_CONFIG_HEADER
-#define SI5345_REVB_REG_CONFIG_HEADER
+#ifndef SI5345_REVB_REG_CONFIG_HEADER_FREE
+#define SI5345_REVB_REG_CONFIG_HEADER_FREE
 
-#define SI5345_REVB_REG_CONFIG_NUM_REGS 386
+#include "datatypes.hpp"
+using namespace caribou;
 
-typedef struct {
-  unsigned int address; /* 16-bit register address */
-  unsigned char value;  /* 8-bit register data */
+#define SI5345_REVB_REG_CONFIG_NUM_REGS_FREE 386
 
-} si5345_revb_register_t;
-
-si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_REGS] = {
+si5345_revb_register_t const si5345_revb_registers_free[SI5345_REVB_REG_CONFIG_NUM_REGS_FREE] = {
 
   /* Start configuration preamble */
   {0x0B24, 0xD8},

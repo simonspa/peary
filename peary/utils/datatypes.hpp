@@ -102,6 +102,18 @@ namespace caribou {
     return os;
   }
 
+  /** Si5345 Rev B Configuration Register data struct
+   *
+   * struct holding a series of Silicon Labs Si5345 Rev B
+   * register writes that can be performed to load a single configuration
+   * on a device. To be used with file created by a Silicon Labs ClockBuilder Pro
+   * export tool.
+   */
+  typedef struct {
+    unsigned int address; /* 16-bit register address */
+    unsigned char value;  /* 8-bit register data */
+  } si5345_revb_register_t;
+
   /** Component Configuration Base class
    */
   class component_t {
