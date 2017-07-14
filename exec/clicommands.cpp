@@ -36,6 +36,12 @@ pearycli::pearycli() : c("# ") {
                     3,
                     "NAME VALUE DEVICE_ID");
   c.registerCommand(
+    "setCurrent",
+    setCurrent,
+    "Set the current for current source NAME to VALUE (in uA) with polarity POL (0 = PULL, 1 = PUSH) on the selected device",
+    4,
+    "NAME VALUE POL DEVICE_ID");
+  c.registerCommand(
     "getVoltage", getVoltage, "Get the output voltage NAME (in V) on the selected device", 2, "NAME DEVICE_ID");
   c.registerCommand(
     "getCurrent", getCurrent, "Get the output current NAME (in A) on the selected device", 2, "NAME DEVICE_ID");
@@ -230,6 +236,17 @@ int pearycli::setBias(const std::vector<std::string>& input) {
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(3)));
     dev->setBias(input.at(1), std::stod(input.at(2)));
+  } catch(caribou::caribouException& e) {
+    LOG(logERROR) << e.what();
+    return ret::Error;
+  }
+  return ret::Ok;
+}
+
+int pearycli::setCurrent(const std::vector<std::string>& input) {
+  try {
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(4)));
+    dev->setCurrent(input.at(1), std::stoi(input.at(2)), static_cast<bool>(std::stoi(input.at(3))));
   } catch(caribou::caribouException& e) {
     LOG(logERROR) << e.what();
     return ret::Error;
