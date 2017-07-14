@@ -112,7 +112,9 @@ namespace caribou {
   typedef struct {
     unsigned int address; /* 16-bit register address */
     unsigned char value;  /* 8-bit register data */
-  } si5345_revb_register_t;
+  } SI5345_REG_T;
+
+  typedef SI5345_REG_T si5345_revb_register_t;
 
   /** Component Configuration Base class
    */
@@ -197,6 +199,10 @@ namespace caribou {
   private:
     uint8_t _polswitch;
   };
+
+  /** Current source polarity options
+   */
+  typedef enum { PULL = 0, PUSH = 1 } CURRENT_SOURCE_POLARISATION_T;
 
   /** Slow ADC Channel Configuration
    *

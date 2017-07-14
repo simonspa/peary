@@ -19,14 +19,6 @@
 #define CAR_VREF_4P0 4.096 // via TI REF5040
 #define CAR_INA226_R_SHUNT 0.01
 
-typedef enum { PULL = 0, PUSH = 1 } CURRENT_SOURCE_POLARISATION_T;
-
-typedef struct {
-  unsigned int address; /* 16-bit register address */
-  unsigned char value;  /* 8-bit register data */
-
-} SI5345_REG_T;
-
 // Caribou control addresses
 const std::intptr_t CARIBOU_CONTROL_BASE_ADDRESS = 0x43C30000;
 const std::intptr_t CARIBOU_FIRMWARE_VERSION_OFFSET = 0;
