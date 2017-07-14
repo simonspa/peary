@@ -533,7 +533,7 @@ pearydata clicpix2::decodeFrame(const std::vector<uint32_t>& frame) {
 
   clicpix2_frameDecoder decoder((bool)comp, (bool)sp_comp);
   decoder.decode(frame, pixelsConfig);
-  LOG(logDEBUG) << DEVICE_NAME << "Decoded frame [row][column]:\n" << decoder;
+  LOG(logDEBUGAPI) << DEVICE_NAME << "Decoded frame [row][column]:\n" << decoder;
   return decoder.getZerosuppressedFrame();
 }
 
@@ -571,7 +571,7 @@ std::vector<uint32_t> clicpix2::getRawData() {
       reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(receiver_base) + CLICPIX2_RECEIVER_FIFO_OFFSET)));
   }
 
-  LOG(logDEBUG) << DEVICE_NAME << " Read raw SerDes data:\n" << listVector(frame, ", ", true);
+  LOG(logDEBUGAPI) << DEVICE_NAME << " Read raw SerDes data:\n" << listVector(frame, ", ", true);
   return frame;
 }
 
