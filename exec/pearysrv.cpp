@@ -176,7 +176,7 @@ int main(int argc, char* argv[]) {
         LOG(logINFO) << "Message received: " << buffer;
         std::vector<std::string> spl;
         spl = split(std::string(buffer), '\n');
-        for(int k = 0; k < spl.size(); k++) {
+        for(unsigned int k = 0; k < spl.size(); k++) {
           commands.push_back(spl[k]);
           LOG(logINFO) << "commands[" << k << "]: " << commands[k];
         }
