@@ -18,7 +18,7 @@ std::ofstream myfile;
 unsigned int framecounter;
 
 // Global functions
-bool configure();
+bool configure(int value);
 bool start_run(std::string prefix, int run_nr, std::string description);
 bool stop_run(std::string prefix);
 bool getFrame();
@@ -176,7 +176,7 @@ int main(int argc, char* argv[]) {
         LOG(logINFO) << "Message received: " << buffer;
         std::vector<std::string> spl;
         spl = split(std::string(buffer), '\n');
-        for(int k = 0; k < spl.size(); k++) {
+        for(unsigned int k = 0; k < spl.size(); k++) {
           commands.push_back(spl[k]);
           LOG(logINFO) << "commands[" << k << "]: " << commands[k];
         }
@@ -189,12 +189,17 @@ int main(int argc, char* argv[]) {
 
       if(strcmp(cmd, "configure") == 0) {
         cmd_recognised = true;
+          
+        std::istringstream runInfo(buffer);
+        std::string dummy;
+        int value;
+        runInfo >> dummy >> value;
 
         // Already running!
         if(running) {
           sprintf(buffer, "FAILED configuring - already running");
           LOG(logERROR) << buffer;
-        } else if(configure()) {
+        } else if(configure(value)) {
           configured = true;
           sprintf(buffer, "OK configured");
           LOG(logINFO) << buffer;
@@ -290,7 +295,7 @@ int main(int argc, char* argv[]) {
   return 0;
 }
 
-bool configure() {
+bool configure(int value) {
 
   // Fetch all active devices:
   try {
@@ -303,6 +308,10 @@ bool configure() {
       if(d->getName() == "C3PD") {
         d->setBias("ref", 1);
         d->setBias("ain", 0.75);
+      }
+      else if(d->getName() == "CLICpix2") {
+        d->setRegister("threshold_msb", value);
+        LOG(logINFO)<<"Setting threshold_msb to " << d->getRegister("threshold_msb");
       }
       i++;
     }
