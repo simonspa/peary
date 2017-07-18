@@ -189,7 +189,7 @@ int main(int argc, char* argv[]) {
 
       if(strcmp(cmd, "configure") == 0) {
         cmd_recognised = true;
-          
+
         std::istringstream runInfo(buffer);
         std::string dummy;
         int value;
@@ -308,14 +308,14 @@ bool configure(int value) {
       if(d->getName() == "C3PD") {
         d->setBias("ref", 1);
         d->setBias("ain", 0.75);
-      }
-      else if(d->getName() == "CLICpix2") {
+      } else if(d->getName() == "CLICpix2") {
         d->setRegister("threshold_msb", value);
-        LOG(logINFO)<<"Setting threshold_msb to " << d->getRegister("threshold_msb");
+        LOG(logINFO) << "Setting threshold_msb to " << d->getRegister("threshold_msb");
       }
       i++;
     }
-  } catch(caribou::DeviceException& e) {
+  } catch(caribou::caribouException& e) {
+    LOG(logERROR) << e.what();
     return false;
   }
   return true;
@@ -344,7 +344,8 @@ bool start_run(std::string rundir, int run_nr, std::string) {
       }
       i++;
     }
-  } catch(caribou::DeviceException& e) {
+  } catch(caribou::caribouException& e) {
+    LOG(logERROR) << e.what();
     return false;
   }
   return true;
@@ -363,7 +364,8 @@ bool stop_run(std::string) {
       myfile.close();
       i++;
     }
-  } catch(caribou::DeviceException& e) {
+  } catch(caribou::caribouException& e) {
+    LOG(logERROR) << e.what();
     return false;
   }
   return true;
@@ -398,6 +400,9 @@ bool getFrame() {
         framecounter++;
       } catch(caribou::DataException& e) {
         continue;
+      } catch(caribou::caribouException& e) {
+        LOG(logERROR) << e.what();
+        return false;
       }
     }
   }
