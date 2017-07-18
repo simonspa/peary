@@ -195,6 +195,9 @@ namespace caribou {
 
     LOG(logDEBUG) << "Register value to be set: " << to_hex_string(regval);
     _hal->send(std::make_pair(reg.address(), regval));
+
+    // Cache the current value of this register:
+    _register_cache[name] = value;
   }
 
   template <typename T> std::vector<std::pair<std::string, uint32_t>> pearyDevice<T>::getRegisters() {

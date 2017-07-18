@@ -199,6 +199,10 @@ namespace caribou {
      */
     caribou::register_dict<typename T::reg_type, typename T::data_type> _registers;
 
+    /** Register cache
+     */
+    std::map<std::string, typename T::data_type> _register_cache;
+
     /** Periphery dictionary to access CaR components:
      */
     caribou::component_dict _periphery;
