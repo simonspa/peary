@@ -147,6 +147,9 @@ int pearycli::devices(const std::vector<std::string>&) {
       i++;
     }
   } catch(caribou::DeviceException& e) {
+  } catch(caribou::caribouException& e) {
+    LOG(logERROR) << e.what();
+    return ret::Error;
   }
   return ret::Ok;
 }
@@ -163,7 +166,7 @@ int pearycli::addDevice(const std::vector<std::string>& input) {
         LOG(logERROR) << "No configuration found for device " << *d;
       }
     }
-  } catch(caribou::DeviceException& e) {
+  } catch(caribou::caribouException& e) {
     LOG(logCRITICAL) << "This went wrong: " << e.what();
     return ret::Error;
   }
@@ -185,7 +188,8 @@ int pearycli::version(const std::vector<std::string>& input) {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
     LOG(logQUIET) << dev->getVersion();
     LOG(logQUIET) << dev->getFirmwareVersion();
-  } catch(caribou::DeviceException&) {
+  } catch(caribou::caribouException& e) {
+    LOG(logERROR) << e.what();
     return ret::Error;
   }
   return ret::Ok;
@@ -195,7 +199,8 @@ int pearycli::configure(const std::vector<std::string>& input) {
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
     dev->configure();
-  } catch(caribou::DeviceException&) {
+  } catch(caribou::caribouException& e) {
+    LOG(logERROR) << e.what();
     return ret::Error;
   }
   return ret::Ok;
@@ -205,7 +210,8 @@ int pearycli::reset(const std::vector<std::string>& input) {
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
     dev->reset();
-  } catch(caribou::DeviceException&) {
+  } catch(caribou::caribouException& e) {
+    LOG(logERROR) << e.what();
     return ret::Error;
   }
   return ret::Ok;
@@ -215,7 +221,8 @@ int pearycli::powerOn(const std::vector<std::string>& input) {
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
     dev->powerOn();
-  } catch(caribou::DeviceException&) {
+  } catch(caribou::caribouException& e) {
+    LOG(logERROR) << e.what();
     return ret::Error;
   }
   return ret::Ok;
@@ -225,7 +232,8 @@ int pearycli::powerOff(const std::vector<std::string>& input) {
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
     dev->powerOff();
-  } catch(caribou::DeviceException&) {
+  } catch(caribou::caribouException& e) {
+    LOG(logERROR) << e.what();
     return ret::Error;
   }
   return ret::Ok;
@@ -481,8 +489,8 @@ int pearycli::exploreInterface(const std::vector<std::string>& input) {
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
     dev->exploreInterface();
-  } catch(caribou::DeviceException& e) {
-    LOG(logCRITICAL) << "Exception: " << e.what();
+  } catch(caribou::caribouException& e) {
+    LOG(logCRITICAL) << e.what();
     return ret::Error;
   }
   return ret::Ok;
@@ -502,7 +510,8 @@ int pearycli::powerStatusLog(const std::vector<std::string>& input) {
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
     dev->powerStatusLog();
-  } catch(caribou::DeviceException&) {
+  } catch(caribou::caribouException& e) {
+    LOG(logERROR) << e.what();
     return ret::Error;
   }
   return ret::Ok;
@@ -512,7 +521,8 @@ int pearycli::daqStart(const std::vector<std::string>& input) {
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
     dev->daqStart();
-  } catch(caribou::DeviceException&) {
+  } catch(caribou::caribouException& e) {
+    LOG(logERROR) << e.what();
     return ret::Error;
   }
   return ret::Ok;
@@ -522,7 +532,8 @@ int pearycli::daqStop(const std::vector<std::string>& input) {
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
     dev->daqStop();
-  } catch(caribou::DeviceException&) {
+  } catch(caribou::caribouException& e) {
+    LOG(logERROR) << e.what();
     return ret::Error;
   }
   return ret::Ok;
@@ -535,7 +546,8 @@ int pearycli::getRawData(const std::vector<std::string>& input) {
     LOG(logINFO) << listVector(rawdata, ", ", true);
   } catch(caribou::DataException& e) {
     LOG(logERROR) << e.what();
-  } catch(caribou::DeviceException&) {
+  } catch(caribou::caribouException& e) {
+    LOG(logERROR) << e.what();
     return ret::Error;
   }
   return ret::Ok;
@@ -550,7 +562,8 @@ int pearycli::getData(const std::vector<std::string>& input) {
     }
   } catch(caribou::DataException& e) {
     LOG(logERROR) << e.what();
-  } catch(caribou::DeviceException&) {
+  } catch(caribou::caribouException& e) {
+    LOG(logERROR) << e.what();
     return ret::Error;
   }
   return ret::Ok;
@@ -622,7 +635,7 @@ int pearycli::acquire(const std::vector<std::string>& input) {
         continue;
       }
     }
-  } catch(caribou::DeviceException& e) {
+  } catch(caribou::caribouException& e) {
     LOG(logCRITICAL) << e.what();
     return ret::Error;
   }
@@ -633,7 +646,7 @@ int pearycli::flushMatrix(const std::vector<std::string>& input) {
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
     pearydata data = dev->getData();
-  } catch(caribou::DeviceException&) {
+  } catch(caribou::caribouException& e) {
     return ret::Error;
   }
   return ret::Ok;
