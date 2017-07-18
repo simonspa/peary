@@ -382,9 +382,11 @@ bool getFrame() {
           data = dev->getData();
         } catch(caribou::DataException& e) {
           // Retrieval failed, retry once more before aborting:
-          LOG(logWARNING) << e.what() << ", retyring once.";
-          mDelay(10);
-          data = dev->getData();
+         // LOG(logWARNING) << e.what() << ", retyring once.";
+         // mDelay(10);
+         // data = dev->getData();
+  	  dev->timestampsPatternGenerator();	//in case of readout error, clear timestamp fifo before going to next event
+	  continue;
         }
         std::vector<uint64_t> timestamps = dev->timestampsPatternGenerator();
         myfile << "===== " << framecounter << " =====\n";
