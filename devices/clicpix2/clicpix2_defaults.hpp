@@ -51,40 +51,65 @@ namespace caribou {
   const std::size_t CLICPIX2_CONTROL_MAP_SIZE = 4096;
   const std::size_t CLICPIX2_CONTROL_MAP_MASK = CLICPIX2_CONTROL_MAP_SIZE - 1;
 
-#define CLICPIX2_REGISTERS                                                                                                  \
-  {                                                                                                                         \
-    {"readout", register_t<>(0x02, 0xFF, false, true)}, {"matrix_programming", register_t<>(0x04, 0xFF, false, true)},      \
-      {"bias_disc_N", register_t<>(0x0A)}, {"bias_disc_P", register_t<>(0x0C)}, {"ikrum", register_t<>(0x0E)},              \
-      {"bias_preamp", register_t<>(0x10)}, {"bias_thadj_DAC", register_t<>(0x12)},                                          \
-      {"bias_buffers_1st", register_t<>(0x14, 0xF0)}, {"bias_buffers_2nd", register_t<>(0x14, 0x0F)},                       \
-      {"bias_preamp_casc", register_t<>(0x16)}, {"bias_thadj_casc", register_t<>(0x18)},                                    \
-      {"bias_mirror_casc", register_t<>(0x1A)}, {"vfbk", register_t<>(0x1C)}, {"bias_disc_N_OFF", register_t<>(0x1E)},      \
-      {"bias_disc_P_OFF", register_t<>(0x20)}, {"bias_preamp_OFF", register_t<>(0x22)},                                     \
-      {"threshold_LSB", register_t<>(0x24)}, {"threshold_MSB", register_t<>(0x26)},                                         \
-      {"threshold", register_t<>(0x26, 0xFF, false, true, true)}, {"test_cap_1_LSB", register_t<>(0x28)},                   \
-      {"test_cap_1_MSB", register_t<>(0x2A)}, {"test_cap_2", register_t<>(0x2C)}, {"output_mux_DAC", register_t<>(0x2E)},   \
-                                                                                                                            \
-      {"poweron_timer", register_t<>(0x30, 0x3F)}, {"pp_clk_div", register_t<>(0x30, 0xC0)},                                \
-                                                                                                                            \
-      {"poweroff_timer", register_t<>(0x32, 0x3F)}, {"pp_en_n", register_t<>(0x32, 0x40)},                                  \
-                                                                                                                            \
-      {"pulsegen_counts_LSB", register_t<>(0x34)}, {"pulsegen_counts_MSB", register_t<>(0x36, 0x1F)},                       \
-      {"pulsegen_delay_LSB", register_t<>(0x38)}, {"pulsegen_delay_MSB", register_t<>(0x3A, 0x1F)},                         \
-                                                                                                                            \
-      {"gcr_tot_clk_div", register_t<>(0x3C, 0x03)}, {"tot_clk_div", register_t<>(0x3C, 0x03)},                             \
-      {"gcr_pol", register_t<>(0x3C, 0x04)}, {"pol", register_t<>(0x3C, 0x04)},                                             \
-      {"gcr_bg_tuning", register_t<>(0x3C, 0x38)}, {"bg_tuning", register_t<>(0x3C, 0x38)},                                 \
-      {"gcr_bg_en", register_t<>(0x3C, 0x40)}, {"bg_en", register_t<>(0x3C, 0x40)},                                         \
-      {"gcr_tp_gen_en", register_t<>(0x3C, 0x80)}, {"tp_gen_en", register_t<>(0x3C, 0x80)},                                 \
-                                                                                                                            \
-      {"rcr_paral_cols", register_t<>(0x3E, 0x03)}, {"paral_cols", register_t<>(0x3E, 0x03)},                               \
-      {"rcr_clk_div", register_t<>(0x3E, 0x0C)}, {"clk_div", register_t<>(0x3E, 0x0C)},                                     \
-      {"rcr_comp", register_t<>(0x3E, 0x10)}, {"comp", register_t<>(0x3E, 0x10)},                                           \
-      {"rcr_sp_comp", register_t<>(0x3E, 0x20)}, {"sp_comp", register_t<>(0x3E, 0x20)},                                     \
+// clang-format off
+#define CLICPIX2_REGISTERS						\
+  {									\
+    {"readout", register_t<>(0x02, 0xFF, false, true)},			\
+    {"matrix_programming", register_t<>(0x04, 0xFF, false, true)},	\
+    {"bias_disc_N", register_t<>(0x0A)},				\
+    {"bias_disc_P", register_t<>(0x0C)},				\
+    {"ikrum", register_t<>(0x0E)},					\
+    {"bias_preamp", register_t<>(0x10)},				\
+    {"bias_thadj_DAC", register_t<>(0x12)},				\
+    {"bias_buffers_1st", register_t<>(0x14, 0xF0)},			\
+    {"bias_buffers_2nd", register_t<>(0x14, 0x0F)},			\
+    {"bias_preamp_casc", register_t<>(0x16)},				\
+    {"bias_thadj_casc", register_t<>(0x18)},				\
+    {"bias_mirror_casc", register_t<>(0x1A)},				\
+    {"vfbk", register_t<>(0x1C)},					\
+    {"bias_disc_N_OFF", register_t<>(0x1E)},				\
+    {"bias_disc_P_OFF", register_t<>(0x20)},				\
+    {"bias_preamp_OFF", register_t<>(0x22)},				\
+    {"threshold_LSB", register_t<>(0x24)},				\
+    {"threshold_MSB", register_t<>(0x26)},				\
+    {"threshold", register_t<>(0x26, 0xFF, false, true, true)},  	\
+    {"test_cap_1_LSB", register_t<>(0x28)},				\
+    {"test_cap_1_MSB", register_t<>(0x2A)},				\
+    {"test_cap_2", register_t<>(0x2C)},  				\
+    {"output_mux_DAC", register_t<>(0x2E)},				\
+      									\
+    {"poweron_timer", register_t<>(0x30, 0x3F)},			\
+    {"pp_clk_div", register_t<>(0x30, 0xC0)},				\
+      									\
+    {"poweroff_timer", register_t<>(0x32, 0x3F)},			\
+    {"pp_en_n", register_t<>(0x32, 0x40)},				\
+      									\
+    {"pulsegen_counts_LSB", register_t<>(0x34)},			\
+    {"pulsegen_counts_MSB", register_t<>(0x36, 0x1F)},  		\
+    {"pulsegen_delay_LSB", register_t<>(0x38)}, 			\
+    {"pulsegen_delay_MSB", register_t<>(0x3A, 0x1F)},			\
+      									\
+    {"gcr_tot_clk_div", register_t<>(0x3C, 0x03)},			\
+    {"tot_clk_div", register_t<>(0x3C, 0x03)},  			\
+    {"gcr_pol", register_t<>(0x3C, 0x04)},				\
+    {"pol", register_t<>(0x3C, 0x04)},  				\
+    {"gcr_bg_tuning", register_t<>(0x3C, 0x38)},			\
+    {"bg_tuning", register_t<>(0x3C, 0x38)},				\
+    {"gcr_bg_en", register_t<>(0x3C, 0x40)},				\
+    {"bg_en", register_t<>(0x3C, 0x40)},				\
+    {"gcr_tp_gen_en", register_t<>(0x3C, 0x80)},			\
+    {"tp_gen_en", register_t<>(0x3C, 0x80)},				\
+      									\
+    {"rcr_paral_cols", register_t<>(0x3E, 0x03)},			\
+    {"paral_cols", register_t<>(0x3E, 0x03)},				\
+    {"rcr_clk_div", register_t<>(0x3E, 0x0C)},  			\
+    {"clk_div", register_t<>(0x3E, 0x0C)},				\
+    {"rcr_comp", register_t<>(0x3E, 0x10)},				\
+    {"comp", register_t<>(0x3E, 0x10)},  				\
+    {"rcr_sp_comp", register_t<>(0x3E, 0x20)},  			\
+    {"sp_comp", register_t<>(0x3E, 0x20)},				\
   }
-
-#define CLICPIX2_PERIPHERY                                                                                                  \
-  {}
+  // clang-format on
 
 } // namespace caribou
 
