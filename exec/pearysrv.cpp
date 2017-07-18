@@ -397,6 +397,7 @@ bool getFrame() {
         LOG(logINFO) << framecounter << " | " << data.size() << " pixel responses";
         framecounter++;
       } catch(caribou::DataException& e) {
+	dev->timestampsPatternGenerator();	//in case of readout error, clear timestamp fifo before going to next event
         continue;
       }
     }
