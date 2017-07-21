@@ -24,11 +24,14 @@ bool stop_run(std::string prefix);
 bool getFrame();
 std::vector<std::string> split(std::string str, char delimiter);
 
+FILE* lfile;
+
 void termination_handler(int s) {
   std::cout << "\n";
   LOG(logINFO) << "Caught user signal \"" << s << "\", ending processes.";
   delete manager;
   close(my_socket);
+  fclose(lfile);
   exit(1);
 }
 
@@ -79,6 +82,10 @@ int main(int argc, char* argv[]) {
       std::cout << "Unrecognized option: " << argv[i] << std::endl;
     }
   }
+
+  lfile = fopen((rundir+"/log.txt").c_str(), "a");
+  SetLogOutput::Stream() = lfile;
+  SetLogOutput::Duplicate() = true;
 
   // Create new Peary device manager
   manager = new caribouDeviceMgr();
@@ -384,7 +391,7 @@ bool getFrame() {
           data = dev->getData();
         } catch(caribou::DataException& e) {
           // Retrieval failed, retry once more before aborting:
-         // LOG(logWARNING) << e.what() << ", retyring once.";
+          LOG(logWARNING) << e.what() << ", skipping frame.";
          // mDelay(10);
          // data = dev->getData();
   	  dev->timestampsPatternGenerator();	//in case of readout error, clear timestamp fifo before going to next event
