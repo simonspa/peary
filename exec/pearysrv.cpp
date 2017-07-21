@@ -384,7 +384,7 @@ bool getFrame() {
           data = dev->getData();
         } catch(caribou::DataException& e) {
           // Retrieval failed, retry once more before aborting:
-         // LOG(logWARNING) << e.what() << ", retyring once.";
+          LOG(logWARNING) << e.what() << ", skipping frame.";
          // mDelay(10);
          // data = dev->getData();
   	  dev->timestampsPatternGenerator();	//in case of readout error, clear timestamp fifo before going to next event
