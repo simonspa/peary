@@ -219,7 +219,7 @@ void clicpix2::configureMatrix(std::string filename) {
   this->setRegister("comp", 0);
   this->setRegister("sp_comp", 0);
 
-  LOG(logDEBUG) << "Configuring the pixel matrix from file " << filename;
+  LOG(logDEBUG) << "Configuring the pixel matrix from file \"" << filename << "\"";
   readMatrix(filename);
   programMatrix();
 
