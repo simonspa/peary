@@ -140,9 +140,17 @@ void clicpix2::setSpecialRegister(std::string name, uint32_t value) {
     // Set the two values:
     this->setRegister("threshold_msb", dacs.first);
     this->setRegister("threshold_lsb", dacs.second);
-  } else {
+  }  
+  else if(name == "pulsegen_counts") {
+    // Get pulsegen_counts LSB and MS
+    // Set the two values:
+    this->setRegister("pulsegen_counts_msb", (value >> 8) & 0x00FF);
+    this->setRegister("pulsegen_counts_lsb", value & 0x00FF);
+  }
+  else {
     throw RegisterInvalid("Unknown register with \"special\" flag: " + name);
   }
+
 }
 
 void clicpix2::powerUp() {

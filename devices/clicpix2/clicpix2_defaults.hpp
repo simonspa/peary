@@ -86,6 +86,7 @@ namespace caribou {
       									\
     {"pulsegen_counts_LSB", register_t<>(0x34)},			\
     {"pulsegen_counts_MSB", register_t<>(0x36, 0x1F)},  		\
+    {"pulsegen_counts", register_t<>(0x36, 0xFF, false, true, true)},	\
     {"pulsegen_delay_LSB", register_t<>(0x38)}, 			\
     {"pulsegen_delay_MSB", register_t<>(0x3A, 0x1F)},			\
       									\
