@@ -21,7 +21,7 @@ std::string clicpix2::getName() {
 }
 
 clicpix2::clicpix2(const caribou::Configuration config)
-    : pearyDevice(config, std::string(DEFAULT_DEVICEPATH), 0), pg_total_length(0) {
+    : pearyDevice(config, std::string(DEFAULT_DEVICEPATH)), pg_total_length(0) {
 
   // Set up periphery
   _periphery.add("vddd", PWR_OUT_1);

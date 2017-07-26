@@ -35,7 +35,7 @@ namespace caribou {
     /** Default constructor for Caribou devices
      *
      */
-    pearyDevice(const caribou::Configuration config, std::string devpath, uint32_t devaddr);
+    pearyDevice(const caribou::Configuration config, std::string devpath, uint32_t devaddr = 0);
 
     /** Default destructor for Caribou devices
      */
