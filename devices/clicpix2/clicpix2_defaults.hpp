@@ -75,6 +75,7 @@ namespace caribou {
     {"threshold", register_t<>(0x26, 0xFF, false, true, true)},  	\
     {"test_cap_1_LSB", register_t<>(0x28)},				\
     {"test_cap_1_MSB", register_t<>(0x2A)},				\
+    {"test_cap_1", register_t<>(0x26, 0xFF, false, true, true)},          \
     {"test_cap_2", register_t<>(0x2C)},  				\
     {"output_mux_DAC", register_t<>(0x2E)},				\
       									\

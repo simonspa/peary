@@ -141,6 +141,14 @@ void clicpix2::setSpecialRegister(std::string name, uint32_t value) {
     this->setRegister("threshold_msb", dacs.first);
     this->setRegister("threshold_lsb", dacs.second);
   }  
+  else if(name == "test_cap_1") {
+    // Get pulsegen_counts LSB and MSB
+    //std::pair<uint8_t,uint8_t> dacs = test_cap_1.at(value);
+    LOG(logDEBUG) << "Test_cap_1 lookup: " << value << " = " << static_cast<int>((value >> 8) & 0x00FF) << "-" << static_cast<int>(value & 0x00FF);
+    // Set the two values:
+    this->setRegister("test_cap_1_msb", (value >> 8) & 0x00FF);
+    this->setRegister("test_cap_1_lsb", value & 0x00FF);
+    }
   else if(name == "pulsegen_counts") {
     // Get pulsegen_counts LSB and MS
     // Set the two values:
