@@ -75,6 +75,7 @@ namespace caribou {
     {"threshold", register_t<>(0x26, 0xFF, false, true, true)},  	\
     {"test_cap_1_LSB", register_t<>(0x28)},				\
     {"test_cap_1_MSB", register_t<>(0x2A)},				\
+    {"test_cap_1", register_t<>(0x26, 0xFF, false, true, true)},          \
     {"test_cap_2", register_t<>(0x2C)},  				\
     {"output_mux_DAC", register_t<>(0x2E)},				\
       									\
@@ -86,9 +87,11 @@ namespace caribou {
       									\
     {"pulsegen_counts_LSB", register_t<>(0x34)},			\
     {"pulsegen_counts_MSB", register_t<>(0x36, 0x1F)},  		\
+    {"pulsegen_counts", register_t<>(0x36, 0xFF, false, true, true)},	\
     {"pulsegen_delay_LSB", register_t<>(0x38)}, 			\
     {"pulsegen_delay_MSB", register_t<>(0x3A, 0x1F)},			\
-      									\
+    {"pulsegen_delay", register_t<>(0x36, 0xFF, false, true, true)},    \    
+  									\
     {"gcr_tot_clk_div", register_t<>(0x3C, 0x03)},			\
     {"tot_clk_div", register_t<>(0x3C, 0x03)},  			\
     {"gcr_pol", register_t<>(0x3C, 0x04)},				\

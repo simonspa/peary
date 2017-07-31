@@ -140,9 +140,33 @@ void clicpix2::setSpecialRegister(std::string name, uint32_t value) {
     // Set the two values:
     this->setRegister("threshold_msb", dacs.first);
     this->setRegister("threshold_lsb", dacs.second);
-  } else {
+  }  
+  else if(name == "test_cap_1") {
+    // Get pulsegen_counts LSB and MSB
+    //std::pair<uint8_t,uint8_t> dacs = test_cap_1.at(value);
+    LOG(logDEBUG) << "Test_cap_1 lookup: " << value << " = " << static_cast<int>((value >> 8) & 0x00FF) << "-" << static_cast<int>(value & 0x00FF);
+    // Set the two values:
+    this->setRegister("test_cap_1_msb", (value >> 8) & 0x00FF);
+    this->setRegister("test_cap_1_lsb", value & 0x00FF);
+    }
+  else if(name == "pulsegen_counts") {
+    // Get pulsegen_counts LSB and MSB
+    LOG(logDEBUG) << "Pulsegen_counts lookup: " << value << " = " << static_cast<int>((value >> 8) & 0x00FF) << "-" << static_cast<int>(value & 0x00FF);
+    // Set the two values:
+    this->setRegister("pulsegen_counts_msb", (value >> 8) & 0x00FF);
+    this->setRegister("pulsegen_counts_lsb", value & 0x00FF);
+  }
+  else if(name == "pulsegen_delay") {
+    // Get pulsegen_counts LSB and MSB
+    LOG(logDEBUG) << "Pulsegen_delay lookup: " << value << " = " << static_cast<int>((value >> 8) & 0x00FF) << "-" << static_cast<int>(value & 0x00FF);
+    // Set the two values:
+    this->setRegister("pulsegen_delay_msb", (value >> 8) & 0x00FF);
+    this->setRegister("pulsegen_delay_lsb", value & 0x00FF);
+    }
+  else {
     throw RegisterInvalid("Unknown register with \"special\" flag: " + name);
   }
+
 }
 
 void clicpix2::powerUp() {
@@ -299,7 +323,7 @@ void clicpix2::triggerPatternGenerator(bool sleep) {
   *wave_control &= ~(CLICPIX2_CONTROL_WAVE_GENERATOR_ENABLE_MASK);
   *wave_control |= CLICPIX2_CONTROL_WAVE_GENERATOR_ENABLE_MASK;
 
-  // Wait for its lengcth before returning:
+  // Wait for its length before returning:
   if(sleep)
     usleep(pg_total_length / 10);
 }
