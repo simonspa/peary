@@ -150,7 +150,8 @@ void clicpix2::setSpecialRegister(std::string name, uint32_t value) {
     this->setRegister("test_cap_1_lsb", value & 0x00FF);
     }
   else if(name == "pulsegen_counts") {
-    // Get pulsegen_counts LSB and MS
+    // Get pulsegen_counts LSB and MSB
+    LOG(logDEBUG) << "Pulsegen_counts lookup: " << value << " = " << static_cast<int>((value >> 8) & 0x00FF) << "-" << static_cast<int>(value & 0x00FF);
     // Set the two values:
     this->setRegister("pulsegen_counts_msb", (value >> 8) & 0x00FF);
     this->setRegister("pulsegen_counts_lsb", value & 0x00FF);
