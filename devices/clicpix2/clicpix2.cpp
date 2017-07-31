@@ -323,7 +323,7 @@ void clicpix2::triggerPatternGenerator(bool sleep) {
   *wave_control &= ~(CLICPIX2_CONTROL_WAVE_GENERATOR_ENABLE_MASK);
   *wave_control |= CLICPIX2_CONTROL_WAVE_GENERATOR_ENABLE_MASK;
 
-  // Wait for its lengcth before returning:
+  // Wait for its length before returning:
   if(sleep)
     usleep(pg_total_length / 10);
 }
