@@ -156,6 +156,13 @@ void clicpix2::setSpecialRegister(std::string name, uint32_t value) {
     this->setRegister("pulsegen_counts_msb", (value >> 8) & 0x00FF);
     this->setRegister("pulsegen_counts_lsb", value & 0x00FF);
   }
+  else if(name == "pulsegen_delay") {
+    // Get pulsegen_counts LSB and MSB
+    LOG(logDEBUG) << "Pulsegen_delay lookup: " << value << " = " << static_cast<int>((value >> 8) & 0x00FF) << "-" << static_cast<int>(value & 0x00FF);
+    // Set the two values:
+    this->setRegister("pulsegen_delay_msb", (value >> 8) & 0x00FF);
+    this->setRegister("pulsegen_delay_lsb", value & 0x00FF);
+    }
   else {
     throw RegisterInvalid("Unknown register with \"special\" flag: " + name);
   }

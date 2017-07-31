@@ -90,7 +90,8 @@ namespace caribou {
     {"pulsegen_counts", register_t<>(0x36, 0xFF, false, true, true)},	\
     {"pulsegen_delay_LSB", register_t<>(0x38)}, 			\
     {"pulsegen_delay_MSB", register_t<>(0x3A, 0x1F)},			\
-      									\
+    {"pulsegen_delay", register_t<>(0x36, 0xFF, false, true, true)},    \    
+  									\
     {"gcr_tot_clk_div", register_t<>(0x3C, 0x03)},			\
     {"tot_clk_div", register_t<>(0x3C, 0x03)},  			\
     {"gcr_pol", register_t<>(0x3C, 0x04)},				\
