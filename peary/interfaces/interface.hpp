@@ -31,7 +31,6 @@ namespace caribou {
 
     template <typename T> friend class caribouHAL;
 
-  private:
     //////////////////////
     // Write operations
     //////////////////////
