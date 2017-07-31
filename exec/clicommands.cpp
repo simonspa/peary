@@ -579,7 +579,7 @@ int pearycli::acquire(const std::vector<std::string>& input) {
     myfile << "# pearycli > acquire\n";
     myfile << "# Software version: " << dev->getVersion() << "\n";
     myfile << "# Firmware version: " << dev->getFirmwareVersion() << "\n";
-    // myfile << "# Register state: " << listVector(dev->getRegisters()) << "\n";
+    myfile << "# Register state: " << listVector(dev->getRegisters()) << "\n";
     myfile << "# Timestamp: " << LOGTIME << "\n";
 
     bool testpulses = false;
