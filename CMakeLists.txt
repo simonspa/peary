@@ -133,8 +133,9 @@ IF(BUILD_server)
   # add target
   ADD_EXECUTABLE(pearysrv "exec/pearysrv.cpp")
   ADD_EXECUTABLE(dummyclient "exec/dummyclient.cpp")
+  ADD_EXECUTABLE(dummysrv "exec/dummysrv.cpp")
   TARGET_LINK_LIBRARIES(pearysrv ${PROJECT_NAME})
-  INSTALL(TARGETS pearysrv dummyclient
+  INSTALL(TARGETS pearysrv dummyclient dummysrv
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib)
