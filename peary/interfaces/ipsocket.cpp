@@ -84,7 +84,7 @@ ipsocket_t iface_ipsocket::write(const ipsocket_port_t&, ipsocket_t& data) {
   std::lock_guard<std::mutex> lock(mutex);
 
   if(data.back() != '\n') {
-    LOG(logINTERFACE) << "Add carrige return to command.";
+    LOG(logINTERFACE) << "Add carriage return to command.";
     data += '\n';
   }
 
@@ -108,15 +108,21 @@ std::vector<ipsocket_t> iface_ipsocket::read(const ipsocket_port_t&, ipsocket_t&
 
   int msglen = 0;
   char buffer[BUFFERSIZE];
-
+  int msgs = 0;
   while(buffer[msglen - 1] != '\n') {
     LOG(logINTERFACE) << "Receiving buffer from socket...";
     // retrieve response:
     msglen = recv(mysocket_, buffer, BUFFERSIZE, 0);
+    LOG(logINTERFACE) << "Received: \"" << std::string(buffer) << "\"";
+    // Terminate the string:
+    buffer[msglen] = '\0';
     dataword += std::string(buffer);
+    // Reset buffer:
+    buffer[0] = '\0';
+    msgs++;
   }
 
-  data.push_back(std::string(buffer));
-  // LOG(logINTERFACE) << "Received " << data.size() << " buffers.";
+  data.push_back(dataword);
+  LOG(logINTERFACE) << "Received " << msgs << " buffers.";
   return data;
 }
