@@ -310,7 +310,15 @@ bool configure(int value) {
     std::vector<caribouDevice*> devs = manager->getDevices();
     for(auto d : devs) {
       LOG(logINFO) << "Configuring device ID " << i << ": " << d->getName();
-      d->configure();
+      for(unsigned int i=0; i<5; ++i){
+	try{
+		d->configure();
+		break;
+      	}	
+      	catch(const CommunicationError& e) {
+		LOG(logERROR) << e.what();
+      	}
+      }
       d->powerStatusLog();
       if(d->getName() == "C3PD") {
         d->setBias("ref", 1);
