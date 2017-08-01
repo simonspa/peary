@@ -140,33 +140,31 @@ void clicpix2::setSpecialRegister(std::string name, uint32_t value) {
     // Set the two values:
     this->setRegister("threshold_msb", dacs.first);
     this->setRegister("threshold_lsb", dacs.second);
-  }  
-  else if(name == "test_cap_1") {
+  } else if(name == "test_cap_1") {
     // Get pulsegen_counts LSB and MSB
-    //std::pair<uint8_t,uint8_t> dacs = test_cap_1.at(value);
-    LOG(logDEBUG) << "Test_cap_1 lookup: " << value << " = " << static_cast<int>((value >> 8) & 0x00FF) << "-" << static_cast<int>(value & 0x00FF);
+    // std::pair<uint8_t,uint8_t> dacs = test_cap_1.at(value);
+    LOG(logDEBUG) << "Test_cap_1 lookup: " << value << " = " << static_cast<int>((value >> 8) & 0x00FF) << "-"
+                  << static_cast<int>(value & 0x00FF);
     // Set the two values:
     this->setRegister("test_cap_1_msb", (value >> 8) & 0x00FF);
     this->setRegister("test_cap_1_lsb", value & 0x00FF);
-    }
-  else if(name == "pulsegen_counts") {
+  } else if(name == "pulsegen_counts") {
     // Get pulsegen_counts LSB and MSB
-    LOG(logDEBUG) << "Pulsegen_counts lookup: " << value << " = " << static_cast<int>((value >> 8) & 0x00FF) << "-" << static_cast<int>(value & 0x00FF);
+    LOG(logDEBUG) << "Pulsegen_counts lookup: " << value << " = " << static_cast<int>((value >> 8) & 0x00FF) << "-"
+                  << static_cast<int>(value & 0x00FF);
     // Set the two values:
     this->setRegister("pulsegen_counts_msb", (value >> 8) & 0x00FF);
     this->setRegister("pulsegen_counts_lsb", value & 0x00FF);
-  }
-  else if(name == "pulsegen_delay") {
+  } else if(name == "pulsegen_delay") {
     // Get pulsegen_counts LSB and MSB
-    LOG(logDEBUG) << "Pulsegen_delay lookup: " << value << " = " << static_cast<int>((value >> 8) & 0x00FF) << "-" << static_cast<int>(value & 0x00FF);
+    LOG(logDEBUG) << "Pulsegen_delay lookup: " << value << " = " << static_cast<int>((value >> 8) & 0x00FF) << "-"
+                  << static_cast<int>(value & 0x00FF);
     // Set the two values:
     this->setRegister("pulsegen_delay_msb", (value >> 8) & 0x00FF);
     this->setRegister("pulsegen_delay_lsb", value & 0x00FF);
-    }
-  else {
+  } else {
     throw RegisterInvalid("Unknown register with \"special\" flag: " + name);
   }
-
 }
 
 void clicpix2::powerUp() {
@@ -255,28 +253,36 @@ void clicpix2::configureMatrix(std::string filename) {
 
   try {
     decoder.decode(frame, pixelsConfig, false);
-
-    for(const auto& px : pixelsConfig) {
-
-      // Fetch readback value for this pixel:
-      pixelReadout pxv = decoder.get(px.first.first, px.first.second);
-
-      // The flag bit if the readout is returned as (mask | (threshold & 0x1)), thus resetting to mask state only:
-      if(pxv.GetBit(8)) {
-        pxv.SetFlag(px.second.GetMask());
-      }
-
-      // Compare with value read from the matrix:
-      if(px.second != pxv) {
-        LOG(logERROR) << "Matrix configuration of pixel " << static_cast<int>(px.first.second) << ","
-                      << static_cast<int>(px.first.first) << " does not match:";
-        LOG(logERROR) << to_bit_string(px.second.GetLatches()) << " != " << to_bit_string(pxv.GetLatches());
-      }
-    }
-    LOG(logINFO) << "Verified matrix configuration.";
   } catch(caribou::DataException& e) {
     LOG(logERROR) << e.what();
+    throw CommunicationError("Matrix configuration readout failed");
   }
+
+  LOG(logINFO) << "Verifing matrix configuration...";
+
+  bool configurationError = false;
+  for(const auto& px : pixelsConfig) {
+
+    // Fetch readback value for this pixel:
+    pixelReadout pxv = decoder.get(px.first.first, px.first.second);
+
+    // The flag bit if the readout is returned as (mask | (threshold & 0x1)), thus resetting to mask state only:
+    if(pxv.GetBit(8)) {
+      pxv.SetFlag(px.second.GetMask());
+    }
+
+    // Compare with value read from the matrix:
+    if(px.second != pxv) {
+      LOG(logERROR) << "Matrix configuration of pixel " << static_cast<int>(px.first.second) << ","
+                    << static_cast<int>(px.first.first) << " does not match:";
+      LOG(logERROR) << to_bit_string(px.second.GetLatches()) << " != " << to_bit_string(pxv.GetLatches());
+      configurationError = true;
+    }
+  }
+  if(configurationError)
+    throw CommunicationError("Matrix configuration failed");
+  else
+    LOG(logINFO) << "Verified matrix configuration.";
 
   // Reset compression state to previous values:
   this->setRegister("comp", comp);
