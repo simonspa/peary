@@ -35,11 +35,15 @@ namespace caribou {
 
     std::vector<ipsocket_t> read(const ipsocket_port_t& address, ipsocket_t& query, const unsigned int length = 1);
 
+  private:
     // Unused constructor
     iface_ipsocket() = delete;
 
     // Split the devicePath into port and IP address:
     std::pair<std::string, uint32_t> split_ip_address(std::string address);
+
+    std::string trim(const std::string& str, const std::string& delims = " \t\n\r\v");
+    std::string cleanCommandString(std::string& command);
 
     // Remote socket to connect to
     int mysocket_;

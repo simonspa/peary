@@ -5,6 +5,7 @@
 #include <cerrno>
 #include <cstring>
 #include <sstream>
+#include <string>
 
 // OS socket support
 #include <arpa/inet.h>
@@ -69,6 +70,30 @@ std::pair<std::string, uint32_t> iface_ipsocket::split_ip_address(std::string ad
   return ip_and_port;
 }
 
+std::string iface_ipsocket::trim(const std::string& str, const std::string& delims) {
+  size_t b = str.find_first_not_of(delims);
+  size_t e = str.find_last_not_of(delims);
+  if(b == std::string::npos || e == std::string::npos) {
+    return "";
+  }
+  return std::string(str, b, e - b + 1);
+}
+
+std::string iface_ipsocket::cleanCommandString(std::string& str) {
+
+  // str = trim(str);
+  LOG(logINTERFACE) << "Trimmed command: " << str;
+  // If there are "" then we should take the whole string
+  if(!str.empty() && str[0] == '\"') {
+    if(str.find('\"', 1) != str.size() - 1) {
+      throw std::invalid_argument("remaining data at end");
+    }
+    return str.substr(1, str.size() - 2);
+  }
+  // Otherwise read a single string
+  return str;
+}
+
 iface_ipsocket::~iface_ipsocket() {
   // When finished, close the sockets
   close(mysocket_);
@@ -76,6 +101,8 @@ iface_ipsocket::~iface_ipsocket() {
 
 ipsocket_t iface_ipsocket::write(const ipsocket_port_t&, ipsocket_t& data) {
   std::lock_guard<std::mutex> lock(mutex);
+
+  data = cleanCommandString(data);
 
   if(data.back() != '\n') {
     LOG(logINTERFACE) << "Add carriage return to command.";
