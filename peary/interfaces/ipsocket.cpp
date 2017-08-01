@@ -41,12 +41,6 @@ iface_ipsocket::iface_ipsocket(std::string const& device_path) : Interface(devic
   int retval = ::connect(mysocket_, (struct sockaddr*)&address, sizeof(address));
 
   if(retval == 0) {
-    ipsocket_t query = "*IDN?";
-    std::string data = this->read(0, query).front();
-    LOG(logINTERFACE) << "Connected: " << data;
-    // data=data.split(",")
-    // print "-> Connected",data[1]
-
     LOG(logINTERFACE) << "Connection to server at " << ss.str() << " established";
   } else {
     LOG(logCRITICAL) << "Connection to server at " << ss.str() << " failed, errno " << errno;
