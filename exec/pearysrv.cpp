@@ -18,7 +18,7 @@ std::ofstream myfile;
 unsigned int framecounter;
 
 // Global functions
-bool configure(int value);
+bool configure(int value, unsigned int configureAttempts);
 bool start_run(std::string prefix, int run_nr, std::string description);
 bool stop_run(std::string prefix);
 bool getFrame();
@@ -83,7 +83,7 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  lfile = fopen((rundir+"/log.txt").c_str(), "a");
+  lfile = fopen((rundir + "/log.txt").c_str(), "a");
   SetLogOutput::Stream() = lfile;
   SetLogOutput::Duplicate() = true;
 
@@ -206,7 +206,7 @@ int main(int argc, char* argv[]) {
         if(running) {
           sprintf(buffer, "FAILED configuring - already running");
           LOG(logERROR) << buffer;
-        } else if(configure(value)) {
+        } else if(configure(value, 5)) {
           configured = true;
           sprintf(buffer, "OK configured");
           LOG(logINFO) << buffer;
@@ -302,7 +302,7 @@ int main(int argc, char* argv[]) {
   return 0;
 }
 
-bool configure(int value) {
+bool configure(int value, unsigned int configureAttempts) {
 
   // Fetch all active devices:
   try {
@@ -310,7 +310,17 @@ bool configure(int value) {
     std::vector<caribouDevice*> devs = manager->getDevices();
     for(auto d : devs) {
       LOG(logINFO) << "Configuring device ID " << i << ": " << d->getName();
-      d->configure();
+      // try to configure the chip ~configureAttempts~ times
+      for(unsigned int i = 0; i < configureAttempts; ++i) {
+        try {
+          d->configure();
+          break;
+        } catch(const CommunicationError& e) {
+          LOG(logERROR) << e.what();
+          if(i == configureAttempts - 1)
+            return false;
+        }
+      }
       d->powerStatusLog();
       if(d->getName() == "C3PD") {
         d->setBias("ref", 1);
@@ -392,10 +402,10 @@ bool getFrame() {
         } catch(caribou::DataException& e) {
           // Retrieval failed, retry once more before aborting:
           LOG(logWARNING) << e.what() << ", skipping frame.";
-         // mDelay(10);
-         // data = dev->getData();
-  	  dev->timestampsPatternGenerator();	//in case of readout error, clear timestamp fifo before going to next event
-	  continue;
+          // mDelay(10);
+          // data = dev->getData();
+          dev->timestampsPatternGenerator(); // in case of readout error, clear timestamp fifo before going to next event
+          continue;
         }
         std::vector<uint64_t> timestamps = dev->timestampsPatternGenerator();
         myfile << "===== " << framecounter << " =====\n";
@@ -408,7 +418,7 @@ bool getFrame() {
         LOG(logINFO) << framecounter << " | " << data.size() << " pixel responses";
         framecounter++;
       } catch(caribou::DataException& e) {
-	dev->timestampsPatternGenerator();	//in case of readout error, clear timestamp fifo before going to next event
+        dev->timestampsPatternGenerator(); // in case of readout error, clear timestamp fifo before going to next event
         continue;
       } catch(caribou::caribouException& e) {
         LOG(logERROR) << e.what();
