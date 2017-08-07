@@ -68,6 +68,7 @@ void Configuration::Load(std::istream& stream, const std::string& section) {
       }
     } else {
       std::string key = trim(std::string(line, 0, equals));
+      std::transform(key.begin(), key.end(), key.begin(), ::tolower);
       // TODO: check key does not already exist
       // handle lines like: blah = "foo said ""bar""; ok." # not "baz"
       line = trim(std::string(line, equals + 1));
