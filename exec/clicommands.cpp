@@ -95,6 +95,14 @@ pearycli::pearycli() : c("# ") {
                     "Data are saved in the FILE_NAME.csv file",
                     7,
                     "DAC_NAME MIN MAX DELAY[ms] REPEAT FILE_NAME DEVICE_ID");
+  c.registerCommand("scanDAC2D",
+                    scanDAC2D,
+                    "For each value of DAC1_NAME between DAC1_MIN and DAC1_MAX, scan DAC DAC2_NAME from value DAC2_MIN to "
+                    "DAC2_MAX and read the voltage from the ADC after DELAY milliseconds. "
+                    "The sequence is repeated REPEAT times for every DAC setting. "
+                    "Data are saved in the FILE_NAME.csv file",
+                    10,
+                    "DAC1_NAME DAC1_MIN DAC2_MAX DAC2_NAME DAC2_MIN DAC2_MAX DELAY[ms] REPEAT FILE_NAME DEVICE_ID");
   c.registerCommand(
     "scanThreshold",
     scanThreshold,
@@ -487,6 +495,103 @@ int pearycli::scanDAC(const std::vector<std::string>& input) {
     myfile << "# with " << input.at(4) << "ms delay between setting register and ADC sampling.\n";
     for(auto i : data) {
       myfile << i.first << "," << i.second << "\n";
+    }
+    myfile.close();
+    LOG(logINFO) << "Data writte to file: \"" << filename << "\"";
+  } catch(caribou::caribouException& e) {
+    LOG(logERROR) << e.what();
+    return ret::Error;
+  }
+  return ret::Ok;
+}
+
+int pearycli::scanDAC2D(const std::vector<std::string>& input) {
+  std::map<std::string, int> output_mux_DAC{{"bias_disc_n", 1},
+                                            {"bias_disc_p", 2},
+                                            {"bias_thadj_dac", 3},
+                                            {"bias_preamp_casc", 4},
+                                            {"ikrum", 5},
+                                            {"bias_preamp", 6},
+                                            {"bias_buffers_1st", 7},
+                                            {"bias_buffers_2st", 8},
+                                            {"bias_thadj_casc", 9},
+                                            {"bias_mirror_casc", 10},
+                                            {"vfbk", 11},
+                                            {"threshold", 12},
+                                            {"threshold_lsb", 12},
+                                            {"threshold_msb", 12},
+                                            {"test_cap_2", 13},
+                                            {"test_cap_1_lsb", 14},
+                                            {"test_cap_1_msb", 14}};
+
+  try {
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(10)));
+
+    std::vector<std::pair<std::pair<int, int>, double>> data;
+
+    // Set the register in output_mux_DAC:
+    std::string dacname = input.at(1);
+    std::transform(dacname.begin(), dacname.end(), dacname.begin(), ::tolower);
+    dev->setRegister("output_mux_DAC", output_mux_DAC[dacname]);
+
+    if(std::stoi(input.at(2)) > std::stoi(input.at(3)) || std::stoi(input.at(5)) > std::stoi(input.at(6))) {
+      LOG(logERROR) << "Range invalid";
+      return ret::Error;
+    }
+
+    uint32_t dac1 = 0;
+    uint32_t dac2 = 0;
+    // Store the old setting of the DAC:
+    try {
+      dac1 = dev->getRegister(input.at(1));
+    } catch(caribou::RegisterTypeMismatch&) {
+    }
+    try {
+      dac2 = dev->getRegister(input.at(4));
+    } catch(caribou::RegisterTypeMismatch&) {
+    }
+
+    // Sample through DAC1
+    for(int j = std::stoi(input.at(5)); j <= std::stoi(input.at(6)); j++) {
+      LOG(logINFO) << input.at(4) << ": " << j;
+      dev->setRegister(input.at(4), j);
+
+      // Now sample through the DAC2 range and read the ADC at the "DAC_OUT" pin (VOL_IN_1)
+      for(int i = std::stoi(input.at(2)); i <= std::stoi(input.at(3)); i++) {
+        dev->setRegister(input.at(1), i);
+
+        std::stringstream responses;
+        responses << input.at(1) << " " << i << " = ";
+        for(int k = 0; k < std::stoi(input.at(8)); k++) {
+          // Wait a bit, in ms:
+          mDelay(std::stoi(input.at(7)));
+          // Read the ADC
+          double adc = dev->getADC("DAC_OUT");
+          responses << adc << "V ";
+          data.push_back(std::make_pair(std::make_pair(j, i), adc));
+        }
+        LOG(logINFO) << responses.str();
+      }
+    }
+
+    // Restore the old setting of the DAC:
+    dev->setRegister(input.at(1), dac1);
+    dev->setRegister(input.at(4), dac2);
+
+    // Write CSV file
+    std::ofstream myfile;
+    std::string filename = input.at(9) + ".csv";
+    myfile.open(filename);
+    myfile << "# pearycli > scanDAC\n";
+    myfile << "# Software version: " << dev->getVersion() << "\n";
+    myfile << "# Firmware version: " << dev->getFirmwareVersion() << "\n";
+    myfile << "# Register state: " << allDeviceParameters();
+    myfile << "# Timestamp: " << LOGTIME << "\n";
+    myfile << "# scanned DACs \"" << input.at(1) << "\", range " << input.at(2) << "-" << input.at(3) << " and \""
+           << input.at(4) << "\", range " << input.at(5) << "-" << input.at(6) << ", " << input.at(7) << " times\n";
+    myfile << "# with " << input.at(8) << "ms delay between setting register and ADC sampling.\n";
+    for(auto i : data) {
+      myfile << i.first.first << "," << i.first.second << "," << i.second << "\n";
     }
     myfile.close();
     LOG(logINFO) << "Data writte to file: \"" << filename << "\"";
