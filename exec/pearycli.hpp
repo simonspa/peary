@@ -70,6 +70,7 @@ namespace caribou {
 
     // Configuration object
     static caribou::Configuration config;
+    static std::string allDeviceParameters();
 
   private:
     // Readline console object

@@ -137,6 +137,18 @@ pearycli::~pearycli() {
   delete manager;
 }
 
+std::string pearycli::allDeviceParameters() {
+
+  std::stringstream responses;
+  responses << "\n";
+
+  std::vector<caribouDevice*> devs = manager->getDevices();
+  for(auto d : devs) {
+    responses << "# " << d->getName() << ": " << listVector(d->getRegisters()) << "\n";
+  }
+  return responses.str();
+}
+
 int pearycli::devices(const std::vector<std::string>&) {
 
   try {
@@ -468,7 +480,7 @@ int pearycli::scanDAC(const std::vector<std::string>& input) {
     myfile << "# pearycli > scanDAC\n";
     myfile << "# Software version: " << dev->getVersion() << "\n";
     myfile << "# Firmware version: " << dev->getFirmwareVersion() << "\n";
-    myfile << "# Register state: " << listVector(dev->getRegisters()) << "\n";
+    myfile << "# Register state: " << allDeviceParameters();
     myfile << "# Timestamp: " << LOGTIME << "\n";
     myfile << "# scanned DAC \"" << input.at(1) << "\", range " << input.at(2) << "-" << input.at(3) << ", " << input.at(5)
            << " times\n";
@@ -579,7 +591,7 @@ int pearycli::acquire(const std::vector<std::string>& input) {
     myfile << "# pearycli > acquire\n";
     myfile << "# Software version: " << dev->getVersion() << "\n";
     myfile << "# Firmware version: " << dev->getFirmwareVersion() << "\n";
-    myfile << "# Register state: " << listVector(dev->getRegisters()) << "\n";
+    myfile << "# Register state: " << allDeviceParameters();
     myfile << "# Timestamp: " << LOGTIME << "\n";
 
     bool testpulses = false;
@@ -663,7 +675,7 @@ int pearycli::scanThreshold(const std::vector<std::string>& input) {
     myfile << "# pearycli > scanThreshold\n";
     myfile << "# Software version: " << dev->getVersion() << "\n";
     myfile << "# Firmware version: " << dev->getFirmwareVersion() << "\n";
-    myfile << "# Register state: " << listVector(dev->getRegisters()) << "\n";
+    myfile << "# Register state: " << allDeviceParameters();
     myfile << "# Timestamp: " << LOGTIME << "\n";
     myfile << "# scanned DAC \"" << input.at(1) << "\", range " << input.at(2) << "-" << input.at(3) << ", " << input.at(5)
            << " times\n";
