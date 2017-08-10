@@ -71,6 +71,8 @@ namespace caribou {
 
     // Configuration object
     static caribou::Configuration config;
+
+    static std::string getFileHeader(std::string function, caribouDevice* dev);
     static std::string allDeviceParameters();
 
   private:

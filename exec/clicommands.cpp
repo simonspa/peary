@@ -157,6 +157,19 @@ std::string pearycli::allDeviceParameters() {
   return responses.str();
 }
 
+std::string pearycli::getFileHeader(std::string function, caribouDevice* dev) {
+
+  std::stringstream header;
+
+  header << "# pearycli > " << function << "\n";
+  header << "# Software version: " << dev->getVersion() << "\n";
+  header << "# Firmware version: " << dev->getFirmwareVersion() << "\n";
+  header << "# Register state: " << allDeviceParameters();
+  header << "# Timestamp: " << LOGTIME << "\n";
+
+  return header.str();
+}
+
 int pearycli::devices(const std::vector<std::string>&) {
 
   try {
@@ -485,11 +498,7 @@ int pearycli::scanDAC(const std::vector<std::string>& input) {
     std::ofstream myfile;
     std::string filename = input.at(6) + ".csv";
     myfile.open(filename);
-    myfile << "# pearycli > scanDAC\n";
-    myfile << "# Software version: " << dev->getVersion() << "\n";
-    myfile << "# Firmware version: " << dev->getFirmwareVersion() << "\n";
-    myfile << "# Register state: " << allDeviceParameters();
-    myfile << "# Timestamp: " << LOGTIME << "\n";
+    myfile << getFileHeader(input.at(0), dev);
     myfile << "# scanned DAC \"" << input.at(1) << "\", range " << input.at(2) << "-" << input.at(3) << ", " << input.at(5)
            << " times\n";
     myfile << "# with " << input.at(4) << "ms delay between setting register and ADC sampling.\n";
@@ -582,11 +591,7 @@ int pearycli::scanDAC2D(const std::vector<std::string>& input) {
     std::ofstream myfile;
     std::string filename = input.at(9) + ".csv";
     myfile.open(filename);
-    myfile << "# pearycli > scanDAC\n";
-    myfile << "# Software version: " << dev->getVersion() << "\n";
-    myfile << "# Firmware version: " << dev->getFirmwareVersion() << "\n";
-    myfile << "# Register state: " << allDeviceParameters();
-    myfile << "# Timestamp: " << LOGTIME << "\n";
+    myfile << getFileHeader(input.at(0), dev);
     myfile << "# scanned DACs \"" << input.at(1) << "\", range " << input.at(2) << "-" << input.at(3) << " and \""
            << input.at(4) << "\", range " << input.at(5) << "-" << input.at(6) << ", " << input.at(7) << " times\n";
     myfile << "# with " << input.at(8) << "ms delay between setting register and ADC sampling.\n";
@@ -693,11 +698,7 @@ int pearycli::acquire(const std::vector<std::string>& input) {
     std::ofstream myfile;
     std::string filename = input.at(3) + ".csv";
     myfile.open(filename);
-    myfile << "# pearycli > acquire\n";
-    myfile << "# Software version: " << dev->getVersion() << "\n";
-    myfile << "# Firmware version: " << dev->getFirmwareVersion() << "\n";
-    myfile << "# Register state: " << allDeviceParameters();
-    myfile << "# Timestamp: " << LOGTIME << "\n";
+    myfile << getFileHeader(input.at(0), dev);
 
     bool testpulses = false;
     caribouDevice* dev2 = nullptr;
@@ -777,11 +778,7 @@ int pearycli::scanThreshold(const std::vector<std::string>& input) {
     std::ofstream myfile;
     std::string filename = input.at(6) + ".csv";
     myfile.open(filename);
-    myfile << "# pearycli > scanThreshold\n";
-    myfile << "# Software version: " << dev->getVersion() << "\n";
-    myfile << "# Firmware version: " << dev->getFirmwareVersion() << "\n";
-    myfile << "# Register state: " << allDeviceParameters();
-    myfile << "# Timestamp: " << LOGTIME << "\n";
+    myfile << getFileHeader(input.at(0), dev);
     myfile << "# scanned DAC \"" << input.at(1) << "\", range " << input.at(2) << "-" << input.at(3) << ", " << input.at(5)
            << " times\n";
     myfile << "# with " << input.at(4) << "ms delay between setting register and reading matrix.\n";
