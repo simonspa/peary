@@ -8,46 +8,71 @@ namespace caribou {
 
   template <typename T>
   caribouHAL<T>::caribouHAL(std::string device_path, uint32_t device_address)
-      : _devpath(device_path), _devaddress(device_address) {
-
-    // Get access to FPGA memory mapped registers
-    memfd = open(MEM_PATH, O_RDWR | O_SYNC);
-    if(memfd == -1) {
-      throw DeviceException("Can't open /dev/mem.\n");
-    }
+      : _memfd(-1), _devpath(device_path), _devaddress(device_address) {
 
     // Log the firmware
     LOG(logQUIET) << getFirmwareVersion();
 
     T& dev_iface = interface_manager::getInterface<T>(_devpath);
-    LOG(logDEBUGHAL) << "Perpared HAL for accessing device with interface at " << dev_iface.devicePath;
+    LOG(logDEBUGHAL) << "Prepared HAL for accessing device with interface at " << dev_iface.devicePath;
 
     if(!caribou::caribouHALbase::generalResetDone) { // CaR board needs to be reset
       generalReset();
     }
   }
 
-  template <typename T> std::string caribouHAL<T>::getFirmwareVersion() {
+  template <typename T>
+  void* caribouHAL<T>::getMappedMemoryRO(std::intptr_t base_address, std::size_t size, std::size_t mask) {
+    return mapMemory(base_address, size, mask, PROT_READ);
+  }
 
-    // Map Caribou control
-    void* control_map_base;
+  template <typename T>
+  void* caribouHAL<T>::getMappedMemoryRW(std::intptr_t base_address, std::size_t size, std::size_t mask) {
+    return mapMemory(base_address, size, mask, PROT_READ | PROT_WRITE);
+  }
 
-    // Map one page of memory into user space such that the device is in that page, but it may not
-    // be at the start of the page.
-    control_map_base = mmap(0,
-                            CARIBOU_CONTROL_MAP_SIZE,
-                            PROT_READ | PROT_WRITE,
-                            MAP_SHARED,
-                            memfd,
-                            CARIBOU_CONTROL_BASE_ADDRESS & ~CARIBOU_CONTROL_MAP_MASK);
-    if(control_map_base == (void*)-1) {
-      throw DeviceException("Can't map the memory to user space.\n");
+  template <typename T>
+  void* caribouHAL<T>::mapMemory(std::intptr_t base_address, std::size_t size, std::size_t mask, int flags) {
+
+    // Check if we already have a file descriptor:
+    if(_memfd == -1) {
+      // Get access to FPGA memory mapped registers
+      _memfd = open(MEM_PATH, O_RDWR | O_SYNC);
+      // If we still don't have one, something went wrong:
+      if(_memfd == -1) {
+        throw DeviceException("Can't open /dev/mem.\n");
+      }
     }
 
-    // get the address of the device in user space which will be an offset from the base
-    // that was mapped as memory is mapped at the start of a page
-    control_base = reinterpret_cast<void*>(reinterpret_cast<std::intptr_t>(control_map_base) +
-                                           (CARIBOU_CONTROL_BASE_ADDRESS & CARIBOU_CONTROL_MAP_MASK));
+    // Check if this memory page is already mapped and return the pointer:
+    mappedMem page = mappedMem(base_address, size, mask, flags);
+    LOG(logDEBUGHAL) << "Returning mapped memory at " << base_address;
+    try {
+      return _mappedMemory.at(page);
+    }
+    // Otherwise newly map it and return the reference:
+    catch(const std::out_of_range& oor) {
+      LOG(logDEBUGHAL) << "Memory was not yet mapped, mapping...";
+      // Map one page of memory into user space such that the device is in that page, but it may not
+      // be at the start of the page.
+      void* map_base = mmap(0, size, flags, MAP_SHARED, _memfd, base_address & ~mask);
+      if(map_base == (void*)-1) {
+        throw DeviceException("Can't map the memory to user space.\n");
+      }
+
+      // get the address of the device in user space which will be an offset from the base
+      // that was mapped as memory is mapped at the start of a page
+      void* base_pointer = reinterpret_cast<void*>(reinterpret_cast<std::intptr_t>(map_base) + (base_address & mask));
+
+      // Store the mapped memory, so we can unmap it later:
+      _mappedMemory[page] = base_pointer;
+      return base_pointer;
+    }
+  }
+
+  template <typename T> std::string caribouHAL<T>::getFirmwareVersion() {
+
+    void* control_base = getMappedMemoryRW(CARIBOU_CONTROL_BASE_ADDRESS, CARIBOU_CONTROL_MAP_SIZE, CARIBOU_CONTROL_MAP_MASK);
 
     // set default  Caribout control
     volatile uint32_t* firmwareVersion_reg =
@@ -95,12 +120,15 @@ namespace caribou {
   }
 
   template <typename T> caribouHAL<T>::~caribouHAL() {
-    // Unamp Caribou control
-    if(munmap(control_base, CARIBOU_CONTROL_MAP_SIZE) == -1) {
-      LOG(logCRITICAL) << "Can't unmap memory from user space.";
+    // Unmap all mapped memory pages:
+    for(auto& mem : _mappedMemory) {
+      LOG(logDEBUGHAL) << "Unmapping memory at " << mem.first.base_address;
+      if(munmap(mem.second, mem.first.size) == -1) {
+        LOG(logCRITICAL) << "Can't unmap memory from user space.";
+      }
     }
 
-    close(memfd);
+    close(_memfd);
   }
 
   template <typename T> typename T::data_type caribouHAL<T>::send(const typename T::data_type& data) {
