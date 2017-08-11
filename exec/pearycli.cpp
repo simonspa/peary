@@ -114,9 +114,11 @@ int main(int argc, char* argv[]) {
     LOG(logINFO) << "Done. And thanks for all the fish.";
   } catch(caribouException& e) {
     LOG(logCRITICAL) << "This went wrong: " << e.what();
+    delete c.manager;
     return -1;
   } catch(...) {
     LOG(logCRITICAL) << "Something went terribly wrong.";
+    delete c.manager;
     return -1;
   }
 
