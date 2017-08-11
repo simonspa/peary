@@ -45,6 +45,7 @@ int main(int argc, char* argv[]) {
       std::cout << "Help:" << std::endl;
       std::cout << "-v verbosity   verbosity level, default INFO" << std::endl;
       std::cout << "-c configfile  configuration file to be used" << std::endl;
+      std::cout << "-l logfile     log file to write all console output to" << std::endl;
       std::cout << "All other arguments are interpreted as devices to be instanciated." << std::endl;
       return 0;
     } else if(!strcmp(argv[i], "-v")) {
@@ -53,6 +54,10 @@ int main(int argc, char* argv[]) {
     } else if(!strcmp(argv[i], "-c")) {
       configfile = std::string(argv[++i]);
       continue;
+    } else if(!strcmp(argv[i], "-l")) {
+      FILE* logfile = fopen(std::string(argv[++i]).c_str(), "w");
+      SetLogOutput::Stream() = logfile;
+      SetLogOutput::Duplicate() = true;
     } else if(!strcmp(argv[i], "-r")) {
       execfile = std::string(argv[++i]);
       continue;
