@@ -331,7 +331,7 @@ void clicpix2::triggerPatternGenerator(bool sleep) {
 
   // Wait for its length before returning:
   if(sleep)
-    usleep(pg_total_length / 10);
+    usleep(pg_total_length / 100);
 }
 
 void clicpix2::configurePatternGenerator(std::string filename) {
