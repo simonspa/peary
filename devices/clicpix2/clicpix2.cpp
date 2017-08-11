@@ -38,55 +38,11 @@ clicpix2::clicpix2(const caribou::Configuration config)
   // Add the register definitions to the dictionary for convenient lookup of names:
   _registers.add(CLICPIX2_REGISTERS);
 
-  // Get access to FPGA memory mapped registers
-  memfd = open(MEM_PATH, O_RDWR | O_SYNC);
-  if(memfd == -1) {
-    throw DeviceException("Can't open /dev/mem.\n");
-  }
-
-  // Map CLICpix2 receiver
-  void* receiver_map_base;
-
-  // Map one page of memory into user space such that the device is in that page, but it may not
-  // be at the start of the page.
-  receiver_map_base = mmap(0,
-                           CLICPIX2_RECEIVER_MAP_SIZE,
-                           PROT_READ,
-                           MAP_SHARED,
-                           memfd,
-                           CLICPIX2_RECEIVER_BASE_ADDRESS & ~CLICPIX2_RECEIVER_MAP_MASK);
-  if(receiver_map_base == (void*)-1) {
-    throw DeviceException("Can't map the memory to user space.\n");
-  }
-
-  // get the address of the device in user space which will be an offset from the base
-  // that was mapped as memory is mapped at the start of a page
-  receiver_base = reinterpret_cast<void*>(reinterpret_cast<std::intptr_t>(receiver_map_base) +
-                                          (CLICPIX2_RECEIVER_BASE_ADDRESS & CLICPIX2_RECEIVER_MAP_MASK));
-
-  // Map CLICpix2 control
-  void* control_map_base;
-
-  // Map one page of memory into user space such that the device is in that page, but it may not
-  // be at the start of the page.
-  control_map_base = mmap(0,
-                          CLICPIX2_CONTROL_MAP_SIZE,
-                          PROT_READ | PROT_WRITE,
-                          MAP_SHARED,
-                          memfd,
-                          CLICPIX2_CONTROL_BASE_ADDRESS & ~CLICPIX2_CONTROL_MAP_MASK);
-  if(control_map_base == (void*)-1) {
-    throw DeviceException("Can't map the memory to user space.\n");
-  }
-
-  // get the address of the device in user space which will be an offset from the base
-  // that was mapped as memory is mapped at the start of a page
-  control_base = reinterpret_cast<void*>(reinterpret_cast<std::intptr_t>(control_map_base) +
-                                         (CLICPIX2_CONTROL_BASE_ADDRESS & CLICPIX2_CONTROL_MAP_MASK));
-
   // set default CLICpix2 control
-  volatile uint32_t* control_reg =
-    reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + CLICPIX2_RESET_OFFSET);
+  volatile uint32_t* control_reg = reinterpret_cast<volatile uint32_t*>(
+    reinterpret_cast<std::intptr_t>(
+      _hal->getMappedMemoryRW(CLICPIX2_CONTROL_BASE_ADDRESS, CLICPIX2_CONTROL_MAP_SIZE, CLICPIX2_CONTROL_MAP_MASK)) +
+    CLICPIX2_RESET_OFFSET);
   *control_reg = 0; // keep CLICpix2 in reset state
 }
 
@@ -103,8 +59,10 @@ void clicpix2::configure() {
 
 void clicpix2::reset() {
   LOG(logDEBUG) << "Resetting " << DEVICE_NAME;
-  volatile uint32_t* control_reg =
-    reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + CLICPIX2_RESET_OFFSET);
+  volatile uint32_t* control_reg = reinterpret_cast<volatile uint32_t*>(
+    reinterpret_cast<std::intptr_t>(
+      _hal->getMappedMemoryRW(CLICPIX2_CONTROL_BASE_ADDRESS, CLICPIX2_CONTROL_MAP_SIZE, CLICPIX2_CONTROL_MAP_MASK)) +
+    CLICPIX2_RESET_OFFSET);
   *control_reg &= ~(CLICPIX2_CONTROL_RESET_MASK); // assert reset
   usleep(1);
   *control_reg |= CLICPIX2_CONTROL_RESET_MASK; // deny reset
@@ -114,18 +72,6 @@ clicpix2::~clicpix2() {
 
   LOG(logINFO) << DEVICE_NAME << ": Shutdown, delete device.";
   powerOff();
-
-  // Unamp CLICpix2 receiver
-  if(munmap(receiver_base, CLICPIX2_RECEIVER_MAP_SIZE) == -1) {
-    LOG(logCRITICAL) << "Can't unmap CLICpix2 receiver memory from user space.";
-  }
-
-  // Unamp CLICpix2 control
-  if(munmap(control_base, CLICPIX2_CONTROL_MAP_SIZE) == -1) {
-    LOG(logCRITICAL) << "Can't unmap CLICpix2 control memory from user space.";
-  }
-
-  close(memfd);
 }
 
 void clicpix2::setSpecialRegister(std::string name, uint32_t value) {
@@ -322,8 +268,10 @@ void clicpix2::triggerPatternGenerator(bool sleep) {
   LOG(logDEBUG) << "Triggering pattern generator once.";
 
   // Write into enable register of pattern generator:
-  volatile uint32_t* wave_control =
-    reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + CLICPIX2_WAVE_CONTROL_OFFSET);
+  volatile uint32_t* wave_control = reinterpret_cast<volatile uint32_t*>(
+    reinterpret_cast<std::intptr_t>(
+      _hal->getMappedMemoryRW(CLICPIX2_CONTROL_BASE_ADDRESS, CLICPIX2_CONTROL_MAP_SIZE, CLICPIX2_CONTROL_MAP_MASK)) +
+    CLICPIX2_WAVE_CONTROL_OFFSET);
 
   // Toggle on:
   *wave_control &= ~(CLICPIX2_CONTROL_WAVE_GENERATOR_ENABLE_MASK);
@@ -385,6 +333,8 @@ void clicpix2::configurePatternGenerator(std::string filename) {
     throw ConfigInvalid("Pattern generator too long");
   }
 
+  void* control_base =
+    _hal->getMappedMemoryRW(CLICPIX2_CONTROL_BASE_ADDRESS, CLICPIX2_CONTROL_MAP_SIZE, CLICPIX2_CONTROL_MAP_MASK);
   volatile uint32_t* wave_control =
     reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + CLICPIX2_WAVE_CONTROL_OFFSET);
 
@@ -586,6 +536,9 @@ std::vector<uint32_t> clicpix2::getRawData() {
   this->setRegister("readout", 0);
   std::vector<uint32_t> frame;
 
+  void* receiver_base =
+    _hal->getMappedMemoryRO(CLICPIX2_RECEIVER_BASE_ADDRESS, CLICPIX2_RECEIVER_MAP_SIZE, CLICPIX2_RECEIVER_MAP_MASK);
+
   // Poll data until frameSize doesn't change anymore
   unsigned int frameSize, frameSize_previous;
   frameSize = *(
@@ -613,6 +566,8 @@ std::vector<uint64_t> clicpix2::timestampsPatternGenerator() {
   std::vector<uint64_t> timestamps;
   LOG(logDEBUG) << DEVICE_NAME << " Requesting timestamps";
 
+  void* control_base =
+    _hal->getMappedMemoryRW(CLICPIX2_CONTROL_BASE_ADDRESS, CLICPIX2_CONTROL_MAP_SIZE, CLICPIX2_CONTROL_MAP_MASK);
   // Write into enable register of pattern generator:
   volatile uint32_t* timestamp_lsb =
     reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + CLICPIX2_TIMESTAMPS_LSB_OFFSET);
