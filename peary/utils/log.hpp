@@ -200,10 +200,31 @@ namespace caribou {
     FILE* pStream = Stream();
     if(!pStream)
       return;
-    // Check if duplication to stderr is needed:
-    if(Duplicate() && pStream != stderr)
-      fprintf(stderr, "%s", msg.c_str());
-    fprintf(pStream, "%s", msg.c_str());
+
+    // Check if we are printing to stderr
+    if(pStream != stderr) {
+      // Create a version without any special terminal characters
+      std::string out_no_special;
+      size_t prev = 0, pos = 0;
+      while((pos = msg.find("\033[", prev)) != std::string::npos) {
+        out_no_special += msg.substr(prev, pos - prev);
+        prev = msg.find('m', pos) + 1;
+        if(prev == std::string::npos) {
+          break;
+        }
+      }
+      out_no_special += msg.substr(prev);
+
+      // if not, remove special characters
+      fprintf(pStream, "%s", out_no_special.c_str());
+      // Check if duplication to stderr is needed:
+      if(Duplicate()) {
+        fprintf(stderr, "%s", msg.c_str());
+      }
+    } else {
+      // Otherwise print normal message to stream:
+      fprintf(pStream, "%s", msg.c_str());
+    }
     fflush(pStream);
   }
 
