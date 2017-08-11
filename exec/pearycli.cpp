@@ -90,21 +90,26 @@ int main(int argc, char* argv[]) {
       }
     }
 
+    int retvalue = ret::Ok;
+
     // Execute provided command file if existent:
     if(!execfile.empty()) {
-      c.executeFile(execfile);
+      retvalue = c.executeFile(execfile);
     }
 
-    LOG(logINFO) << "Welcome to pearyCLI.";
-    size_t ndev = c.manager->getDevices().size();
-    LOG(logINFO) << "Currently " << ndev << " devices configured.";
-    if(ndev == 0) {
-      LOG(logINFO) << "To add new devices use the \"add_device\" command.";
-    }
+    // Only start if everything went fine:
+    if(retvalue != ret::Quit) {
+      LOG(logINFO) << "Welcome to pearyCLI.";
+      size_t ndev = c.manager->getDevices().size();
+      LOG(logINFO) << "Currently " << ndev << " devices configured.";
+      if(ndev == 0) {
+        LOG(logINFO) << "To add new devices use the \"add_device\" command.";
+      }
 
-    // Loop in the console until exit.
-    while(c.readLine() != ret::Quit)
-      ;
+      // Loop in the console until exit.
+      while(c.readLine() != ret::Quit)
+        ;
+    }
 
     LOG(logINFO) << "Done. And thanks for all the fish.";
   } catch(caribouException& e) {
