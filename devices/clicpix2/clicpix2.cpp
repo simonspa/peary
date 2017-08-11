@@ -249,13 +249,11 @@ void clicpix2::readMatrix(std::string filename) {
   while(std::getline(pxfile, line)) {
     if(!line.length() || '#' == line.at(0))
       continue;
-    LOG(logDEBUGHAL) << "Read line: " << line;
     std::istringstream pxline(line);
     int column, row, threshold, mask, cntmode, tpenable, longcnt;
     if(pxline >> row >> column >> mask >> threshold >> cntmode >> tpenable >> longcnt) {
       pixelConfig px(mask, threshold, cntmode, tpenable, longcnt);
       pixelsConfig[std::make_pair(row, column)] = px;
-      LOG(logDEBUGHAL) << "  is pixel: " << px;
       if(mask)
         masked++;
     }
@@ -374,7 +372,6 @@ void clicpix2::programMatrix() {
       for(int bit = 13; bit >= 0; --bit) {
         // Loop over all double columns
         for(size_t dcolumn = 0; dcolumn < 64; dcolumn++) {
-          LOG(logDEBUGHAL) << "bit " << bit << " of pixel " << row << "," << (2 * dcolumn + ((row + col) % 2));
           // Send one bit per double column to form one 64bit word
           pixelConfig px = pixelsConfig[std::make_pair(row, 2 * dcolumn + ((row + col) % 2))];
           matrix.push_back(px.GetBit(bit));
@@ -401,20 +398,6 @@ void clicpix2::programMatrix() {
       spi_data.push_back(std::make_pair(reg.address(), word));
       word = 0;
     }
-  }
-
-  // Heavy debug output: print the full matrix bits
-  IFLOG(logDEBUGHAL) {
-    std::stringstream s;
-    for(size_t bit = 0; bit < matrix.size(); bit++) {
-      s << matrix.at(bit);
-      if((bit + 1) % 8 == 0) {
-        s << " ";
-      }
-      if((bit + 1) % 64 == 0)
-        s << " (" << (bit + 1) / 64 << ")" << std::endl;
-    }
-    LOG(logDEBUGHAL) << "Full matrix bits:\n" << s.str();
   }
 
   LOG(logDEBUG) << "Number of SPI commands: " << spi_data.size();
