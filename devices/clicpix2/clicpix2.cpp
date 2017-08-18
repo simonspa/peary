@@ -12,7 +12,7 @@
 #include "log.hpp"
 #include "spi_CLICpix2.hpp"
 
-#include "clicpix2_threshold.hpp"
+#include <math.h>
 
 using namespace caribou;
 
@@ -77,10 +77,10 @@ clicpix2::~clicpix2() {
 void clicpix2::setSpecialRegister(std::string name, uint32_t value) {
 
   if(name == "threshold") {
-    // Linear threshold via lookup table
-
     // Get threshold LSB and MSB
-    std::pair<uint8_t, uint8_t> dacs = threshold.at(value);
+    uint8_t coarse = floor(value/121.)*14;
+    uint8_t fine = (value%121)+64;
+    std::pair<uint8_t, uint8_t> dacs = std::make_pair(coarse,fine);
     LOG(logDEBUG) << "Threshold lookup: " << value << " = " << static_cast<int>(dacs.first) << "-"
                   << static_cast<int>(dacs.second);
     // Set the two values:
