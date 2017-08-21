@@ -76,6 +76,12 @@ namespace caribou {
      */
     std::vector<uint8_t> read(uint8_t address, uint8_t length);
 
+    /** Provide access to memory-mapped device
+     *  @returns void pointer to memory
+     */
+    void* getMappedMemoryRO(std::intptr_t base_address, std::size_t size, std::size_t mask);
+    void* getMappedMemoryRW(std::intptr_t base_address, std::size_t size, std::size_t mask);
+
     /** Read the temperature from the TMP101 device
      *
      *  Returns temperature in degree Celsius with a precision of 0.0625degC
@@ -145,11 +151,33 @@ namespace caribou {
     double readSlowADC(const SLOW_ADC_CHANNEL_T channel);
 
   private:
-    // Access to FPGA memory mapped registers
-    int memfd;
+    class mappedMem {
+    public:
+      mappedMem(std::intptr_t b, std::size_t s, std::size_t m, int f) : base_address(b), size(s), mask(m), flags(f){};
+      std::intptr_t base_address;
+      std::size_t size;
+      std::size_t mask;
+      int flags;
 
-    // Caribou control memory map address
-    void* control_base;
+      bool operator<(const mappedMem& other) const {
+        if(base_address == other.base_address) {
+          if(size == other.size) {
+            if(mask == other.mask) {
+              return flags < other.flags;
+            }
+            return mask < other.mask;
+          }
+          return size < other.size;
+        }
+        return base_address < other.base_address;
+      }
+    };
+
+    // Access to FPGA memory mapped registers
+    int _memfd;
+    std::map<mappedMem, void*> _mappedMemory;
+
+    void* mapMemory(std::intptr_t base_address, std::size_t size, std::size_t mask, int flags);
 
     // It's not possible to power on/off DCDC converter by software
     void setDCDCConverter(const DCDC_CONVERTER_T converter, const double voltage);

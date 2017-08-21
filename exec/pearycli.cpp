@@ -45,6 +45,7 @@ int main(int argc, char* argv[]) {
       std::cout << "Help:" << std::endl;
       std::cout << "-v verbosity   verbosity level, default INFO" << std::endl;
       std::cout << "-c configfile  configuration file to be used" << std::endl;
+      std::cout << "-l logfile     log file to write all console output to" << std::endl;
       std::cout << "All other arguments are interpreted as devices to be instanciated." << std::endl;
       return 0;
     } else if(!strcmp(argv[i], "-v")) {
@@ -53,6 +54,10 @@ int main(int argc, char* argv[]) {
     } else if(!strcmp(argv[i], "-c")) {
       configfile = std::string(argv[++i]);
       continue;
+    } else if(!strcmp(argv[i], "-l")) {
+      FILE* logfile = fopen(std::string(argv[++i]).c_str(), "w");
+      SetLogOutput::Stream() = logfile;
+      SetLogOutput::Duplicate() = true;
     } else if(!strcmp(argv[i], "-r")) {
       execfile = std::string(argv[++i]);
       continue;
@@ -85,28 +90,35 @@ int main(int argc, char* argv[]) {
       }
     }
 
+    int retvalue = ret::Ok;
+
     // Execute provided command file if existent:
     if(!execfile.empty()) {
-      c.executeFile(execfile);
+      retvalue = c.executeFile(execfile);
     }
 
-    LOG(logINFO) << "Welcome to pearyCLI.";
-    size_t ndev = c.manager->getDevices().size();
-    LOG(logINFO) << "Currently " << ndev << " devices configured.";
-    if(ndev == 0) {
-      LOG(logINFO) << "To add new devices use the \"add_device\" command.";
-    }
+    // Only start if everything went fine:
+    if(retvalue != ret::Quit) {
+      LOG(logINFO) << "Welcome to pearyCLI.";
+      size_t ndev = c.manager->getDevices().size();
+      LOG(logINFO) << "Currently " << ndev << " devices configured.";
+      if(ndev == 0) {
+        LOG(logINFO) << "To add new devices use the \"add_device\" command.";
+      }
 
-    // Loop in the console until exit.
-    while(c.readLine() != ret::Quit)
-      ;
+      // Loop in the console until exit.
+      while(c.readLine() != ret::Quit)
+        ;
+    }
 
     LOG(logINFO) << "Done. And thanks for all the fish.";
   } catch(caribouException& e) {
     LOG(logCRITICAL) << "This went wrong: " << e.what();
+    delete c.manager;
     return -1;
   } catch(...) {
     LOG(logCRITICAL) << "Something went terribly wrong.";
+    delete c.manager;
     return -1;
   }
 

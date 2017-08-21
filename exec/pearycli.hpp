@@ -51,6 +51,7 @@ namespace caribou {
     static int triggerPatternGenerator(const std::vector<std::string>& input);
 
     static int scanDAC(const std::vector<std::string>& input);
+    static int scanDAC2D(const std::vector<std::string>& input);
     static int scanThreshold(const std::vector<std::string>& input);
 
     static int exploreInterface(const std::vector<std::string>& input);
@@ -70,6 +71,9 @@ namespace caribou {
 
     // Configuration object
     static caribou::Configuration config;
+
+    static std::string getFileHeader(std::string function, caribouDevice* dev);
+    static std::string allDeviceParameters();
 
   private:
     // Readline console object
