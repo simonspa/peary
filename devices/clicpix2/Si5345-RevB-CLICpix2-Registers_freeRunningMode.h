@@ -10,7 +10,7 @@
  * Design ID:                                          CLICpix2
  * Includes Pre/Post Download Control Register Writes: Yes
  * Created By:                                         ClockBuilder Pro v2.15 [2017-05-15]
- * Timestamp:                                          2017-07-13 15:17:08 GMT+02:00
+ * Timestamp:                                          2017-08-10 14:23:08 GMT+02:00
  *
  * A complete design report corresponding to this export is included at the end
  * of this header file.
@@ -131,7 +131,7 @@ si5345_revb_register_t const si5345_revb_registers_free[SI5345_REVB_REG_CONFIG_N
   {0x010E, 0x09},
   {0x010F, 0x3B},
   {0x0110, 0x00},
-  {0x0112, 0x02},
+  {0x0112, 0x06},
   {0x0113, 0x09},
   {0x0114, 0x3B},
   {0x0115, 0x00},
@@ -155,7 +155,7 @@ si5345_revb_register_t const si5345_revb_registers_free[SI5345_REVB_REG_CONFIG_N
   {0x012C, 0x09},
   {0x012D, 0x3B},
   {0x012E, 0x00},
-  {0x0130, 0x02},
+  {0x0130, 0x06},
   {0x0131, 0x09},
   {0x0132, 0x3B},
   {0x0133, 0x00},
@@ -232,7 +232,7 @@ si5345_revb_register_t const si5345_revb_registers_free[SI5345_REVB_REG_CONFIG_N
   {0x024D, 0x00},
   {0x024E, 0x00},
   {0x024F, 0x00},
-  {0x0250, 0x01},
+  {0x0250, 0x00},
   {0x0251, 0x00},
   {0x0252, 0x00},
   {0x0253, 0x00},
@@ -250,7 +250,7 @@ si5345_revb_register_t const si5345_revb_registers_free[SI5345_REVB_REG_CONFIG_N
   {0x025F, 0x00},
   {0x0260, 0x00},
   {0x0261, 0x00},
-  {0x0262, 0x04},
+  {0x0262, 0x00},
   {0x0263, 0x00},
   {0x0264, 0x00},
   {0x0268, 0x00},
@@ -268,7 +268,7 @@ si5345_revb_register_t const si5345_revb_registers_free[SI5345_REVB_REG_CONFIG_N
   {0x0303, 0x00},
   {0x0304, 0x00},
   {0x0305, 0x00},
-  {0x0306, 0x11},
+  {0x0306, 0x22},
   {0x0307, 0x00},
   {0x0308, 0x00},
   {0x0309, 0x00},
@@ -435,10 +435,10 @@ si5345_revb_register_t const si5345_revb_registers_free[SI5345_REVB_REG_CONFIG_N
  * Overview
  * ========
  * Part:         Si5345 Rev B
- * Project File: E:\clic\Caribou\peary\devices\clicpix2\Si5345-RevB-CLICpix2-Project.slabtimeproj
+ * Project File: E:\clic\Caribou\peary\devices\clicpix2\Si5345-RevB-CLICpix2-Project_freeRunningMode.slabtimeproj
  * Design ID:    CLICpix2
  * Created By:   ClockBuilder Pro v2.15 [2017-05-15]
- * Timestamp:    2017-07-13 15:17:08 GMT+02:00
+ * Timestamp:    2017-08-10 14:23:08 GMT+02:00
  *
  * Design Rule Check
  * =================
@@ -497,7 +497,7 @@ si5345_revb_register_t const si5345_revb_registers_free[SI5345_REVB_REG_CONFIG_N
  *    OUT6: 320 MHz (Free Run)
  *          Enabled, LVDS 2.5 V
  *    OUT7: Unused
- *    OUT8: 40 MHz (Free Run)
+ *    OUT8: 100 MHz (Free Run)
  *          Enabled, LVDS 2.5 V
  *    OUT9: Unused
  *
@@ -507,7 +507,7 @@ si5345_revb_register_t const si5345_revb_registers_free[SI5345_REVB_REG_CONFIG_N
  *
  * Fvco = 13.6 GHz [ 13 + 3/5 GHz ]
  * Fpfd = N/A (DSPLL free run only mode enabled)
- * Fms0 = 400 MHz
+ * Fms0 = 200 MHz
  * Fms1 = 640 MHz
  *
  * P dividers:
@@ -521,10 +521,10 @@ si5345_revb_register_t const si5345_revb_registers_free[SI5345_REVB_REG_CONFIG_N
  * M = N/A (DSPLL free run only mode enabled)
  * N dividers:
  *    N0:
- *       Value: 34
+ *       Value: 68
  *       Skew:  0.000 s
  *       OUT2: 100 MHz
- *       OUT8: 40 MHz
+ *       OUT8: 100 MHz
  *    N1:
  *       Value: 21.25 [ 21 + 1/4 ]
  *       Skew:  0.000 s
@@ -540,13 +540,13 @@ si5345_revb_register_t const si5345_revb_registers_free[SI5345_REVB_REG_CONFIG_N
  * R dividers:
  *    R0 = Unused
  *    R1 = Unused
- *    R2 = 4
+ *    R2 = 2
  *    R3 = Unused
  *    R4 = 2
  *    R5 = Unused
  *    R6 = 2
  *    R7 = Unused
- *    R8 = 10
+ *    R8 = 2
  *    R9 = Unused
  *
  * Nominal Bandwidth:
@@ -589,7 +589,7 @@ si5345_revb_register_t const si5345_revb_registers_free[SI5345_REVB_REG_CONFIG_N
  *
  *         Frequency  Format   Voltage   Current     Power
  *         ---------  ------  --------  --------  --------
- * VDD                           1.8 V  117.5 mA    212 mW
+ * VDD                           1.8 V  117.1 mA    211 mW
  * VDDA                          3.3 V  117.4 mA    387 mW
  * VDDO0      Unused
  * VDDO1      Unused
@@ -599,7 +599,7 @@ si5345_revb_register_t const si5345_revb_registers_free[SI5345_REVB_REG_CONFIG_N
  * VDDO5      Unused
  * VDDO6     320 MHz  LVDS       2.5 V   17.0 mA     43 mW
  * VDDO7      Unused
- * VDDO8      40 MHz  LVDS       2.5 V   15.2 mA     38 mW
+ * VDDO8     100 MHz  LVDS       2.5 V   15.6 mA     39 mW
  * VDDO9      Unused
  *                                      --------  --------
  *                               Total  299.7 mA    761 mW
@@ -716,7 +716,7 @@ si5345_revb_register_t const si5345_revb_registers_free[SI5345_REVB_REG_CONFIG_N
  * 0x0110[7:6]   OUT1_INV              0              0x0
  * 0x0112[0]     OUT2_PDN              0              0x0
  * 0x0112[1]     OUT2_OE               1              0x1
- * 0x0112[2]     OUT2_RDIV_FORCE2      0              0x0
+ * 0x0112[2]     OUT2_RDIV_FORCE2      1              0x1
  * 0x0113[2:0]   OUT2_FORMAT           1              0x1
  * 0x0113[3]     OUT2_SYNC_EN          1              0x1
  * 0x0113[5:4]   OUT2_DIS_STATE        0              0x0
@@ -782,7 +782,7 @@ si5345_revb_register_t const si5345_revb_registers_free[SI5345_REVB_REG_CONFIG_N
  * 0x012E[7:6]   OUT7_INV              0              0x0
  * 0x0130[0]     OUT8_PDN              0              0x0
  * 0x0130[1]     OUT8_OE               1              0x1
- * 0x0130[2]     OUT8_RDIV_FORCE2      0              0x0
+ * 0x0130[2]     OUT8_RDIV_FORCE2      1              0x1
  * 0x0131[2:0]   OUT8_FORMAT           1              0x1
  * 0x0131[3]     OUT8_SYNC_EN          1              0x1
  * 0x0131[5:4]   OUT8_DIS_STATE        0              0x0
@@ -831,13 +831,13 @@ si5345_revb_register_t const si5345_revb_registers_free[SI5345_REVB_REG_CONFIG_N
  * 0x023B[31:0]  MXAXB_DEN             3221225472     0xC0000000
  * 0x024A[23:0]  R0_REG                0              0x000000
  * 0x024D[23:0]  R1_REG                0              0x000000
- * 0x0250[23:0]  R2_REG                1              0x000001
+ * 0x0250[23:0]  R2_REG                0              0x000000
  * 0x0253[23:0]  R3_REG                0              0x000000
  * 0x0256[23:0]  R4_REG                0              0x000000
  * 0x0259[23:0]  R5_REG                0              0x000000
  * 0x025C[23:0]  R6_REG                0              0x000000
  * 0x025F[23:0]  R7_REG                0              0x000000
- * 0x0262[23:0]  R8_REG                4              0x000004
+ * 0x0262[23:0]  R8_REG                0              0x000000
  * 0x0268[23:0]  R9_REG                0              0x000000
  * 0x026B[7:0]   DESIGN_ID0            67             0x43
  * 0x026C[7:0]   DESIGN_ID1            76             0x4C
@@ -847,7 +847,7 @@ si5345_revb_register_t const si5345_revb_registers_free[SI5345_REVB_REG_CONFIG_N
  * 0x0270[7:0]   DESIGN_ID5            105            0x69
  * 0x0271[7:0]   DESIGN_ID6            120            0x78
  * 0x0272[7:0]   DESIGN_ID7            50             0x32
- * 0x0302[43:0]  N0_NUM                73014444032    0x01100000000
+ * 0x0302[43:0]  N0_NUM                146028888064   0x02200000000
  * 0x0308[31:0]  N0_DEN                2147483648     0x80000000
  * 0x030C[0]     N0_UPDATE             0              0x0
  * 0x030D[43:0]  N1_NUM                45634027520    0x00AA0000000

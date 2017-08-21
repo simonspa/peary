@@ -10,7 +10,7 @@
  * Design ID:                                          CLICpix2
  * Includes Pre/Post Download Control Register Writes: Yes
  * Created By:                                         ClockBuilder Pro v2.15 [2017-05-15]
- * Timestamp:                                          2017-07-11 16:29:57 GMT+02:00
+ * Timestamp:                                          2017-08-10 14:53:08 GMT+02:00
  *
  * A complete design report corresponding to this export is included at the end
  * of this header file.
@@ -250,7 +250,7 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
   {0x025F, 0x00},
   {0x0260, 0x00},
   {0x0261, 0x00},
-  {0x0262, 0x04},
+  {0x0262, 0x01},
   {0x0263, 0x00},
   {0x0264, 0x00},
   {0x0268, 0x04},
@@ -438,7 +438,7 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
  * Project File: E:\clic\Caribou\peary\devices\clicpix2\Si5345-RevB-CLICpix2-Project.slabtimeproj
  * Design ID:    CLICpix2
  * Created By:   ClockBuilder Pro v2.15 [2017-05-15]
- * Timestamp:    2017-07-11 16:29:57 GMT+02:00
+ * Timestamp:    2017-08-10 14:53:08 GMT+02:00
  *
  * Design Rule Check
  * =================
@@ -500,7 +500,7 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
  *    OUT6: 320 MHz
  *          Enabled, LVDS 2.5 V
  *    OUT7: Unused
- *    OUT8: 40 MHz
+ *    OUT8: 100 MHz
  *          Enabled, LVDS 2.5 V
  *    OUT9: ZDM - 40 MHz
  *          Enabled, LVDS 2.5 V
@@ -528,7 +528,7 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
  *       Value: 34
  *       Skew:  0.000 s
  *       OUT2: 100 MHz
- *       OUT8: 40 MHz
+ *       OUT8: 100 MHz
  *       OUT9: 40 MHz
  *    N1:
  *       Value: 21.25 [ 21 + 1/4 ]
@@ -551,7 +551,7 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
  *    R5 = Unused
  *    R6 = 2
  *    R7 = Unused
- *    R8 = 10
+ *    R8 = 4
  *    R9 = 10
  *
  * Nominal Bandwidth:
@@ -606,7 +606,7 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
  * OUT5    Unused
  * OUT6    320 MHz    0.000000
  * OUT7    Unused
- * OUT8    40 MHz     0.000000
+ * OUT8    100 MHz    0.000000
  * OUT9    40 MHz     0.000000
  *
  * Offset is reported in parts-per-trillion (1e12).
@@ -620,11 +620,11 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
  * Ta:       70 °C
  * Airflow:  None
  *
- * Total Power: 816 mW, On Chip Power: 786 mW, Tj: 87 °C
+ * Total Power: 817 mW, On Chip Power: 787 mW, Tj: 87 °C
  *
  *         Frequency  Format   Voltage   Current     Power
  *         ---------  ------  --------  --------  --------
- * VDD                           1.8 V  127.0 mA    229 mW
+ * VDD                           1.8 V  127.2 mA    229 mW
  * VDDA                          3.3 V  117.4 mA    387 mW
  * VDDO0      Unused
  * VDDO1      Unused
@@ -634,10 +634,10 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
  * VDDO5      Unused
  * VDDO6     320 MHz  LVDS       2.5 V   17.0 mA     43 mW
  * VDDO7      Unused
- * VDDO8      40 MHz  LVDS       2.5 V   15.2 mA     38 mW
+ * VDDO8     100 MHz  LVDS       2.5 V   15.6 mA     39 mW
  * VDDO9      40 MHz  LVDS       2.5 V   15.2 mA     38 mW
  *                                      --------  --------
- *                               Total  324.4 mA    816 mW
+ *                               Total  324.9 mA    817 mW
  *
  * Note:
  *
@@ -872,7 +872,7 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
  * 0x0259[23:0]  R5_REG                0              0x000000
  * 0x025C[23:0]  R6_REG                0              0x000000
  * 0x025F[23:0]  R7_REG                0              0x000000
- * 0x0262[23:0]  R8_REG                4              0x000004
+ * 0x0262[23:0]  R8_REG                1              0x000001
  * 0x0268[23:0]  R9_REG                4              0x000004
  * 0x026B[7:0]   DESIGN_ID0            67             0x43
  * 0x026C[7:0]   DESIGN_ID1            76             0x4C
