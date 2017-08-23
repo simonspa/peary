@@ -108,10 +108,9 @@ void C3PD::powerDown() {
   this->switchOff("vddd");
 
   LOG(logDEBUG) << "Turn off AIN";
-  this->switchOff("ain")
+  this->switchOff("ain");
 
-      LOG(logDEBUG)
-    << "Turn off REF";
+  LOG(logDEBUG) << "Turn off REF";
   this->switchOff("ref");
 }
 
