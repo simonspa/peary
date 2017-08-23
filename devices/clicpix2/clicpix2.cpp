@@ -430,29 +430,29 @@ void clicpix2::powerStatusLog() {
   LOG(logINFO) << DEVICE_NAME << " power status:";
 
   LOG(logINFO) << "VDDA:";
-  LOG(logINFO) << "\tBus voltage: " << _hal->measureVoltage(PWR_OUT_3) << "V";
-  LOG(logINFO) << "\tBus current: " << _hal->measureCurrent(PWR_OUT_3) << "A";
-  LOG(logINFO) << "\tBus power  : " << _hal->measurePower(PWR_OUT_3) << "W";
+  LOG(logINFO) << "\tBus voltage: " << this->getVoltage("vdda") << "V";
+  LOG(logINFO) << "\tBus current: " << this->getCurrent("vdda") << "A";
+  LOG(logINFO) << "\tBus power  : " << this->getPower("vdda") << "W";
 
   LOG(logINFO) << "VDDD:";
-  LOG(logINFO) << "\tBus voltage: " << _hal->measureVoltage(PWR_OUT_1) << "V";
-  LOG(logINFO) << "\tBus current: " << _hal->measureCurrent(PWR_OUT_1) << "A";
-  LOG(logINFO) << "\tBus power  : " << _hal->measurePower(PWR_OUT_1) << "W";
+  LOG(logINFO) << "\tBus voltage: " << this->getVoltage("vddd") << "V";
+  LOG(logINFO) << "\tBus current: " << this->getCurrent("vddd") << "A";
+  LOG(logINFO) << "\tBus power  : " << this->getPower("vddd") << "W";
 
-  LOG(logINFO) << "VDDACML:";
-  LOG(logINFO) << "\tBus voltage: " << _hal->measureVoltage(PWR_OUT_5) << "V";
-  LOG(logINFO) << "\tBus current: " << _hal->measureCurrent(PWR_OUT_5) << "A";
-  LOG(logINFO) << "\tBus power  : " << _hal->measurePower(PWR_OUT_5) << "W";
+  LOG(logINFO) << "VDDCML:";
+  LOG(logINFO) << "\tBus voltage: " << this->getVoltage("vddcml") << "V";
+  LOG(logINFO) << "\tBus current: " << this->getCurrent("vddcml") << "A";
+  LOG(logINFO) << "\tBus power  : " << this->getPower("vddcml") << "W";
 
-  LOG(logINFO) << "CMLBUFFERS_VCO:";
-  LOG(logINFO) << "\tBus voltage: " << _hal->measureVoltage(PWR_OUT_7) << "V";
-  LOG(logINFO) << "\tBus current: " << _hal->measureCurrent(PWR_OUT_7) << "A";
-  LOG(logINFO) << "\tBus power  : " << _hal->measurePower(PWR_OUT_7) << "W";
+  LOG(logINFO) << "CMLBUFFERS_VCCO:";
+  LOG(logINFO) << "\tBus voltage: " << this->getVoltage("cmlbuffers_vcco") << "V";
+  LOG(logINFO) << "\tBus current: " << this->getCurrent("cmlbuffers_vcco") << "A";
+  LOG(logINFO) << "\tBus power  : " << this->getPower("cmlbuffers_vcco") << "W";
 
   LOG(logINFO) << "CMLBUFFERS_VDD:";
-  LOG(logINFO) << "\tBus voltage: " << _hal->measureVoltage(PWR_OUT_4) << "V";
-  LOG(logINFO) << "\tBus current: " << _hal->measureCurrent(PWR_OUT_4) << "A";
-  LOG(logINFO) << "\tBus power  : " << _hal->measurePower(PWR_OUT_4) << "W";
+  LOG(logINFO) << "\tBus voltage: " << this->getVoltage("cmlbuffers_vdd") << "V";
+  LOG(logINFO) << "\tBus current: " << this->getCurrent("cmlbuffers_vdd") << "A";
+  LOG(logINFO) << "\tBus power  : " << this->getPower("cmlbuffers_vdd") << "W";
 }
 
 void clicpix2::exploreInterface() {
