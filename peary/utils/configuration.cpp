@@ -110,6 +110,10 @@ std::vector<std::string> Configuration::GetSections() {
   return sections;
 }
 
+bool Configuration::Has(const std::string& key) const {
+  return m_cur->find(key) != m_cur->cend();
+}
+
 std::string Configuration::Get(const std::string& key, const std::string& def) const {
   try {
     return GetString(key);

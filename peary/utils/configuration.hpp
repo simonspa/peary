@@ -24,6 +24,7 @@ namespace caribou {
     bool SetSection(const std::string& section);
     std::vector<std::string> GetSections();
     std::string operator[](const std::string& key) const { return GetString(key); }
+    bool Has(const std::string& key) const;
     std::string Get(const std::string& key, const std::string& def) const;
     double Get(const std::string& key, double def) const;
     int64_t Get(const std::string& key, int64_t def) const;
