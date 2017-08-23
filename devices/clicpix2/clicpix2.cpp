@@ -78,14 +78,13 @@ void clicpix2::setSpecialRegister(std::string name, uint32_t value) {
 
   if(name == "threshold") {
     // Get threshold LSB and MSB
-    uint8_t coarse = floor(value/121.)*14;
-    uint8_t fine = (value%121)+64;
-    std::pair<uint8_t, uint8_t> dacs = std::make_pair(coarse,fine);
-    LOG(logDEBUG) << "Threshold lookup: " << value << " = " << static_cast<int>(dacs.first) << "-"
-                  << static_cast<int>(dacs.second);
+    uint8_t msb = floor(value/121.)*14;
+    uint8_t lsb = (value%121)+64;
+    LOG(logDEBUG) << "Threshold lookup: " << value << " = " << static_cast<int>(msb) << "-"
+                  << static_cast<int>(lsb);
     // Set the two values:
-    this->setRegister("threshold_msb", dacs.first);
-    this->setRegister("threshold_lsb", dacs.second);
+    this->setRegister("threshold_msb", msb);
+    this->setRegister("threshold_lsb", lsb);
   } else if(name == "test_cap_1") {
     // Get pulsegen_counts LSB and MSB
     // std::pair<uint8_t,uint8_t> dacs = test_cap_1.at(value);
