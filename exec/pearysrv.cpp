@@ -322,10 +322,7 @@ bool configure(int value, unsigned int configureAttempts) {
         }
       }
       d->powerStatusLog();
-      if(d->getName() == "C3PD") {
-        d->setBias("ref", 1);
-        d->setBias("ain", 0.75);
-      } else if(d->getName() == "CLICpix2") {
+      if(d->getName() == "CLICpix2") {
         d->setRegister("threshold_msb", value);
         LOG(logINFO) << "Setting threshold_msb to " << d->getRegister("threshold_msb");
       }
