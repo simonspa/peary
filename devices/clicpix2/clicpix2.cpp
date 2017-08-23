@@ -117,66 +117,64 @@ void clicpix2::powerUp() {
   LOG(logINFO) << DEVICE_NAME << ": Powering up CLICpix2";
 
   LOG(logDEBUG) << " CMLBUFFERS_VDD";
-  _hal->setVoltageRegulator(PWR_OUT_4,
-                            _config.Get("cmlbuffers_vdd", CLICpix2_CMLBUFFERS_VDD),
-                            _config.Get("cmlbuffers_vdd_current", CLICpix2_CMLBUFFERS_VDD_CURRENT));
-  _hal->powerVoltageRegulator(PWR_OUT_4, true);
+  this->setVoltage("cmlbuffers_vdd",
+                   _config.Get("cmlbuffers_vdd", CLICpix2_CMLBUFFERS_VDD),
+                   _config.Get("cmlbuffers_vdd_current", CLICpix2_CMLBUFFERS_VDD_CURRENT));
+  this->switchOn("cmlbuffers_vdd");
 
   LOG(logDEBUG) << " CMLBUFFERS_VCCO";
-  _hal->setVoltageRegulator(PWR_OUT_7,
-                            _config.Get("cmlbuffers_vcco", CLICpix2_CMLBUFFERS_VCCO),
-                            _config.Get("cmlbuffers_vcco_current", CLICpix2_CMLBUFFERS_VCCO_CURRENT));
-  _hal->powerVoltageRegulator(PWR_OUT_7, true);
+  this->setVoltage("cmlbuffers_vcco",
+                   _config.Get("cmlbuffers_vcco", CLICpix2_CMLBUFFERS_VCCO),
+                   _config.Get("cmlbuffers_vcco_current", CLICpix2_CMLBUFFERS_VCCO_CURRENT));
+  this->switchOn("cmlbuffers_vcco");
 
   LOG(logDEBUG) << " VDDCML";
-  _hal->setVoltageRegulator(
-    PWR_OUT_5, _config.Get("vdddcml", CLICpix2_VDDCML), _config.Get("vdddcml_current", CLICpix2_VDDCML_CURRENT));
-  _hal->powerVoltageRegulator(PWR_OUT_5, true);
+  this->setVoltage("vddcml", _config.Get("vddcml", CLICpix2_VDDCML), _config.Get("vddcml_current", CLICpix2_VDDCML_CURRENT));
+  this->switchOn("vddcml");
 
   LOG(logDEBUG) << " VDDD";
-  _hal->setVoltageRegulator(
-    PWR_OUT_1, _config.Get("vddd", CLICpix2_VDDD), _config.Get("vddd_current", CLICpix2_VDDD_CURRENT));
-  _hal->powerVoltageRegulator(PWR_OUT_1, true);
+  this->setVoltage("vddd", _config.Get("vddd", CLICpix2_VDDD), _config.Get("vddd_current", CLICpix2_VDDD_CURRENT));
+  this->switchOn("vddd");
 
   LOG(logDEBUG) << " VDDA";
-  _hal->setVoltageRegulator(
-    PWR_OUT_3, _config.Get("vdda", CLICpix2_VDDA), _config.Get("vdda_current", CLICpix2_VDDA_CURRENT));
-  _hal->powerVoltageRegulator(PWR_OUT_3, true);
+  this->setVoltage("vdda", _config.Get("vdda", CLICpix2_VDDA), _config.Get("vdda_current", CLICpix2_VDDA_CURRENT));
+  this->switchOn("vdda");
 
-  // FIXME:  _config.Get("cml_iref_pol",CLICpix2_CML_IREF_POL) ) doesn't compile
   LOG(logDEBUG) << " CML_IREF";
   _hal->setCurrentSource(CUR_1, _config.Get("cml_iref", CLICpix2_CML_IREF), CLICpix2_CML_IREF_POL);
-  _hal->powerCurrentSource(CUR_1, true);
+  this->switchOn("cml_iref");
 
-  // LOG(logDEBUG) << " DAC_IREF";
-  // _hal->setCurrentSource( CUR_2, _config.Get("dac_iref",CLICpix2_DAC_IREF),
-  // 			  CLICpix2_DAC_IREF_POL);
-  // _hal->powerCurrentSource(CUR_2, true);
+  // Only enable if present in the configuration:
+  if(_config.Has("dac_iref")) {
+    LOG(logDEBUG) << " DAC_IREF";
+    _hal->setCurrentSource(CUR_2, _config.Get("dac_iref", CLICpix2_DAC_IREF), CLICpix2_DAC_IREF_POL);
+    this->switchOn("dac_iref");
+  }
 }
 
 void clicpix2::powerDown() {
   LOG(logINFO) << DEVICE_NAME << ": Power off CLICpix2";
 
   LOG(logDEBUG) << "Power off CML_IREF";
-  _hal->powerCurrentSource(CUR_1, false);
+  this->switchOff("cml_iref");
 
   LOG(logDEBUG) << "Power off DAC_IREF";
-  _hal->powerCurrentSource(CUR_2, false);
+  this->switchOff("dac_iref");
 
   LOG(logDEBUG) << "Power off VDDA";
-  _hal->powerVoltageRegulator(PWR_OUT_3, false);
+  this->switchOff("vdda");
 
   LOG(logDEBUG) << "Power off VDDD";
-  _hal->powerVoltageRegulator(PWR_OUT_1, false);
+  this->switchOff("vddd");
 
   LOG(logDEBUG) << "Power off VDDCML";
-  _hal->powerVoltageRegulator(PWR_OUT_5, false);
+  this->switchOff("vddcml");
 
-  LOG(logDEBUG) << "Power off CMLBUFFERS_VCO";
-  _hal->powerVoltageRegulator(PWR_OUT_7, false);
+  LOG(logDEBUG) << "Power off CMLBUFFERS_VCCO";
+  this->switchOff("cmlbuffers_vcco");
 
   LOG(logDEBUG) << "Power off CMLBUFFERS_VDD";
-  _hal->powerVoltageRegulator(PWR_OUT_4, false);
+  this->switchOff("cmlbuffers_vdd");
 }
 
 void clicpix2::configureMatrix(std::string filename) {
