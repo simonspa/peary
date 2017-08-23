@@ -281,7 +281,7 @@ namespace caribou {
   template <typename T>
   void caribouHAL<T>::setCurrentSource(const CURRENT_SOURCE_T source,
                                        const unsigned int current,
-                                       const CURRENT_SOURCE_POLARISATION_T polarisation) {
+                                       const CURRENT_SOURCE_POLARITY_T polarity) {
 
     LOG(logDEBUGHAL) << "Setting " << current << "uA "
                      << "on " << source.name();
@@ -296,10 +296,10 @@ namespace caribou {
     iface_i2c& i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C0);
     auto mask = i2c.read(ADDR_IOEXP, 0x02, 1)[0];
 
-    if(polarisation == PULL) {
+    if(polarity == PULL) {
       LOG(logDEBUGHAL) << "Polarity switch (" << to_hex_string(source.polswitch()) << ") set to PULL";
       mask &= ~(1 << source.polswitch());
-    } else if(polarisation == PUSH) {
+    } else if(polarity == PUSH) {
       LOG(logDEBUGHAL) << "Polarity switch (" << to_hex_string(source.polswitch()) << ") set to PUSH";
       mask |= 1 << source.polswitch();
     } else {

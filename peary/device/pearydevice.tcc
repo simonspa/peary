@@ -148,7 +148,7 @@ namespace caribou {
     std::shared_ptr<CURRENT_SOURCE_T> ptr = _periphery.get<CURRENT_SOURCE_T>(name);
     LOG(logDEBUG) << "Current source to be configured: " << name << " on " << ptr->name();
 
-    CURRENT_SOURCE_POLARISATION_T pol = static_cast<CURRENT_SOURCE_POLARISATION_T>(polarity);
+    CURRENT_SOURCE_POLARITY_T pol = static_cast<CURRENT_SOURCE_POLARITY_T>(polarity);
 
     // Send command to current source via HAL
     _hal->setCurrentSource(*ptr, current, pol);

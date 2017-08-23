@@ -114,9 +114,8 @@ namespace caribou {
     /** Set the current source.
      * ~current~ is provided in uA.
      */
-    void setCurrentSource(const CURRENT_SOURCE_T source,
-                          const unsigned int current,
-                          const CURRENT_SOURCE_POLARISATION_T polarisation);
+    void
+    setCurrentSource(const CURRENT_SOURCE_T source, const unsigned int current, const CURRENT_SOURCE_POLARITY_T polarity);
 
     /** Enable/disable the voltage regulator
      *

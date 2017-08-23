@@ -202,7 +202,7 @@ namespace caribou {
 
   /** Current source polarity options
    */
-  typedef enum { PULL = 0, PUSH = 1 } CURRENT_SOURCE_POLARISATION_T;
+  typedef enum { PULL = 0, PUSH = 1 } CURRENT_SOURCE_POLARITY_T;
 
   /** Slow ADC Channel Configuration
    *
