@@ -82,20 +82,20 @@ void C3PD::powerUp() {
   // Power rails:
   LOG(logDEBUG) << " VDDD";
   _hal->setVoltageRegulator(PWR_OUT_2, _config.Get("vddd", C3PD_VDDD), _config.Get("vddd_current", C3PD_VDDD_CURRENT));
-  _hal->powerVoltageRegulator(PWR_OUT_2, true);
+  this->switchOn("vddd");
 
   LOG(logDEBUG) << " VDDA";
   _hal->setVoltageRegulator(PWR_OUT_6, _config.Get("vdda", C3PD_VDDA), _config.Get("vdda_current", C3PD_VDDA_CURRENT));
-  _hal->powerVoltageRegulator(PWR_OUT_6, true);
+  this->switchOn("vdda");
 
   // Bias voltages:
   LOG(logDEBUG) << " Reference voltage";
-  _hal->setBiasRegulator(BIAS_2, _config.Get("ref", C3PD_REF));
-  _hal->powerBiasRegulator(BIAS_2, true);
+  this->setVoltage("ref", _config.Get("ref", C3PD_REF));
+  this->switchOn("ref");
 
   LOG(logDEBUG) << " Analog-In";
-  _hal->setBiasRegulator(BIAS_1, _config.Get("ain", C3PD_AIN));
-  _hal->powerBiasRegulator(BIAS_1, true);
+  this->setVoltage("ain", _config.Get("ain", C3PD_AIN));
+  this->switchOn("ain");
 }
 
 void C3PD::powerDown() {
@@ -126,14 +126,17 @@ void C3PD::powerStatusLog() {
   LOG(logINFO) << DEVICE_NAME << " power status:";
 
   LOG(logINFO) << "VDDD:";
-  LOG(logINFO) << "\tBus voltage: " << _hal->measureVoltage(PWR_OUT_2) << "V";
-  LOG(logINFO) << "\tBus current: " << _hal->measureCurrent(PWR_OUT_2) << "A";
-  LOG(logINFO) << "\tBus power  : " << _hal->measurePower(PWR_OUT_2) << "W";
+  LOG(logINFO) << "\tBus voltage: " << this->getVoltage("vddd") << "V";
+  LOG(logINFO) << "\tBus current: " << this->getCurrent("vddd") << "A";
+  LOG(logINFO) << "\tBus power  : " << this->getPower("vddd") << "W";
 
   LOG(logINFO) << "VDDA:";
-  LOG(logINFO) << "\tBus voltage: " << _hal->measureVoltage(PWR_OUT_6) << "V";
-  LOG(logINFO) << "\tBus current: " << _hal->measureCurrent(PWR_OUT_6) << "A";
-  LOG(logINFO) << "\tBus power  : " << _hal->measurePower(PWR_OUT_6) << "W";
+  LOG(logINFO) << "\tBus voltage: " << this->getVoltage("vdda") << "V";
+  LOG(logINFO) << "\tBus current: " << this->getCurrent("vdda") << "A";
+  LOG(logINFO) << "\tBus power  : " << this->getPower("vdda") << "W";
+
+  LOG(logDEBUG) << "Reference voltage:\t";
+  LOG(logDEBUG) << "Analog-In:\t\t";
 }
 
 caribouDevice* caribou::generator(const caribou::Configuration config) {
