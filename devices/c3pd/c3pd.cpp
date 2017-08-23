@@ -3,7 +3,6 @@
  */
 
 #include "c3pd.hpp"
-#include "hal.hpp"
 #include "log.hpp"
 
 using namespace caribou;
@@ -81,11 +80,11 @@ void C3PD::powerUp() {
 
   // Power rails:
   LOG(logDEBUG) << " VDDD: " << _config.Get("vddd", C3PD_VDDD) << "V";
-  _hal->setVoltageRegulator(PWR_OUT_2, _config.Get("vddd", C3PD_VDDD), _config.Get("vddd_current", C3PD_VDDD_CURRENT));
+  this->setVoltage("vddd", _config.Get("vddd", C3PD_VDDD), _config.Get("vddd_current", C3PD_VDDD_CURRENT));
   this->switchOn("vddd");
 
   LOG(logDEBUG) << " VDDA: " << _config.Get("vdda", C3PD_VDDA) << "V";
-  _hal->setVoltageRegulator(PWR_OUT_6, _config.Get("vdda", C3PD_VDDA), _config.Get("vdda_current", C3PD_VDDA_CURRENT));
+  this->setVoltage("vdda", _config.Get("vdda", C3PD_VDDA), _config.Get("vdda_current", C3PD_VDDA_CURRENT));
   this->switchOn("vdda");
 
   // Bias voltages:
