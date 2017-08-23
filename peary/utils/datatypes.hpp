@@ -202,8 +202,17 @@ namespace caribou {
 
   /** Current source polarity options
    */
-  typedef enum { PULL = 0, PUSH = 1 } CURRENT_SOURCE_POLARITY_T;
-
+  enum class CURRENT_SOURCE_POLARITY_T { PULL = 0, PUSH = 1 };
+  inline std::istream& operator>>(std::istream& str, CURRENT_SOURCE_POLARITY_T& pol) {
+    std::string polarity;
+    if(str >> polarity) {
+      if(polarity == "pull")
+        pol = CURRENT_SOURCE_POLARITY_T::PULL;
+      else if(polarity == "push")
+        pol = CURRENT_SOURCE_POLARITY_T::PUSH;
+    }
+    return str;
+  }
   /** Slow ADC Channel Configuration
    *
    *  The parameters hold (in this order):

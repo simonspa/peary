@@ -296,10 +296,10 @@ namespace caribou {
     iface_i2c& i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C0);
     auto mask = i2c.read(ADDR_IOEXP, 0x02, 1)[0];
 
-    if(polarity == PULL) {
+    if(polarity == CURRENT_SOURCE_POLARITY_T::PULL) {
       LOG(logDEBUGHAL) << "Polarity switch (" << to_hex_string(source.polswitch()) << ") set to PULL";
       mask &= ~(1 << source.polswitch());
-    } else if(polarity == PUSH) {
+    } else if(polarity == CURRENT_SOURCE_POLARITY_T::PUSH) {
       LOG(logDEBUGHAL) << "Polarity switch (" << to_hex_string(source.polswitch()) << ") set to PUSH";
       mask |= 1 << source.polswitch();
     } else {
