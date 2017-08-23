@@ -102,16 +102,17 @@ void C3PD::powerDown() {
   LOG(logINFO) << DEVICE_NAME << ": Power off C3PD";
 
   LOG(logDEBUG) << "Power off VDDA";
-  _hal->powerVoltageRegulator(PWR_OUT_6, false);
+  this->switchOff("vdda");
 
   LOG(logDEBUG) << "Power off VDDD";
-  _hal->powerVoltageRegulator(PWR_OUT_2, false);
+  this->switchOff("vddd");
 
   LOG(logDEBUG) << "Turn off AIN";
-  _hal->powerBiasRegulator(BIAS_1, true);
+  this->switchOff("ain")
 
-  LOG(logDEBUG) << "Turn off REF";
-  _hal->powerBiasRegulator(BIAS_2, true);
+      LOG(logDEBUG)
+    << "Turn off REF";
+  this->switchOff("ref");
 }
 
 void C3PD::daqStart() {
