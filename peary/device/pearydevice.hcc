@@ -140,7 +140,7 @@ namespace caribou {
     // Purely virtual?
     // Do they need to be virtual? Maybe implement in baseclass (always same for CaR)
     // and only look up correct regulator according to name from child class dictionary?
-    void setVoltage(std::string name, double voltage);
+    void setVoltage(std::string name, double voltage, double currentlimit = 3);
     void setBias(std::string name, double voltage) { return setVoltage(name, voltage); };
     void setInjectionBias(std::string name, double voltage);
     void setCurrent(std::string name, int current, bool polarity);

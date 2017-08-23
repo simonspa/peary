@@ -53,7 +53,7 @@ namespace caribou {
     }
   }
 
-  template <typename T> void pearyDevice<T>::setVoltage(std::string name, double voltage) {
+  template <typename T> void pearyDevice<T>::setVoltage(std::string name, double voltage, double currentlimit) {
 
     // Resolve name against periphery dictionary
     std::shared_ptr<component_t> ptr = _periphery.get<component_t>(name);
@@ -61,7 +61,7 @@ namespace caribou {
 
     if(std::dynamic_pointer_cast<VOLTAGE_REGULATOR_T>(ptr)) {
       // Voltage regulators
-      _hal->setVoltageRegulator(*std::dynamic_pointer_cast<VOLTAGE_REGULATOR_T>(ptr), voltage);
+      _hal->setVoltageRegulator(*std::dynamic_pointer_cast<VOLTAGE_REGULATOR_T>(ptr), voltage, currentlimit);
     } else if(std::dynamic_pointer_cast<BIAS_REGULATOR_T>(ptr)) {
       // Bias regulators
       _hal->setBiasRegulator(*std::dynamic_pointer_cast<BIAS_REGULATOR_T>(ptr), voltage);

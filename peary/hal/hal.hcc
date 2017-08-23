@@ -106,7 +106,7 @@ namespace caribou {
      *
      *  The input parameter should be provided in SI Volts and Amps.
      *  The function sets the proper reference voltage (PWR_ADJ_*) in a DAC
-     *  corresponding to the regulator. It also configures the corresponding curent/power monitor.
+     *  corresponding to the regulator. It also configures the corresponding current/power monitor.
      *  The output of the DAC is not enabled.
      */
     void setVoltageRegulator(const VOLTAGE_REGULATOR_T regulator, const double voltage, const double maxExpectedCurrent = 3);
