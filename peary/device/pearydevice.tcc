@@ -56,11 +56,16 @@ namespace caribou {
   template <typename T> void pearyDevice<T>::setVoltage(std::string name, double voltage) {
 
     // Resolve name against periphery dictionary
-    std::shared_ptr<VOLTAGE_REGULATOR_T> ptr = _periphery.get<VOLTAGE_REGULATOR_T>(name);
-    LOG(logDEBUG) << "Regulator to be configured: " << name << " on " << ptr->name();
+    std::shared_ptr<component_t> ptr = _periphery.get<component_t>(name);
+    LOG(logDEBUG) << "Voltage to be configured: " << name << " on " << ptr->name();
 
-    // Send command to voltage regulators via HAL
-    _hal->setVoltageRegulator(*ptr, voltage);
+    if(std::dynamic_pointer_cast<VOLTAGE_REGULATOR_T>(ptr)) {
+      // Voltage regulators
+      _hal->setVoltageRegulator(*std::dynamic_pointer_cast<VOLTAGE_REGULATOR_T>(ptr), voltage);
+    } else if(std::dynamic_pointer_cast<BIAS_REGULATOR_T>(ptr)) {
+      // Bias regulators
+      _hal->setBiasRegulator(*std::dynamic_pointer_cast<BIAS_REGULATOR_T>(ptr), voltage);
+    } // Send command to voltage regulators via HAL
   }
 
   template <typename T> void pearyDevice<T>::switchPeripheryComponent(std::string name, bool enable) {
@@ -133,16 +138,6 @@ namespace caribou {
 
     // Read slow ADC
     return _hal->readSlowADC(*ptr);
-  }
-
-  template <typename T> void pearyDevice<T>::setBias(std::string name, double voltage) {
-
-    // Resolve name against periphery dictionary
-    std::shared_ptr<BIAS_REGULATOR_T> ptr = _periphery.get<BIAS_REGULATOR_T>(name);
-    LOG(logDEBUG) << "Bias regulator to be configured: " << name << " on " << ptr->name();
-
-    // Send command to bias regulators via HAL
-    _hal->setBiasRegulator(*ptr, voltage);
   }
 
   template <typename T> void pearyDevice<T>::setInjectionBias(std::string, double) {}
