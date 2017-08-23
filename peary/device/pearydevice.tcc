@@ -156,8 +156,6 @@ namespace caribou {
 
   template <typename T> void pearyDevice<T>::setRegister(std::string name, uint32_t value) {
 
-    typename T::data_type regval = static_cast<typename T::data_type>(value);
-
     // Resolve name against register dictionary:
     register_t<typename T::reg_type, typename T::data_type> reg = _registers.get(name);
 
@@ -171,6 +169,7 @@ namespace caribou {
       return;
     }
 
+    typename T::data_type regval = static_cast<typename T::data_type>(value);
     LOG(logDEBUG) << "Register to be set: " << name << " (" << to_hex_string(reg.address()) << ")";
 
     // Obey the mask:
@@ -290,7 +289,7 @@ namespace caribou {
     LOG(logINFO) << "Setting registers from configuration:";
     for(auto i : dacs) {
       try {
-        typename T::data_type value = _config.Get<typename T::data_type>(i);
+        uint32_t value = _config.Get<uint32_t>(i);
         this->setRegister(i, value);
         LOG(logINFO) << "Set register \"" << i << "\" = " << static_cast<int>(value) << " (" << to_hex_string(value) << ")";
       } catch(ConfigMissingKey& e) {
