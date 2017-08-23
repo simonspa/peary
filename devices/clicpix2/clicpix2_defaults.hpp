@@ -21,9 +21,9 @@ namespace caribou {
 #define CLICpix2_CMLBUFFERS_VCCO 1.2
 #define CLICpix2_CMLBUFFERS_VCCO_CURRENT 3
 #define CLICpix2_CML_IREF 333
-#define CLICpix2_CML_IREF_POL CURRENT_SOURCE_POLARITY_T::PUSH
+#define CLICpix2_CML_IREF_POL true
 #define CLICpix2_DAC_IREF 13
-#define CLICpix2_DAC_IREF_POL CURRENT_SOURCE_POLARITY_T::PULL
+#define CLICpix2_DAC_IREF_POL false
 
   // CLICpix2 receiver
   const std::intptr_t CLICPIX2_RECEIVER_BASE_ADDRESS = 0x43C10000;

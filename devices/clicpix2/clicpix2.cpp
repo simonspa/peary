@@ -141,13 +141,13 @@ void clicpix2::powerUp() {
   this->switchOn("vdda");
 
   LOG(logDEBUG) << " CML_IREF";
-  _hal->setCurrentSource(CUR_1, _config.Get("cml_iref", CLICpix2_CML_IREF), CLICpix2_CML_IREF_POL);
+  this->setCurrent("cml_iref", _config.Get("cml_iref", CLICpix2_CML_IREF), CLICpix2_CML_IREF_POL);
   this->switchOn("cml_iref");
 
   // Only enable if present in the configuration:
   if(_config.Has("dac_iref")) {
     LOG(logDEBUG) << " DAC_IREF";
-    _hal->setCurrentSource(CUR_2, _config.Get("dac_iref", CLICpix2_DAC_IREF), CLICpix2_DAC_IREF_POL);
+    this->setCurrent("dac_iref", _config.Get("dac_iref", CLICpix2_DAC_IREF), CLICpix2_DAC_IREF_POL);
     this->switchOn("dac_iref");
   }
 }
