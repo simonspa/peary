@@ -61,12 +61,6 @@ namespace caribou {
     // I2C interface
     // reset signal pin
     // power enable pin
-
-    // Access to FPGA memory mapped registers
-    int memfd;
-
-    // C3PD control memory map address
-    void* control_base;
   };
 
   /** Device generator

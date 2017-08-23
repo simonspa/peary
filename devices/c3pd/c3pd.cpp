@@ -3,6 +3,7 @@
  */
 
 #include "c3pd.hpp"
+#include "hal.hpp"
 #include "log.hpp"
 
 using namespace caribou;
@@ -21,27 +22,8 @@ C3PD::C3PD(const caribou::Configuration config) : pearyDevice(config, std::strin
   // Add the register definitions to the dictionary for convenient lookup of names:
   _registers.add(C3PD_REGISTERS);
 
-  // Get access to FPGA memory mapped registers
-  memfd = open(MEM_PATH, O_RDWR | O_SYNC);
-  if(memfd == -1) {
-    throw DeviceException("Can't open /dev/mem.\n");
-  }
-
   // Map C3PD control
-  void* control_map_base;
-
-  // Map one page of memory into user space such that the device is in that page, but it may not
-  // be at the start of the page.
-  control_map_base = mmap(
-    0, C3PD_CONTROL_MAP_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, C3PD_CONTROL_BASE_ADDRESS & ~C3PD_CONTROL_MAP_MASK);
-  if(control_map_base == (void*)-1) {
-    throw DeviceException("Can't map the memory to user space.\n");
-  }
-
-  // get the address of the device in user space which will be an offset from the base
-  // that was mapped as memory is mapped at the start of a page
-  control_base = reinterpret_cast<void*>(reinterpret_cast<std::intptr_t>(control_map_base) +
-                                         (C3PD_CONTROL_BASE_ADDRESS & C3PD_CONTROL_MAP_MASK));
+  void* control_base = _hal->getMappedMemoryRW(C3PD_CONTROL_BASE_ADDRESS, C3PD_CONTROL_MAP_SIZE, C3PD_CONTROL_MAP_MASK);
 
   // set default C3PD control
   volatile uint32_t* control_reg =
@@ -59,6 +41,8 @@ void C3PD::configure() {
 
 void C3PD::reset() {
   LOG(logDEBUG) << "Resetting " << DEVICE_NAME;
+
+  void* control_base = _hal->getMappedMemoryRW(C3PD_CONTROL_BASE_ADDRESS, C3PD_CONTROL_MAP_SIZE, C3PD_CONTROL_MAP_MASK);
   volatile uint32_t* control_reg =
     reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + C3PD_RESET_OFFSET);
   *control_reg &= ~(C3PD_CONTROL_RESET_MASK); // assert reset
