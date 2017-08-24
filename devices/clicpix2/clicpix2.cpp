@@ -78,10 +78,9 @@ void clicpix2::setSpecialRegister(std::string name, uint32_t value) {
 
   if(name == "threshold") {
     // Get threshold LSB and MSB
-    uint8_t msb = floor(value/121.)*14;
-    uint8_t lsb = (value%121)+64;
-    LOG(logDEBUG) << "Threshold lookup: " << value << " = " << static_cast<int>(msb) << "-"
-                  << static_cast<int>(lsb);
+    uint8_t msb = floor(value / 121.) * 14;
+    uint8_t lsb = (value % 121) + 64;
+    LOG(logDEBUG) << "Threshold lookup: " << value << " = " << static_cast<int>(msb) << "-" << static_cast<int>(lsb);
     // Set the two values:
     this->setRegister("threshold_msb", msb);
     this->setRegister("threshold_lsb", lsb);
@@ -409,7 +408,7 @@ void clicpix2::configureClock() {
   if(_config.Get<bool>("clock_internal", false)) {
     LOG(logDEBUG) << DEVICE_NAME << ": Configure internal clock source, free running, not locking";
     _hal->configureSI5345((SI5345_REG_T const* const)si5345_revb_registers_free, SI5345_REVB_REG_CONFIG_NUM_REGS_FREE);
-    mDelay(10); // let the PLL lock
+    mDelay(100); // let the PLL lock
   } else {
     LOG(logDEBUG) << DEVICE_NAME << ": Configure external clock source, locked to TLU input clock";
     _hal->configureSI5345((SI5345_REG_T const* const)si5345_revb_registers, SI5345_REVB_REG_CONFIG_NUM_REGS);
