@@ -8,7 +8,7 @@
 
 #include "clicpix2_pixels.hpp"
 
-namespace caribou {
+namespace clicpix2_utils {
 
   /* Routine to read the pixel matrix configuration from file and store it
    */

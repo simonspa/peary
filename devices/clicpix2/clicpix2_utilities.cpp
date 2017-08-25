@@ -4,7 +4,7 @@
 
 using namespace caribou;
 
-std::map<std::pair<uint8_t, uint8_t>, pixelConfig> readMatrix(std::string filename) {
+std::map<std::pair<uint8_t, uint8_t>, pixelConfig> clicpix2_utils::readMatrix(std::string filename) {
 
   std::map<std::pair<uint8_t, uint8_t>, pixelConfig> pixelsConfig;
   size_t masked = 0;
@@ -28,6 +28,6 @@ std::map<std::pair<uint8_t, uint8_t>, pixelConfig> readMatrix(std::string filena
         masked++;
     }
   }
-  LOG(logINFO) << "Now " << pixelsConfig.size() << " pixel configurations cached, " << masked << " of which are masked";
+  LOG(logINFO) << pixelsConfig.size() << " pixel configurations cached, " << masked << " of which are masked";
   return pixelsConfig;
 }

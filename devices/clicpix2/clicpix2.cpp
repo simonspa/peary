@@ -17,6 +17,7 @@
 #include <math.h>
 
 using namespace caribou;
+using namespace clicpix2_utils;
 
 std::string clicpix2::getName() {
   return DEVICE_NAME;
@@ -456,7 +457,7 @@ void clicpix2::exploreInterface() {
     pairvec.push_back(std::make_pair(i, default_rx[y++].second));
   }
   _hal->send(pairvec);
-  LOG(logINFO) << DEVICE_NAME << "Reverting the defualt values of registers (addresses range 0x0a - 0x3E)";
+  LOG(logINFO) << DEVICE_NAME << "Reverting the default values of registers (addresses range 0x0a - 0x3E)";
 
   LOG(logINFO) << DEVICE_NAME << " - Exploring interface capabilities ... Done";
 }
