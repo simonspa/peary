@@ -113,7 +113,7 @@ int main(int argc, char* argv[]) {
 
       // decode and write old frame
       if(!rawData.empty() && !header.empty()) {
-        LOG(logDEBUG) << "Raw data of previous frame available.";
+        LOG(logDEBUG) << "Raw data of previous frame available, length: " << rawData.size();
         LOG(logDEBUG) << "Writing header:";
         for(const auto& h : header) {
           LOG(logDEBUG) << h;
