@@ -63,6 +63,8 @@ int main(int argc, char* argv[]) {
   bool comp = true;
   bool sp_comp = true;
 
+  std::streampos oldpos;
+
   // Parse the header:
   while(getline(f, line)) {
 
@@ -74,6 +76,7 @@ int main(int argc, char* argv[]) {
     }
 
     LOG(logDEBUG) << "Detected file header: " << line;
+    oldpos = f.tellg();
 
     // Search for compression settings:
     std::string::size_type n = line.find(" sp_comp:");
@@ -97,10 +100,16 @@ int main(int argc, char* argv[]) {
   std::vector<uint32_t> rawData;
 
   // Parse the main body
+  f.seekg(oldpos);
   while(getline(f, line)) {
+    // Ignore empty lines and comments:
+    if(!line.length() || '#' == line.at(0)) {
+      continue;
+    }
+
     // New frame, write old one
     if(line.find("====") != std::string::npos) {
-      LOG(logDEBUG) << "Found frame header";
+      LOG(logDEBUG) << "Found new frame header: " << line;
 
       // decode and write old frame
       if(!rawData.empty() && !header.empty()) {
@@ -122,7 +131,11 @@ int main(int argc, char* argv[]) {
         LOG(logINFO) << header.front() << ": " << data.size() << " pixel responses";
         header.clear();
         rawData.clear();
+      } else {
+        LOG(logDEBUG) << "No frame data available, collecting...";
       }
+
+      // Add newly found header:
       header.push_back(line);
     }
     // timestamps
