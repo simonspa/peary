@@ -53,6 +53,7 @@ namespace caribou {
     static int scanDAC(const std::vector<std::string>& input);
     static int scanDAC2D(const std::vector<std::string>& input);
     static int scanThreshold(const std::vector<std::string>& input);
+    static int scanThreshold2D(const std::vector<std::string>& input);
 
     static int exploreInterface(const std::vector<std::string>& input);
     static int getADC(const std::vector<std::string>& input);
