@@ -19,7 +19,6 @@ std::map<std::pair<uint8_t, uint8_t>, pixelConfig> readMatrix(std::string filena
   std::ifstream pxfile(filename);
   if(!pxfile.is_open()) {
     std::cout << "Could not open matrix file \"" << filename << "\"" << std::endl;
-    // throw ConfigInvalid("Could not open matrix file \"" + filename + "\"");
     return pixelsConfig;
   }
 
@@ -42,28 +41,34 @@ std::map<std::pair<uint8_t, uint8_t>, pixelConfig> readMatrix(std::string filena
 }
 
 int main(int argc, char* argv[]) {
-  // caribou::Configuration config;
-  // auto cp2 = new clicpix2::clicpix2(config);//pearyDevice<iface_spi_CLICpix2>(config);
-  std::string file = "/eos/user/n/nurnberg/clic/clicpix2/data/clicpix2/Run25216/run25216.csv";
-  /*	if (argc>=2)
-    {
-      std::cout << "Opening file "<<argv[1]<<std::endl;
-      file=argv[1];
+
+  std::string datafile, matrixfile;
+
+  for(int i = 1; i < argc; i++) {
+    if(!strcmp(argv[i], "-h")) {
+      std::cout << "Help:" << std::endl;
+      std::cout << "-d datafile    data file to be decoded" << std::endl;
+      std::cout << "-m matrixfile  matrix configuration to read pixel states from" << std::endl;
+      return 0;
+    } else if(!strcmp(argv[i], "-d")) {
+      datafile = std::string(argv[++i]);
+      continue;
+    } else if(!strcmp(argv[i], "-m")) {
+      matrixfile = std::string(argv[++i]);
+      continue;
+    } else {
+      std::cout << "Unrecognized argument: " << argv[i] << std::endl;
     }
-    else
-    {
-      std::cout << "No filename given"<<std::endl;
-      return -1;
-    }
-  */
+  }
+
   std::map<std::pair<uint8_t, uint8_t>, pixelConfig> conf;
-  conf = readMatrix("/eos/user/n/nurnberg/clic/clicpix2/equalization/matrix_totcnt_eq.cfg");
+  conf = readMatrix(matrixfile);
   std::cout << "Conf size: " << conf.size() << std::endl;
-  std::cout << "Reading Clicpix2 rawdata from: " << file << std::endl;
+  std::cout << "Reading Clicpix2 rawdata from: " << datafile << std::endl;
   std::ifstream f;
   std::ofstream outfile;
-  f.open(file);
-  outfile.open(file + ".txt");
+  f.open(datafile);
+  outfile.open(datafile + ".txt");
   std::string line;
   unsigned int framecounter = 0;
   std::vector<std::string> header;
