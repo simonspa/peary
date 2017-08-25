@@ -12,6 +12,6 @@ namespace clicpix2_utils {
 
   /* Routine to read the pixel matrix configuration from file and store it
    */
-  std::map<std::pair<uint8_t, uint8_t>, pixelConfig> readMatrix(std::string filename);
+  std::map<std::pair<uint8_t, uint8_t>, caribou::pixelConfig> readMatrix(std::string filename);
 }
 #endif
