@@ -75,7 +75,9 @@ int main(int argc, char* argv[]) {
       break;
     }
 
+    // Replicate header to new file:
     LOG(logDEBUG) << "Detected file header: " << line;
+    outfile << line << "\n";
     oldpos = f.tellg();
 
     // Search for compression settings:
