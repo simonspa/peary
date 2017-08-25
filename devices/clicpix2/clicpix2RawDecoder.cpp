@@ -17,12 +17,18 @@ int main(int argc, char* argv[]) {
 
   std::string datafile, matrixfile;
 
+  Log::ReportingLevel() = TLogLevel::logINFO;
+
   for(int i = 1; i < argc; i++) {
     if(!strcmp(argv[i], "-h")) {
       std::cout << "Help:" << std::endl;
+      std::cout << "-v verbosity   verbosity level, default INFO" << std::endl;
       std::cout << "-d datafile    data file to be decoded" << std::endl;
       std::cout << "-m matrixfile  matrix configuration to read pixel states from" << std::endl;
       return 0;
+    } else if(!strcmp(argv[i], "-v")) {
+      Log::ReportingLevel() = Log::FromString(std::string(argv[++i]));
+      continue;
     } else if(!strcmp(argv[i], "-d")) {
       datafile = std::string(argv[++i]);
       continue;
