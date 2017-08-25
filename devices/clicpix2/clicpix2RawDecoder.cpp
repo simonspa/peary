@@ -124,20 +124,16 @@ int main(int argc, char* argv[]) {
         rawData.clear();
       }
       header.push_back(line);
-
-      continue;
     }
     // timestamps
-    if(line.find(":") != std::string::npos) {
+    else if(line.find(":") != std::string::npos) {
       header.push_back(line);
       // std::cout << line <<std::endl;
-      continue;
     }
     // Pixel hits
     else {
       rawData.push_back(atoi(line.c_str()));
       // std::cout<<rawData[rawData.size()-1]<<std::endl;
-      continue;
     }
   }
 
