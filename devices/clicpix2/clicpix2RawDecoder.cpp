@@ -34,9 +34,15 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  std::map<std::pair<uint8_t, uint8_t>, pixelConfig> conf = clicpix2_utils::readMatrix(matrixfile);
-  std::cout << "Conf size: " << conf.size() << std::endl;
-  std::cout << "Reading Clicpix2 rawdata from: " << datafile << std::endl;
+  std::map<std::pair<uint8_t, uint8_t>, pixelConfig> conf;
+  try {
+    conf = clicpix2_utils::readMatrix(matrixfile);
+    LOG(logINFO) << "Matrix configuration size: " << conf.size();
+  } catch(ConfigInvalid&) {
+    return 1;
+  }
+
+  LOG(logQUIET) << "Reading Clicpix2 rawdata from: " << datafile;
   std::ifstream f;
   std::ofstream outfile;
   f.open(datafile);
