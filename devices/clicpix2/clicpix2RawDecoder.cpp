@@ -4,41 +4,13 @@
 #include <vector>
 
 #include "clicpix2_frameDecoder.hpp"
+#include "clicpix2_utilities.hpp"
 #include "configuration.hpp"
 #include "devicemgr.hpp"
 #include "exceptions.hpp"
 #include "log.hpp"
 
 using namespace caribou;
-
-std::map<std::pair<uint8_t, uint8_t>, pixelConfig> readMatrix(std::string filename) {
-
-  std::map<std::pair<uint8_t, uint8_t>, pixelConfig> pixelsConfig;
-  size_t masked = 0;
-  std::cout << "Reading pixel matrix file." << std::endl;
-  std::ifstream pxfile(filename);
-  if(!pxfile.is_open()) {
-    std::cout << "Could not open matrix file \"" << filename << "\"" << std::endl;
-    return pixelsConfig;
-  }
-
-  std::string line = "";
-  while(std::getline(pxfile, line)) {
-    if(!line.length() || '#' == line.at(0))
-      continue;
-    std::istringstream pxline(line);
-    int column, row, threshold, mask, cntmode, tpenable, longcnt;
-    if(pxline >> row >> column >> mask >> threshold >> cntmode >> tpenable >> longcnt) {
-      pixelConfig px(mask, threshold, cntmode, tpenable, longcnt);
-      pixelsConfig[std::make_pair(row, column)] = px;
-      if(mask)
-        masked++;
-    }
-  }
-  std::cout << "Now " << pixelsConfig.size() << " pixel configurations cached, " << masked << " of which are masked"
-            << std::endl;
-  return pixelsConfig;
-}
 
 int main(int argc, char* argv[]) {
 

@@ -88,10 +88,6 @@ namespace caribou {
      */
     void programMatrix();
 
-    /* Routine to read the pixel matrix configuration from file and store it
-     */
-    void readMatrix(std::string filename);
-
     /* Map of pixelConfigs for configuration storage (row/col)
      */
     std::map<std::pair<uint8_t, uint8_t>, pixelConfig> pixelsConfig;
