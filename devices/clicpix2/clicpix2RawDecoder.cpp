@@ -43,7 +43,6 @@ int main(int argc, char* argv[]) {
   std::map<std::pair<uint8_t, uint8_t>, pixelConfig> conf;
   try {
     conf = clicpix2_utils::readMatrix(matrixfile);
-    LOG(logINFO) << "Matrix configuration size: " << conf.size();
   } catch(ConfigInvalid&) {
     return 1;
   }
@@ -58,11 +57,41 @@ int main(int argc, char* argv[]) {
   std::vector<std::string> header;
   std::vector<uint32_t> rawData;
 
-  uint32_t comp = 1;
-  uint32_t sp_comp = 1;
+  // Compression flags
+  bool comp = true;
+  bool sp_comp = true;
 
-  clicpix2_frameDecoder decoder((bool)comp, (bool)sp_comp);
+  // Parse the header:
+  while(getline(f, line)) {
 
+    if(!line.length()) {
+      continue;
+    }
+    if('#' != line.at(0)) {
+      break;
+    }
+
+    LOG(logDEBUG) << "Detected file header: " << line;
+
+    // Search for compression settings:
+    std::string::size_type n = line.find(" sp_comp:");
+    if(n != std::string::npos) {
+      LOG(logDEBUG) << "Value read for sp_comp: " << line.substr(n + 9, 1);
+      sp_comp = static_cast<bool>(std::stoi(line.substr(n + 9, 1)));
+      LOG(logINFO) << "Superpixel Compression: " << (sp_comp ? "ON" : "OFF");
+    }
+    n = line.find(" comp:");
+    if(n != std::string::npos) {
+      LOG(logDEBUG) << "Value read for comp: " << line.substr(n + 6, 1);
+      comp = static_cast<bool>(std::stoi(line.substr(n + 6, 1)));
+      LOG(logINFO) << "     Pixel Compression: " << (comp ? "ON" : "OFF");
+    }
+  }
+
+  clicpix2_frameDecoder decoder(comp, sp_comp);
+  LOG(logDEBUG) << "finished reading file header, now data should follow...";
+
+  // Parse the main body
   while(getline(f, line)) {
     // New frame, write old one
     if(line.find("====") != std::string::npos) {
