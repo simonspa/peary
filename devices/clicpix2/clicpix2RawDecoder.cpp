@@ -58,15 +58,18 @@ int main(int argc, char* argv[]) {
       // decode and write old frame
       if(rawData.size() > 0) {
         for(const auto& h : header) {
-          std::cout << h << std::endl;
+          // std::cout << h << std::endl;
+          outfile << h << "\n";
         }
+        std::cout << header[0] << std::endl;
 
         decoder.decode(rawData, conf);
         pearydata data = decoder.getZerosuppressedFrame();
         for(const auto& px : data) {
-          // outfile << px.first.first << "," << px.first.second << "," << (*px.second) << "\n";
-          std::cout << px.first.first << "," << px.first.second << "," << (*px.second) << std::endl;
+          outfile << px.first.first << "," << px.first.second << "," << (*px.second) << "\n";
+          // std::cout << px.first.first << "," << px.first.second << "," << (*px.second) << std::endl;
         }
+        std::cout << data.size() << " pixel responses" << std::endl;
         header.clear();
         rawData.clear();
       }
