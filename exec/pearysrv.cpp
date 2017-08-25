@@ -391,11 +391,12 @@ bool getFrame() {
   for(auto dev : devs) {
     if(dev->getName() == "CLICpix2") {
       try {
-        pearydata data;
+        // pearydata data;
+        std::vector<uint32_t> data;
         try {
           dev->triggerPatternGenerator(true);
           // Read the data:
-          data = dev->getData();
+          data = dev->getRawData();
         } catch(caribou::DataException& e) {
           // Retrieval failed, retry once more before aborting:
           LOG(logWARNING) << e.what() << ", skipping frame.";
@@ -410,7 +411,8 @@ bool getFrame() {
           myfile << (timestamp >> 48) << ":" << (timestamp & 0xffffffffffff) << "\n";
         }
         for(const auto& px : data) {
-          myfile << px.first.first << "," << px.first.second << "," << (*px.second) << "\n";
+          // myfile << px.first.first << "," << px.first.second << "," << (*px.second) << "\n";
+          myfile << px << "\n";
         }
         LOG(logINFO) << framecounter << " | " << data.size() << " pixel responses";
         framecounter++;

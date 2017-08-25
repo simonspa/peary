@@ -3,6 +3,8 @@
  */
 
 #include "clicpix2.hpp"
+#include "clicpix2_utilities.hpp"
+
 #include <chrono>
 #include <fcntl.h>
 #include <fstream>
@@ -15,6 +17,7 @@
 #include <math.h>
 
 using namespace caribou;
+using namespace clicpix2_utils;
 
 std::string clicpix2::getName() {
   return DEVICE_NAME;
@@ -184,7 +187,7 @@ void clicpix2::configureMatrix(std::string filename) {
   this->setRegister("sp_comp", 0);
 
   LOG(logDEBUG) << "Configuring the pixel matrix from file \"" << filename << "\"";
-  readMatrix(filename);
+  pixelsConfig = readMatrix(filename);
   programMatrix();
 
   // Read back the matrix configuration and thus clear it:
@@ -229,32 +232,6 @@ void clicpix2::configureMatrix(std::string filename) {
   // Reset compression state to previous values:
   this->setRegister("comp", comp);
   this->setRegister("sp_comp", sp_comp);
-}
-
-void clicpix2::readMatrix(std::string filename) {
-
-  size_t masked = 0;
-  LOG(logDEBUG) << "Reading pixel matrix file.";
-  std::ifstream pxfile(filename);
-  if(!pxfile.is_open()) {
-    LOG(logERROR) << "Could not open matrix file \"" << filename << "\"";
-    throw ConfigInvalid("Could not open matrix file \"" + filename + "\"");
-  }
-
-  std::string line = "";
-  while(std::getline(pxfile, line)) {
-    if(!line.length() || '#' == line.at(0))
-      continue;
-    std::istringstream pxline(line);
-    int column, row, threshold, mask, cntmode, tpenable, longcnt;
-    if(pxline >> row >> column >> mask >> threshold >> cntmode >> tpenable >> longcnt) {
-      pixelConfig px(mask, threshold, cntmode, tpenable, longcnt);
-      pixelsConfig[std::make_pair(row, column)] = px;
-      if(mask)
-        masked++;
-    }
-  }
-  LOG(logINFO) << "Now " << pixelsConfig.size() << " pixel configurations cached, " << masked << " of which are masked";
 }
 
 void clicpix2::triggerPatternGenerator(bool sleep) {
@@ -457,7 +434,7 @@ void clicpix2::exploreInterface() {
   LOG(logINFO) << DEVICE_NAME << " - Exploring interface capabilities ...";
 
   std::vector<std::pair<uint8_t, uint8_t>> pairvec;
-  uint8_t defualtValues[] = {30,  50, 80,  90,  64, 136, 133, 133, 133, 133, 30, 50, 90, 0,
+  uint8_t defaultValues[] = {30,  50, 80,  90,  64, 136, 133, 133, 133, 133, 30, 50, 90, 0,
                              138, 0,  138, 133, 0,  0,   0,   0,   0,   0,   0,  88, 11};
 
   for(unsigned int i = 10; i < 63; i += 2)
@@ -465,7 +442,7 @@ void clicpix2::exploreInterface() {
 
   std::vector<std::pair<uint8_t, uint8_t>> default_rx = _hal->send(pairvec);
   for(unsigned int i = 0; i < default_rx.size(); i++)
-    if(default_rx[i].second != defualtValues[i])
+    if(default_rx[i].second != defaultValues[i])
       throw DataCorrupt("Default register vaules mismatch");
   LOG(logINFO) << DEVICE_NAME << "Success readout of default values of registers (addresses range 0x0a - 0x3E)";
 
@@ -480,7 +457,7 @@ void clicpix2::exploreInterface() {
     pairvec.push_back(std::make_pair(i, default_rx[y++].second));
   }
   _hal->send(pairvec);
-  LOG(logINFO) << DEVICE_NAME << "Reverting the defualt values of registers (addresses range 0x0a - 0x3E)";
+  LOG(logINFO) << DEVICE_NAME << "Reverting the default values of registers (addresses range 0x0a - 0x3E)";
 
   LOG(logINFO) << DEVICE_NAME << " - Exploring interface capabilities ... Done";
 }
