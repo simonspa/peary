@@ -59,9 +59,6 @@ int main(int argc, char* argv[]) {
   outfile.open(datafile + ".txt");
   std::string line;
 
-  std::vector<std::string> header;
-  std::vector<uint32_t> rawData;
-
   // Compression flags
   bool comp = true;
   bool sp_comp = true;
@@ -94,28 +91,35 @@ int main(int argc, char* argv[]) {
   }
 
   clicpix2_frameDecoder decoder(comp, sp_comp);
-  LOG(logDEBUG) << "finished reading file header, now data should follow...";
+  LOG(logINFO) << "Finished reading file header, now decoding data...";
+
+  std::vector<std::string> header;
+  std::vector<uint32_t> rawData;
 
   // Parse the main body
   while(getline(f, line)) {
     // New frame, write old one
     if(line.find("====") != std::string::npos) {
+      LOG(logDEBUG) << "Found frame header";
 
       // decode and write old frame
-      if(rawData.size() > 0) {
+      if(!rawData.empty() && !header.empty()) {
+        LOG(logDEBUG) << "Raw data of previous frame available.";
+        LOG(logDEBUG) << "Writing header:";
         for(const auto& h : header) {
-          // std::cout << h << std::endl;
+          LOG(logDEBUG) << h;
           outfile << h << "\n";
         }
-        std::cout << header[0] << std::endl;
 
+        LOG(logDEBUG) << "Writing decoded data:";
         decoder.decode(rawData, conf);
         pearydata data = decoder.getZerosuppressedFrame();
         for(const auto& px : data) {
           outfile << px.first.first << "," << px.first.second << "," << (*px.second) << "\n";
-          // std::cout << px.first.first << "," << px.first.second << "," << (*px.second) << std::endl;
+          LOG(logDEBUG) << px.first.first << "," << px.first.second << "," << (*px.second);
         }
-        std::cout << data.size() << " pixel responses" << std::endl;
+
+        LOG(logINFO) << header.front() << ": " << data.size() << " pixel responses";
         header.clear();
         rawData.clear();
       }
