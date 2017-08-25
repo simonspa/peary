@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) {
   f.open(datafile);
   outfile.open(datafile + ".txt");
   std::string line;
-  unsigned int framecounter = 0;
+
   std::vector<std::string> header;
   std::vector<uint32_t> rawData;
 

@@ -434,7 +434,7 @@ void clicpix2::exploreInterface() {
   LOG(logINFO) << DEVICE_NAME << " - Exploring interface capabilities ...";
 
   std::vector<std::pair<uint8_t, uint8_t>> pairvec;
-  uint8_t defualtValues[] = {30,  50, 80,  90,  64, 136, 133, 133, 133, 133, 30, 50, 90, 0,
+  uint8_t defaultValues[] = {30,  50, 80,  90,  64, 136, 133, 133, 133, 133, 30, 50, 90, 0,
                              138, 0,  138, 133, 0,  0,   0,   0,   0,   0,   0,  88, 11};
 
   for(unsigned int i = 10; i < 63; i += 2)
@@ -442,7 +442,7 @@ void clicpix2::exploreInterface() {
 
   std::vector<std::pair<uint8_t, uint8_t>> default_rx = _hal->send(pairvec);
   for(unsigned int i = 0; i < default_rx.size(); i++)
-    if(default_rx[i].second != defualtValues[i])
+    if(default_rx[i].second != defaultValues[i])
       throw DataCorrupt("Default register vaules mismatch");
   LOG(logINFO) << DEVICE_NAME << "Success readout of default values of registers (addresses range 0x0a - 0x3E)";
 
