@@ -5,8 +5,7 @@
 
 #include "clicpix2_frameDecoder.hpp"
 #include "clicpix2_utilities.hpp"
-#include "configuration.hpp"
-#include "devicemgr.hpp"
+
 #include "exceptions.hpp"
 #include "log.hpp"
 
@@ -43,6 +42,12 @@ int main(int argc, char* argv[]) {
   std::map<std::pair<uint8_t, uint8_t>, pixelConfig> conf;
   try {
     conf = clicpix2_utils::readMatrix(matrixfile);
+    // Make sure we initializefd all pixels:
+    for(size_t column = 0; column < 128; column++) {
+      for(size_t row = 0; row < 128; row++) {
+        pixelConfig px = conf[std::make_pair(row, column)];
+      }
+    }
   } catch(ConfigInvalid&) {
     return 1;
   }
