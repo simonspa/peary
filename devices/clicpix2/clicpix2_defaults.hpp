@@ -8,7 +8,7 @@ namespace caribou {
 
 /** Default device path for this device: SPI interface
  */
-#define DEFAULT_DEVICEPATH "/dev/spi-0"
+#define DEFAULT_DEVICEPATH "/dev/spidev1.0"
 
 #define CLICpix2_VDDD 0.96
 #define CLICpix2_VDDD_CURRENT 3
