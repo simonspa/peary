@@ -100,6 +100,7 @@ int main(int argc, char* argv[]) {
 
   std::vector<std::string> header;
   std::vector<uint32_t> rawData;
+  unsigned int frames = 0;
 
   // Parse the main body
   f.seekg(oldpos);
@@ -131,6 +132,7 @@ int main(int argc, char* argv[]) {
             LOG(logDEBUG) << px.first.first << "," << px.first.second << "," << (*px.second);
           }
           LOG(logINFO) << header.front() << ": " << data.size() << " pixel responses";
+          frames++;
         } catch(caribou::DataException& e) {
           LOG(logERROR) << "Caugth DataException: " << e.what() << ", clearing event data.";
         }
@@ -158,7 +160,7 @@ int main(int argc, char* argv[]) {
 
   f.close();
   outfile.close();
-  LOG(logQUIET) << "...all written.";
+  LOG(logQUIET) << "...all written: " << frames << " frames.";
 
   return 0;
 }
