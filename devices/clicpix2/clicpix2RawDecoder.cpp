@@ -123,14 +123,18 @@ int main(int argc, char* argv[]) {
         }
 
         LOG(logDEBUG) << "Writing decoded data:";
-        decoder.decode(rawData);
-        pearydata data = decoder.getZerosuppressedFrame();
-        for(const auto& px : data) {
-          outfile << px.first.first << "," << px.first.second << "," << (*px.second) << "\n";
-          LOG(logDEBUG) << px.first.first << "," << px.first.second << "," << (*px.second);
+        try {
+          decoder.decode(rawData);
+          pearydata data = decoder.getZerosuppressedFrame();
+          for(const auto& px : data) {
+            outfile << px.first.first << "," << px.first.second << "," << (*px.second) << "\n";
+            LOG(logDEBUG) << px.first.first << "," << px.first.second << "," << (*px.second);
+          }
+          LOG(logINFO) << header.front() << ": " << data.size() << " pixel responses";
+        } catch(caribou::DataException& e) {
+          LOG(logERROR) << "Caugth DataException: " << e.what() << ", clearing event data.";
         }
 
-        LOG(logINFO) << header.front() << ": " << data.size() << " pixel responses";
         header.clear();
         rawData.clear();
       } else {
