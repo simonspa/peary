@@ -14,9 +14,7 @@ cmp:ubuntu-gcc:
   stage: compile
   tags:
     - docker
-  image: ubuntu:latest
-  before_script:
-    - apt-get update -qq && apt-get install -y -qq cmake build-essential libi2c-dev libreadline-dev
+  image: caribou/peary/ubuntu:latest
   script:
     - export COMPILER_TYPE="gcc"
     - mkdir build
@@ -37,7 +35,7 @@ cmp:centos7-gcc:
     - docker
   image: clicdp/cc7-base
   before_script:
-    - yum install readline readline-devel
+    - yum install -y readline readline-devel
   script:
     - export COMPILER_TYPE="gcc"
     - source .gitlab-ci.d/init_x86_64.sh
@@ -59,7 +57,7 @@ cmp:centos7-llvm:
     - docker
   image: clicdp/cc7-base
   before_script:
-    - yum install readline readline-devel
+    - yum install -y readline readline-devel
   script:
     - export COMPILER_TYPE="llvm"
     - source .gitlab-ci.d/init_x86_64.sh
