@@ -14,7 +14,7 @@ cmp:ubuntu-gcc:
   stage: compile
   tags:
     - docker
-  image: caribou/peary/ubuntu:latest
+  image: gitlab-registry.cern.ch/caribou/peary/ubuntu:latest
   script:
     - export COMPILER_TYPE="gcc"
     - mkdir build
