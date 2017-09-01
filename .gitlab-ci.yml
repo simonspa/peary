@@ -1,34 +1,110 @@
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
 
-peary:
+stages:
+  - compile
+  - format
+  - unittest
+
+#######################
+# Compilation targets #
+#######################
+
+cmp:ubuntu-gcc:
   tags:
     - docker
   image: ubuntu:latest
   before_script:
     - apt-get update -qq && apt-get install -y -qq cmake build-essential libi2c-dev libreadline-dev
   script:
+    - export COMPILER_TYPE="gcc"
     - mkdir build
     - cd build
     - cmake -DBUILD_example=ON -DBUILD_server=ON ..
     - make
+    - make install
+  artifacts:
+  paths:
+    - build
+    - bin
+    - lib
+  expire_in: 3 hour
 
+cmp:centos7-gcc:
+  stage: compile
+  tags:
+    - docker
+  image: clicdp/cc7-base
+  script:
+    - export COMPILER_TYPE="gcc"
+    - source .gitlab-ci.d/init_x86_64.sh
+    - source .gitlab-ci.d/load_deps.sh
+    - mkdir build
+    - cd build
+    - cmake -GNinja -DBUILD_example=ON -DBUILD_server=ON ..
+    - ninja
+    - ninja install
+  artifacts:
+    paths:
+      - build
+      - bin
+      - lib
+    expire_in: 3 hour
+
+cmp:centos7-llvm:
+  stage: compile
+  tags:
+    - docker
+  image: clicdp/cc7-base
+  script:
+    - export COMPILER_TYPE="llvm"
+    - source .gitlab-ci.d/init_x86_64.sh
+    - mkdir build
+    - cd build
+    - cmake -GNinja -DBUILD_example=ON -DBUILD_server=ON ..
+    - ninja
+    - ninja install
+  artifacts:
+    paths:
+      - build
+      - bin
+      - lib
+    expire_in: 3 hour
+
+############################
+# Format and Lint Checking #
+############################
+
+# CentOS 7
+
+fmt:centos7-llvm-format:
+  stage: format
+  tags:
+    - docker
+  dependencies:
+    - cmp:centos7-llvm
+  image: clicdp/cc7-base
+  script:
+    - export COMPILER_TYPE="llvm"
+    - source .gitlab-ci.d/init_x86_64.sh
+    - cd build/
+    - ninja check-format
 #peary-mac:
 #  tags:
-#    - mac
+#  - mac
 #  before_script:
-#    - source .peary-ci/init_x86_64.sh
+#  - source .peary-ci/init_x86_64.sh
 #  script:
-#    - mkdir build
-#    - cd build
-#    - cmake -DBUILD_example=ON -DINTERFACE_I2C=OFF -DINTERFACE_SPI=OFF -DINTERFACE_SPI_CLICpix2=OFF ..
-#    - make
+#  - mkdir build
+#  - cd build
+#  - cmake -DBUILD_example=ON -DINTERFACE_I2C=OFF -DINTERFACE_SPI=OFF -DINTERFACE_SPI_CLICpix2=OFF ..
+#  - make
 
 # peary-zync:
 #  tags:
-#    - zynq
+#  - zynq
 #  script:
-#    - mkdir build
-#    - cd build
-#    - cmake -DBUILD_example=ON ..
-#    - make
+#  - mkdir build
+#  - cd build
+#  - cmake -DBUILD_example=ON ..
+#  - make
