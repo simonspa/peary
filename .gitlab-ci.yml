@@ -39,7 +39,6 @@ cmp:centos7-gcc:
   script:
     - export COMPILER_TYPE="gcc"
     - source .gitlab-ci.d/init_x86_64.sh
-    - source .gitlab-ci.d/load_deps.sh
     - mkdir build
     - cd build
     - cmake -GNinja -DBUILD_example=ON -DBUILD_server=ON ..
