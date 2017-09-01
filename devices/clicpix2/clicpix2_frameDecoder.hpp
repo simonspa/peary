@@ -68,7 +68,7 @@ namespace caribou {
     // Configutation
     bool pixelCompressionEnabled;
     bool DCandSuperPixelCompressionEnabled;
-    std::map<std::pair<uint8_t, uint8_t>, pixelConfig> pixel_config;
+    std::map<std::pair<uint8_t, uint8_t>, bool> counter_config;
 
   public:
     clicpix2_frameDecoder(const bool pixelCompressionEnabled,

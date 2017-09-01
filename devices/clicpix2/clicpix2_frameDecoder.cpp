@@ -13,8 +13,12 @@ const clicpix2_frameDecoder::WORD_TYPE clicpix2_frameDecoder::DELIMITER(1, 0xf7)
 clicpix2_frameDecoder::clicpix2_frameDecoder(const bool pixelCompressionEnabled,
                                              const bool DCandSuperPixelCompressionEnabled,
                                              const std::map<std::pair<uint8_t, uint8_t>, pixelConfig>& pixel_conf)
-    : pixelCompressionEnabled(pixelCompressionEnabled), DCandSuperPixelCompressionEnabled(DCandSuperPixelCompressionEnabled),
-      pixel_config(std::move(pixel_conf)) {}
+    : pixelCompressionEnabled(pixelCompressionEnabled),
+      DCandSuperPixelCompressionEnabled(DCandSuperPixelCompressionEnabled) {
+  for(const auto& pixel : pixel_conf) {
+    counter_config[pixel.first] = pixel.second.GetLongCounter();
+  }
+}
 
 void clicpix2_frameDecoder::decode(const std::vector<uint32_t>& frame, bool decodeCnt) {
   std::vector<WORD_TYPE> dataVector = repackageFrame(frame);
@@ -253,7 +257,7 @@ void clicpix2_frameDecoder::decodeCounter() {
 
   for(auto r = 0; r < static_cast<int>(clicpix2_frameDecoder::CLICPIX2_ROW); ++r) {
     for(auto c = 0; c < static_cast<int>(clicpix2_frameDecoder::CLICPIX2_COL); ++c) {
-      if(pixel_config.at(std::make_pair(r, c)).GetLongCounter()) {
+      if(counter_config.at(std::make_pair(r, c))) {
         matrix[r][c].SetCounter(lfsr13_lut[matrix[r][c].GetLatches() & 0x1fff]);
       } else {
         matrix[r][c].SetTOT(lfsr5_lut[(matrix[r][c].GetLatches() >> 8) & 0x1f]);
