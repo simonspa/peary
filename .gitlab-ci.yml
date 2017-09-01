@@ -36,6 +36,8 @@ cmp:centos7-gcc:
   tags:
     - docker
   image: clicdp/cc7-base
+  before_script:
+    - yum install readline readline-devel
   script:
     - export COMPILER_TYPE="gcc"
     - source .gitlab-ci.d/init_x86_64.sh
@@ -56,6 +58,8 @@ cmp:centos7-llvm:
   tags:
     - docker
   image: clicdp/cc7-base
+  before_script:
+    - yum install readline readline-devel
   script:
     - export COMPILER_TYPE="llvm"
     - source .gitlab-ci.d/init_x86_64.sh
