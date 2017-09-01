@@ -15,8 +15,10 @@ clicpix2_frameDecoder::clicpix2_frameDecoder(const bool pixelCompressionEnabled,
                                              const std::map<std::pair<uint8_t, uint8_t>, pixelConfig>& pixel_conf)
     : pixelCompressionEnabled(pixelCompressionEnabled),
       DCandSuperPixelCompressionEnabled(DCandSuperPixelCompressionEnabled) {
+
+  // Resolve and store long-counter states:
   for(const auto& pixel : pixel_conf) {
-    counter_config[pixel.first] = pixel.second.GetLongCounter();
+    counter_config[pixel.first.first][pixel.first.second] = pixel.second.GetLongCounter();
   }
 }
 
@@ -257,7 +259,7 @@ void clicpix2_frameDecoder::decodeCounter() {
 
   for(auto r = 0; r < static_cast<int>(clicpix2_frameDecoder::CLICPIX2_ROW); ++r) {
     for(auto c = 0; c < static_cast<int>(clicpix2_frameDecoder::CLICPIX2_COL); ++c) {
-      if(counter_config.at(std::make_pair(r, c))) {
+      if(counter_config[r][c]) {
         matrix[r][c].SetCounter(lfsr13_lut[matrix[r][c].GetLatches() & 0x1fff]);
       } else {
         matrix[r][c].SetTOT(lfsr5_lut[(matrix[r][c].GetLatches() >> 8) & 0x1f]);
