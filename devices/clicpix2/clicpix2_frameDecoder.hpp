@@ -57,7 +57,7 @@ namespace caribou {
                       const int col_index,
                       int& row_slice,
                       const bool data);
-    void decodeCounter(const std::map<std::pair<uint8_t, uint8_t>, pixelConfig>& pixelConfig);
+    void decodeCounter();
 
     // current RCR register value
     uint8_t rcr;
@@ -68,15 +68,14 @@ namespace caribou {
     // Configutation
     bool pixelCompressionEnabled;
     bool DCandSuperPixelCompressionEnabled;
+    std::map<std::pair<uint8_t, uint8_t>, pixelConfig> pixel_config;
 
   public:
-    clicpix2_frameDecoder(bool pixelCompressionEnabled, bool DCandSuperPixelCompressionEnabled)
-        : pixelCompressionEnabled(pixelCompressionEnabled),
-          DCandSuperPixelCompressionEnabled(DCandSuperPixelCompressionEnabled){};
+    clicpix2_frameDecoder(const bool pixelCompressionEnabled,
+                          const bool DCandSuperPixelCompressionEnabled,
+                          const std::map<std::pair<uint8_t, uint8_t>, pixelConfig>& pixel_config);
 
-    void decode(const std::vector<uint32_t>& frame,
-                const std::map<std::pair<uint8_t, uint8_t>, pixelConfig>& pixelConfig,
-                bool decodeCnt = true);
+    void decode(const std::vector<uint32_t>& frame, bool decodeCnt = true);
     pearydata getZerosuppressedFrame();
 
     pixelReadout get(const unsigned int row, const unsigned int column) { return matrix[row][column]; };

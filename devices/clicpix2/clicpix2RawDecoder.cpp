@@ -95,7 +95,7 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  clicpix2_frameDecoder decoder(comp, sp_comp);
+  clicpix2_frameDecoder decoder(comp, sp_comp, conf);
   LOG(logINFO) << "Finished reading file header, now decoding data...";
 
   std::vector<std::string> header;
@@ -123,7 +123,7 @@ int main(int argc, char* argv[]) {
         }
 
         LOG(logDEBUG) << "Writing decoded data:";
-        decoder.decode(rawData, conf);
+        decoder.decode(rawData);
         pearydata data = decoder.getZerosuppressedFrame();
         for(const auto& px : data) {
           outfile << px.first.first << "," << px.first.second << "," << (*px.second) << "\n";
