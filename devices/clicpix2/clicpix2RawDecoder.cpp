@@ -154,6 +154,7 @@ int main(int argc, char* argv[]) {
 
   f.close();
   outfile.close();
+  LOG(logQUIET) << "...all written.";
 
   return 0;
 }
