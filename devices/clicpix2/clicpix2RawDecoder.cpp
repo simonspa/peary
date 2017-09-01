@@ -95,11 +95,12 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  clicpix2_frameDecoder decoder(comp, sp_comp);
+  clicpix2_frameDecoder decoder(comp, sp_comp, conf);
   LOG(logINFO) << "Finished reading file header, now decoding data...";
 
   std::vector<std::string> header;
   std::vector<uint32_t> rawData;
+  unsigned int frames = 0;
 
   // Parse the main body
   f.seekg(oldpos);
@@ -123,14 +124,19 @@ int main(int argc, char* argv[]) {
         }
 
         LOG(logDEBUG) << "Writing decoded data:";
-        decoder.decode(rawData, conf);
-        pearydata data = decoder.getZerosuppressedFrame();
-        for(const auto& px : data) {
-          outfile << px.first.first << "," << px.first.second << "," << (*px.second) << "\n";
-          LOG(logDEBUG) << px.first.first << "," << px.first.second << "," << (*px.second);
+        try {
+          decoder.decode(rawData);
+          pearydata data = decoder.getZerosuppressedFrame();
+          for(const auto& px : data) {
+            outfile << px.first.first << "," << px.first.second << "," << (*px.second) << "\n";
+            LOG(logDEBUG) << px.first.first << "," << px.first.second << "," << (*px.second);
+          }
+          LOG(logINFO) << header.front() << ": " << data.size() << " pixel responses";
+          frames++;
+        } catch(caribou::DataException& e) {
+          LOG(logERROR) << "Caugth DataException: " << e.what() << ", clearing event data.";
         }
 
-        LOG(logINFO) << header.front() << ": " << data.size() << " pixel responses";
         header.clear();
         rawData.clear();
       } else {
@@ -143,17 +149,16 @@ int main(int argc, char* argv[]) {
     // timestamps
     else if(line.find(":") != std::string::npos) {
       header.push_back(line);
-      // std::cout << line <<std::endl;
     }
     // Pixel hits
     else {
       rawData.push_back(atoi(line.c_str()));
-      // std::cout<<rawData[rawData.size()-1]<<std::endl;
     }
   }
 
   f.close();
   outfile.close();
+  LOG(logQUIET) << "...all written: " << frames << " frames.";
 
   return 0;
 }

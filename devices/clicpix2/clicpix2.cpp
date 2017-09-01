@@ -194,10 +194,10 @@ void clicpix2::configureMatrix(std::string filename) {
   LOG(logDEBUG) << "Flushing matrix...";
 
   std::vector<uint32_t> frame = getRawData();
-  clicpix2_frameDecoder decoder(false, false);
+  clicpix2_frameDecoder decoder(false, false, pixelsConfig);
 
   try {
-    decoder.decode(frame, pixelsConfig, false);
+    decoder.decode(frame, false);
   } catch(caribou::DataException& e) {
     LOG(logERROR) << e.what();
     throw CommunicationError("Matrix configuration readout failed");
@@ -471,8 +471,8 @@ pearydata clicpix2::decodeFrame(const std::vector<uint32_t>& frame) {
   uint32_t comp = _register_cache["comp"];
   uint32_t sp_comp = _register_cache["sp_comp"];
 
-  clicpix2_frameDecoder decoder((bool)comp, (bool)sp_comp);
-  decoder.decode(frame, pixelsConfig);
+  clicpix2_frameDecoder decoder((bool)comp, (bool)sp_comp, pixelsConfig);
+  decoder.decode(frame);
   LOG(logDEBUGAPI) << DEVICE_NAME << "Decoded frame [row][column]:\n" << decoder;
   return decoder.getZerosuppressedFrame();
 }
