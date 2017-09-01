@@ -24,11 +24,11 @@ cmp:ubuntu-gcc:
     - make
     - make install
   artifacts:
-  paths:
-    - build
-    - bin
-    - lib
-  expire_in: 3 hour
+    paths:
+      - build
+      - bin
+      - lib
+    expire_in: 3 hour
 
 cmp:centos7-gcc:
   stage: compile
