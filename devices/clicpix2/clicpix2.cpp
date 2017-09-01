@@ -83,6 +83,12 @@ void clicpix2::setSpecialRegister(std::string name, uint32_t value) {
     // Get threshold LSB and MSB
     uint8_t msb = floor(value / 121.) * 14;
     uint8_t lsb = (value % 121) + 64;
+    uint32_t maxThl = ceil(255 / 14.) * 121;
+    if(value > maxThl) {
+      msb = 255;
+      lsb = 255;
+      LOG(logWARNING) << "Threshold range is limited to " << maxThl << ", setting 255-255";
+    }
     LOG(logDEBUG) << "Threshold lookup: " << value << " = " << static_cast<int>(msb) << "-" << static_cast<int>(lsb);
     // Set the two values:
     this->setRegister("threshold_msb", msb);
