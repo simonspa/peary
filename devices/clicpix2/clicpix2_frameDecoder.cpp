@@ -110,25 +110,25 @@ void clicpix2_frameDecoder::extractColumns(std::vector<clicpix2_frameDecoder::WO
     unraveDC(pixels_dc, dc_counter, sp_counter, row_index, row_slice, word.word);
   } while(std::distance(data, dataEnd));
 
-  for(int i = 0; i < pow(2, rcr); i++)
+  for(unsigned int i = 0; i < static_cast<unsigned int>(1 << rcr); i++)
     if(dc_counter[i] != 3600)
       throw DataException("Partial double column");
 
   // remove snake pattern
   for(unsigned int r = 0; r < 256; ++r)
-    for(unsigned int c = 0; c < pow(2, rcr); c++) {
+    for(unsigned int c = 0; c < static_cast<unsigned int>(1 << rcr); c++) {
       switch(r % 4) {
       case 0:
-        matrix[r / 2][c * 2 * 64 / pow(2, rcr) + firstColumn * 2] = pixels_dc[r][c];
+        matrix[r / 2][c * 2 * 64 / static_cast<unsigned int>(1 << rcr) + firstColumn * 2] = pixels_dc[r][c];
         break; // left column
       case 1:
-        matrix[r / 2][c * 2 * 64 / pow(2, rcr) + firstColumn * 2 + 1] = pixels_dc[r][c];
+        matrix[r / 2][c * 2 * 64 / static_cast<unsigned int>(1 << rcr) + firstColumn * 2 + 1] = pixels_dc[r][c];
         break; // right column
       case 2:
-        matrix[r / 2][c * 2 * 64 / pow(2, rcr) + firstColumn * 2 + 1] = pixels_dc[r][c];
+        matrix[r / 2][c * 2 * 64 / static_cast<unsigned int>(1 << rcr) + firstColumn * 2 + 1] = pixels_dc[r][c];
         break; // right column
       case 3:
-        matrix[r / 2][c * 2 * 64 / pow(2, rcr) + firstColumn * 2] = pixels_dc[r][c];
+        matrix[r / 2][c * 2 * 64 / static_cast<unsigned int>(1 << rcr) + firstColumn * 2] = pixels_dc[r][c];
         break; // left column
       }
     }
