@@ -84,7 +84,7 @@ void clicpix2::setSpecialRegister(std::string name, uint32_t value) {
     uint8_t msb = floor(value / 121.) * 14;
     uint8_t lsb = (value % 121) + 64;
     uint32_t maxThl = ceil(255 / 14.) * 121;
-    if(value > maxThl) {
+    if(value >= maxThl) {
       msb = 255;
       lsb = 255;
       LOG(logWARNING) << "Threshold range is limited to " << maxThl << ", setting 255-255";
