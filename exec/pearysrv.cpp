@@ -323,8 +323,9 @@ bool configure(int value, unsigned int configureAttempts) {
       }
       d->powerStatusLog();
       if(d->getName() == "CLICpix2") {
-        d->setRegister("threshold_msb", value);
-        LOG(logINFO) << "Setting threshold_msb to " << d->getRegister("threshold_msb");
+        d->setRegister("threshold", value);
+        LOG(logINFO) << "Setting threshold to " << value << ": " << d->getRegister("threshold_msb") << "-"
+                     << d->getRegister("threshold_lsb");
       }
       i++;
     }
