@@ -83,6 +83,12 @@ void clicpix2::setSpecialRegister(std::string name, uint32_t value) {
     // Get threshold LSB and MSB
     uint8_t msb = floor(value / 121.) * 14;
     uint8_t lsb = (value % 121) + 64;
+    uint32_t maxThl = ceil(255 / 14.) * 121;
+    if(value >= maxThl) {
+      msb = 255;
+      lsb = 255;
+      LOG(logWARNING) << "Threshold range is limited to " << maxThl << ", setting 255-255";
+    }
     LOG(logDEBUG) << "Threshold lookup: " << value << " = " << static_cast<int>(msb) << "-" << static_cast<int>(lsb);
     // Set the two values:
     this->setRegister("threshold_msb", msb);
@@ -194,10 +200,10 @@ void clicpix2::configureMatrix(std::string filename) {
   LOG(logDEBUG) << "Flushing matrix...";
 
   std::vector<uint32_t> frame = getRawData();
-  clicpix2_frameDecoder decoder(false, false);
+  clicpix2_frameDecoder decoder(false, false, pixelsConfig);
 
   try {
-    decoder.decode(frame, pixelsConfig, false);
+    decoder.decode(frame, false);
   } catch(caribou::DataException& e) {
     LOG(logERROR) << e.what();
     throw CommunicationError("Matrix configuration readout failed");
@@ -471,8 +477,8 @@ pearydata clicpix2::decodeFrame(const std::vector<uint32_t>& frame) {
   uint32_t comp = _register_cache["comp"];
   uint32_t sp_comp = _register_cache["sp_comp"];
 
-  clicpix2_frameDecoder decoder((bool)comp, (bool)sp_comp);
-  decoder.decode(frame, pixelsConfig);
+  clicpix2_frameDecoder decoder((bool)comp, (bool)sp_comp, pixelsConfig);
+  decoder.decode(frame);
   LOG(logDEBUGAPI) << DEVICE_NAME << "Decoded frame [row][column]:\n" << decoder;
   return decoder.getZerosuppressedFrame();
 }

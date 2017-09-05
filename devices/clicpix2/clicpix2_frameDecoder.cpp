@@ -10,9 +10,19 @@ using namespace caribou;
 
 const clicpix2_frameDecoder::WORD_TYPE clicpix2_frameDecoder::DELIMITER(1, 0xf7);
 
-void clicpix2_frameDecoder::decode(const std::vector<uint32_t>& frame,
-                                   const std::map<std::pair<uint8_t, uint8_t>, pixelConfig>& pixelConfig,
-                                   bool decodeCnt) {
+clicpix2_frameDecoder::clicpix2_frameDecoder(const bool pixelCompressionEnabled,
+                                             const bool DCandSuperPixelCompressionEnabled,
+                                             const std::map<std::pair<uint8_t, uint8_t>, pixelConfig>& pixel_conf)
+    : pixelCompressionEnabled(pixelCompressionEnabled),
+      DCandSuperPixelCompressionEnabled(DCandSuperPixelCompressionEnabled) {
+
+  // Resolve and store long-counter states:
+  for(const auto& pixel : pixel_conf) {
+    counter_config[pixel.first.first][pixel.first.second] = pixel.second.GetLongCounter();
+  }
+}
+
+void clicpix2_frameDecoder::decode(const std::vector<uint32_t>& frame, bool decodeCnt) {
   std::vector<WORD_TYPE> dataVector = repackageFrame(frame);
 
   if(dataVector.empty()) {
@@ -28,7 +38,7 @@ void clicpix2_frameDecoder::decode(const std::vector<uint32_t>& frame,
   } while(std::distance(data, dataEnd) && !(std::distance(data, dataEnd) == 1 && *data == DELIMITER));
 
   if(decodeCnt)
-    decodeCounter(pixelConfig);
+    decodeCounter();
 }
 
 pearydata clicpix2_frameDecoder::getZerosuppressedFrame() {
@@ -110,25 +120,25 @@ void clicpix2_frameDecoder::extractColumns(std::vector<clicpix2_frameDecoder::WO
     unraveDC(pixels_dc, dc_counter, sp_counter, row_index, row_slice, word.word);
   } while(std::distance(data, dataEnd));
 
-  for(int i = 0; i < pow(2, rcr); i++)
+  for(unsigned int i = 0; i < static_cast<unsigned int>(1 << rcr); i++)
     if(dc_counter[i] != 3600)
       throw DataException("Partial double column");
 
   // remove snake pattern
   for(unsigned int r = 0; r < 256; ++r)
-    for(unsigned int c = 0; c < pow(2, rcr); c++) {
+    for(unsigned int c = 0; c < static_cast<unsigned int>(1 << rcr); c++) {
       switch(r % 4) {
       case 0:
-        matrix[r / 2][c * 2 * 64 / pow(2, rcr) + firstColumn * 2] = pixels_dc[r][c];
+        matrix[r / 2][c * 2 * 64 / static_cast<unsigned int>(1 << rcr) + firstColumn * 2] = pixels_dc[r][c];
         break; // left column
       case 1:
-        matrix[r / 2][c * 2 * 64 / pow(2, rcr) + firstColumn * 2 + 1] = pixels_dc[r][c];
+        matrix[r / 2][c * 2 * 64 / static_cast<unsigned int>(1 << rcr) + firstColumn * 2 + 1] = pixels_dc[r][c];
         break; // right column
       case 2:
-        matrix[r / 2][c * 2 * 64 / pow(2, rcr) + firstColumn * 2 + 1] = pixels_dc[r][c];
+        matrix[r / 2][c * 2 * 64 / static_cast<unsigned int>(1 << rcr) + firstColumn * 2 + 1] = pixels_dc[r][c];
         break; // right column
       case 3:
-        matrix[r / 2][c * 2 * 64 / pow(2, rcr) + firstColumn * 2] = pixels_dc[r][c];
+        matrix[r / 2][c * 2 * 64 / static_cast<unsigned int>(1 << rcr) + firstColumn * 2] = pixels_dc[r][c];
         break; // left column
       }
     }
@@ -245,11 +255,11 @@ void clicpix2_frameDecoder::processDCbit(std::array<std::array<pixelReadout, 8>,
   }
 }
 
-void clicpix2_frameDecoder::decodeCounter(const std::map<std::pair<uint8_t, uint8_t>, pixelConfig>& pixelConfig) {
+void clicpix2_frameDecoder::decodeCounter() {
 
   for(auto r = 0; r < static_cast<int>(clicpix2_frameDecoder::CLICPIX2_ROW); ++r) {
     for(auto c = 0; c < static_cast<int>(clicpix2_frameDecoder::CLICPIX2_COL); ++c) {
-      if(pixelConfig.at(std::make_pair(r, c)).GetLongCounter()) {
+      if(counter_config[r][c]) {
         matrix[r][c].SetCounter(lfsr13_lut[matrix[r][c].GetLatches() & 0x1fff]);
       } else {
         matrix[r][c].SetTOT(lfsr5_lut[(matrix[r][c].GetLatches() >> 8) & 0x1f]);
