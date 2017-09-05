@@ -113,14 +113,17 @@ pearycli::pearycli() : c("# ") {
     "Data are saved in the FILE_NAME.csv file",
     7,
     "DAC_NAME MAX MIN DELAY_PATTERN[ms] REPEAT FILE_NAME DEVICE_ID");
-  c.registerCommand("scanThreshold2D",
-                    scanThreshold2D,
-                    "For each value of DAC1_NAME between DAC1_MIN and DAC1_MAX, scan DAC2_NAME from value DAC2_MAX down to "
-                    "DAC2_MIN, open the shutter via the pattern generator after DELAY_PATTERN milliseconds and read back "
-                    "the data from the pixel matrix. The sequence is repeated REPEAT times for every setting. Data are "
-                    "saved in the FILE_NAME.csv file",
-                    10,
-                    "DAC1_NAME DAC1_MAX DAC1_MIN DAC2_NAME DAC2_MAX DAC2_MIN DELAY_PATTERN[ms] REPEAT FILE_NAME DEVICE_ID");
+  c.registerCommand(
+    "scanThreshold2D",
+    scanThreshold2D,
+    "For each value of DAC1_NAME between DAC1_MIN and DAC1_MAX on DEVICE_ID1, scan DAC2_NAME from value DAC2_MAX down to "
+    "DAC2_MIN on DEVICE_ID2, open the shutter on DEVICE_ID2 via the pattern generator after DELAY_PATTERN milliseconds and "
+    "read "
+    "back "
+    "the data from the pixel matrix. The sequence is repeated REPEAT times for every setting. Data are "
+    "saved in the FILE_NAME.csv file",
+    10,
+    "DAC1_NAME DAC1_MAX DAC1_MIN DEVICE_ID1 DAC2_NAME DAC2_MAX DAC2_MIN DEVICE_ID2 DELAY_PATTERN[ms] REPEAT FILE_NAME");
 
   c.registerCommand(
     "exploreInterface", exploreInterface, "Perform an interface communication test on the selected devce", 1, "DEVICE_ID");
@@ -854,21 +857,23 @@ int pearycli::scanThreshold(const std::vector<std::string>& input) {
 int pearycli::scanThreshold2D(const std::vector<std::string>& input) {
 
   try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(10)));
+    caribouDevice* dev1 = manager->getDevice(std::stoi(input.at(4)));
+    caribouDevice* dev2 = manager->getDevice(std::stoi(input.at(8)));
 
     std::ofstream myfile;
-    std::string filename = input.at(9) + ".csv";
+    std::string filename = input.at(11) + ".csv";
     myfile.open(filename);
-    myfile << getFileHeader(input.at(0), dev);
+    myfile << getFileHeader(input.at(0), dev1);
+    myfile << getFileHeader(input.at(0), dev2);
     myfile << "# scanned DAC \"" << input.at(1) << "\", range " << input.at(2) << "-" << input.at(3) << " and DAC \""
-           << input.at(4) << "\", range " << input.at(5) << "-" << input.at(6) << ", " << input.at(8) << " times\n";
-    myfile << "# with " << input.at(7) << "ms delay between setting register and reading matrix.\n";
+           << input.at(5) << "\", range " << input.at(6) << "-" << input.at(7) << ", " << input.at(10) << " times\n";
+    myfile << "# with " << input.at(9) << "ms delay between setting register and reading matrix.\n";
 
     if(std::stoi(input.at(2)) < std::stoi(input.at(3))) {
       LOG(logERROR) << "Range invalid";
       return ret::Error;
     }
-    if(std::stoi(input.at(5)) < std::stoi(input.at(6))) {
+    if(std::stoi(input.at(6)) < std::stoi(input.at(7))) {
       LOG(logERROR) << "Range invalid";
       return ret::Error;
     }
@@ -879,12 +884,12 @@ int pearycli::scanThreshold2D(const std::vector<std::string>& input) {
     uint32_t dac2 = 0;
     bool dac2_cached = false;
     try {
-      dac1 = dev->getRegister(input.at(1));
+      dac1 = dev1->getRegister(input.at(1));
       dac1_cached = true;
     } catch(caribou::RegisterTypeMismatch&) {
     }
     try {
-      dac2 = dev->getRegister(input.at(4));
+      dac2 = dev2->getRegister(input.at(5));
       dac2_cached = true;
     } catch(caribou::RegisterTypeMismatch&) {
     }
@@ -892,47 +897,47 @@ int pearycli::scanThreshold2D(const std::vector<std::string>& input) {
     // Sample through the DAC1 range
     for(int i = std::stoi(input.at(2)); i >= std::stoi(input.at(3)); i--) {
       LOG(logINFO) << input.at(1) << " = " << i;
-      dev->setRegister(input.at(1), i);
+      dev1->setRegister(input.at(1), i);
 
       // Sample through the DAC2 range, trigger the PG and read back the data
-      for(int j = std::stoi(input.at(5)); j >= std::stoi(input.at(6)); j--) {
-        LOG(logINFO) << input.at(4) << " = " << j;
-        dev->setRegister(input.at(4), j);
+      for(int j = std::stoi(input.at(6)); j >= std::stoi(input.at(7)); j--) {
+        LOG(logINFO) << input.at(5) << " = " << j;
+        dev2->setRegister(input.at(5), j);
 
         std::stringstream responses;
         responses << "Pixel responses: ";
-        for(int k = 0; k < std::stoi(input.at(8)); k++) {
+        for(int k = 0; k < std::stoi(input.at(10)); k++) {
           // Wait a bit, in ms:
-          mDelay(std::stoi(input.at(7)));
+          mDelay(std::stoi(input.at(9)));
 
           pearydata frame;
           try {
             // Send pattern:
-            dev->triggerPatternGenerator();
+            dev2->triggerPatternGenerator();
             // Read the data:
-            frame = dev->getData();
+            frame = dev2->getData();
           } catch(caribou::DataException& e) {
             // Retrieval failed, retry once more before aborting:
             LOG(logWARNING) << e.what() << ", retyring once.";
             mDelay(10);
-            frame = dev->getData();
+            frame = dev2->getData();
           }
 
           for(auto& px : frame) {
             myfile << i << "," << j << "," << px.first.first << "," << px.first.second << "," << (*px.second) << "\n";
           }
           responses << frame.size() << " ";
-          mDelay(std::stoi(input.at(7)));
+          mDelay(std::stoi(input.at(9)));
         }
         LOG(logINFO) << responses.str();
       }
     }
     // Restore the old setting of the DACs:
     if(dac1_cached) {
-      dev->setRegister(input.at(1), dac1);
+      dev1->setRegister(input.at(1), dac1);
     }
     if(dac2_cached) {
-      dev->setRegister(input.at(4), dac2);
+      dev2->setRegister(input.at(4), dac2);
     }
 
     LOG(logINFO) << "Data writte to file: \"" << filename << "\"";
