@@ -6,6 +6,8 @@
 #include "hal.hpp"
 #include "log.hpp"
 
+#include <fstream>
+
 using namespace caribou;
 
 C3PD::C3PD(const caribou::Configuration config) : pearyDevice(config, std::string(DEFAULT_DEVICEPATH), C3PD_DEFAULT_I2C) {
@@ -37,6 +39,50 @@ void C3PD::configure() {
 
   // Call the base class configuration function:
   pearyDevice<iface_i2c>::configure();
+}
+
+void C3PD::configureMatrix(std::string filename) {
+
+  // Testpulses can only be enabled in full rows and columns:
+  std::map<int, uint8_t> test_columns;
+  std::map<int, uint8_t> test_rows;
+
+  LOG(logDEBUG) << "Reading pixel matrix file.";
+  std::ifstream pxfile(filename);
+  if(!pxfile.is_open()) {
+    LOG(logERROR) << "Could not open matrix file \"" << filename << "\"";
+    throw ConfigInvalid("Could not open matrix file \"" + filename + "\"");
+  }
+
+  std::string line = "";
+  while(std::getline(pxfile, line)) {
+    if(!line.length() || '#' == line.at(0))
+      continue;
+    std::istringstream pxline(line);
+    int column, row, tpenable, dummy;
+    if(pxline >> row >> column >> dummy >> dummy >> dummy >> tpenable >> dummy) {
+      if(static_cast<bool>(tpenable)) {
+        test_columns[column / 8] |= (1 << (column % 8));
+        test_rows[row / 8] |= (1 << (row % 8));
+      }
+    }
+  }
+
+  std::string alphabet("abcdefghijklmnop");
+  for(const auto& c : test_columns) {
+    LOG(logDEBUG) << "Column reg " << c.first << " bits " << to_bit_string(c.second);
+    LOG(logINFO) << "test: " << alphabet.at(c.first);
+    std::string reg("tpce");
+    reg += alphabet.at(c.first);
+    this->setRegister(reg, c.second);
+  }
+
+  for(const auto& r : test_rows) {
+    LOG(logDEBUG) << "Row reg " << r.first << " bits " << to_bit_string(r.second);
+    std::string reg("tpre");
+    reg += alphabet.at(r.first);
+    this->setRegister(reg, r.second);
+  }
 }
 
 void C3PD::reset() {
