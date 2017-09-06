@@ -790,7 +790,7 @@ int pearycli::scanThreshold(const std::vector<std::string>& input) {
     caribouDevice* dev1 = manager->getDevice(std::stoi(input.at(4)));
     caribouDevice* dev2 = manager->getDevice(std::stoi(input.at(8)));
     caribouDevice* dev3 = NULL;
-    LOG(logINFO) << input.size();
+
     // Only with optional arguments provided:
     bool testpulses = false;
     if(input.size() == 11) {
