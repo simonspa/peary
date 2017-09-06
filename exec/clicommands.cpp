@@ -839,7 +839,7 @@ int pearycli::scanThreshold(const std::vector<std::string>& input) {
           else {
             dev2->triggerPatternGenerator(false);
             dev3->setRegister(input.at(9), 1);
-            mDelay(100);
+            mDelay(10);
           }
 
           // Read the data:
