@@ -71,7 +71,6 @@ void C3PD::configureMatrix(std::string filename) {
   std::string alphabet("abcdefghijklmnop");
   for(const auto& c : test_columns) {
     LOG(logDEBUG) << "Column reg " << c.first << " bits " << to_bit_string(c.second);
-    LOG(logINFO) << "test: " << alphabet.at(c.first);
     std::string reg("tpce");
     reg += alphabet.at(c.first);
     this->setRegister(reg, c.second);
