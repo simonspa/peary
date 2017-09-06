@@ -63,7 +63,8 @@ void C3PD::configureMatrix(std::string filename) {
     if(pxline >> row >> column >> dummy >> dummy >> dummy >> tpenable >> dummy) {
       if(static_cast<bool>(tpenable)) {
         test_columns[column / 8] |= (1 << (column % 8));
-        test_rows[row / 8] |= (1 << (row % 8));
+        // BEWARE: C3PD is flipped wrt CLICpix2 in rows!
+        test_rows[15 - row / 8] |= (1 << (7 - (row % 8)));
       }
     }
   }
