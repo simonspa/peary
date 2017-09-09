@@ -16,7 +16,7 @@ SET(LIB_SOURCE_FILES
   "device/devicemgr.cpp"
   "device/device.cpp"
   # HAL base
-  "hal/halbase.cpp"
+  "carboard/halbase.cpp"
   # interface manager
   "interfaces/interface_manager.cpp"
   # utilities
@@ -26,7 +26,7 @@ SET(LIB_SOURCE_FILES
 
 IF(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
   add_definitions(-DYOCTO_COMPILATION)
-ENDIF(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")  
+ENDIF(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
 
 IF(INTERFACE_I2C)
   # add I2C source files

@@ -31,7 +31,7 @@ SET(CMAKE_INSTALL_PREFIX "${INSTALL_PREFIX}" CACHE INTERNAL "Prefix prepended to
 # Set up the RPATH so executables find the libraries even when installed in non-default location
 SET(CMAKE_MACOSX_RPATH 1)
 SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
-SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE) 
+SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 # Add the automatically determined parts of the RPATH which point to directories outside
 # the build tree to the install RPATH
@@ -110,7 +110,7 @@ INCLUDE("cmake/clang-cpp-checks.cmake")
 # Include directories
 INCLUDE_DIRECTORIES(peary/utils
   peary/device
-  peary/hal
+  peary/carboard
   peary/interfaces)
 
 # Always build main peary library;
@@ -155,4 +155,3 @@ INSTALL(TARGETS peary_app peary_direct pearycli
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib)
-
