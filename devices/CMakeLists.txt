@@ -1,5 +1,5 @@
 macro(optional_add_subdirectory dir)
-  if(${dir} MATCHES "example|c3pd|clicpix2|ccpdv5")
+  if(${dir} MATCHES "example|c3pd|clicpix2|ccpdv5|ATLASPix")
     option(BUILD_${dir} "Build device in directory ${dir}?" ON)
   ELSE()
     option(BUILD_${dir} "Build device in directory ${dir}?" OFF)
@@ -16,7 +16,6 @@ option(BUILD_alldevices "Build all devices?" OFF)
 # Example device implementation - check this directory as a starting point
 # for your own device implementation
 optional_add_subdirectory(example)
-
 optional_add_subdirectory(clicpix2)
 optional_add_subdirectory(c3pd)
 optional_add_subdirectory(timepix3)
