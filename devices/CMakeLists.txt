@@ -21,3 +21,5 @@ optional_add_subdirectory(clicpix2)
 optional_add_subdirectory(c3pd)
 optional_add_subdirectory(timepix3)
 optional_add_subdirectory(ccpdv5)
+optional_add_subdirectory(ATLASPix)
+
