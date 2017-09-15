@@ -15,6 +15,10 @@ ATLASPix::ATLASPix(const caribou::Configuration config) : pearyDevice(config, st
   _periphery.add("vdda", PWR_OUT_3);
   _periphery.add("vssa", PWR_OUT_2);
 
+  _periphery.add("CMOS_LEVEL", PWR_OUT_1);
+	
+
+
 
   _periphery.add("GndDACPix_M2", BIAS_9);
   _periphery.add("VMinusPix_M2", BIAS_5);
@@ -70,6 +74,11 @@ void ATLASPix::powerUp() {
   _hal->setVoltageRegulator(PWR_OUT_2, _config.Get("vssa", ATLASPix_VSSA), _config.Get("vssa_current", ATLASPix_VSSA_CURRENT));
   _hal->powerVoltageRegulator(PWR_OUT_2, true);
 
+  LOG(logDEBUG) << " CMOS_Transcievers level";
+  _hal->setVoltageRegulator(PWR_OUT_1, _config.Get("CMOS_LEVEL", ATLASPix_CMOS_LEVEL), _config.Get("cmos_level_current", ATLASPix_CMOS_LEVEL_CURRENT));
+  _hal->powerVoltageRegulator(PWR_OUT_1, true);
+
+
 
   // Bias voltages:
   LOG(logDEBUG) << " GNDDacPix ";
@@ -97,6 +106,9 @@ void ATLASPix::powerDown() {
 
   LOG(logDEBUG) << "Powering off VSSA";
   _hal->powerVoltageRegulator(PWR_OUT_2, false);
+
+  LOG(logDEBUG) << "Powering off CMOS_LEVEL";
+  _hal->powerVoltageRegulator(PWR_OUT_1, false);
 
   LOG(logDEBUG) << "Turning off GNDDacPix";
   _hal->powerBiasRegulator(BIAS_9, true);
