@@ -1,4 +1,4 @@
-*
+/*
  * Si5345 Rev B Configuration Register Export Header File
  *
  * This file represents a series of Silicon Labs Si5345 Rev B
