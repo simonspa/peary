@@ -30,7 +30,7 @@ ATLASPix::ATLASPix(const caribou::Configuration config) : pearyDevice(config, st
   _periphery.add("GndDACPix_M2", BIAS_9);
   _periphery.add("VMinusPix_M2", BIAS_5);
   _periphery.add("GatePix_M2", BIAS_2);
-
+  LOG(logINFO) << "Setting clock to 100MHz " << DEVICE_NAME;
   configureClock();
 
 
