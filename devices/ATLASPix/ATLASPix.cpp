@@ -45,10 +45,10 @@ ATLASPix::ATLASPix(const caribou::Configuration config) : pearyDevice(config, st
 
 }
 
-void ATLASPix::configure() {
+void ATLASPix::configure(int device) {
   LOG(logINFO) << "Configuring " << DEVICE_NAME;
 
- volatile uint32_t* control_reg = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(_hal->getMappedMemoryRW(CLICPIX2_CONTROL_BASE_ADDRESS+4*32, 32, 0x0)));
+ volatile uint32_t* control_reg = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(_hal->getMappedMemoryRW(ATLASPix_CONTROL_BASE_ADDRESS+4*32, 32, 0x0)));
  *control_reg &= ~(0xFFFFFFFF);
  usleep(100);
  *control_reg &= ~(0x0);
@@ -166,12 +166,6 @@ void ATLASPix::powerStatusLog() {
 }
 
 
-void ATLASPix::configure(int device) {
- volatile uint32_t* control_reg = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(_hal->getMappedMemoryRW(CLICPIX2_CONTROL_BASE_ADDRESS+4*32, 32, 0x0)));
- *control_reg &= ~(0xFFFFFFFF);
- usleep(1);
- *control_reg &= ~(0x0);
-}
 
 
 void ATLASPix::configureClock() {
