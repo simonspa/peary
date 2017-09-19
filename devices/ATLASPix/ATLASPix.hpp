@@ -55,6 +55,8 @@ namespace caribou {
 
     void LoadConfiguration(int matrix);
 
+    void configureClock();
+
 
   private:
     // analog power supply
