@@ -31,6 +31,8 @@ ATLASPix::ATLASPix(const caribou::Configuration config) : pearyDevice(config, st
   _periphery.add("VMinusPix_M2", BIAS_5);
   _periphery.add("GatePix_M2", BIAS_2);
 
+  configureClock();
+
 
   // Add the register definitions to the dictionary for convenient lookup of names:
   //_registers.add(ATLASPix_REGISTERS);
@@ -48,9 +50,9 @@ void ATLASPix::configure() {
 
  volatile uint32_t* control_reg = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(_hal->getMappedMemoryRW(CLICPIX2_CONTROL_BASE_ADDRESS+4*32, 32, 0x0)));
  *control_reg &= ~(0xFFFFFFFF);
- usleep(1);
+ usleep(100);
  *control_reg &= ~(0x0);
-
+ LOG(logINFO) << "toggle of Load line" << DEVICE_NAME;
   // Call the base class configuration function:
   pearyDevice<iface_i2c>::configure();
 }
@@ -170,6 +172,32 @@ void ATLASPix::configure(int device) {
  usleep(1);
  *control_reg &= ~(0x0);
 }
+
+
+void ATLASPix::configureClock() {
+
+  // Check of we should configure for external or internal clock, default to external:
+  if(_config.Get<bool>("clock_internal", false)) {
+    LOG(logDEBUG) << DEVICE_NAME << ": Configure internal clock source, free running, not locking";
+    _hal->configureSI5345((SI5345_REG_T const* const)si5345_revb_registers_free, SI5345_REVB_REG_CONFIG_NUM_REGS_FREE);
+    mDelay(100); // let the PLL lock
+  } else {
+    LOG(logDEBUG) << DEVICE_NAME << ": Configure external clock source, locked to TLU input clock";
+    _hal->configureSI5345((SI5345_REG_T const* const)si5345_revb_registers, SI5345_REVB_REG_CONFIG_NUM_REGS);
+    LOG(logDEBUG) << "Waiting for clock to lock...";
+
+    // Try for a limited time to lock, otherwise abort:
+    std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+    while(!_hal->isLockedSI5345()) {
+      auto dur = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - start);
+      if(dur.count() > 3)
+        throw DeviceException("Cannot lock to external clock.");
+    }
+  }
+}
+
+
+
 
 caribouDevice* caribou::generator(const caribou::Configuration config) {
   LOG(logDEBUG) << "Generator: " << DEVICE_NAME;

@@ -3,6 +3,7 @@
 
 #include "carboard.hpp"
 #include "dictionary.hpp"
+#include "ATLASPix_clk_freerunning.h" 
 
 namespace caribou {
 
