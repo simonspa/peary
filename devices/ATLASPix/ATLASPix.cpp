@@ -45,7 +45,11 @@ ATLASPix::ATLASPix(const caribou::Configuration config) : pearyDevice(config, st
 
 void ATLASPix::configure() {
   LOG(logINFO) << "Configuring " << DEVICE_NAME;
-  reset();
+
+ volatile uint32_t* control_reg = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(_hal->getMappedMemoryRW(CLICPIX2_CONTROL_BASE_ADDRESS+4*32, 32, 0x0)));
+ *control_reg &= ~(0xFFFFFFFF);
+ usleep(1);
+ *control_reg &= ~(0x0);
 
   // Call the base class configuration function:
   pearyDevice<iface_i2c>::configure();
@@ -160,7 +164,7 @@ void ATLASPix::powerStatusLog() {
 }
 
 
-void ATLASPix::LoadConfiguration(int device) {
+void ATLASPix::configure(int device) {
  volatile uint32_t* control_reg = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(_hal->getMappedMemoryRW(CLICPIX2_CONTROL_BASE_ADDRESS+4*32, 32, 0x0)));
  *control_reg &= ~(0xFFFFFFFF);
  usleep(1);
