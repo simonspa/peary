@@ -185,8 +185,8 @@ void ATLASPix::configureClock() {
     while(!_hal->isLockedSI5345()) {
       auto dur = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - start);
       if(dur.count() > 3)
-        throw DeviceException("Cannot lock to external clock."); */
-    }
+        throw DeviceException("Cannot lock to external clock."); 
+    }*/
   }
 }
 
