@@ -177,7 +177,7 @@ void ATLASPix::configureClock() {
     mDelay(100); // let the PLL lock
   } else {
     LOG(logDEBUG) << DEVICE_NAME << ": Configure external clock source, locked to TLU input clock";
-    _hal->configureSI5345((SI5345_REG_T const* const)si5345_revb_registers, SI5345_REVB_REG_CONFIG_NUM_REGS);
+    //_hal->configureSI5345((SI5345_REG_T const* const)si5345_revb_registers, SI5345_REVB_REG_CONFIG_NUM_REGS);
     LOG(logDEBUG) << "Waiting for clock to lock...";
 
     // Try for a limited time to lock, otherwise abort:
