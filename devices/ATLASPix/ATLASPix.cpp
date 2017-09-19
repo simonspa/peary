@@ -2,9 +2,16 @@
  * Caribou implementation for the ATLASPix
  */
 
+
+#include <chrono>
+#include <fcntl.h>
+#include <fstream>
+#include <sys/mman.h>
+#include <unistd.h>
 #include "ATLASPix.hpp"
 #include "hal.hpp"
 #include "log.hpp"
+
 
 using namespace caribou;
 
@@ -150,6 +157,14 @@ void ATLASPix::powerStatusLog() {
   LOG(logINFO) << "\tBus power  : " << _hal->measurePower(PWR_OUT_2) << "W";
 
 
+}
+
+
+void ATLASPix::LoadConfiguration(int device) {
+ volatile uint32_t* control_reg = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(_hal->getMappedMemoryRW(CLICPIX2_CONTROL_BASE_ADDRESS+4*32, 32, 0x0)));
+ *control_reg &= ~(0xFFFFFFFF);
+ usleep(1);
+ *control_reg &= ~(0x0);
 }
 
 caribouDevice* caribou::generator(const caribou::Configuration config) {

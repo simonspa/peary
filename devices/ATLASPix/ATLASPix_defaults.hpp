@@ -16,17 +16,6 @@ namespace caribou {
 
 /** Definition of default values for the different DAC settings for ATLASPix
  */
-#define ATLASPix_VBPRE 0x38
-#define ATLASPix_VBPCAS 0x60
-#define ATLASPix_VBOALF 0x48
-#define ATLASPix_VBOAHF 0x05
-#define ATLASPix_VBLS 0x1B
-#define ATLASPix_VBFBK 0x02
-#define ATLASPix_VBS 0x0A
-#define ATLASPix_VBSP 0x0A
-#define ATLASPix_VBPREOFF 0x02
-#define ATLASPix_VBLSOFF 0x02
-#define ATLASPix_VBTP 0x00
 
 #define ATLASPix_VDDD 1.8
 #define ATLASPix_VDDD_CURRENT 1
@@ -43,12 +32,8 @@ namespace caribou {
 
 
   // ATLASPix control
-  const std::intptr_t ATLASPix_CONTROL_BASE_ADDRESS = 0x43C20000;
-  const std::intptr_t ATLASPix_RESET_OFFSET = 0x88;
+  const std::intptr_t ATLASPix_CONTROL_BASE_ADDRESS = 0x43C00000;
 
-  const uint32_t ATLASPix_CONTROL_RESET_MASK = 0x1;
-  const std::size_t ATLASPix_CONTROL_MAP_SIZE = 4096;
-  const std::size_t ATLASPix_CONTROL_MAP_MASK = ATLASPix_CONTROL_MAP_SIZE - 1;
 
 
 /** Dictionary for register address/name lookup for ATLASPix

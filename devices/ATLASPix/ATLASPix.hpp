@@ -52,6 +52,10 @@ namespace caribou {
     // The reset signal is asserted for ~5us
     void reset();
 
+
+    void LoadConfiguration(int matrix);
+
+
   private:
     // analog power supply
     // digital power supply
