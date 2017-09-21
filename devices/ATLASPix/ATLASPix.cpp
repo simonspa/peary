@@ -47,11 +47,34 @@ ATLASPix::ATLASPix(const caribou::Configuration config) : pearyDevice(config, st
 
 void ATLASPix::configure(int device) {
   LOG(logINFO) << "Configuring " << DEVICE_NAME;
+ volatile uint32_t* RAM_address = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(_hal->getMappedMemoryRW(ATLASPix_CONTROL_BASE_ADDRESS+0*32, 32, 0x0)));
+ volatile uint32_t* RAM_write_enable = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(_hal->getMappedMemoryRW(ATLASPix_CONTROL_BASE_ADDRESS+1*32, 32, 0x0)));
+ volatile uint32_t* RAM_content = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(_hal->getMappedMemoryRW(ATLASPix_CONTROL_BASE_ADDRESS+2*32, 32, 0x0))); 
+ volatile uint32_t* Config_flag = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(_hal->getMappedMemoryRW(ATLASPix_CONTROL_BASE_ADDRESS+3*32, 32, 0x0)));
+ volatile uint32_t* RAM_reg_limit = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(_hal->getMappedMemoryRW(ATLASPix_CONTROL_BASE_ADDRESS+4*32, 32, 0x0)));
+ volatile uint32_t* RAM_shift_limit = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(_hal->getMappedMemoryRW(ATLASPix_CONTROL_BASE_ADDRESS+5*32, 32, 0x0)));
+ volatile uint32_t* global_reset = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(_hal->getMappedMemoryRW(ATLASPix_CONTROL_BASE_ADDRESS+6*32, 32, 0x0))); 
 
- volatile uint32_t* control_reg = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(_hal->getMappedMemoryRW(ATLASPix_CONTROL_BASE_ADDRESS+4*32, 32, 0x0)));
- *control_reg &= ~(0xFFFFFFFF);
+
+
+
+ *RAM_reg_limit &= ~(0xFFFFFFFF);
+ *RAM_shift_limit &= ~(0xFFFFFFFF);
+ 
+  for(uint32_t i =0;i<64;i++){
+	*RAM_address &= i;
+	*RAM_content &= 0x0F;
+	 usleep(10);
+	*RAM_write_enable &=0xFFFFFFFF;
+	 usleep(10);
+	*RAM_write_enable &=0x0;
+};
+
+ usleep(10);
+
+ *Config_flag &= ~(0xFFFFFFFF);
  usleep(100);
- *control_reg &= ~(0x0);
+ *Config_flag &= ~(0x0);
  LOG(logINFO) << "toggle of Load line" << DEVICE_NAME;
   // Call the base class configuration function:
   pearyDevice<iface_i2c>::configure();
@@ -162,6 +185,10 @@ void ATLASPix::powerStatusLog() {
   LOG(logINFO) << "\tBus current: " << _hal->measureCurrent(PWR_OUT_2) << "A";
   LOG(logINFO) << "\tBus power  : " << _hal->measurePower(PWR_OUT_2) << "W";
 
+  LOG(logINFO) << "CMOS Level:";
+  LOG(logINFO) << "\tBus voltage: " << _hal->measureVoltage(PWR_OUT_1) << "V";
+  LOG(logINFO) << "\tBus current: " << _hal->measureCurrent(PWR_OUT_1) << "A";
+  LOG(logINFO) << "\tBus power  : " << _hal->measurePower(PWR_OUT_1) << "W";
 
 }
 
