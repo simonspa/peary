@@ -16,6 +16,8 @@ caribou::caribouDeviceMgr* manager;
 int my_socket;
 std::ofstream myfile;
 unsigned int framecounter;
+std::string configfile;
+caribou::Configuration config;
 
 // Global functions
 bool configure(int value, unsigned int configureAttempts);
@@ -23,6 +25,7 @@ bool start_run(std::string prefix, int run_nr, std::string description);
 bool stop_run(std::string prefix);
 bool getFrame();
 std::vector<std::string> split(std::string str, char delimiter);
+void copyFile(std::string src, std::string dst);
 
 FILE* lfile;
 
@@ -54,7 +57,7 @@ int main(int argc, char* argv[]) {
   std::string ipaddress;
 
   std::vector<std::string> devices;
-  std::string configfile = "";
+  configfile = "";
 
   // Quick and hacky cli arguments reading:
   for(int i = 1; i < argc; i++) {
@@ -94,7 +97,6 @@ int main(int argc, char* argv[]) {
   try {
 
     // Open configuration file and create object:
-    caribou::Configuration config;
     std::ifstream file(configfile.c_str());
     if(!file.is_open()) {
       LOG(logERROR) << "No configuration file provided.";
@@ -359,6 +361,18 @@ bool start_run(std::string rundir, int run_nr, std::string) {
       }
       i++;
     }
+
+    // copy config file to run folder
+    LOG(logINFO) << "Copy config file: " << configfile;
+    copyFile(configfile, rundir + "/" + configfile);
+
+    // Copy matrix and pattern generator
+    LOG(logINFO) << "Copy matrix file: " << config.Get("matrix", "");
+    copyFile(config.Get("matrix", ""), rundir + "/" + config.Get("matrix", ""));
+
+    LOG(logINFO) << "Copy patterngenerator: " << config.Get("patterngenerator", "");
+    copyFile(config.Get("patterngenerator", ""), rundir + "/" + config.Get("patterngenerator", ""));
+
   } catch(caribou::caribouException& e) {
     LOG(logERROR) << e.what();
     return false;
@@ -438,4 +452,10 @@ std::vector<std::string> split(std::string str, char delimiter) {
     internal.push_back(tok);
   }
   return internal;
+}
+
+void copyFile(std::string src, std::string dst) {
+  std::ifstream srcfile(src, std::ios::binary);
+  std::ofstream dstfile(dst, std::ios::binary);
+  dstfile << srcfile.rdbuf();
 }
