@@ -67,8 +67,7 @@ void ATLASPix::configure(int device) {
 	 usleep(10);
 	*RAM_write_enable &=0xFFFFFFFF;
 	 usleep(10);
-	*RAM_write_enable &=0x0;
-};
+	*RAM_write_enable &=0x0;};
 
  usleep(10);
 
