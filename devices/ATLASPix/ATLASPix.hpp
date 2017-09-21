@@ -24,7 +24,7 @@ namespace caribou {
 
     /** Initializer function for ATLASPix
      */
-    void configure(int device);
+    void configure();
 
     /** Turn on the power supply for the ATLASPix chip
      */

@@ -45,7 +45,7 @@ ATLASPix::ATLASPix(const caribou::Configuration config) : pearyDevice(config, st
 
 }
 
-void ATLASPix::configure(int device) {
+void ATLASPix::configure() {
   LOG(logINFO) << "Configuring " << DEVICE_NAME;
  volatile uint32_t* RAM_address = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(_hal->getMappedMemoryRW(ATLASPix_CONTROL_BASE_ADDRESS+0*32, 32, 0x0)));
  volatile uint32_t* RAM_write_enable = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(_hal->getMappedMemoryRW(ATLASPix_CONTROL_BASE_ADDRESS+1*32, 32, 0x0)));
