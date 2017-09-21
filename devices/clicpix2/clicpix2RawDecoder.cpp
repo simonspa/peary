@@ -56,7 +56,8 @@ int main(int argc, char* argv[]) {
   std::ifstream f;
   std::ofstream outfile;
   f.open(datafile);
-  outfile.open(datafile + ".txt");
+  size_t lastindex = datafile.find_last_of(".");
+  outfile.open(datafile.substr(0, lastindex) + ".csv");
   std::string line;
 
   // Compression flags

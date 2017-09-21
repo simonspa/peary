@@ -348,7 +348,7 @@ bool start_run(std::string rundir, int run_nr, std::string) {
       // dev->daqStart();
       if(dev->getName() == "CLICpix2") {
         mkdir(rundir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-        std::string filename = rundir + "/run" + to_string(run_nr) + ".csv";
+        std::string filename = rundir + "/run" + to_string(run_nr) + ".raw";
         LOG(logINFO) << "Writing data to " << rundir;
         myfile.open(filename);
         // myfile << "# pearycli > acquire\n";
