@@ -41,7 +41,7 @@ cmp:centos7-gcc:
     - source .gitlab-ci.d/init_x86_64.sh
     - mkdir build
     - cd build
-    - cmake -GNinja -DBUILD_example=ON -DBUILD_server=ON ..
+    - cmake -GNinja -DBUILD_example=ON -DBUILD_server=ON -DINTERFACE_I2C=OFF -DINTERFACE_SPI=OFF -DINTERFACE_SPI_CLICpix2=OFF ..
     - ninja
     - ninja install
   artifacts:
@@ -63,7 +63,7 @@ cmp:centos7-llvm:
     - source .gitlab-ci.d/init_x86_64.sh
     - mkdir build
     - cd build
-    - cmake -GNinja -DBUILD_example=ON -DBUILD_server=ON ..
+    - cmake -GNinja -DBUILD_example=ON -DBUILD_server=ON -DINTERFACE_I2C=OFF -DINTERFACE_SPI=OFF -DINTERFACE_SPI_CLICpix2=OFF ..
     - ninja
     - ninja install
   artifacts:
