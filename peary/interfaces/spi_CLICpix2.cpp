@@ -34,14 +34,14 @@ std::pair<spi_reg_t, spi_t> iface_spi_CLICpix2::write(const spi_address_t&, cons
   tr.bits_per_word = (sizeof(spi_reg_t) + sizeof(spi_t)) * CHAR_BIT;
 
   if(ioctl(spiDesc, SPI_IOC_MESSAGE(1), &tr) < 3) {
-    throw CommunicationError("Failed to access device " + devicePath + ": " + std::strerror(errno));
+    throw CommunicationError("Failed to access device " + devicePath() + ": " + std::strerror(errno));
   }
 
   uint16_t* rx_raw = (uint16_t*)_data.data();
   std::pair<spi_reg_t, spi_t> rx(static_cast<spi_reg_t>(rx_raw[0] >> 5),
                                  static_cast<spi_t>(((rx_raw[0] & (0x1F)) << 3) | ((rx_raw[1] & 0xE000) >> 13)));
 
-  LOG(logINTERFACE) << "SPI device " << devicePath << ": Register " << to_hex_string(data.first) << " Wrote data \""
+  LOG(logINTERFACE) << "SPI device " << devicePath() << ": Register " << to_hex_string(data.first) << " Wrote data \""
                     << to_hex_string(data.second) << "\" Read data \"" << to_hex_string(rx.second) << "\"";
 
   return rx;
@@ -80,7 +80,7 @@ std::vector<std::pair<spi_reg_t, spi_t>> iface_spi_CLICpix2::write(const spi_add
     if(loop.i % static_cast<int>(2 << 7) == static_cast<int>((2 << 7) - 1)) // i % 2^7 == 2^7 - 1
       if(ioctl(spiDesc, SPI_IOC_MESSAGE(static_cast<int>((2 << 7))), &tr[loop.i - static_cast<int>((2 << 7) - 1)]) <
          static_cast<int>((2 << 7)))
-        throw CommunicationError("Failed to access device " + devicePath + ": " + std::strerror(errno));
+        throw CommunicationError("Failed to access device " + devicePath() + ": " + std::strerror(errno));
   }
   // SPIDEV has limit of 2^7 words
   //(_IOC_SIZE has 14 bits indicates number of bytes taken by spi_ioc_transfer times number of messages)
@@ -89,7 +89,7 @@ std::vector<std::pair<spi_reg_t, spi_t>> iface_spi_CLICpix2::write(const spi_add
              SPI_IOC_MESSAGE(data.size() % static_cast<int>(2 << 7)),
              &tr[data.size() / static_cast<int>(2 << 7) * static_cast<int>((2 << 7))]) <
        data.size() % static_cast<int>(2 << 7))
-      throw CommunicationError("Failed to access device " + devicePath + ": " + std::strerror(errno));
+      throw CommunicationError("Failed to access device " + devicePath() + ": " + std::strerror(errno));
 
   // unpack
   rx.reserve(data.size());
@@ -106,7 +106,7 @@ std::vector<std::pair<spi_reg_t, spi_t>> iface_spi_CLICpix2::write(const spi_add
     loop.pos += 2 * (sizeof(spi_t) + sizeof(spi_reg_t));
   }
 
-  LOG(logINTERFACE) << "SPI device " << devicePath << ": \n\t Wrote block data (Reg: data): \""
+  LOG(logINTERFACE) << "SPI device " << devicePath() << ": \n\t Wrote block data (Reg: data): \""
                     << listVector(data, ", ", true) << "\"\n\t Read  block data (Reg: data): \""
                     << listVector(rx, ", ", true) << "\"";
 

@@ -22,7 +22,7 @@ iface_spi::iface_spi(std::string const& device_path) : Interface(device_path), s
   std::lock_guard<std::mutex> lock(mutex);
 
   // Open device
-  if((spiDesc = open(devicePath.c_str(), O_RDWR)) < 0) {
+  if((spiDesc = open(devicePath().c_str(), O_RDWR)) < 0) {
     throw DeviceException("Open " + device_path + " device failed. " + std::strerror(spiDesc));
   }
 
@@ -53,12 +53,12 @@ std::pair<spi_reg_t, spi_t> iface_spi::write(const spi_address_t&, const std::pa
   tr.bits_per_word = (sizeof(spi_reg_t) + sizeof(spi_t)) * CHAR_BIT;
 
   if(ioctl(spiDesc, SPI_IOC_MESSAGE(1), &tr) < 1) {
-    throw CommunicationError("Failed to access device " + devicePath + ": " + std::strerror(errno));
+    throw CommunicationError("Failed to access device " + devicePath() + ": " + std::strerror(errno));
   }
 
   std::pair<spi_reg_t, spi_t> rx(*static_cast<spi_reg_t*>(_data.data() + sizeof(spi_t)), *static_cast<spi_t*>(_data.data()));
 
-  LOG(logINTERFACE) << "SPI device " << devicePath << ": Register " << to_hex_string(data.first) << " Wrote data \""
+  LOG(logINTERFACE) << "SPI device " << devicePath() << ": Register " << to_hex_string(data.first) << " Wrote data \""
                     << to_hex_string(data.second) << "\" Read data \"" << to_hex_string(rx.second) << "\"";
 
   return rx;
@@ -110,7 +110,7 @@ std::vector<std::pair<spi_reg_t, spi_t>> iface_spi::write(const spi_address_t&,
   }
 
   if(ioctl(spiDesc, SPI_IOC_MESSAGE(data.size()), tr.get()) < data.size()) {
-    throw CommunicationError("Failed to access device " + devicePath + ": " + std::strerror(errno));
+    throw CommunicationError("Failed to access device " + devicePath() + ": " + std::strerror(errno));
   }
 
   // unpack
@@ -126,7 +126,7 @@ std::vector<std::pair<spi_reg_t, spi_t>> iface_spi::write(const spi_address_t&,
     loop.pos += sizeof(spi_t) + sizeof(spi_reg_t);
   }
 
-  LOG(logINTERFACE) << "SPI device " << devicePath << ": \n\t Wrote block data (Reg: data): \""
+  LOG(logINTERFACE) << "SPI device " << devicePath() << ": \n\t Wrote block data (Reg: data): \""
                     << listVector(data, ", ", true) << "\"\n\t Read  block data (Reg: data): \""
                     << listVector(rx, ", ", true) << "\"";
 
