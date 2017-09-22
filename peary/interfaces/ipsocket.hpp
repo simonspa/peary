@@ -31,9 +31,9 @@ namespace caribou {
     template <typename T> friend class caribouHAL;
 
   public:
-    ipsocket_t write(const ipsocket_port_t& address, ipsocket_t& data);
+    ipsocket_t write(const ipsocket_port_t& address, const ipsocket_t& payload);
 
-    std::vector<ipsocket_t> read(const ipsocket_port_t& address, ipsocket_t& query, const unsigned int length = 1);
+    std::vector<ipsocket_t> read(const ipsocket_port_t& address, const ipsocket_t& query, const unsigned int length = 1);
 
   private:
     // Unused constructor

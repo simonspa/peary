@@ -99,9 +99,10 @@ iface_ipsocket::~iface_ipsocket() {
   close(mysocket_);
 }
 
-ipsocket_t iface_ipsocket::write(const ipsocket_port_t&, ipsocket_t& data) {
+ipsocket_t iface_ipsocket::write(const ipsocket_port_t&, const ipsocket_t& payload) {
   std::lock_guard<std::mutex> lock(mutex);
 
+  ipsocket_t data = payload;
   data = cleanCommandString(data);
 
   if(data.back() != '\n') {
@@ -119,7 +120,7 @@ ipsocket_t iface_ipsocket::write(const ipsocket_port_t&, ipsocket_t& data) {
   return std::string();
 }
 
-std::vector<ipsocket_t> iface_ipsocket::read(const ipsocket_port_t&, ipsocket_t& query, const unsigned int) {
+std::vector<ipsocket_t> iface_ipsocket::read(const ipsocket_port_t&, const ipsocket_t& query, const unsigned int) {
   std::lock_guard<std::mutex> lock(mutex);
   std::vector<ipsocket_t> data;
   ipsocket_t dataword;
