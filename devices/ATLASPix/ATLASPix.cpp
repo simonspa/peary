@@ -39,11 +39,11 @@ ATLASPix::ATLASPix(const caribou::Configuration config) : pearyDevice(config, st
   // Add the register definitions to the dictionary for convenient lookup of names:
   //_registers.add(ATLASPix_REGISTERS);
 
-  // Get access to FPGA memory mapped registers
-//  memfd = open(MEM_PATH, O_RDWR | O_SYNC);
-//  if(memfd == -1) {
-//    throw DeviceException("Can't open /dev/mem.\n");
-//  }
+   Get access to FPGA memory mapped registers
+  memfd = open(MEM_PATH, O_RDWR | O_SYNC);
+  if(memfd == -1) {
+    throw DeviceException("Can't open /dev/mem.\n");
+  }
 
 
 
