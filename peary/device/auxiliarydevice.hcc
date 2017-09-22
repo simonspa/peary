@@ -33,9 +33,6 @@ namespace caribou {
 
     virtual std::string getFirmwareVersion() { return std::string(); };
     virtual uint8_t getFirmwareID() { return uint8_t(); };
-    virtual uint8_t getCaRBoardID() { return uint8_t(); };
-    virtual uint16_t getChipID() { return uint16_t(); };
-    virtual std::string getDeviceName() { return std::string(); };
 
     virtual std::vector<uint32_t> getRawData() { return std::vector<uint32_t>(); };
 
