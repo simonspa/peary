@@ -40,10 +40,10 @@ ATLASPix::ATLASPix(const caribou::Configuration config) : pearyDevice(config, st
   //_registers.add(ATLASPix_REGISTERS);
 
    //Get access to FPGA memory mapped registers
-  memfd = open(MEM_PATH, O_RDWR | O_SYNC);
-  if(memfd == -1) {
-    throw DeviceException("Can't open /dev/mem.\n");
-  }
+//  memfd = open(MEM_PATH, O_RDWR | O_SYNC);
+//  if(memfd == -1) {
+//    throw DeviceException("Can't open /dev/mem.\n");
+//  }
 
 
 
@@ -235,7 +235,7 @@ void ATLASPix::BuildSRVectors(){
 
     //DAC Block 1 for DIgital Part
     //AnalogDACs
-    CurrentDACConfig->AddParameter("unlock",    4, ATLASPix_Config::LSBFirst, unlock); // unlock = x101
+    CurrentDACConfig->AddParameter("unlock",    4, ATLASPix_Config::LSBFirst, 0); // unlock = x101
     CurrentDACConfig->AddParameter("BLResPix", "5,4,3,1,0,2",  5);
     CurrentDACConfig->AddParameter("ThResPix", "5,4,3,1,0,2",  0);
     CurrentDACConfig->AddParameter("VNPix", "5,4,3,1,0,2",  20);
