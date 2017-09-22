@@ -712,11 +712,14 @@ int pearycli::acquire(const std::vector<std::string>& input) {
     myfile << getFileHeader(input.at(0), dev);
 
     bool testpulses = false;
+    bool tp_status = false;
     caribouDevice* dev2 = nullptr;
     // Only with optional arguments provided:
     if(input.size() == 7) {
       dev2 = manager->getDevice(std::stoi(input.at(6)));
       testpulses = true;
+      // Get status of the register to toggle:
+      tp_status = static_cast<bool>(dev2->getRegister(input.at(5)));
     }
 
     for(int n = 0; n < std::stoi(input.at(1)); n++) {
@@ -726,8 +729,8 @@ int pearycli::acquire(const std::vector<std::string>& input) {
           if(testpulses) {
             // Send pattern:
             dev->triggerPatternGenerator(false);
-            // Trigger DEV2
-            dev2->setRegister(input.at(5), 1);
+            // Trigger DEV2, toggle to NOT(tp_status)
+            dev2->setRegister(input.at(5), static_cast<int>(!tp_status));
           } else {
             // Send pattern:
             dev->triggerPatternGenerator(true);
@@ -736,9 +739,9 @@ int pearycli::acquire(const std::vector<std::string>& input) {
           mDelay(100);
           // Read the data:
           data = dev->getData();
-          // Reset DEV2 testpulse
+          // Reset DEV2 testpulse to tp_status
           if(testpulses) {
-            dev2->setRegister(input.at(5), 0);
+            dev2->setRegister(input.at(5), static_cast<int>(tp_status));
           }
         } catch(caribou::DataException& e) {
           // Retrieval failed, retry once more before aborting:
