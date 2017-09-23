@@ -35,6 +35,8 @@ ATLASPix::ATLASPix(const caribou::Configuration config) : pearyDevice(config, st
   LOG(logINFO) << "Setting clock to 100MHz " << DEVICE_NAME;
   configureClock();
 
+  this->Initialize_SR();
+
 
   // Add the register definitions to the dictionary for convenient lookup of names:
   //_registers.add(ATLASPix_REGISTERS);
@@ -51,39 +53,13 @@ ATLASPix::ATLASPix(const caribou::Configuration config) : pearyDevice(config, st
 }
 
 void ATLASPix::configure() {
-  LOG(logINFO) << "Configuring " << DEVICE_NAME;
+ LOG(logINFO) << "Configuring " << DEVICE_NAME;
  
- LOG(logINFO) << "mapping RAM registers " << DEVICE_NAME;
- volatile uint32_t* RAM_address = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(_hal->getMappedMemoryRW(ATLASPix_CONTROL_BASE_ADDRESS, 32, 0x0)));
- volatile uint32_t* RAM_write_enable = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(_hal->getMappedMemoryRW(ATLASPix_CONTROL_BASE_ADDRESS+1*4, 32, 0x0)));
- volatile uint32_t* RAM_content = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(_hal->getMappedMemoryRW(ATLASPix_CONTROL_BASE_ADDRESS+2*4, 32, 0x0))); 
- LOG(logINFO) << "mapping Config registers " << DEVICE_NAME;
- volatile uint32_t* Config_flag = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(_hal->getMappedMemoryRW(ATLASPix_CONTROL_BASE_ADDRESS+3*4, 32, 0x0)));
- volatile uint32_t* RAM_reg_limit = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(_hal->getMappedMemoryRW(ATLASPix_CONTROL_BASE_ADDRESS+4*4, 32, 0x0)));
- volatile uint32_t* RAM_shift_limit = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(_hal->getMappedMemoryRW(ATLASPix_CONTROL_BASE_ADDRESS+5*4, 32, 0x0)));
- //volatile uint32_t* global_reset = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(_hal->getMappedMemoryRW(ATLASPix_CONTROL_BASE_ADDRESS+6*4, 32, 0x0)));
+ // Build the SR string with default values and shift in the values in the chip
+  this->Fill_SR();
+  this->Shift_SR();
 
-
-
-
- *RAM_reg_limit &= ~(0xFFFFFFFF);
- *RAM_shift_limit &= ~(0xFFFFFFFF);
- 
-  for(uint32_t i =0;i<64;i++){
-	*RAM_address &= i;
-	*RAM_content &= 0x0F;
-	 usleep(10);
-	*RAM_write_enable &=0xFFFFFFFF;
-	 usleep(10);
-	*RAM_write_enable &=0x0;};
-
- usleep(10);
-
- *Config_flag &= ~(0xFFFFFFFF);
- usleep(100);
- *Config_flag &= ~(0x0);
- LOG(logINFO) << "toggle of Load line" << DEVICE_NAME;
-  // Call the base class configuration function:
+ // Call the base class configuration function:
   pearyDevice<iface_i2c>::configure();
 }
 
@@ -225,12 +201,12 @@ void ATLASPix::configureClock() {
 }
 
 
-void ATLASPix::BuildSRVectors(){
+void ATLASPix::Initialize_SR(){
 
 
-	CurrentDACConfig = new ATLASPix_Config();
-	MatrixDACConfig = new ATLASPix_Config();
-	VoltageDACConfig = new ATLASPix_Config();
+    CurrentDACConfig = new ATLASPix_Config();
+    MatrixDACConfig = new ATLASPix_Config();
+    VoltageDACConfig = new ATLASPix_Config();
 
 
     //DAC Block 1 for DIgital Part
@@ -324,16 +300,115 @@ void ATLASPix::BuildSRVectors(){
     VoltageDACConfig->AddParameter("nu2", 2, ATLASPix_Config::LSBFirst, this->nu2);
     VoltageDACConfig->AddParameter("ThPix", 8, ATLASPix_Config::LSBFirst, floor(255 * this->ThPix/1.8));
     VoltageDACConfig->AddParameter("nu3", 2, ATLASPix_Config::LSBFirst, this->nu3);
+}
 
+
+void ATLASPix::Fill_SR()
+{
+  
     CurrentDACbits = CurrentDACConfig->GenerateBitVector(ATLASPix_Config::GlobalInvertedMSBFirst);
     MatrixBits = MatrixDACConfig->GenerateBitVector(ATLASPix_Config::GlobalInvertedMSBFirst);
     VoltageDACBits = VoltageDACConfig->GenerateBitVector(ATLASPix_Config::GlobalInvertedMSBFirst);
 
+    uint32_t buffer =0;
+    uint32_t cnt =0;
+
+    this->Registers.clear();
+
+    for (auto i = CurrentDACbits.begin(); i != CurrentDACbits.end(); ++i)
+     {
+       if(cnt==32){
+	 cnt=0;
+	 this->Registers.push_back(buffer);
+	 std::cout << buffer << " ";
+	 this->printBits(sizeof(buffer),&buffer);
+	 std::cout <<  std::endl;	 
+	 buffer=0;
+       };
+       buffer += *i << cnt;
+       cnt++;   
+     }
+   for (auto i = MatrixBits.begin(); i != MatrixBits.end(); ++i)
+     {
+       if(cnt==32){
+	 cnt=0;
+	 this->Registers.push_back(buffer);
+	 std::cout << buffer << " ";
+	 this->printBits(sizeof(buffer),&buffer);
+	 std::cout <<  std::endl;
+	 buffer=0;
+       };
+       buffer += *i << cnt;
+       cnt++;   
+     }
+   for (auto i = VoltageDACBits.begin(); i != VoltageDACBits.end(); ++i)
+     {
+       if(cnt==32){
+	 cnt=0;
+	 this->Registers.push_back(buffer);
+	 std::cout << buffer << " ";
+	 this->printBits(sizeof(buffer),&buffer);
+	 std::cout <<  std::endl;
+	 buffer=0;
+       };
+       buffer += *i << cnt;
+       cnt++;   
+     }
+     std::cout << buffer << " ";
+     this->printBits(sizeof(buffer),&buffer);
+     std::cout <<  std::endl;
+}
+
+void ATLASPix::Shift_SR(){
+
+ LOG(logINFO) << "mapping RAM registers " << DEVICE_NAME;
+ volatile uint32_t* RAM_address = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(_hal->getMappedMemoryRW(ATLASPix_CONTROL_BASE_ADDRESS, 32, 0x0)));
+ volatile uint32_t* RAM_write_enable = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(_hal->getMappedMemoryRW(ATLASPix_CONTROL_BASE_ADDRESS+1*4, 32, 0x0)));
+ volatile uint32_t* RAM_content = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(_hal->getMappedMemoryRW(ATLASPix_CONTROL_BASE_ADDRESS+2*4, 32, 0x0))); 
+ LOG(logINFO) << "mapping Config registers " << DEVICE_NAME;
+ volatile uint32_t* Config_flag = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(_hal->getMappedMemoryRW(ATLASPix_CONTROL_BASE_ADDRESS+3*4, 32, 0x0)));
+ volatile uint32_t* RAM_reg_limit = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(_hal->getMappedMemoryRW(ATLASPix_CONTROL_BASE_ADDRESS+4*4, 32, 0x0)));
+ volatile uint32_t* RAM_shift_limit = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(_hal->getMappedMemoryRW(ATLASPix_CONTROL_BASE_ADDRESS+5*4, 32, 0x0)));
+ //volatile uint32_t* global_reset = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(_hal->getMappedMemoryRW(ATLASPix_CONTROL_BASE_ADDRESS+6*4, 32, 0x0)));
+
+
+
+
+ *RAM_reg_limit &= ~(0xFFFFFFFF);
+ *RAM_shift_limit &= ~(0xFFFFFFFF);
+ 
+  for(uint32_t i =0;i<64;i++){
+	*RAM_address &= i;
+	*RAM_content &= Registers(i);
+	 usleep(10);
+	*RAM_write_enable &=0xFFFFFFFF;
+	 usleep(10);
+	*RAM_write_enable &=0x0;};
+
+ usleep(10);
+
+ *Config_flag &= (0xFFFFFFFF);
+ usleep(100);
+ *Config_flag &= (0x0);
 }
 
 
+void ATLASPix::printBits(size_t const size, void const * const ptr)
+{
+    unsigned char *b = (unsigned char*) ptr;
+    unsigned char byte;
+    int i, j;
 
-
+    for (i=size-1;i>=0;i--)
+    {
+        for (j=7;j>=0;j--)
+        {
+            byte = (b[i] >> j) & 1;
+            printf("%u", byte);
+        }
+    }
+    puts("");
+}
 
 caribouDevice* caribou::generator(const caribou::Configuration config) {
   LOG(logDEBUG) << "Generator: " << DEVICE_NAME;

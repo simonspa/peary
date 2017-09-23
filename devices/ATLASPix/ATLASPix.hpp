@@ -24,6 +24,8 @@ namespace caribou {
 
     std::string getName();
 
+    void printBits(size_t const size, void const * const ptr);
+
     /** Initializer function for ATLASPix
      */
     void configure();
@@ -60,8 +62,9 @@ namespace caribou {
 
     void configureClock();
 
-    void BuildSRVectors();
-    void ShiftSR();
+    void Initialize_SR();
+    void Shift_SR();
+    void Fill_SR();
 
 
   private:
@@ -110,12 +113,13 @@ namespace caribou {
 
     double BLPix; // Voltage, to be translated to DAC value
     uint32_t nu2;
-	double ThPix; // Voltage, to be translated to DAC value
-	uint32_t nu3;
+    double ThPix; // Voltage, to be translated to DAC value
+    uint32_t nu3;
 
-	std::vector<bool> CurrentDACbits;
-	std::vector<bool> MatrixBits;
-	std::vector<bool> VoltageDACBits;
+    std::vector<bool> CurrentDACbits;
+    std::vector<bool> MatrixBits;
+    std::vector<bool> VoltageDACBits;
+    std::vector<uint32_t> Registers;
 
   };
 

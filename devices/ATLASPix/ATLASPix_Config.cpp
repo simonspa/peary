@@ -8,7 +8,7 @@
 
 
 
-#include "ATLASPix_Config.hpp"
+#include "ATLASPix_Config.h"
 
 ATLASPix_Config::ATLASPix_Config()
 {
@@ -65,8 +65,8 @@ bool ATLASPix_Config::AddParameter(std::string name, std::string bitorder, unsig
     //check for completeness:
     int bitvector = 0;
     int bitvalue;
-    unsigned int pos = 0;
-    unsigned int oldpos = 0;
+    unsigned long int pos = 0;
+    unsigned long int oldpos = 0;
     while(pos != std::string::npos)
     {
         pos = bitorder.find(',', oldpos);
@@ -147,8 +147,8 @@ int ATLASPix_Config::GetParameterWidth(unsigned int index)
 
     int maxbit = 0;
     int thisbit;
-    unsigned int oldpos = 0;
-    unsigned int pos    = 0;
+    unsigned long int oldpos = 0;
+    unsigned long int pos    = 0;
     //std::stringstream s("");
     while(pos != std::string::npos)
     {
@@ -262,8 +262,8 @@ std::vector<bool> ATLASPix_Config::GenerateBitVector(int shiftdirection)
         //send LSB first on reversed parameter XOR reversed shift direction:
         if(shiftdirection == MSBFirst)
         {
-            unsigned int pos = 0;
-            unsigned int oldpos = 0;
+            unsigned long int pos = 0;
+            unsigned long int oldpos = 0;
             int value = 0;
             while(pos != std::string::npos)
             {
@@ -278,8 +278,8 @@ std::vector<bool> ATLASPix_Config::GenerateBitVector(int shiftdirection)
         //normally, the MSB is sent first on sending MSBFirst
         else
         {
-            unsigned int pos = it->first.length();
-            unsigned int oldpos = std::string::npos;
+            unsigned long int pos = it->first.length();
+            unsigned long int oldpos = std::string::npos;
             int value = 0;
             while(pos != std::string::npos)
             {
