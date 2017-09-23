@@ -379,7 +379,7 @@ void ATLASPix::Shift_SR(){
  
   for(uint32_t i =0;i<64;i++){
 	*RAM_address &= i;
-	*RAM_content &= Registers(i);
+	*RAM_content &= this->Registers[i];
 	 usleep(10);
 	*RAM_write_enable &=0xFFFFFFFF;
 	 usleep(10);

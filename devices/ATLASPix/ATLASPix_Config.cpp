@@ -8,7 +8,7 @@
 
 
 
-#include "ATLASPix_Config.h"
+#include "ATLASPix_Config.hpp"
 
 ATLASPix_Config::ATLASPix_Config()
 {
