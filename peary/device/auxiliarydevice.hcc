@@ -7,6 +7,8 @@
 
 #include "configuration.hpp"
 #include "device.hpp"
+#include "interface.hpp"
+#include "interface_manager.hpp"
 
 #include <string>
 
@@ -30,9 +32,7 @@ namespace caribou {
     /** Return the human-readable device name
      */
     virtual std::string getName() = 0;
-
     virtual std::string getFirmwareVersion() { return std::string(); };
-    virtual uint8_t getFirmwareID() { return uint8_t(); };
 
     virtual std::vector<uint32_t> getRawData() { return std::vector<uint32_t>(); };
 
