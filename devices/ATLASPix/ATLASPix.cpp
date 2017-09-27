@@ -378,21 +378,21 @@ void ATLASPix::Shift_SR(){
 
 
 
-// *RAM_reg_limit = (0xFFFFFFFF);
-// *RAM_shift_limit = (0xFFFFFFFF);
-//
-//  for(uint32_t i =0;i<128;i++){
-//	*RAM_address = i;
-//	*RAM_content = this->Registers[i];
-//	 usleep(10);
-//	*RAM_write_enable =0xFFFFFFFF;
-//	 usleep(10);
-//	*RAM_write_enable =0x0;};
+ *RAM_reg_limit = (0xFFFFFFFF);
+ *RAM_shift_limit = (0xFFFFFFFF);
+
+  for(uint32_t i =0;i<128;i++){
+	*RAM_address = i;
+	*RAM_content = this->Registers[i];
+	 usleep(10);
+	*RAM_write_enable =0xFFFFFFFF;
+	 usleep(10);
+	*RAM_write_enable =0x0;};
 
 
  usleep(10);
 
- while(1){
+
 //	 *RAM_address =0xFFFFFFFF;
 //	 *RAM_content =0xFFFFFFFF;
 //	 *RAM_write_enable =0xFFFFFFFF;
@@ -400,7 +400,7 @@ void ATLASPix::Shift_SR(){
 //	 *RAM_shift_limit =0xFFFFFFFF;
 	 *Config_flag = 0x1;
 	 //*spare = 0xFFFFFFFF;
-	 usleep(1000000);
+	 usleep(100);
 	 *Config_flag = 0;
 //	 *RAM_address =0;
 //	 *RAM_content =0;
@@ -408,8 +408,8 @@ void ATLASPix::Shift_SR(){
 //	 *RAM_reg_limit =0;
 //	 *RAM_shift_limit =0;
 //	 *spare = 0;
-	 usleep(1000000);
- }
+
+
 }
 
 
