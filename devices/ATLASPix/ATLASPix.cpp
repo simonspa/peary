@@ -211,7 +211,7 @@ void ATLASPix::Initialize_SR(){
 
     //DAC Block 1 for DIgital Part
     //AnalogDACs
-    CurrentDACConfig->AddParameter("unlock",    4, ATLASPix_Config::LSBFirst, 0); // unlock = x101
+    CurrentDACConfig->AddParameter("unlock",    4, ATLASPix_Config::LSBFirst, 0x101); // unlock = x101
     CurrentDACConfig->AddParameter("BLResPix", "5,4,3,1,0,2",  5);
     CurrentDACConfig->AddParameter("ThResPix", "5,4,3,1,0,2",  0);
     CurrentDACConfig->AddParameter("VNPix", "5,4,3,1,0,2",  20);
@@ -306,16 +306,21 @@ void ATLASPix::Initialize_SR(){
 void ATLASPix::Fill_SR()
 {
   
+    VoltageDACBits = VoltageDACConfig->GenerateBitVector(ATLASPix_Config::GlobalInvertedMSBFirst);
     CurrentDACbits = CurrentDACConfig->GenerateBitVector(ATLASPix_Config::GlobalInvertedMSBFirst);
     MatrixBits = MatrixDACConfig->GenerateBitVector(ATLASPix_Config::GlobalInvertedMSBFirst);
-    VoltageDACBits = VoltageDACConfig->GenerateBitVector(ATLASPix_Config::GlobalInvertedMSBFirst);
+    //CurrentDACbits = CurrentDACConfig->GenerateBitVector(ATLASPix_Config::GlobalInvertedMSBFirst);
+
+
 
     uint32_t buffer =0;
     uint32_t cnt =0;
+    uint32_t nbits =0;
+
 
     this->Registers.clear();
 
-    for (auto i = CurrentDACbits.begin(); i != CurrentDACbits.end(); ++i)
+    for (auto i = VoltageDACBits.begin(); i != VoltageDACBits.end(); ++i)
      {
        if(cnt==32){
 	 cnt=0;
@@ -327,8 +332,24 @@ void ATLASPix::Fill_SR()
        };
        buffer += *i << cnt;
        cnt++;   
+       nbits++;
      }
 
+   for (auto i = CurrentDACbits.begin(); i != CurrentDACbits.end(); ++i)
+     {
+       if(cnt==32){
+	 cnt=0;
+	 this->Registers.push_back(buffer);
+	 //std::cout << buffer << " ";
+	 //this->printBits(sizeof(buffer),&buffer);
+	 //std::cout <<  std::endl;
+	 buffer=0;
+       };
+       buffer += *i << cnt;
+       cnt++;
+       nbits++;
+
+     }
    for (auto i = MatrixBits.begin(); i != MatrixBits.end(); ++i)
      {
        if(cnt==32){
@@ -340,9 +361,12 @@ void ATLASPix::Fill_SR()
 	 buffer=0;
        };
        buffer += *i << cnt;
-       cnt++;   
+       cnt++;
+       nbits++;
+
      }
-   for (auto i = VoltageDACBits.begin(); i != VoltageDACBits.end(); ++i)
+
+   for (auto i = CurrentDACbits.begin(); i != CurrentDACbits.end(); ++i)
      {
        if(cnt==32){
 	 cnt=0;
@@ -353,11 +377,16 @@ void ATLASPix::Fill_SR()
 	 buffer=0;
        };
        buffer += *i << cnt;
-       cnt++;   
+       cnt++;
+       nbits++;
+       //std::cout << cnt << std::endl;
      }
-     //std::cout << buffer << " ";
-     //this->printBits(sizeof(buffer),&buffer);
-     //std::cout <<  std::endl;
+
+	 this->Registers.push_back(buffer);
+
+
+     std::cout << "size of shift buffer " << Registers.size() << std::endl;
+     std::cout << "number of bits " << nbits << std::endl;
 }
 
 void ATLASPix::Shift_SR(){
@@ -375,17 +404,17 @@ void ATLASPix::Shift_SR(){
  volatile uint32_t* global_reset = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + 0x18);
  volatile uint32_t* spare = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + 0x1C);
 
+ *Config_flag = 0;
+//while(1){
 
-
-
- *RAM_reg_limit = (0xFFFFFFFF);
+ *RAM_reg_limit = 84;
  *RAM_shift_limit = (0xFFFFFFFF);
 
-  for(uint32_t i =0;i<128;i++){
+  for(uint32_t i =0;i<84;i++){
 	*RAM_address = i;
 	*RAM_content = this->Registers[i];
 	 usleep(10);
-	*RAM_write_enable =0xFFFFFFFF;
+	*RAM_write_enable =0x1;
 	 usleep(10);
 	*RAM_write_enable =0x0;};
 
@@ -400,7 +429,7 @@ void ATLASPix::Shift_SR(){
 //	 *RAM_shift_limit =0xFFFFFFFF;
 	 *Config_flag = 0x1;
 	 //*spare = 0xFFFFFFFF;
-	 usleep(100);
+	 usleep(10000);
 	 *Config_flag = 0;
 //	 *RAM_address =0;
 //	 *RAM_content =0;
@@ -408,6 +437,14 @@ void ATLASPix::Shift_SR(){
 //	 *RAM_reg_limit =0;
 //	 *RAM_shift_limit =0;
 //	 *spare = 0;
+//}
+
+for (int i =0; i != Registers.size(); ++i){
+	std::cout << Registers[i] << " ";
+	std::cout << std::hex << Registers[i] << " ";
+	printBits(sizeof(Registers[i]),&Registers[i]);
+	std::cout <<  std::endl;
+}
 
 
 }
