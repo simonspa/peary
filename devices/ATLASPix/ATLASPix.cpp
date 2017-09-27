@@ -320,22 +320,23 @@ void ATLASPix::Fill_SR()
        if(cnt==32){
 	 cnt=0;
 	 this->Registers.push_back(buffer);
-	 std::cout << buffer << " ";
-	 this->printBits(sizeof(buffer),&buffer);
-	 std::cout <<  std::endl;	 
+	 //std::cout << buffer << " ";
+	 //this->printBits(sizeof(buffer),&buffer);
+	 //std::cout <<  std::endl;
 	 buffer=0;
        };
        buffer += *i << cnt;
        cnt++;   
      }
+
    for (auto i = MatrixBits.begin(); i != MatrixBits.end(); ++i)
      {
        if(cnt==32){
 	 cnt=0;
 	 this->Registers.push_back(buffer);
-	 std::cout << buffer << " ";
-	 this->printBits(sizeof(buffer),&buffer);
-	 std::cout <<  std::endl;
+	 //std::cout << buffer << " ";
+	 //this->printBits(sizeof(buffer),&buffer);
+	 //std::cout <<  std::endl;
 	 buffer=0;
        };
        buffer += *i << cnt;
@@ -346,50 +347,69 @@ void ATLASPix::Fill_SR()
        if(cnt==32){
 	 cnt=0;
 	 this->Registers.push_back(buffer);
-	 std::cout << buffer << " ";
-	 this->printBits(sizeof(buffer),&buffer);
-	 std::cout <<  std::endl;
+	 //std::cout << buffer << " ";
+	 //this->printBits(sizeof(buffer),&buffer);
+	 //std::cout <<  std::endl;
 	 buffer=0;
        };
        buffer += *i << cnt;
        cnt++;   
      }
-     std::cout << buffer << " ";
-     this->printBits(sizeof(buffer),&buffer);
-     std::cout <<  std::endl;
+     //std::cout << buffer << " ";
+     //this->printBits(sizeof(buffer),&buffer);
+     //std::cout <<  std::endl;
 }
 
 void ATLASPix::Shift_SR(){
 
- LOG(logINFO) << "mapping RAM registers " << DEVICE_NAME;
- volatile uint32_t* RAM_address = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(_hal->getMappedMemoryRW(ATLASPix_CONTROL_BASE_ADDRESS, 32, 0x0)));
- volatile uint32_t* RAM_write_enable = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(_hal->getMappedMemoryRW(ATLASPix_CONTROL_BASE_ADDRESS+1*4, 32, 0x0)));
- volatile uint32_t* RAM_content = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(_hal->getMappedMemoryRW(ATLASPix_CONTROL_BASE_ADDRESS+2*4, 32, 0x0))); 
- LOG(logINFO) << "mapping Config registers " << DEVICE_NAME;
- volatile uint32_t* Config_flag = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(_hal->getMappedMemoryRW(ATLASPix_CONTROL_BASE_ADDRESS+3*4, 32, 0x0)));
- volatile uint32_t* RAM_reg_limit = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(_hal->getMappedMemoryRW(ATLASPix_CONTROL_BASE_ADDRESS+4*4, 32, 0x0)));
- volatile uint32_t* RAM_shift_limit = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(_hal->getMappedMemoryRW(ATLASPix_CONTROL_BASE_ADDRESS+5*4, 32, 0x0)));
- //volatile uint32_t* global_reset = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(_hal->getMappedMemoryRW(ATLASPix_CONTROL_BASE_ADDRESS+6*4, 32, 0x0)));
+
+ void* control_base = _hal->getMappedMemoryRW(ATLASPix_CONTROL_BASE_ADDRESS, ATLASPix_CONTROL_MAP_SIZE, ATLASPix_RAM_address_MASK);
+
+
+ volatile uint32_t* RAM_address = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + 0x0);
+ volatile uint32_t* RAM_content = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + 0x4);
+ volatile uint32_t* RAM_write_enable = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + 0x8);
+ volatile uint32_t* RAM_reg_limit = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + 0xC);
+ volatile uint32_t* RAM_shift_limit = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + 0x10);
+ volatile uint32_t* Config_flag = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + 0x14);
+ volatile uint32_t* global_reset = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + 0x18);
+ volatile uint32_t* spare = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + 0x1C);
 
 
 
 
- *RAM_reg_limit &= ~(0xFFFFFFFF);
- *RAM_shift_limit &= ~(0xFFFFFFFF);
- 
-  for(uint32_t i =0;i<64;i++){
-	*RAM_address &= i;
-	*RAM_content &= this->Registers[i];
-	 usleep(10);
-	*RAM_write_enable &=0xFFFFFFFF;
-	 usleep(10);
-	*RAM_write_enable &=0x0;};
+// *RAM_reg_limit = (0xFFFFFFFF);
+// *RAM_shift_limit = (0xFFFFFFFF);
+//
+//  for(uint32_t i =0;i<128;i++){
+//	*RAM_address = i;
+//	*RAM_content = this->Registers[i];
+//	 usleep(10);
+//	*RAM_write_enable =0xFFFFFFFF;
+//	 usleep(10);
+//	*RAM_write_enable =0x0;};
+
 
  usleep(10);
 
- *Config_flag &= (0xFFFFFFFF);
- usleep(100);
- *Config_flag &= (0x0);
+ while(1){
+//	 *RAM_address =0xFFFFFFFF;
+//	 *RAM_content =0xFFFFFFFF;
+//	 *RAM_write_enable =0xFFFFFFFF;
+//	 *RAM_reg_limit =0xFFFFFFFF;
+//	 *RAM_shift_limit =0xFFFFFFFF;
+	 *Config_flag = 0x1;
+	 //*spare = 0xFFFFFFFF;
+	 usleep(1000000);
+	 *Config_flag = 0;
+//	 *RAM_address =0;
+//	 *RAM_content =0;
+//	 *RAM_write_enable =0;
+//	 *RAM_reg_limit =0;
+//	 *RAM_shift_limit =0;
+//	 *spare = 0;
+	 usleep(1000000);
+ }
 }
 
 
