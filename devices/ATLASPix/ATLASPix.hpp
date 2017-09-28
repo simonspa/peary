@@ -67,7 +67,7 @@ namespace caribou {
     void Fill_SR();
 
 
-    void sendPulse(uint32_t npulse,uint32_t n_up,uint32_t n_down);
+    void sendPulse(uint32_t npulse,uint32_t n_up,uint32_t n_down,double voltage);
 
 
   private:
