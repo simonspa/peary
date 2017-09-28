@@ -452,9 +452,18 @@ void ATLASPix::Shift_SR(){
 }
 
 
-void ATLASPix::sendPulse(uint32_t npulse,uint32_t n_up,uint32_t n_down){
+void ATLASPix::sendPulse(uint32_t npulse,uint32_t n_up,uint32_t n_down, double voltage){
 
-
+    LOG(logDEBUG) << " Set injection voltages ";
+    _hal->setBiasRegulator(INJ_1,voltage);
+    _hal->powerBiasRegulator(INJ_1, true);
+    _hal->setBiasRegulator(INJ_2,voltage);
+    _hal->powerBiasRegulator(INJ_2, true);
+    _hal->setBiasRegulator(INJ_3,voltage);
+    _hal->powerBiasRegulator(INJ_3, true);
+    _hal->setBiasRegulator(INJ_4,voltage);
+    _hal->powerBiasRegulator(INJ_4, true);
+    
 	 void* pulser_base = _hal->getMappedMemoryRW(ATLASPix_PULSER_BASE_ADDRESS, ATLASPix_PULSER_MAP_SIZE, ATLASPix_PULSER_MASK);
 
 	 volatile uint32_t* inj_flag = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x0);
