@@ -59,6 +59,8 @@ void ATLASPix::configure() {
   this->Fill_SR();
   this->Shift_SR();
 
+  while(1)this->sendPulse(128,1024,1024);
+
  // Call the base class configuration function:
   pearyDevice<iface_i2c>::configure();
 }
@@ -439,13 +441,40 @@ void ATLASPix::Shift_SR(){
 //	 *spare = 0;
 //}
 
-for (int i =0; i != Registers.size(); ++i){
-	std::cout << Registers[i] << " ";
-	std::cout << std::hex << Registers[i] << " ";
-	printBits(sizeof(Registers[i]),&Registers[i]);
-	std::cout <<  std::endl;
+//for (int i =0; i != Registers.size(); ++i){
+//	std::cout << Registers[i] << " ";
+//	std::cout << std::hex << Registers[i] << " ";
+//	printBits(sizeof(Registers[i]),&Registers[i]);
+//	std::cout <<  std::endl;
+//}
+
+
 }
 
+
+void ATLASPix::sendPulse(uint32_t npulse,uint32_t n_up,uint32_t n_down){
+
+
+	 void* pulser_base = _hal->getMappedMemoryRW(ATLASPix_PULSER_BASE_ADDRESS, ATLASPix_PULSER_MAP_SIZE, ATLASPix_PULSER_MASK);
+
+	 volatile uint32_t* inj_flag = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x0);
+	 volatile uint32_t* pulse_count = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x4);
+	 volatile uint32_t* high_cnt = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x8);
+	 volatile uint32_t* low_cnt = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0xC);
+	 volatile uint32_t* output_enable = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x10);
+
+	 *inj_flag = 0x0;
+	 usleep(10);
+
+
+	 *pulse_count = npulse;
+	 *high_cnt = n_up;
+	 *low_cnt = n_down;
+	 *output_enable = 0xFFFFFFF;
+
+	 *inj_flag = 0x1;
+	 usleep(100);
+	 *inj_flag = 0x0;
 
 }
 

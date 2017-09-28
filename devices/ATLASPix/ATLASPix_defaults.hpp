@@ -36,7 +36,13 @@ namespace caribou {
   const std::intptr_t ATLASPix_CONTROL_BASE_ADDRESS = 0x43C00000;
   const std::size_t ATLASPix_CONTROL_MAP_SIZE = 4096;
   const std::uint32_t ATLASPix_RAM_address_MASK = ATLASPix_CONTROL_MAP_SIZE-1;
-//  const std::size_t ATLASPix_RAM_write_enable_MASK = 0xFFFFFFFF;
+
+  const std::intptr_t ATLASPix_PULSER_BASE_ADDRESS = 0x43C50000;
+  const std::size_t ATLASPix_PULSER_MAP_SIZE = 4096;
+  const std::uint32_t ATLASPix_PULSER_MASK = ATLASPix_PULSER_MAP_SIZE-1;
+
+
+  //  const std::size_t ATLASPix_RAM_write_enable_MASK = 0xFFFFFFFF;
 //  const std::size_t ATLASPix_RAM_content_MASK = 0xFFFFFFFF;
 //  const std::size_t ATLASPix_Config_flag_MASK = 0xFFFFFFFF;
 //  const std::size_t ATLASPix_RAM_reg_limit_MASK = 0xFFFFFFFF;
