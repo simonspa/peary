@@ -59,7 +59,7 @@ void ATLASPix::configure() {
   this->Fill_SR();
   this->Shift_SR();
 
-  while(1)this->sendPulse(128,1024,1024);
+  while(1)this->sendPulse(128,1024,1024, 0.2);
 
  // Call the base class configuration function:
   pearyDevice<iface_i2c>::configure();
