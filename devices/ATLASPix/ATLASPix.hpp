@@ -66,8 +66,12 @@ namespace caribou {
     void Shift_SR();
     void Fill_SR();
 
+    void tune();
+
 
     void sendPulse(uint32_t npulse,uint32_t n_up,uint32_t n_down,double voltage);
+    void resetCounters();
+    int readCounter(int channel);
 
 
   private:
@@ -82,9 +86,6 @@ namespace caribou {
 
     // Access to FPGA memory mapped registers
     int memfd;
-
-    // ATLASPix control memory map address
-    void* control_base;
 
 
     ATLASPix_Config *CurrentDACConfig;

@@ -33,6 +33,9 @@ ATLASPix::ATLASPix(const caribou::Configuration config) : pearyDevice(config, st
   _periphery.add("VMinusPix_M2", BIAS_5);
   _periphery.add("GatePix_M2", BIAS_2);
   LOG(logINFO) << "Setting clock to 100MHz " << DEVICE_NAME;
+
+
+
   configureClock();
 
   this->Initialize_SR();
@@ -59,10 +62,61 @@ void ATLASPix::configure() {
   this->Fill_SR();
   this->Shift_SR();
 
-  while(1)this->sendPulse(128,1024,1024, 0.2);
+  //while(1)this->sendPulse(128,1024,1024, 0.8);
 
  // Call the base class configuration function:
   pearyDevice<iface_i2c>::configure();
+}
+
+
+//WIP
+void ATLASPix::tune() {
+	LOG(logINFO) << "Tunning " << DEVICE_NAME;
+
+	///*pseudo code
+
+//	for (int pixel_row=0; pixel_row<300; pixel_row++) {
+//		for (int pixel_col=0; pixel_col<56; pixel_col++) {
+//			for (int col = 0; col <28; col++) {
+//				std::string pixel_column = to_string(col);
+//
+//				for (int row = 0; row < 320; row++) {
+//					std::string pixel_row = to_string(row);
+//
+//					if (col== tunning_col && row == tunning_row){
+//						MatrixDACConfig->SetParameter("writedac"+pixel_row, writedac_value)
+//						MatrixDACConfig->SetParameter("unused"+pixel_row,  unsuded_value);
+//						MatrixDACConfig->SetParameter("rowinjection"+pixel_row,  rowinjection_value);
+//						MatrixDACConfig->SetParameter("analogbuffer"+pixel_row,  analogbuffer_value);
+//
+//						MatrixDACConfig->SetParameter("RamL"+pixel_column, RamL_value)
+//						MatrixDACConfig->SetParameter("colinjL"+pixel_column,  colinjL_value);
+//						MatrixDACConfig->SetParameter("RamR"+pixel_column,  RamR_value);
+//						MatrixDACConfig->SetParameter("colinjR"+pixel_column,  calinjR_value);
+//					}
+//					else{
+//						MatrixDACConfig->SetParameter("writedac"+pixel_row, 0)
+//						MatrixDACConfig->SetParameter("unused"+pixel_row,  0);
+//						MatrixDACConfig->SetParameter("rowinjection"+pixel_row,  0);
+//						MatrixDACConfig->SetParameter("analogbuffer"+pixel_row,  0);
+//
+//						MatrixDACConfig->SetParameter("RamL"+pixel_column, 0)
+//						MatrixDACConfig->SetParameter("colinjL"+pixel_column,  0);
+//						MatrixDACConfig->SetParameter("RamR"+pixel_column,  0);
+//						MatrixDACConfig->SetParameter("colinjR"+pixel_column,  0);
+//					}
+//
+//				}
+//
+//			}
+//			// Build the SR string with default values and shift in the values in the chip
+//			this->Fill_SR();
+//			this->Shift_SR();
+//			// Call the base class configuration function:
+//			pearyDevice<iface_i2c>::configure();
+//		}
+//	}
+
 }
 
 void ATLASPix::reset() {
@@ -482,9 +536,65 @@ void ATLASPix::sendPulse(uint32_t npulse,uint32_t n_up,uint32_t n_down, double v
 	 *output_enable = 0xFFFFFFF;
 
 	 *inj_flag = 0x1;
-	 usleep(100);
-	 *inj_flag = 0x0;
+//	 usleep(100);
+//	 *inj_flag = 0x0;
 
+}
+
+
+void ATLASPix::resetCounters()
+{
+
+
+	 void* counter_base = _hal->getMappedMemoryRW(ATLASPix_COUNTER_BASE_ADDRESS, ATLASPix_COUNTER_MAP_SIZE, ATLASPix_COUNTER_MASK);
+
+	 volatile uint32_t* cnt_rst = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(counter_base) + 0x10);
+	 volatile uint32_t* global_reset = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(counter_base) + 0x14);
+
+
+	 *global_reset = 0x0;
+	 usleep(1);
+	 *global_reset = 0x1;
+	 usleep(10);
+	 *global_reset = 0x0;
+	 usleep(1);
+	 *cnt_rst = 0x0;
+	 usleep(1);
+	 *cnt_rst = 0x1;
+	 usleep(10);
+	 *cnt_rst = 0x0;
+
+}
+
+
+int ATLASPix::readCounter(int channel)
+{
+	void* counter_base = _hal->getMappedMemoryRW(ATLASPix_COUNTER_BASE_ADDRESS, ATLASPix_COUNTER_MAP_SIZE, ATLASPix_COUNTER_MASK);
+
+	int value = 0;
+	switch(channel){
+					case 1 :
+						 {volatile uint32_t* cnt_value = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(counter_base) + 0x0);
+						 value = *cnt_value;}
+						 break;
+					case 2:
+						 {volatile uint32_t* cnt_value = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(counter_base) + 0x4);
+						 value = *cnt_value;}
+						 break;
+					case 3:
+						 {volatile uint32_t* cnt_value = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(counter_base) + 0x8);
+						 value = *cnt_value;
+						 break;}
+					case 4:
+						 {volatile uint32_t* cnt_value = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(counter_base) + 0xC);
+						 value = *cnt_value;
+						 break;}
+					default :
+					{ std::cout << "NON-EXISTING COUNTER, RETURN -1"<< std::endl;
+						 value = -1;}
+	}
+
+	return value;
 }
 
 
