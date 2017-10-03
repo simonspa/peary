@@ -32,7 +32,10 @@ ATLASPix::ATLASPix(const caribou::Configuration config) : pearyDevice(config, st
   _periphery.add("GndDACPix_M2", BIAS_9);
   _periphery.add("VMinusPix_M2", BIAS_5);
   _periphery.add("GatePix_M2", BIAS_2);
-  LOG(logINFO) << "Setting clock to 100MHz " << DEVICE_NAME;
+  LOG(logINFO) << "Setting clock to 160MHz " << DEVICE_NAME;
+  configureClock();
+
+
 
 	 void* pulser_base = _hal->getMappedMemoryRW(ATLASPix_PULSER_BASE_ADDRESS, ATLASPix_PULSER_MAP_SIZE, ATLASPix_PULSER_MASK);
 
@@ -50,7 +53,7 @@ ATLASPix::ATLASPix(const caribou::Configuration config) : pearyDevice(config, st
 	 *output_enable = 0xFFFFFFFF;
 	 *rst = 0x1;
 
-  configureClock();
+
 
   this->Initialize_SR();
 
@@ -278,7 +281,7 @@ void ATLASPix::configureClock() {
   // Check of we should configure for external or internal clock, default to external:
   if(_config.Get<bool>("clock_internal", false)) {
     LOG(logDEBUG) << DEVICE_NAME << ": Configure internal clock source, free running, not locking";
-    _hal->configureSI5345((SI5345_REG_T const* const)si5345_revb_registers_free, SI5345_REVB_REG_CONFIG_NUM_REGS_FREE);
+    _hal->configureSI5345((SI5345_REG_T const* const)si5345_revb_registers, SI5345_REVB_REG_CONFIG_NUM_REGS);
     mDelay(100); // let the PLL lock
   } else {
     LOG(logDEBUG) << DEVICE_NAME << ": Configure external clock source, locked to TLU input clock";
