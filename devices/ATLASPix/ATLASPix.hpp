@@ -11,6 +11,52 @@
 #include "i2c.hpp"
 #include "pearydevice.hpp"
 #include <vector>
+#include <string>
+#include <iterator>
+#include <iostream>
+#include <algorithm>
+#include <array>
+
+
+struct ATLASPixMatrix {
+
+    ATLASPix_Config *CurrentDACConfig;
+    ATLASPix_Config *MatrixDACConfig;
+    ATLASPix_Config *VoltageDACConfig;
+
+    //global DACs
+    uint32_t unlock,BLResPix,ThResPix,VNPix,VNFBPix,VNFollPix,VNRegCasc,VDel,VPComp,VPDAC,VNPix2,BLResDig,VNBiasPix,VPLoadPix,VNOutPix;
+    //Digital
+    uint32_t  VPVCO,VNVCO,VPDelDclMux,VNDelDclMux,VPDelDcl,VNDelDcl,VPDelPreEmp,VNDelPreEmp,VPDcl,VNDcl,VNLVDS,VNLVDSDel,VPPump,nu,RO_res_n,Ser_res_n,Aur_res_n,sendcnt,
+				resetckdivend,maxcycend,slowdownend,timerend,ckdivend2,ckdivend,VPRegCasc,VPRamp,VNcompPix,VPFoll,VNDACPix,VPBiasRec,VNBiasRec,Invert,SelEx,SelSlow,EnPLL,
+				TriggerDelay,Reset,ConnRes,SelTest,SelTestOut;
+
+    //Voltage DACs
+    double BLPix; // Voltage, to be translated to DAC value
+    uint32_t nu2;
+    double ThPix; // Voltage, to be translated to DAC value
+    uint32_t nu3;
+
+
+    //Shift register vectors
+    std::vector<bool> CurrentDACbits;
+    std::vector<bool> MatrixBits;
+    std::vector<bool> VoltageDACBits;
+    std::vector<uint32_t> Registers;
+
+    //TDAC and mask maps
+    std::array<std::array<int, 56>, 400> TDAC;
+    std::array<std::array<int, 56>, 400> MASK;
+
+    //info about matrix, SR etc...
+    int ncol,nrow,ndoublecol;
+    int nSRbuffer,nbits;
+    int counter;
+    uint32_t SRmask,extraBits;
+
+
+};
+
 
 namespace caribou {
 
@@ -62,17 +108,26 @@ namespace caribou {
 
     void configureClock();
 
-    void Initialize_SR();
-    void Shift_SR();
-    void Fill_SR();
+    void Initialize_SR(ATLASPixMatrix *matrix);
+    void Shift_SR(ATLASPixMatrix *matrix);
+    void Fill_SR(ATLASPixMatrix *matrix);
 
+    void initTDAC(ATLASPixMatrix *matrix,uint32_t value);
+    void setOneTDAC(ATLASPixMatrix *matrix,uint32_t col,uint32_t row,uint32_t value);
+//    void setAllTDAC(ATLASPixMatrix *matrix);
+//
+    void writeOneTDAC(ATLASPixMatrix *matrix,uint32_t col,uint32_t row,uint32_t value);
+    void writeAllTDAC(ATLASPixMatrix *matrix);
+
+    void ComputeSCurves(ATLASPixMatrix *matrix,double vmax,int nstep, int npulses,int tup,int tdown);
     void tune();
+
 
     void resetPulser();
     void setPulse(uint32_t npulse,uint32_t n_up,uint32_t n_down,double voltage);
     void sendPulse();
     void resetCounters();
-    int readCounter(int channel);
+    int readCounter(ATLASPixMatrix *matrix);
 
 
   private:
@@ -88,44 +143,81 @@ namespace caribou {
     // Access to FPGA memory mapped registers
     int memfd;
 
+    int pulse_width;
 
-    ATLASPix_Config *CurrentDACConfig;
-    ATLASPix_Config *MatrixDACConfig;
-    ATLASPix_Config *VoltageDACConfig;
 
-    //ATLASPix M2 Registers
-    //Analog
-    uint32_t unlock,BLResPix,ThResPix,VNPix,VNFBPix,VNFollPix,VNRegCasc,VDel,VPComp,VPDAC,VNPix2,BLResDig,VNBiasPix,VPLoadPix,VNOutPix;
-    //Digital
-    uint32_t  VPVCO,VNVCO,VPDelDclMux,VNDelDclMux,VPDelDcl,VNDelDcl,VPDelPreEmp,VNDelPreEmp,VPDcl,VNDcl,VNLVDS,VNLVDSDel,VPPump,nu,RO_res_n,Ser_res_n,Aur_res_n,sendcnt,
-				resetckdivend,maxcycend,slowdownend,timerend,ckdivend2,ckdivend,VPRegCasc,VPRamp,VNcompPix,VPFoll,VNDACPix,VPBiasRec,VNBiasRec,Invert,SelEx,SelSlow,EnPLL,
-				TriggerDelay,Reset,ConnRes,SelTest,SelTestOut;
+    ATLASPixMatrix *simpleM1;
+    ATLASPixMatrix *simpleM1ISO;
+    ATLASPixMatrix *simpleM2;
 
-    //Column registers
-    uint32_t ramL[38]={};
-    uint32_t colInjL[38]={};
-    uint32_t ramR[38]={};
-    uint32_t colInjR[38]={};
 
-    // Row registers
 
-    uint32_t writedac[320]={};
-    uint32_t unused[320]={};
-    uint32_t rowinjection[320]={};
-    uint32_t analogbuffer[320]={};
-
-    // Voltage DACs
-
-    double BLPix; // Voltage, to be translated to DAC value
-    uint32_t nu2;
-    double ThPix; // Voltage, to be translated to DAC value
-    uint32_t nu3;
-
-    std::vector<bool> CurrentDACbits;
-    std::vector<bool> MatrixBits;
-    std::vector<bool> VoltageDACBits;
-    std::vector<uint32_t> Registers;
-
+//    ATLASPix_Config *CurrentDACConfig_M1;
+//    ATLASPix_Config *MatrixDACConfig_M1;
+//    ATLASPix_Config *VoltageDACConfig_M1;
+//
+//    ATLASPix_Config *CurrentDACConfig_M1ISO;
+//    ATLASPix_Config *MatrixDACConfig_M1ISO;
+//    ATLASPix_Config *VoltageDACConfig_M1ISO;
+//
+//    ATLASPix_Config *CurrentDACConfig_M2;
+//    ATLASPix_Config *MatrixDACConfig_M2;
+//    ATLASPix_Config *VoltageDACConfig_M2;
+//
+//    //ATLASPix M2 Registers
+//    //Analog
+//    uint32_t unlock,BLResPix,ThResPix,VNPix,VNFBPix,VNFollPix,VNRegCasc,VDel,VPComp,VPDAC,VNPix2,BLResDig,VNBiasPix,VPLoadPix,VNOutPix;
+//    //Digital
+//    uint32_t  VPVCO,VNVCO,VPDelDclMux,VNDelDclMux,VPDelDcl,VNDelDcl,VPDelPreEmp,VNDelPreEmp,VPDcl,VNDcl,VNLVDS,VNLVDSDel,VPPump,nu,RO_res_n,Ser_res_n,Aur_res_n,sendcnt,
+//				resetckdivend,maxcycend,slowdownend,timerend,ckdivend2,ckdivend,VPRegCasc,VPRamp,VNcompPix,VPFoll,VNDACPix,VPBiasRec,VNBiasRec,Invert,SelEx,SelSlow,EnPLL,
+//				TriggerDelay,Reset,ConnRes,SelTest,SelTestOut;
+//
+//    //Column registers
+//    uint32_t ramL[38]={};
+//    uint32_t colInjL[38]={};
+//    uint32_t ramR[38]={};
+//    uint32_t colInjR[38]={};
+//
+//    // Row registers
+//
+//    uint32_t writedac[320]={};
+//    uint32_t unused[320]={};
+//    uint32_t rowinjection[320]={};
+//    uint32_t analogbuffer[320]={};
+//
+//    // Voltage DACs
+//
+//    double BLPix; // Voltage, to be translated to DAC value
+//    uint32_t nu2;
+//    double ThPix; // Voltage, to be translated to DAC value
+//    uint32_t nu3;
+//
+//    std::vector<bool> CurrentDACbits_M1;
+//    std::vector<bool> MatrixBits_M1;
+//    std::vector<bool> VoltageDACBits_M1;
+//    std::vector<uint32_t> Registers_M1;
+//
+//    std::vector<bool> CurrentDACbits_M1ISO;
+//    std::vector<bool> MatrixBits_M1ISO;
+//    std::vector<bool> VoltageDACBits_M1ISO;
+//    std::vector<uint32_t> Registers_M1ISO;
+//
+//    std::vector<bool> CurrentDACbits_M2;
+//    std::vector<bool> MatrixBits_M2;
+//    std::vector<bool> VoltageDACBits_M2;
+//    std::vector<uint32_t> Registers_M2;
+//
+//    //pixel dac Matrix 1
+//    std::array<std::array<int, ncol_m1>, nrow_m1> M1_TDAC;
+//    std::array<std::array<int, ncol_m1>, nrow_m1> M1_MASK;
+//
+//    //pixel dac Matrix 1 ISO
+//    std::array<std::array<int, ncol_m1iso>, nrow_m1iso> M1ISO_TDAC;
+//    std::array<std::array<int, ncol_m1iso>, nrow_m1iso> M1ISO_MASK;
+//
+//    //pixel dac Matrix 2
+//    std::array<std::array<int, ncol_m2>, nrow_m2> M2_TDAC;
+//    std::array<std::array<int, ncol_m2>, nrow_m2> M2_MASK;
   };
 
   /** Device generator

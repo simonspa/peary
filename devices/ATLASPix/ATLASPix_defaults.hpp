@@ -31,6 +31,14 @@ namespace caribou {
 #define ATLASPix_VMinusPix_M2 0.0
 #define ATLASPix_GatePix_M2   2.2
 
+#define ncol_m1 50
+#define nrow_m1 400
+
+#define ncol_m1iso 50
+#define nrow_m1iso 400
+
+#define ncol_m2 56
+#define nrow_m2 320
 
   // ATLASPix  SR FSM control
   const std::intptr_t ATLASPix_CONTROL_BASE_ADDRESS = 0x43C00000;
