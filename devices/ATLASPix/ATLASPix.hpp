@@ -68,8 +68,9 @@ namespace caribou {
 
     void tune();
 
-
-    void sendPulse(uint32_t npulse,uint32_t n_up,uint32_t n_down,double voltage);
+    void resetPulser();
+    void setPulse(uint32_t npulse,uint32_t n_up,uint32_t n_down,double voltage);
+    void sendPulse();
     void resetCounters();
     int readCounter(int channel);
 

@@ -34,7 +34,21 @@ ATLASPix::ATLASPix(const caribou::Configuration config) : pearyDevice(config, st
   _periphery.add("GatePix_M2", BIAS_2);
   LOG(logINFO) << "Setting clock to 100MHz " << DEVICE_NAME;
 
+	 void* pulser_base = _hal->getMappedMemoryRW(ATLASPix_PULSER_BASE_ADDRESS, ATLASPix_PULSER_MAP_SIZE, ATLASPix_PULSER_MASK);
 
+	 volatile uint32_t* inj_flag = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x0);
+	 volatile uint32_t* pulse_count = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x4);
+	 volatile uint32_t* high_cnt = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x8);
+	 volatile uint32_t* low_cnt = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0xC);
+	 volatile uint32_t* output_enable = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x10);
+	 volatile uint32_t* rst = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x14);
+
+	 *inj_flag = 0x0;
+	 *pulse_count = 0x0;
+	 *high_cnt = 0x0;
+	 *low_cnt = 0x0;
+	 *output_enable = 0xFFFFFFFF;
+	 *rst = 0x1;
 
   configureClock();
 
@@ -58,11 +72,36 @@ ATLASPix::ATLASPix(const caribou::Configuration config) : pearyDevice(config, st
 void ATLASPix::configure() {
  LOG(logINFO) << "Configuring " << DEVICE_NAME;
  
+ this->resetPulser();
+ this->resetCounters();
+
+ this->powerOn();
+ usleep(1000);
+
+
  // Build the SR string with default values and shift in the values in the chip
   this->Fill_SR();
   this->Shift_SR();
 
-  //while(1)this->sendPulse(128,1024,1024, 0.8);
+
+  this->resetCounters();
+  this->setPulse(100,1,1, 0.8);
+
+
+  while(1){
+	  std::cout << "sending pulse" << std::endl;
+	  this->sendPulse();
+	  usleep(2000);
+	  std::cout << "Counter 0 : " << this->readCounter(0) << std::endl;
+	  std::cout << "Counter 1 : " << this->readCounter(1) << std::endl;
+	  std::cout << "Counter 2 : " << this->readCounter(2) << std::endl;
+	  std::cout << "Counter 3 : " << this->readCounter(3) << std::endl;
+	  //int ddd = 0;
+	  //std::cin >> ddd;
+	 ///if (ddd=1){this->resetCounters();}
+  }
+
+
 
  // Call the base class configuration function:
   pearyDevice<iface_i2c>::configure();
@@ -441,8 +480,8 @@ void ATLASPix::Fill_SR()
 	 this->Registers.push_back(buffer);
 
 
-     std::cout << "size of shift buffer " << Registers.size() << std::endl;
-     std::cout << "number of bits " << nbits << std::endl;
+     //std::cout << "size of shift buffer " << Registers.size() << std::endl;
+     //std::cout << "number of bits " << nbits << std::endl;
 }
 
 void ATLASPix::Shift_SR(){
@@ -505,10 +544,23 @@ void ATLASPix::Shift_SR(){
 
 }
 
+void ATLASPix::resetPulser(){
 
-void ATLASPix::sendPulse(uint32_t npulse,uint32_t n_up,uint32_t n_down, double voltage){
 
-    LOG(logDEBUG) << " Set injection voltages ";
+	 void* pulser_base = _hal->getMappedMemoryRW(ATLASPix_PULSER_BASE_ADDRESS, ATLASPix_PULSER_MAP_SIZE, ATLASPix_PULSER_MASK);
+	 volatile uint32_t* rst = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x14);
+	 usleep(1);
+	 *rst = 0x0;
+	 usleep(1);
+	 *rst = 0x1;
+	 usleep(1);
+	 *rst = 0x0;
+
+}
+
+void ATLASPix::setPulse(uint32_t npulse,uint32_t n_up,uint32_t n_down, double voltage){
+
+	LOG(logDEBUG) << " Set injection voltages ";
     _hal->setBiasRegulator(INJ_1,voltage);
     _hal->powerBiasRegulator(INJ_1, true);
     _hal->setBiasRegulator(INJ_2,voltage);
@@ -525,19 +577,22 @@ void ATLASPix::sendPulse(uint32_t npulse,uint32_t n_up,uint32_t n_down, double v
 	 volatile uint32_t* high_cnt = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x8);
 	 volatile uint32_t* low_cnt = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0xC);
 	 volatile uint32_t* output_enable = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x10);
-
-	 *inj_flag = 0x0;
-	 usleep(10);
-
+	 volatile uint32_t* rst = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x14);
 
 	 *pulse_count = npulse;
 	 *high_cnt = n_up;
 	 *low_cnt = n_down;
 	 *output_enable = 0xFFFFFFF;
+}
+
+void ATLASPix::sendPulse(){
+
+	 void* pulser_base = _hal->getMappedMemoryRW(ATLASPix_PULSER_BASE_ADDRESS, ATLASPix_PULSER_MAP_SIZE, ATLASPix_PULSER_MASK);
+	 volatile uint32_t* inj_flag = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x0);
 
 	 *inj_flag = 0x1;
-//	 usleep(100);
-//	 *inj_flag = 0x0;
+	 usleep(100);
+	 *inj_flag = 0x0;
 
 }
 
@@ -553,15 +608,18 @@ void ATLASPix::resetCounters()
 
 
 	 *global_reset = 0x0;
-	 usleep(1);
+	 usleep(10);
 	 *global_reset = 0x1;
 	 usleep(10);
 	 *global_reset = 0x0;
-	 usleep(1);
+
+
+
+	 usleep(10);
 	 *cnt_rst = 0x0;
 	 usleep(1);
 	 *cnt_rst = 0x1;
-	 usleep(10);
+	 usleep(1);
 	 *cnt_rst = 0x0;
 
 }
@@ -573,19 +631,19 @@ int ATLASPix::readCounter(int channel)
 
 	int value = 0;
 	switch(channel){
-					case 1 :
+					case 0 :
 						 {volatile uint32_t* cnt_value = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(counter_base) + 0x0);
 						 value = *cnt_value;}
 						 break;
-					case 2:
+					case 1:
 						 {volatile uint32_t* cnt_value = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(counter_base) + 0x4);
 						 value = *cnt_value;}
 						 break;
-					case 3:
+					case 2:
 						 {volatile uint32_t* cnt_value = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(counter_base) + 0x8);
 						 value = *cnt_value;
 						 break;}
-					case 4:
+					case 3:
 						 {volatile uint32_t* cnt_value = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(counter_base) + 0xC);
 						 value = *cnt_value;
 						 break;}
