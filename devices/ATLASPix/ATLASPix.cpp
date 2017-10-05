@@ -115,7 +115,7 @@ void ATLASPix::configure() {
   this->Fill_SR(simpleM2);
   this->Shift_SR(simpleM2);
 
-  this->ComputeSCurves(0,0.5,50,128,100,100);
+  //this->ComputeSCurves(0,0.5,50,128,100,100);
 
 
 
@@ -146,7 +146,7 @@ void ATLASPix::configure() {
 void ATLASPix::initTDAC(ATLASPixMatrix *matrix,uint32_t value){
 
 	for(int col=0;col<matrix->ncol;col++){
-		for(int row=0;row<matrix->nrow;row++){
+		for(int row=0;row < matrix->nrow;row++){
 			matrix->TDAC[col][row] = value;
 			}
 		}
@@ -259,52 +259,32 @@ void ATLASPix::writeAllTDAC(ATLASPixMatrix *matrix){
 }
 
 //WIP
-void ATLASPix::tune() {
+void ATLASPix::tune(ATLASPixMatrix *matrix, double vmax,int nstep, int npulses, bool tuning_verification) {
 	LOG(logINFO) << "Tunning " << DEVICE_NAME;
 
-	///*pseudo code
+	for (int TDAC_value = 0; TDAC_value < 8; TDAC_value++){
+		initTDAC(matrix, TDAC_value);
+		writeAllTDAC(matrix);
+		ComputeSCurves(matrix,vmax, nstep, npulses, 100, 100);
+		//s_curve plots
+	}
 
-//	for (int pixel_row=0; pixel_row<300; pixel_row++) {
-//		for (int pixel_col=0; pixel_col<56; pixel_col++) {
-//			for (int col = 0; col <28; col++) {
-//				std::string pixel_column = to_string(col);
-//
-//				for (int row = 0; row < 320; row++) {
-//					std::string pixel_row = to_string(row);
-//
-//					if (col== tunning_col && row == tunning_row){
-//						MatrixDACConfig->SetParameter("writedac"+pixel_row, writedac_value)
-//						MatrixDACConfig->SetParameter("unused"+pixel_row,  unsuded_value);
-//						MatrixDACConfig->SetParameter("rowinjection"+pixel_row,  rowinjection_value);
-//						MatrixDACConfig->SetParameter("analogbuffer"+pixel_row,  analogbuffer_value);
-//
-//						MatrixDACConfig->SetParameter("RamL"+pixel_column, RamL_value)
-//						MatrixDACConfig->SetParameter("colinjL"+pixel_column,  colinjL_value);
-//						MatrixDACConfig->SetParameter("RamR"+pixel_column,  RamR_value);
-//						MatrixDACConfig->SetParameter("colinjR"+pixel_column,  calinjR_value);
-//					}
-//					else{
-//						MatrixDACConfig->SetParameter("writedac"+pixel_row, 0)
-//						MatrixDACConfig->SetParameter("unused"+pixel_row,  0);
-//						MatrixDACConfig->SetParameter("rowinjection"+pixel_row,  0);
-//						MatrixDACConfig->SetParameter("analogbuffer"+pixel_row,  0);
-//
-//						MatrixDACConfig->SetParameter("RamL"+pixel_column, 0)
-//						MatrixDACConfig->SetParameter("colinjL"+pixel_column,  0);
-//						MatrixDACConfig->SetParameter("RamR"+pixel_column,  0);
-//						MatrixDACConfig->SetParameter("colinjR"+pixel_column,  0);
-//					}
-//
-//				}
-//
-//			}
-//			// Build the SR string with default values and shift in the values in the chip
-//			this->Fill_SR();
-//			this->Shift_SR();
-//			// Call the base class configuration function:
-//			pearyDevice<iface_i2c>::configure();
-//		}
-//	}
+	double threshold_target = 0;
+	int TDAC_map[matrix->ncol][matrix->nrow] = {0,0};
+	//threshold_target calculation;
+	//pixel TDAC interpolation for target
+	//==> new, tuned, TDAC map
+
+	for(int col=0;col<matrix->ncol;col++){
+			for(int row=0;row<matrix->nrow;row++){
+				matrix->TDAC[col][row] = TDAC_map[col][row];
+			}
+	}
+	writeAllTDAC(matrix);
+	if(tuning_verification == true){
+		ComputeSCurves(matrix,0.5,50,128,100,100);
+		//S_curve plots + threshold distribution
+	}
 
 }
 
@@ -322,13 +302,14 @@ void ATLASPix::ComputeSCurves(ATLASPixMatrix *matrix,double vmax,int nstep, int 
 		setPulse(npulses,tup,tdown,v);
 		std::cout << "  bias :" << v << "V"<< std::endl;
 
-	for(int col=0;col<50;col++){
-		for(int row=0;row<400;row++){
+		for(int col=0;col< matrix->ncol; col++){
+			for(int row=0;row< matrix->nrow; row++){
 				sendPulse();
 				int sent = this->readCounter(0);
 				int rec = this->readCounter(matrix);
 				double ratio = double(rec)/sent;
 				resetCounters();
+				s_curves[v][col][row] = ratio;
 			}
 		}
 	}

@@ -120,7 +120,7 @@ namespace caribou {
     void writeAllTDAC(ATLASPixMatrix *matrix);
 
     void ComputeSCurves(ATLASPixMatrix *matrix,double vmax,int nstep, int npulses,int tup,int tdown);
-    void tune();
+    void tune(ATLASPixMatrix *matrix, double vmax,int nstep, int npulses, bool tuning_verification);
 
 
     void resetPulser();
@@ -150,6 +150,7 @@ namespace caribou {
     ATLASPixMatrix *simpleM1ISO;
     ATLASPixMatrix *simpleM2;
 
+	double s_curves[nstep][matrix->ncol][matrix->nrow] = {0, 0, 0};
 
 
 //    ATLASPix_Config *CurrentDACConfig_M1;
