@@ -150,9 +150,6 @@ namespace caribou {
     ATLASPixMatrix *simpleM1ISO;
     ATLASPixMatrix *simpleM2;
 
-	double s_curves[nstep][matrix->ncol][matrix->nrow] = {0, 0, 0};
-
-
 //    ATLASPix_Config *CurrentDACConfig_M1;
 //    ATLASPix_Config *MatrixDACConfig_M1;
 //    ATLASPix_Config *VoltageDACConfig_M1;

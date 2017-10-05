@@ -269,8 +269,10 @@ void ATLASPix::tune(ATLASPixMatrix *matrix, double vmax,int nstep, int npulses, 
 		//s_curve plots
 	}
 
-	double threshold_target = 0;
-	int TDAC_map[matrix->ncol][matrix->nrow] = {0,0};
+	//double threshold_target = 0;
+	const int cols = matrix->ncol;
+	const int rows = matrix->nrow;
+	int TDAC_map[cols][rows] = {0,0};
 	//threshold_target calculation;
 	//pixel TDAC interpolation for target
 	//==> new, tuned, TDAC map
@@ -291,12 +293,14 @@ void ATLASPix::tune(ATLASPixMatrix *matrix, double vmax,int nstep, int npulses, 
 
 void ATLASPix::ComputeSCurves(ATLASPixMatrix *matrix,double vmax,int nstep, int npulses,int tup,int tdown){
 
-	int value = 0;
-
     std::clock_t start;
     double duration;
 
     start = std::clock();
+    const int steps = nstep;
+    const int cols = matrix->ncol;
+    const int rows = matrix->nrow;
+	double s_curves[steps][cols][rows] = {0, 0, 0};
 
     for(double v=0;v<=vmax;v+=(vmax/nstep)){
 		setPulse(npulses,tup,tdown,v);
