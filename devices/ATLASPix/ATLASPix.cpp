@@ -302,6 +302,7 @@ void ATLASPix::ComputeSCurves(ATLASPixMatrix *matrix,double vmax,int nstep, int 
     const int rows = matrix->nrow;
 	double s_curves[steps][cols][rows] = {0, 0, 0};
 
+	int step = 0;
     for(double v=0;v<=vmax;v+=(vmax/nstep)){
 		setPulse(npulses,tup,tdown,v);
 		std::cout << "  bias :" << v << "V"<< std::endl;
@@ -313,9 +314,10 @@ void ATLASPix::ComputeSCurves(ATLASPixMatrix *matrix,double vmax,int nstep, int 
 				int rec = this->readCounter(matrix);
 				double ratio = double(rec)/sent;
 				resetCounters();
-				s_curves[v][col][row] = ratio;
+				s_curves[step][col][row] = ratio;
 			}
 		}
+		step++;
 	}
 	duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
 	std::cout << "duration : " << duration << "s" << std::endl;
