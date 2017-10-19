@@ -66,6 +66,10 @@ namespace caribou {
     static int getData(const std::vector<std::string>& input);
     static int acquire(const std::vector<std::string>& input);
     static int flushMatrix(const std::vector<std::string>& input);
+    static int lock(const std::vector<std::string>& input);
+    static int unlock(const std::vector<std::string>& input);
+    static int setThreshold(const std::vector<std::string>& input);
+
 
     // Create new Peary device manager
     static caribou::caribouDeviceMgr* manager;

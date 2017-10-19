@@ -149,6 +149,10 @@ pearycli::pearycli() : c("# ") {
     4,
     "NUM LONG[0/1] FILENAME DEVICE_ID_1 [REG DEVICE_ID_2]");
   c.registerCommand("flushMatrix", flushMatrix, "Retrieve data from the selected device and discard it", 1, "DEVICE_ID");
+
+  c.registerCommand("lock", lock, "lock the device", 1,"DEVICE_ID");
+  c.registerCommand("unlock", unlock, "unlock the device", 1,"DEVICE_ID");
+  c.registerCommand("setThreshold", setThreshold, "setting threshold", 1,"DEVICE_ID");
 }
 
 pearycli::~pearycli() {
@@ -775,6 +779,37 @@ int pearycli::flushMatrix(const std::vector<std::string>& input) {
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
     pearydata data = dev->getData();
+  } catch(caribou::caribouException& e) {
+    return ret::Error;
+  }
+  return ret::Ok;
+}
+
+
+int pearycli::lock(const std::vector<std::string>& input) {
+  try {
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
+    dev->lock();
+  } catch(caribou::caribouException& e) {
+    return ret::Error;
+  }
+  return ret::Ok;
+}
+
+int pearycli::unlock(const std::vector<std::string>& input) {
+  try {
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
+    dev->unlock();
+  } catch(caribou::caribouException& e) {
+    return ret::Error;
+  }
+  return ret::Ok;
+}
+
+int pearycli::setThreshold(const std::vector<std::string>& input) {
+  try {
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
+    dev->setThreshold();
   } catch(caribou::caribouException& e) {
     return ret::Error;
   }

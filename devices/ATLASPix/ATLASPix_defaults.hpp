@@ -27,14 +27,24 @@ namespace caribou {
 #define ATLASPix_CMOS_LEVEL 1.8
 #define ATLASPix_CMOS_LEVEL_CURRENT 1
 
-#define ATLASPix_GndDACPix_M2 1.8
-#define ATLASPix_VMinusPix_M2 0.0
-#define ATLASPix_GatePix_M2   2.2
+#define ATLASPix_GndDACPix_M2 0
+#define ATLASPix_VMinusPix_M2 0.8
+#define ATLASPix_GatePix_M2   2.0
 
-#define ncol_m1 50
+#define ATLASPix_GndDACPix_M1 0
+#define ATLASPix_VMinusPix_M1 0.8
+#define ATLASPix_GatePix_M1   2.0
+
+
+#define ATLASPix_GndDACPix_M1ISO 0
+#define ATLASPix_VMinusPix_M1ISO 0.8
+#define ATLASPix_GatePix_M1ISO   2.0
+
+
+#define ncol_m1 25
 #define nrow_m1 400
 
-#define ncol_m1iso 50
+#define ncol_m1iso 25
 #define nrow_m1iso 400
 
 #define ncol_m2 56

@@ -103,6 +103,11 @@ namespace caribou {
     virtual void exploreInterface() = 0;
 
     virtual void configure();
+    
+    virtual void lock();
+    virtual void unlock();
+    virtual void setThreshold();
+    
 
     // Controlling the device
     void setRegister(std::string name, uint32_t value);

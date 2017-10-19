@@ -276,7 +276,23 @@ namespace caribou {
     LOG(logCRITICAL) << "Pattern generator not implemented for this device";
     throw caribou::DeviceImplException("Pattern generator not implemented for this device");
   }
-
+  
+  
+    template <typename T> void pearyDevice<T>::lock() {
+    LOG(logCRITICAL) << "lock not implemented for this device";
+    throw caribou::DeviceImplException("lock not implemented for this device");
+  }
+ 
+    template <typename T> void pearyDevice<T>::unlock() {
+    LOG(logCRITICAL) << "unlock not implemented for this device";
+    throw caribou::DeviceImplException("unlock not implemented for this device");
+  }
+  
+      template <typename T> void pearyDevice<T>::setThreshold() {
+    LOG(logCRITICAL) << "setThreshold not implemented for this device";
+    throw caribou::DeviceImplException("setThreshold not implemented for this device");
+  }
+  
   template <typename T> void pearyDevice<T>::configure() {
 
     if(!_is_powered) {

@@ -53,6 +53,7 @@ struct ATLASPixMatrix {
     int nSRbuffer,nbits;
     int counter;
     uint32_t SRmask,extraBits;
+    int type;
 
 
 };
@@ -76,6 +77,9 @@ namespace caribou {
      */
     void configure();
 
+    void lock();
+    void unlock();
+    void setThreshold();
     /** Turn on the power supply for the ATLASPix chip
      */
     void powerUp();

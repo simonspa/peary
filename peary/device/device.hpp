@@ -106,7 +106,9 @@ namespace caribou {
      *  provided via the initial configuration object
      */
     virtual void configure() = 0;
-
+    virtual void lock()=0;
+    virtual void unlock()=0;
+    virtual void setThreshold()=0;
     // Controlling the device
 
     /** Set register on the device
