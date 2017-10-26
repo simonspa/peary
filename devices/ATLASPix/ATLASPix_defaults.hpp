@@ -23,7 +23,7 @@ namespace caribou {
 #define ATLASPix_VDDA 1.8
 #define ATLASPix_VDDA_CURRENT 1
 #define ATLASPix_VSSA 1.0
-#define ATLASPix_VSSA_CURRENT 0.5
+#define ATLASPix_VSSA_CURRENT 1
 #define ATLASPix_CMOS_LEVEL 1.8
 #define ATLASPix_CMOS_LEVEL_CURRENT 1
 

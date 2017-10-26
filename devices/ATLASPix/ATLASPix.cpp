@@ -35,6 +35,10 @@ ATLASPix::ATLASPix(const caribou::Configuration config) : pearyDevice(config, st
 
   simpleM2->BLPix=0.8;
   simpleM2->ThPix=0.85;
+  simpleM1->BLPix=0.8;
+  simpleM1->ThPix=0.85;
+  simpleM1ISO->BLPix=0.8;
+  simpleM1ISO->ThPix=0.85;
 
 
   simpleM1->ncol=ncol_m1;
@@ -153,18 +157,33 @@ void ATLASPix::configure() {
 void ATLASPix::lock(){
 
 	simpleM2->CurrentDACConfig->SetParameter("unlock",0x0);
-	  this->Fill_SR(simpleM2);
+	  //this->Fill_SR(simpleM2);
 	  this->Shift_SR(simpleM2);
 
+	simpleM1->CurrentDACConfig->SetParameter("unlock",0x0);
+		  //this->Fill_SR(simpleM1);
+		  this->Shift_SR(simpleM1);
 
+	simpleM1ISO->CurrentDACConfig->SetParameter("unlock",0x0);
+		//this->Fill_SR(simpleM1ISO);
+		this->Shift_SR(simpleM1ISO);
 }
 
 
 void ATLASPix::unlock(){
 
-	simpleM2->CurrentDACConfig->SetParameter("unlock",5);
-	  this->Fill_SR(simpleM2);
+
+	simpleM2->CurrentDACConfig->SetParameter("unlock",0x101);
+	  //this->Fill_SR(simpleM2);
 	  this->Shift_SR(simpleM2);
+
+	simpleM1->CurrentDACConfig->SetParameter("unlock",0x101);
+		  //this->Fill_SR(simpleM1);
+		  this->Shift_SR(simpleM1);
+
+	simpleM1ISO->CurrentDACConfig->SetParameter("unlock",0x101);
+		//this->Fill_SR(simpleM1ISO);
+		this->Shift_SR(simpleM1ISO);
 
 
 }
@@ -380,7 +399,8 @@ std::string ATLASPix::getName() {
 void ATLASPix::powerUp() {
   LOG(logINFO) << DEVICE_NAME << ": Powering up ATLASPix";
 
-  // Power rails:
+  // Power rails: Before Biasing
+  LOG(logINFO) << DEVICE_NAME << ": Powering details before biasing";
   LOG(logDEBUG) << " VDDD";
   _hal->setVoltageRegulator(PWR_OUT_4, _config.Get("vddd", ATLASPix_VDDD), _config.Get("vddd_current", ATLASPix_VDDD_CURRENT));
   _hal->powerVoltageRegulator(PWR_OUT_4, true);
@@ -393,7 +413,7 @@ void ATLASPix::powerUp() {
   _hal->setVoltageRegulator(PWR_OUT_2, _config.Get("vssa", ATLASPix_VSSA), _config.Get("vssa_current", ATLASPix_VSSA_CURRENT));
   _hal->powerVoltageRegulator(PWR_OUT_2, true);
 
-
+  this->powerStatusLog();
 
   // Bias voltages m2:
   LOG(logDEBUG) << " GNDDacPix m2 ";
@@ -439,6 +459,22 @@ void ATLASPix::powerUp() {
   _hal->setBiasRegulator(BIAS_3, _config.Get("GatePix_M1ISO", ATLASPix_GatePix_M1ISO));
   _hal->powerBiasRegulator(BIAS_3, true);
 
+  // Power rails: After Biasing
+  LOG(logINFO) << DEVICE_NAME << ": Powering details after biasing";
+  LOG(logDEBUG) << " VDDD";
+  _hal->setVoltageRegulator(PWR_OUT_4, _config.Get("vddd", ATLASPix_VDDD), _config.Get("vddd_current", ATLASPix_VDDD_CURRENT));
+  _hal->powerVoltageRegulator(PWR_OUT_4, true);
+
+  LOG(logDEBUG) << " VDDA";
+  _hal->setVoltageRegulator(PWR_OUT_3, _config.Get("vdda", ATLASPix_VDDA), _config.Get("vdda_current", ATLASPix_VDDA_CURRENT));
+  _hal->powerVoltageRegulator(PWR_OUT_3, true);
+
+  LOG(logDEBUG) << " VSSA";
+  _hal->setVoltageRegulator(PWR_OUT_2, _config.Get("vssa", ATLASPix_VSSA), _config.Get("vssa_current", ATLASPix_VSSA_CURRENT));
+  _hal->powerVoltageRegulator(PWR_OUT_2, true);
+
+  this->powerStatusLog();
+
 
 }
 
@@ -457,34 +493,34 @@ void ATLASPix::powerDown() {
   LOG(logDEBUG) << "Powering off CMOS_LEVEL";
   _hal->powerVoltageRegulator(PWR_OUT_1, false);
 
-  LOG(logDEBUG) << "Turning off GNDDacPix";
+  LOG(logDEBUG) << "Turning off GNDDacPix_M1";
   _hal->powerBiasRegulator(BIAS_6, false);
 
-  LOG(logDEBUG) << "Turning off VMinusPix";
+  LOG(logDEBUG) << "Turning off VMinusPix_M1";
   _hal->powerBiasRegulator(BIAS_4, false);
 
-  LOG(logDEBUG) << "Turning off GatePix_M2";
+  LOG(logDEBUG) << "Turning off GatePix_M1";
   _hal->powerBiasRegulator(BIAS_1, false);
 
-  LOG(logDEBUG) << "Turning off GNDDacPix";
+  LOG(logDEBUG) << "Turning off GNDDacPix_M2";
   _hal->powerBiasRegulator(BIAS_9, false);
 
-  LOG(logDEBUG) << "Turning off VMinusPix";
+  LOG(logDEBUG) << "Turning off VMinusPix_M2";
   _hal->powerBiasRegulator(BIAS_5, false);
 
   LOG(logDEBUG) << "Turning off GatePix_M2";
   _hal->powerBiasRegulator(BIAS_2, false);
 
-  LOG(logDEBUG) << "Turning off GNDDacPix";
+  LOG(logDEBUG) << "Turning off GNDDacPix_M1ISO";
   _hal->powerBiasRegulator(BIAS_12, false);
 
-  LOG(logDEBUG) << "Turning off VMinusPix";
+  LOG(logDEBUG) << "Turning off VMinusPix_M1ISO";
   _hal->powerBiasRegulator(BIAS_8, false);
 
-  LOG(logDEBUG) << "Turning off GatePix_M2";
+  LOG(logDEBUG) << "Turning off GatePix_M1ISO";
   _hal->powerBiasRegulator(BIAS_3, false);
 
-
+  this->powerStatusLog();
 
 }
 
@@ -502,17 +538,14 @@ void ATLASPix::powerStatusLog() {
   LOG(logINFO) << "VDDD:";
   LOG(logINFO) << "\tBus voltage: " << _hal->measureVoltage(PWR_OUT_4) << "V";
   LOG(logINFO) << "\tBus current: " << _hal->measureCurrent(PWR_OUT_4) << "A";
-  LOG(logINFO) << "\tBus power  : " << _hal->measurePower(PWR_OUT_4) << "W";
 
   LOG(logINFO) << "VDDA:";
   LOG(logINFO) << "\tBus voltage: " << _hal->measureVoltage(PWR_OUT_3) << "V";
   LOG(logINFO) << "\tBus current: " << _hal->measureCurrent(PWR_OUT_3) << "A";
-  LOG(logINFO) << "\tBus power  : " << _hal->measurePower(PWR_OUT_3) << "W";
 
   LOG(logINFO) << "VSSA:";
   LOG(logINFO) << "\tBus voltage: " << _hal->measureVoltage(PWR_OUT_2) << "V";
   LOG(logINFO) << "\tBus current: " << _hal->measureCurrent(PWR_OUT_2) << "A";
-  LOG(logINFO) << "\tBus power  : " << _hal->measurePower(PWR_OUT_2) << "W";
 
 }
 
@@ -533,7 +566,7 @@ void ATLASPix::Initialize_SR(ATLASPixMatrix *matrix){
 
 	//DAC Block 1 for DIgital Part
 	//AnalogDACs
-	matrix->CurrentDACConfig->AddParameter("unlock",    4, ATLASPix_Config::LSBFirst, 0x0); // unlock = x101
+	matrix->CurrentDACConfig->AddParameter("unlock",    4, ATLASPix_Config::LSBFirst, 0x101); // unlock = x101
 	matrix->CurrentDACConfig->AddParameter("BLResPix", "5,4,3,1,0,2",  5);
 	matrix->CurrentDACConfig->AddParameter("ThResPix", "5,4,3,1,0,2",  0);
 	matrix->CurrentDACConfig->AddParameter("VNPix", "5,4,3,1,0,2",  20);
@@ -666,7 +699,7 @@ void ATLASPix::Fill_SR(ATLASPixMatrix *matrix)
 //	 std::cout <<  std::endl;
 	 buffer=0;
        };
-       buffer += *i << 31-cnt;
+       buffer += *i << cnt;
        cnt++;
        nbits++;
      }
@@ -681,7 +714,7 @@ void ATLASPix::Fill_SR(ATLASPixMatrix *matrix)
 //	 std::cout <<  std::endl;
 	 buffer=0;
        };
-       buffer += *i << 31-cnt;
+       buffer += *i << cnt;
        cnt++;
        nbits++;
 
@@ -696,7 +729,7 @@ void ATLASPix::Fill_SR(ATLASPixMatrix *matrix)
 //	 std::cout <<  std::endl;
 	 buffer=0;
        };
-       buffer += *i << 31-cnt;
+       buffer += *i << cnt;
        cnt++;
        nbits++;
 
