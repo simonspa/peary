@@ -52,12 +52,12 @@ ATLASPix::ATLASPix(const caribou::Configuration config) : pearyDevice(config, st
   this->simpleM1ISO = new ATLASPixMatrix();
   this->simpleM2 = new ATLASPixMatrix();
 
-  this->simpleM2->BLPix=0.8;
-  this->simpleM2->ThPix=0.85;
-  this->simpleM1->BLPix=0.8;
-  this->simpleM1->ThPix=0.85;
-  this->simpleM1ISO->BLPix=0.8;
-  this->simpleM1ISO->ThPix=0.85;
+  this->simpleM2->BLPix=0.8-0.036;
+  this->simpleM2->ThPix=0.8+0.014;
+  this->simpleM1->BLPix=0.8-0.036;
+  this->simpleM1->ThPix=0.8+0.014;
+  this->simpleM1ISO->BLPix=0.8-0.036;
+  this->simpleM1ISO->ThPix=0.8+0.014;
 
 
   this->simpleM1->ncol=ncol_m1;
@@ -142,11 +142,11 @@ void ATLASPix::configure() {
   this->Fill_SR(this->simpleM1);
   this->Shift_SR(this->simpleM1);
 
-  this->Fill_SR(simpleM1ISO);
-  this->Shift_SR(simpleM1ISO);
+  this->Fill_SR(this->simpleM1ISO);
+  this->Shift_SR(this->simpleM1ISO);
 
-  this->Fill_SR(simpleM2);
-  this->Shift_SR(simpleM2);
+  this->Fill_SR(this->simpleM2);
+  this->Shift_SR(this->simpleM2);
   usleep(1000);
 
   //this->ComputeSCurves(0,0.5,50,128,100,100);
@@ -592,7 +592,7 @@ void ATLASPix::Initialize_SR(ATLASPixMatrix *matrix){
 	matrix->CurrentDACConfig->AddParameter("unlock",    4, ATLASPix_Config::LSBFirst, 0b101); // unlock = x101
 	matrix->CurrentDACConfig->AddParameter("BLResPix", "5,4,3,1,0,2",  5);
 	matrix->CurrentDACConfig->AddParameter("ThResPix", "5,4,3,1,0,2",  0);
-	matrix->CurrentDACConfig->AddParameter("VNPix", "5,4,3,1,0,2",  20);
+	matrix->CurrentDACConfig->AddParameter("VNPix", "5,4,3,1,0,2",  60);
 	matrix->CurrentDACConfig->AddParameter("VNFBPix", "5,4,3,1,0,2", 10);
 	matrix->CurrentDACConfig->AddParameter("VNFollPix", "5,4,3,1,0,2", 10);
 	matrix->CurrentDACConfig->AddParameter("VNRegCasc", "5,4,3,1,0,2", 20);     //hier : VNHitbus
@@ -638,7 +638,7 @@ void ATLASPix::Initialize_SR(ATLASPixMatrix *matrix){
 	matrix->CurrentDACConfig->AddParameter("VPBiasRec", "5,4,3,1,0,2",  30);
 	matrix->CurrentDACConfig->AddParameter("VNBiasRec", "5,4,3,1,0,2",  30);
 	matrix->CurrentDACConfig->AddParameter("Invert",     1, ATLASPix_Config::LSBFirst, 0);// 0);
-	matrix->CurrentDACConfig->AddParameter("SelEx",     1, ATLASPix_Config::LSBFirst,  1);//1); //activated external clock input
+	matrix->CurrentDACConfig->AddParameter("SelEx",     1, ATLASPix_Config::LSBFirst,  0);//1); //activated external clock input
 	matrix->CurrentDACConfig->AddParameter("SelSlow",     1, ATLASPix_Config::LSBFirst,  1);//1);
 	matrix->CurrentDACConfig->AddParameter("EnPLL",     1, ATLASPix_Config::LSBFirst,  0);//0);
 	matrix->CurrentDACConfig->AddParameter("TriggerDelay",     10, ATLASPix_Config::LSBFirst,  0);
@@ -653,9 +653,9 @@ void ATLASPix::Initialize_SR(ATLASPixMatrix *matrix){
 	for (int col = 0; col < matrix->ncol; col++)
 	{
 			std::string s = to_string(col);
-			matrix->MatrixDACConfig->AddParameter("Ram"+s, 4, ATLASPix_Config::LSBFirst,  0);
+			matrix->MatrixDACConfig->AddParameter("Ram"+s, 4, ATLASPix_Config::LSBFirst,  0b1011);
 			matrix->MatrixDACConfig->AddParameter("colinj"+s, 1, ATLASPix_Config::LSBFirst,  0);
-			matrix->MatrixDACConfig->AddParameter("hitbus"+s, 1, ATLASPix_Config::LSBFirst,  0);
+			matrix->MatrixDACConfig->AddParameter("hitbus"+s, 1, ATLASPix_Config::LSBFirst,  1);
 			matrix->MatrixDACConfig->AddParameter("unused"+s, 10, ATLASPix_Config::LSBFirst,  0);
 		}
 	}
