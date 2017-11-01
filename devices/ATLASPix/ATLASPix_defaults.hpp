@@ -18,14 +18,13 @@ namespace caribou {
 /** Definition of default values for the different DAC settings for ATLASPix
  */
 
-#define ATLASPix_VDDD 1.8
+#define ATLASPix_VDDD 1.9
 #define ATLASPix_VDDD_CURRENT 1
-#define ATLASPix_VDDA 1.8
+#define ATLASPix_VDDA 1.9
 #define ATLASPix_VDDA_CURRENT 1
 #define ATLASPix_VSSA 1.0
-#define ATLASPix_VSSA_CURRENT 1
-#define ATLASPix_CMOS_LEVEL 1.8
-#define ATLASPix_CMOS_LEVEL_CURRENT 1
+#define ATLASPix_VSSA_CURRENT 0.3
+
 
 #define ATLASPix_GndDACPix_M2 0
 #define ATLASPix_VMinusPix_M2 0.8
@@ -51,17 +50,17 @@ namespace caribou {
 #define nrow_m2 320
 
   // ATLASPix  SR FSM control
-  const std::intptr_t ATLASPix_CONTROL_BASE_ADDRESS = 0x43C00000;
+  const std::intptr_t ATLASPix_CONTROL_BASE_ADDRESS = 0x43C20000;
   const std::size_t ATLASPix_CONTROL_MAP_SIZE = 4096;
   const std::uint32_t ATLASPix_RAM_address_MASK = ATLASPix_CONTROL_MAP_SIZE-1;
 
   // ATLASPix Pulser Control
-  const std::intptr_t ATLASPix_PULSER_BASE_ADDRESS = 0x43C50000;
+  const std::intptr_t ATLASPix_PULSER_BASE_ADDRESS = 0x43C10000;
   const std::size_t ATLASPix_PULSER_MAP_SIZE = 4096;
   const std::uint32_t ATLASPix_PULSER_MASK = ATLASPix_PULSER_MAP_SIZE-1;
 
   // ATLASPix Counter Control
-  const std::intptr_t ATLASPix_COUNTER_BASE_ADDRESS = 0x43C60000;
+  const std::intptr_t ATLASPix_COUNTER_BASE_ADDRESS = 0x43C00000;
   const std::size_t ATLASPix_COUNTER_MAP_SIZE = 4096;
   const std::uint32_t ATLASPix_COUNTER_MASK = ATLASPix_COUNTER_MAP_SIZE-1;
 

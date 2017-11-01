@@ -17,61 +17,80 @@
 
 using namespace caribou;
 
+
+uint32_t reverseBits(uint32_t n) {
+        uint32_t x;
+        for(auto i = 31; n; ) {
+            x |= (n & 1) << i;
+            n >>= 1;
+            -- i;
+        }
+        return x;
+    }
+
 ATLASPix::ATLASPix(const caribou::Configuration config) : pearyDevice(config, std::string(DEFAULT_DEVICEPATH), ATLASPix_DEFAULT_I2C) {
 
   // Set up periphery
-  _periphery.add("vddd", PWR_OUT_4);
-  _periphery.add("vdda", PWR_OUT_3);
-  _periphery.add("vssa", PWR_OUT_2);
-  _periphery.add("CMOS_LEVEL", PWR_OUT_1);
+  _periphery.add("VDDD", PWR_OUT_4);
+  _periphery.add("VDDA", PWR_OUT_3);
+  _periphery.add("VSSA", PWR_OUT_2);
+  //_periphery.add("CMOS_LEVEL", PWR_OUT_1);
   _periphery.add("GndDACPix_M2", BIAS_9);
   _periphery.add("VMinusPix_M2", BIAS_5);
   _periphery.add("GatePix_M2", BIAS_2);
 
+  _periphery.add("GndDACPix_M1", BIAS_6);
+  _periphery.add("VMinusPix_M1", BIAS_4);
+  _periphery.add("GatePix_M1", BIAS_1);
+
+  _periphery.add("GndDACPix_M1ISO", BIAS_12);
+  _periphery.add("VMinusPix_M1ISO", BIAS_8);
+  _periphery.add("GatePix_M1ISO", BIAS_3);
+
   //Data structure containing the info about the matrices
-  simpleM1 = new ATLASPixMatrix();
-  simpleM1ISO = new ATLASPixMatrix();
-  simpleM2 = new ATLASPixMatrix();
+  this->simpleM1 = new ATLASPixMatrix();
+  this->simpleM1ISO = new ATLASPixMatrix();
+  this->simpleM2 = new ATLASPixMatrix();
 
-  simpleM2->BLPix=0.8;
-  simpleM2->ThPix=0.85;
-  simpleM1->BLPix=0.8;
-  simpleM1->ThPix=0.85;
-  simpleM1ISO->BLPix=0.8;
-  simpleM1ISO->ThPix=0.85;
+  this->simpleM2->BLPix=0.8;
+  this->simpleM2->ThPix=0.85;
+  this->simpleM1->BLPix=0.8;
+  this->simpleM1->ThPix=0.85;
+  this->simpleM1ISO->BLPix=0.8;
+  this->simpleM1ISO->ThPix=0.85;
 
 
-  simpleM1->ncol=ncol_m1;
-  simpleM1ISO->ncol=ncol_m1iso;
-  simpleM2->ncol=ncol_m2;
+  this->simpleM1->ncol=ncol_m1;
+  this->simpleM1ISO->ncol=ncol_m1iso;
+  this->simpleM2->ncol=ncol_m2;
 
-  simpleM1->ndoublecol=ncol_m1/2;
-  simpleM1ISO->ndoublecol=ncol_m1iso/2;
-  simpleM2->ndoublecol=ncol_m2/2;
+  this->simpleM1->ndoublecol=ncol_m1/2;
+  this->simpleM1ISO->ndoublecol=ncol_m1iso/2;
+  this->simpleM2->ndoublecol=ncol_m2/2;
 
-  simpleM1->nrow=nrow_m1;
-  simpleM1ISO->nrow=nrow_m1iso;
-  simpleM2->nrow=nrow_m2;
+  this->simpleM1->nrow=nrow_m1;
+  this->simpleM1ISO->nrow=nrow_m1iso;
+  this->simpleM2->nrow=nrow_m2;
 
-  simpleM1->counter=1;
-  simpleM1ISO->counter=2;
-  simpleM2->counter=3;
+  this->simpleM1->counter=1;
+  this->simpleM1ISO->counter=2;
+  this->simpleM2->counter=3;
 
-  simpleM1->nSRbuffer = 105;
-  simpleM1ISO->nSRbuffer = 105;
-  simpleM2->nSRbuffer = 84;
+  this->simpleM1->nSRbuffer = 104;
+  this->simpleM1ISO->nSRbuffer = 104;
+  this->simpleM2->nSRbuffer = 84;
 
-  simpleM1->extraBits = 16;
-  simpleM1ISO->extraBits = 16;
-  simpleM2->extraBits = 8;
+  this->simpleM1->extraBits = 16;
+  this->simpleM1ISO->extraBits = 16;
+  this->simpleM2->extraBits = 0;
 
-  simpleM1->SRmask=0x1;
-  simpleM1->SRmask=0x2;
-  simpleM1->SRmask=0x4;
+  this->simpleM1->SRmask=0x2;
+  this->simpleM1ISO->SRmask=0x4;
+  this->simpleM2->SRmask=0x1;
 
-  simpleM1->type=1;
-  simpleM1ISO->type=1;
-  simpleM2->type=2;
+  this->simpleM1->type=1;
+  this->simpleM1ISO->type=1;
+  this->simpleM2->type=2;
 
 
   //Configuring the clock to 160 MHz
@@ -81,13 +100,13 @@ ATLASPix::ATLASPix(const caribou::Configuration config) : pearyDevice(config, st
 
 
 
-  this->initTDAC(simpleM1,4);
-  this->initTDAC(simpleM1ISO,4);
-  this->initTDAC(simpleM2,4);
+  this->initTDAC(simpleM1,0);
+  this->initTDAC(simpleM1ISO,0);
+  this->initTDAC(simpleM2,0);
 
-  this->Initialize_SR(simpleM1);
-  this->Initialize_SR(simpleM1ISO);
-  this->Initialize_SR(simpleM2);
+  this->Initialize_SR(this->simpleM1);
+  this->Initialize_SR(this->simpleM1ISO);
+  this->Initialize_SR(this->simpleM2);
 
 
 
@@ -120,12 +139,15 @@ void ATLASPix::configure() {
 
  // Build the SR string with default values and shift in the values in the chip
 
-  this->Fill_SR(simpleM1);
-  this->Shift_SR(simpleM1);
+  this->Fill_SR(this->simpleM1);
+  this->Shift_SR(this->simpleM1);
+
   this->Fill_SR(simpleM1ISO);
   this->Shift_SR(simpleM1ISO);
+
   this->Fill_SR(simpleM2);
   this->Shift_SR(simpleM2);
+  usleep(1000);
 
   //this->ComputeSCurves(0,0.5,50,128,100,100);
 
@@ -157,33 +179,33 @@ void ATLASPix::configure() {
 void ATLASPix::lock(){
 
 	simpleM2->CurrentDACConfig->SetParameter("unlock",0x0);
-	  //this->Fill_SR(simpleM2);
-	  this->Shift_SR(simpleM2);
+	this->Fill_SR(simpleM2);
+	this->Shift_SR(simpleM2);
 
-	simpleM1->CurrentDACConfig->SetParameter("unlock",0x0);
-		  //this->Fill_SR(simpleM1);
-		  this->Shift_SR(simpleM1);
+	this->simpleM1->CurrentDACConfig->SetParameter("unlock",0x0);
+	this->Fill_SR(simpleM1);
+	this->Shift_SR(simpleM1);
 
 	simpleM1ISO->CurrentDACConfig->SetParameter("unlock",0x0);
-		//this->Fill_SR(simpleM1ISO);
-		this->Shift_SR(simpleM1ISO);
+	this->Fill_SR(simpleM1ISO);
+	this->Shift_SR(simpleM1ISO);
 }
 
 
 void ATLASPix::unlock(){
 
 
-	simpleM2->CurrentDACConfig->SetParameter("unlock",0x101);
-	  //this->Fill_SR(simpleM2);
-	  this->Shift_SR(simpleM2);
+	simpleM2->CurrentDACConfig->SetParameter("unlock",0b101);
+	this->Fill_SR(simpleM2);
+	this->Shift_SR(simpleM2);
 
-	simpleM1->CurrentDACConfig->SetParameter("unlock",0x101);
-		  //this->Fill_SR(simpleM1);
-		  this->Shift_SR(simpleM1);
+	this->simpleM1->CurrentDACConfig->SetParameter("unlock",0b101);
+	this->Fill_SR(simpleM1);
+	this->Shift_SR(simpleM1);
 
-	simpleM1ISO->CurrentDACConfig->SetParameter("unlock",0x101);
-		//this->Fill_SR(simpleM1ISO);
-		this->Shift_SR(simpleM1ISO);
+	simpleM1ISO->CurrentDACConfig->SetParameter("unlock",0b101);
+	this->Fill_SR(simpleM1ISO);
+	this->Shift_SR(simpleM1ISO);
 
 
 }
@@ -413,7 +435,7 @@ void ATLASPix::powerUp() {
   _hal->setVoltageRegulator(PWR_OUT_2, _config.Get("vssa", ATLASPix_VSSA), _config.Get("vssa_current", ATLASPix_VSSA_CURRENT));
   _hal->powerVoltageRegulator(PWR_OUT_2, true);
 
-  this->powerStatusLog();
+  //this->powerStatusLog();
 
   // Bias voltages m2:
   LOG(logDEBUG) << " GNDDacPix m2 ";
@@ -473,7 +495,8 @@ void ATLASPix::powerUp() {
   _hal->setVoltageRegulator(PWR_OUT_2, _config.Get("vssa", ATLASPix_VSSA), _config.Get("vssa_current", ATLASPix_VSSA_CURRENT));
   _hal->powerVoltageRegulator(PWR_OUT_2, true);
 
-  this->powerStatusLog();
+  usleep(10000);
+  //this->powerStatusLog();
 
 
 }
@@ -566,7 +589,7 @@ void ATLASPix::Initialize_SR(ATLASPixMatrix *matrix){
 
 	//DAC Block 1 for DIgital Part
 	//AnalogDACs
-	matrix->CurrentDACConfig->AddParameter("unlock",    4, ATLASPix_Config::LSBFirst, 0x101); // unlock = x101
+	matrix->CurrentDACConfig->AddParameter("unlock",    4, ATLASPix_Config::LSBFirst, 0b101); // unlock = x101
 	matrix->CurrentDACConfig->AddParameter("BLResPix", "5,4,3,1,0,2",  5);
 	matrix->CurrentDACConfig->AddParameter("ThResPix", "5,4,3,1,0,2",  0);
 	matrix->CurrentDACConfig->AddParameter("VNPix", "5,4,3,1,0,2",  20);
@@ -684,19 +707,25 @@ void ATLASPix::Fill_SR(ATLASPixMatrix *matrix)
     //CurrentDACbits = CurrentDACConfig->GenerateBitVector(ATLASPix_Config::GlobalInvertedMSBFirst);
 
 
+    std::vector<bool> allbits;
+    allbits.insert( allbits.end(), matrix->VoltageDACBits.begin(), matrix->VoltageDACBits.end() );
+    allbits.insert( allbits.end(), matrix->CurrentDACbits.begin(), matrix->CurrentDACbits.end() );
+    allbits.insert( allbits.end(),  matrix->MatrixBits.begin(),  matrix->MatrixBits.end() );
+    allbits.insert( allbits.end(), matrix->CurrentDACbits.begin(), matrix->CurrentDACbits.end() );
+
+//    std::cout << matrix->VoltageDACBits.size() << std::endl;;
+//    std::cout << matrix->CurrentDACbits.size() << std::endl;;
+//    std::cout << matrix->MatrixBits.size() << std::endl;;
+//    std::cout << allbits.size() << std::endl;;
 
 
     matrix->Registers.clear();
 
-    for (auto i = matrix->VoltageDACBits.begin(); i != matrix->VoltageDACBits.end(); ++i)
+    for (auto i = allbits.begin(); i != allbits.end(); ++i)
      {
        if(cnt==32){
 	 cnt=0;
 	 matrix->Registers.push_back(buffer);
-//	 std::cout << buffer ;
-//	 std::cout << " " << std::hex << buffer << " ";
-//	 this->printBits(sizeof(buffer),&buffer);
-//	 std::cout <<  std::endl;
 	 buffer=0;
        };
        buffer += *i << cnt;
@@ -704,52 +733,6 @@ void ATLASPix::Fill_SR(ATLASPixMatrix *matrix)
        nbits++;
      }
 
-   for (auto i = matrix->CurrentDACbits.begin(); i != matrix->CurrentDACbits.end(); ++i)
-     {
-       if(cnt==32){
-	 cnt=0;
-	 matrix->Registers.push_back(buffer);
-//	 std::cout << buffer << " " << std::hex << buffer << " ";
-//	 this->printBits(sizeof(buffer),&buffer);
-//	 std::cout <<  std::endl;
-	 buffer=0;
-       };
-       buffer += *i << cnt;
-       cnt++;
-       nbits++;
-
-     }
-   for (auto i = matrix->MatrixBits.begin(); i != matrix->MatrixBits.end(); ++i)
-     {
-       if(cnt==32){
-	 cnt=0;
-	 matrix->Registers.push_back(buffer);
-//	 std::cout << buffer << " " << std::hex << buffer << " ";
-//	 this->printBits(sizeof(buffer),&buffer);
-//	 std::cout <<  std::endl;
-	 buffer=0;
-       };
-       buffer += *i << cnt;
-       cnt++;
-       nbits++;
-
-     }
-
-   for (auto i = matrix->CurrentDACbits.begin(); i != matrix->CurrentDACbits.end(); ++i)
-     {
-       if(cnt==32){
-	 cnt=0;
-	 matrix->Registers.push_back(buffer);
-//	 std::cout << buffer << " " << std::hex << buffer << " ";
-//	 this->printBits(sizeof(buffer),&buffer);
-//	 std::cout <<  std::endl;
-	 buffer=0;
-       };
-       buffer += *i << 31-cnt;
-       cnt++;
-       nbits++;
-       //std::cout << cnt << std::endl;
-     }
 
 	 matrix->Registers.push_back(buffer);
 
@@ -784,11 +767,12 @@ void ATLASPix::Shift_SR(ATLASPixMatrix *matrix){
 	*RAM_reg_limit = matrix->nSRbuffer;
 	*RAM_shift_limit = matrix->extraBits;
 
-	for(uint32_t i =0;i<matrix->nSRbuffer;i++){
-//		for(int i =matrix->nSRbuffer-1;i>=0;i--){
-//std::cout << i << std::endl;
+	uint32_t tmp=0;
+
+	for(uint32_t i =0;i<=matrix->nSRbuffer;i++){
 		*RAM_address =i;
-		*RAM_content = matrix->Registers[i];
+		tmp=matrix->Registers[i];
+		*RAM_content = tmp;
 		usleep(10);
 		*RAM_write_enable =0x1;
 		usleep(10);
@@ -805,11 +789,10 @@ void ATLASPix::Shift_SR(ATLASPixMatrix *matrix){
 
 
 	*Config_flag = 0x1;
-	usleep(10000);
+	usleep(100000);
 	*Config_flag = 0;
 	*output_enable = 0x0;
-
-	powerStatusLog();
+	//powerStatusLog();
 
 }
 
@@ -933,9 +916,9 @@ void ATLASPix::printBits(size_t const size, void const * const ptr)
     unsigned char byte;
     int i, j;
 
-    for (i=size-1;i>=0;i--)
+    for (i=0;i<size;i++)
     {
-        for (j=7;j>=0;j--)
+        for (j=0;j<8;j++)
         {
             byte = (b[i] >> j) & 1;
             printf("%u", byte);
