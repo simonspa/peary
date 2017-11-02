@@ -35,13 +35,13 @@ ATLASPix::ATLASPix(const caribou::Configuration config) : pearyDevice(config, st
   _periphery.add("VDDA", PWR_OUT_3);
   _periphery.add("VSSA", PWR_OUT_2);
   //_periphery.add("CMOS_LEVEL", PWR_OUT_1);
-  _periphery.add("GndDACPix_M2", BIAS_9);
-  _periphery.add("VMinusPix_M2", BIAS_5);
-  _periphery.add("GatePix_M2", BIAS_2);
+  _periphery.add("GndDACPix_M1", BIAS_9);
+  _periphery.add("VMinusPix_M1", BIAS_5);
+  _periphery.add("GatePix_M1", BIAS_2);
 
-  _periphery.add("GndDACPix_M1", BIAS_6);
-  _periphery.add("VMinusPix_M1", BIAS_4);
-  _periphery.add("GatePix_M1", BIAS_1);
+  _periphery.add("GndDACPix_M2", BIAS_6);
+  _periphery.add("VMinusPix_M2", BIAS_4);
+  _periphery.add("GatePix_M2", BIAS_1);
 
   _periphery.add("GndDACPix_M1ISO", BIAS_12);
   _periphery.add("VMinusPix_M1ISO", BIAS_8);
