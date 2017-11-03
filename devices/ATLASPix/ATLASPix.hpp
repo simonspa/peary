@@ -52,7 +52,7 @@ struct ATLASPixMatrix {
     int ncol,nrow,ndoublecol;
     int nSRbuffer,nbits;
     int counter;
-    uint32_t SRmask,extraBits;
+    uint32_t SRmask,extraBits,PulserMask;
     int type;
 
 
@@ -115,7 +115,7 @@ namespace caribou {
     void Initialize_SR(ATLASPixMatrix *matrix);
     void Shift_SR(ATLASPixMatrix *matrix);
     void Fill_SR(ATLASPixMatrix *matrix);
-
+    void ProgramSR(ATLASPixMatrix *matrix);
     void initTDAC(ATLASPixMatrix *matrix,uint32_t value);
     void setOneTDAC(ATLASPixMatrix *matrix,uint32_t col,uint32_t row,uint32_t value);
 //    void setAllTDAC(ATLASPixMatrix *matrix);
@@ -128,9 +128,14 @@ namespace caribou {
 
 
     void resetPulser();
-    void setPulse(uint32_t npulse,uint32_t n_up,uint32_t n_down,double voltage);
+    void setPulse(ATLASPixMatrix *matrix,uint32_t npulse,uint32_t n_up,uint32_t n_down,double voltage);
     void sendPulse();
     void resetCounters();
+
+    // Setting Special Register
+    void setSpecialRegister(std::string name, uint32_t value);
+
+
     int readCounter(ATLASPixMatrix *matrix);
 
 

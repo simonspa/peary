@@ -76,63 +76,65 @@ namespace caribou {
 // clang-format off
 #define ATLASPix_REGISTERS				\
   {						\
-    {"gcr", register_t<>(0x00)},		\
-    {"dlc", register_t<>(0x00, 0x60)},		\
-    {"pwrexen", register_t<>(0x00, 0x10)},	\
-    {"tpexten", register_t<>(0x00, 0x02)},	\
-    {"tpen", register_t<>(0x00, 0x01)},		\
-    {"isg", register_t<>(0x01)},		\
-    {"pwri", register_t<>(0x01, 0x02)},		\
-    {"tpis", register_t<>(0x01, 0x01)},		\
-    {"ani", register_t<>(0x02)},		\
-    {"oir", register_t<>(0x02, 0x80)},		\
-    {"ai", register_t<>(0x02, 0x0F)},		\
-    {"ano", register_t<>(0x03)},		\
-    {"pmc", register_t<>(0x03, 0x30)},		\
-    {"ao", register_t<>(0x03, 0x0F)},		\
-    {"vbpre", register_t<>(0x04)},		\
-    {"vbpcas", register_t<>(0x05)},		\
-    {"vboalf", register_t<>(0x06)},		\
-    {"vboahf", register_t<>(0x07)},		\
-    {"vbls", register_t<>(0x08)},		\
-    {"vbfbk", register_t<>(0x09)},		\
-    {"vbs", register_t<>(0x0A)},		\
-    {"vbsp", register_t<>(0x0B)},		\
-    {"vbpreoff", register_t<>(0x0C)},		\
-    {"vblsoff", register_t<>(0x0D)},		\
-    {"vbtp", register_t<>(0x0E)},		\
-    {"tpcea", register_t<>(0x10)},		\
-    {"tpceb", register_t<>(0x11)},		\
-    {"tpcec", register_t<>(0x12)},		\
-    {"tpced", register_t<>(0x13)},		\
-    {"tpcee", register_t<>(0x14)},		\
-    {"tpcef", register_t<>(0x15)},		\
-    {"tpceg", register_t<>(0x16)},		\
-    {"tpceh", register_t<>(0x17)},		\
-    {"tpcei", register_t<>(0x18)},		\
-    {"tpcej", register_t<>(0x19)},		\
-    {"tpcek", register_t<>(0x1A)},		\
-    {"tpcel", register_t<>(0x1B)},		\
-    {"tpcem", register_t<>(0x1C)},		\
-    {"tpcen", register_t<>(0x1D)},              \
-    {"tpceo", register_t<>(0x1E)},		\
-    {"tpcep", register_t<>(0x1F)},		\
-    {"tprea", register_t<>(0x20)},		\
-    {"tpreb", register_t<>(0x21)},		\
-    {"tprec", register_t<>(0x22)},		\
-    {"tpred", register_t<>(0x23)},		\
-    {"tpree", register_t<>(0x24)},		\
-    {"tpref", register_t<>(0x25)},		\
-    {"tpreg", register_t<>(0x26)},		\
-    {"tpreh", register_t<>(0x27)},		\
-    {"tprei", register_t<>(0x28)},		\
-    {"tprej", register_t<>(0x29)},		\
-    {"tprek", register_t<>(0x2A)},		\
-    {"tprel", register_t<>(0x2B)},		\
-    {"tprem", register_t<>(0x2C)},		\
-    {"tpren", register_t<>(0x2D)},		\
-    {"tpreo", register_t<>(0x2E)},		\
-    {"tprep", register_t<>(0x2F)},		\
+    {"unlock", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"BLResPix", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"ThResPix", register_t<>(0x26, 0xFF, false, true, true)},	\
+    {"VNPix", register_t<>(0x26, 0xFF, false, true, true)},	\
+    {"VNFBPix", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"VNFollPix", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"VNRegCasc", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"VDel", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"VPComp", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"VPDAC", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"VNPix2", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"BLResDig", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"VNBiasPix", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"VPLoadPix", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"VNOutPix", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"VPVCO", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"VNVCO", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"VPDelDclMux", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"VNDelDclMux", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"VPDelDcl", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"VNDelDcl", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"VPDelPreEmp", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"VNDelPreEmp", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"VPDcl", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"VNDcl", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"VNLVDS", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"VNLVDSDel", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"VPPump", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"nu", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"RO_res_n", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"Ser_res_n", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"Aur_res_n", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"sendcnt", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"resetckdivend", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"maxcycend", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"slowdownend", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"timerend", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"ckdivend2", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"ckdivend", register_t<>(0x26, 0xFF, false, true, true)},              \
+    {"VPRegCasc", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"VPRamp", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"VNcompPix", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"VPFoll", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"VNDACPix", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"VPBiasRec", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"VNBiasRec", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"Invert", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"SelEx", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"SelSlow", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"EnPLL", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"TriggerDelay", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"Reset", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"ConnRes", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"SelTest", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"SelTestOut", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"BLPix", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"nu2", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"ThPix", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"nu3", register_t<>(0x26, 0xFF, false, true, true)},		\
   }
   // clang-format on
 

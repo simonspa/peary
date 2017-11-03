@@ -6,6 +6,7 @@
 #include <chrono>
 #include <fcntl.h>
 #include <fstream>
+#include <sstream>
 #include <sys/mman.h>
 #include <unistd.h>
 #include <cmath>
@@ -18,6 +19,7 @@
 using namespace caribou;
 
 
+/*
 uint32_t reverseBits(uint32_t n) {
         uint32_t x;
         for(auto i = 31; n; ) {
@@ -27,6 +29,7 @@ uint32_t reverseBits(uint32_t n) {
         }
         return x;
     }
+*/
 
 ATLASPix::ATLASPix(const caribou::Configuration config) : pearyDevice(config, std::string(DEFAULT_DEVICEPATH), ATLASPix_DEFAULT_I2C) {
 
@@ -88,6 +91,12 @@ ATLASPix::ATLASPix(const caribou::Configuration config) : pearyDevice(config, st
   this->simpleM1ISO->SRmask=0x4;
   this->simpleM2->SRmask=0x1;
 
+  this->simpleM1->PulserMask=0x2;
+  this->simpleM2->PulserMask=0x1;
+  this->simpleM1ISO->PulserMask=0x4;
+
+
+
   this->simpleM1->type=1;
   this->simpleM1ISO->type=1;
   this->simpleM2->type=2;
@@ -97,16 +106,15 @@ ATLASPix::ATLASPix(const caribou::Configuration config) : pearyDevice(config, st
   LOG(logINFO) << "Setting clock to 160MHz " << DEVICE_NAME;
   configureClock();
 
+  _registers.add(ATLASPix_REGISTERS);
 
 
-
-  this->initTDAC(simpleM1,0);
-  this->initTDAC(simpleM1ISO,0);
-  this->initTDAC(simpleM2,0);
 
   this->Initialize_SR(this->simpleM1);
   this->Initialize_SR(this->simpleM1ISO);
   this->Initialize_SR(this->simpleM2);
+
+
 
 
 
@@ -151,23 +159,31 @@ void ATLASPix::configure() {
 
   //this->ComputeSCurves(0,0.5,50,128,100,100);
 
+  this->initTDAC(simpleM1,0b1011);
+  this->initTDAC(simpleM1ISO,0b1011);
+  this->initTDAC(simpleM2,0b001);
+
+  this->writeAllTDAC(simpleM1);
+  //this->writeAllTDAC(simpleM1ISO);
+  //this->writeAllTDAC(simpleM2);
+
 
 
   this->resetCounters();
-  this->setPulse(100,1,1, 0.8);
+  this->setPulse(simpleM1,100,1,1, 0.8);
 
-//
-//  while(1){
-//	  std::cout << "sending pulse" << std::endl;
-//	  this->sendPulse();
-//	  usleep(2000);
-//	  std::cout << "Counter 0 : " << this->readCounter(simpleM1) << std::endl;
-//	  std::cout << "Counter 1 : " << this->readCounter(simpleM1ISO) << std::endl;
-//	  std::cout << "Counter 2 : " << this->readCounter(simpleM2) << std::endl;
-//	  int ddd = 0;
-//	  std::cin >> ddd;
-//	 if (ddd=1){this->resetCounters();}
-//  }
+
+  while(1){
+	  std::cout << "sending pulse" << std::endl;
+	  this->sendPulse();
+	  usleep(2000);
+	  //std::cout << "Counter 0 : " << this->readCounter(simpleM1) << std::endl;
+	  //std::cout << "Counter 1 : " << this->readCounter(simpleM1ISO) << std::endl;
+	  //std::cout << "Counter 2 : " << this->readCounter(simpleM2) << std::endl;
+	  //int ddd = 0;
+	  //std::cin >> ddd;
+	 //if (ddd=1){this->resetCounters();}
+  }
 
 
 
@@ -178,37 +194,1738 @@ void ATLASPix::configure() {
 
 void ATLASPix::lock(){
 
-	simpleM2->CurrentDACConfig->SetParameter("unlock",0x0);
-	this->Fill_SR(simpleM2);
-	this->Shift_SR(simpleM2);
+	this->simpleM2->CurrentDACConfig->SetParameter("unlock",0x0);
+	this->ProgramSR(simpleM2);
 
 	this->simpleM1->CurrentDACConfig->SetParameter("unlock",0x0);
-	this->Fill_SR(simpleM1);
-	this->Shift_SR(simpleM1);
+	this->ProgramSR(simpleM1);
 
-	simpleM1ISO->CurrentDACConfig->SetParameter("unlock",0x0);
-	this->Fill_SR(simpleM1ISO);
-	this->Shift_SR(simpleM1ISO);
+	this->simpleM1ISO->CurrentDACConfig->SetParameter("unlock",0x0);
+	this->ProgramSR(simpleM1ISO);
 }
 
 
 void ATLASPix::unlock(){
 
 
-	simpleM2->CurrentDACConfig->SetParameter("unlock",0b101);
-	this->Fill_SR(simpleM2);
-	this->Shift_SR(simpleM2);
+	this->simpleM2->CurrentDACConfig->SetParameter("unlock",0b101);
+	this->ProgramSR(simpleM2);
+
 
 	this->simpleM1->CurrentDACConfig->SetParameter("unlock",0b101);
-	this->Fill_SR(simpleM1);
-	this->Shift_SR(simpleM1);
+	this->ProgramSR(simpleM1);
 
-	simpleM1ISO->CurrentDACConfig->SetParameter("unlock",0b101);
-	this->Fill_SR(simpleM1ISO);
-	this->Shift_SR(simpleM1ISO);
+
+	this->simpleM1ISO->CurrentDACConfig->SetParameter("unlock",0b101);
+	this->ProgramSR(simpleM1ISO);
+
 
 
 }
+
+
+void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
+
+		std::cout << '\n' << "***You have set " << name << " as " << std::dec << value <<  "***" << '\n' << '\n';
+
+		char Choice ;
+
+		if(name == "unlock") {
+	    // Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("unlock",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					this->simpleM2->CurrentDACConfig->SetParameter("unlock",0x0);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("unlock",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+	    }
+
+		else if (name == "blrespix") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("BLResPix",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("BLResPix",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("BLResPix",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "threspix") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("ThResPix",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("ThResPix",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("ThResPix",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+
+		else if (name == "vnpix") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("VNPix",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("VNPix",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("VNPix",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+
+		else if (name == "vnfbpix") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("VNFBPix",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("VNFBPix",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("VNFBPix",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "vnfollpix") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("VNFollPix",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("VNFollPix",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("VNFollPix",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "vnregcasc") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("VNRegCasc",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("VNRegCasc",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("VNRegCasc",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "vdel") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("VDel",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("VDel",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("VDel",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "vpcomp") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("VPComp",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("VPComp",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("VPComp",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "vpdac") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("VPDAC",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("VPDAC",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("VPDAC",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "vnpix2") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("VNPix2",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("VNPix2",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("VNPix2",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "blresdig") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("BLResDig",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("BLResDig",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("BLResDig",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "vnbiaspix") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("VNBiasPix",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("VNBiasPix",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("VNBiasPix",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "vploadpix") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("VPLoadPix",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("VPLoadPix",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("VPLoadPix",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "vnoutpix") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("VNOutPix",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("VNOutPix",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("VNOutPix",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "vpvco") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("VPVCO",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("VPVCO",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("VPVCO",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "vnvco") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("VNVCO",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("VNVCO",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("VNVCO",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "vpdeldclmux") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("VPDelDclMux",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("VPDelDclMux",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("VPDelDclMux",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "vndeldclmux") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("VNDelDclMux",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("VNDelDclMux",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("VNDelDclMux",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "vpdeldcl") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("VPDelDcl",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("VPDelDcl",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("VPDelDcl",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "vndeldcl") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("VNDelDcl",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("VNDelDcl",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("VNDelDcl",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "vpdelpreemp") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("VPDelPreEmp",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("VPDelPreEmp",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("VPDelPreEmp",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "vndelpreemp") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("VNDelPreEmp",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("VNDelPreEmp",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("VNDelPreEmp",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "vpdcl") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("VPDcl",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("VPDcl",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("VPDcl",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "vndcl") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("VNDcl",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("VNDcl",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("VNDcl",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "vnlvds") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("VNLVDS",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("VNLVDS",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("VNLVDS",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "vnlvdsdel") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("VNLVDSDel",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("VNLVDSDel",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("VNLVDSDel",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "vppump") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("VPPump",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("VPPump",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("VPPump",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "nu") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("nu",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("nu",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("nu",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "ro_res_n") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("RO_res_n",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("RO_res_n",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("RO_res_n",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "ser_res_n") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("Ser_res_n",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("Ser_res_n",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("Ser_res_n",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "aur_res_n") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("Aur_res_n",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("Aur_res_n",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("Aur_res_n",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "sendcnt") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("sendcnt",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("sendcnt",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("sendcnt",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "resetckdivend") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("resetckdivend",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("resetckdivend",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("resetckdivend",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "maxcycend") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("maxcycend",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("maxcycend",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("maxcycend",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "slowdownend") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("slowdownend",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("slowdownend",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("slowdownend",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "timerend") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("timerend",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("timerend",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("timerend",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "ckdivend2") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("ckdivend2",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("ckdivend2",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("ckdivend2",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "ckdivend") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("ckdivend",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("ckdivend",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("ckdivend",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "vpregcasc") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("VPRegCasc",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("VPRegCasc",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("VPRegCasc",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "vpramp") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("VPRamp",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("VPRamp",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("VPRamp",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "vncomppix") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("VNcompPix",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("VNcompPix",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("VNcompPix",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "vpfoll") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("VPFoll",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("VPFoll",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("VPFoll",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "vndacpix") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("VNDACPix",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("VNDACPix",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("VNDACPix",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "vpbiasrec") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("VPBiasRec",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("VPBiasRec",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("VPBiasRec",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "vnbiasrec") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("VNBiasRec",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("VNBiasRec",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("VNBiasRec",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "invert") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("Invert",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("Invert",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("Invert",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "selex") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("SelEx",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("SelEx",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("SelEx",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "selslow") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("SelSlow",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("SelSlow",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("SelSlow",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "enpll") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("EnPLL",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("EnPLL",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("EnPLL",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "triggerdelay") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("TriggerDelay",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("TriggerDelay",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("TriggerDelay",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "reset") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("Reset",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("Reset",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("Reset",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
+			}
+		}
+		else if (name == "connres") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("ConnRes",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("ConnRes",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("ConnRes",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			}
+		}
+		else if (name == "seltest") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("SelTest",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("SelTest",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("SelTest",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			}
+		}
+		else if (name == "seltestout") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("SelTestOut",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("SelTestOut",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("SelTestOut",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			}
+		}
+		else if (name == "blpix") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("BLPix",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("BLPix",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("BLPix",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			}
+		}
+		else if (name == "nu2") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("nu2",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("nu2",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("nu2",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			}
+		}
+		else if (name == "thpix") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("ThPix",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("ThPix",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("ThPix",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			}
+		}
+		else if (name == "nu3") {
+		// Set DAC value here calling setParameter
+			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			std::cin >> Choice ;
+
+			switch(Choice)
+			{
+			case '1' :
+				{
+					simpleM1->CurrentDACConfig->SetParameter("nu3",value);
+					this->ProgramSR(simpleM1);
+					break ;
+				}
+			case '2' :
+				{
+					simpleM2->CurrentDACConfig->SetParameter("nu3",value);
+					this->ProgramSR(simpleM2);
+					break ;
+				}
+			case '3' :
+				{
+					simpleM1ISO->CurrentDACConfig->SetParameter("nu3",value);
+					this->ProgramSR(simpleM1ISO);
+					break ;
+				}
+			}
+		}
+	else {
+	    throw RegisterInvalid("Unknown register with \"special\" flag: " + name);
+	}
+}
+
+
+  /*if(name == "threshold") {
+    // Get threshold LSB and MSB
+    uint8_t msb = floor(value / 121.) * 14;
+    uint8_t lsb = (value % 121) + 64;
+    uint32_t maxThl = ceil(255 / 14.) * 121;
+    if(value >= maxThl) {
+      msb = 255;
+      lsb = 255;
+      LOG(logWARNING) << "Threshold range is limited to " << maxThl << ", setting 255-255";
+    }
+    LOG(logDEBUG) << "Threshold lookup: " << value << " = " << static_cast<int>(msb) << "-" << static_cast<int>(lsb);
+    // Set the two values:
+    this->setRegister("threshold_msb", msb);
+    this->setRegister("threshold_lsb", lsb);
+  } else if(name == "test_cap_1") {
+    // Get pulsegen_counts LSB and MSB
+    // std::pair<uint8_t,uint8_t> dacs = test_cap_1.at(value);
+    LOG(logDEBUG) << "Test_cap_1 lookup: " << value << " = " << static_cast<int>((value >> 8) & 0x00FF) << "-"
+                  << static_cast<int>(value & 0x00FF);
+    // Set the two values:
+    this->setRegister("test_cap_1_msb", (value >> 8) & 0x00FF);
+    this->setRegister("test_cap_1_lsb", value & 0x00FF);
+  } else if(name == "pulsegen_counts") {
+    // Get pulsegen_counts LSB and MSB
+    LOG(logDEBUG) << "Pulsegen_counts lookup: " << value << " = " << static_cast<int>((value >> 8) & 0x00FF) << "-"
+                  << static_cast<int>(value & 0x00FF);
+    // Set the two values:
+    this->setRegister("pulsegen_counts_msb", (value >> 8) & 0x00FF);
+    this->setRegister("pulsegen_counts_lsb", value & 0x00FF);
+  } else if(name == "pulsegen_delay") {
+    // Get pulsegen_counts LSB and MSB
+    LOG(logDEBUG) << "Pulsegen_delay lookup: " << value << " = " << static_cast<int>((value >> 8) & 0x00FF) << "-"
+                  << static_cast<int>(value & 0x00FF);
+    // Set the two values:
+    this->setRegister("pulsegen_delay_msb", (value >> 8) & 0x00FF);
+    this->setRegister("pulsegen_delay_lsb", value & 0x00FF);
+  } else {
+    throw RegisterInvalid("Unknown register with \"special\" flag: " + name);
+  }*/
+
+
+
 
 void ATLASPix::setThreshold(){
 
@@ -216,8 +1933,8 @@ void ATLASPix::setThreshold(){
 	std::cout << "Write threshold: ";
 	std::cin >> threshold;
 	simpleM2->VoltageDACConfig->SetParameter("ThPix",static_cast<int>(floor(255 * threshold/1.8)));
-	this->Fill_SR(simpleM2);
-	this->Shift_SR(simpleM2);
+	this->ProgramSR(simpleM2);
+
 
 
 }
@@ -229,44 +1946,6 @@ void ATLASPix::initTDAC(ATLASPixMatrix *matrix,uint32_t value){
 			matrix->TDAC[col][row] = value;
 			}
 		}
-
-//
-//	switch(matrix){
-//					case 0 :
-//					{
-//						for(int col=0;col<ncol_m1;col++){
-//							for(int row=0;row<nrow_m1;row++){
-//								this->M1_TDAC[col][row] = value;
-//								}
-//							}
-//						break;
-//					}
-//
-//
-//					case 1:
-//					{
-//						for(int col=0;col<ncol_m1iso;col++){
-//							for(int row=0;row<nrow_m1iso;row++){
-//								this->M1ISO_TDAC[col][row] = value;
-//								}
-//							}
-//						break;
-//
-//					}
-//					case 2:
-//					{
-//						for(int col=0;col<ncol_m2;col++){
-//							for(int row=0;row<nrow_m2;row++){
-//								this->M2_TDAC[col][row] = value;
-//								}
-//							}
-//						break;
-//					}
-//					default :
-//						break;
-//				}
-
-
 }
 
 
@@ -279,16 +1958,32 @@ void ATLASPix::setOneTDAC(ATLASPixMatrix *matrix,uint32_t col,uint32_t row,uint3
 
 void ATLASPix::writeOneTDAC(ATLASPixMatrix *matrix,uint32_t col,uint32_t row,uint32_t value){
 
-	std::string col_s = to_string(int(std::floor(double(col)/2)));
-	if(col%2==0){
+	if(matrix->type==1){
 
-	matrix->MatrixDACConfig->SetParameter("RamL"+col_s, value);
-	matrix->MatrixDACConfig->SetParameter("colinjL"+col_s,0);
+	//Column Register
+
+			std::string s = to_string(col);
+			matrix->MatrixDACConfig->AddParameter("Ram"+s, 4, ATLASPix_Config::LSBFirst,  matrix->TDAC[col][row]); //0b1011
+			matrix->MatrixDACConfig->AddParameter("colinj"+s, 1, ATLASPix_Config::LSBFirst,  0);
+			matrix->MatrixDACConfig->AddParameter("hitbus"+s, 1, ATLASPix_Config::LSBFirst,  1);
+			matrix->MatrixDACConfig->AddParameter("unused"+s, 10, ATLASPix_Config::LSBFirst,  0);
+
 	}
-	else {
-	matrix->MatrixDACConfig->SetParameter("RamR"+col_s, value);
-	matrix->MatrixDACConfig->SetParameter("colinjR"+col_s,0);
-	}
+
+	else
+		{
+
+    		int double_col=int(std::floor(double(col)/2));
+    		std::string col_s = to_string(double_col);
+    		if(col%2==0){
+    				matrix->MatrixDACConfig->SetParameter("RamL"+col_s,value);
+    				matrix->MatrixDACConfig->SetParameter("colinjL"+col_s,0);
+    		}
+    		else {
+    				matrix->MatrixDACConfig->SetParameter("RamR"+col_s, value);
+    				matrix->MatrixDACConfig->SetParameter("colinjR"+col_s,0);
+    		}
+		}
 
 	std::string row_s = to_string(row);
 	matrix->MatrixDACConfig->SetParameter("writedac"+row_s,1);
@@ -296,44 +1991,70 @@ void ATLASPix::writeOneTDAC(ATLASPixMatrix *matrix,uint32_t col,uint32_t row,uin
 	matrix->MatrixDACConfig->SetParameter("rowinjection"+row_s,0);
 	matrix->MatrixDACConfig->SetParameter("analogbuffer"+row_s,0);
 
-	this->Fill_SR(0);
-	this->Shift_SR(0);
+	this->ProgramSR(matrix);
+
 
 	matrix->MatrixDACConfig->SetParameter("writedac"+row_s,0);
+	matrix->MatrixDACConfig->SetParameter("unused"+row_s,  0);
+	matrix->MatrixDACConfig->SetParameter("rowinjection"+row_s,0);
+	matrix->MatrixDACConfig->SetParameter("analogbuffer"+row_s,0);
+
+	this->ProgramSR(matrix);
+
 
 }
 
 void ATLASPix::writeAllTDAC(ATLASPixMatrix *matrix){
 
 
-	std::string col_s =0;
+	std::string col_s;
 	int double_col=0;
-    for (int row = 0; row < nrow_m1; row++){
-    	for (int col = 0; col <ncol_m1; col++){
-    		double_col=int(std::floor(double(col)/2));
-    		col_s = to_string(double_col);
-    		if(col%2==0){
-    				matrix->MatrixDACConfig->SetParameter("RamL"+col_s,matrix->TDAC[col][row]);
-    				matrix->MatrixDACConfig->SetParameter("colinjL"+col_s,0);
-    		}
-    		else {
-    				matrix->MatrixDACConfig->SetParameter("RamR"+col_s, matrix->TDAC[col][row]);
-    				matrix->MatrixDACConfig->SetParameter("colinjR"+col_s,0);
+
+	std::cout << "i am here" << std::endl;
+
+	for (int row = 0; row < matrix->nrow; row++){
+    	if(matrix->type==1){
+
+    	//Column Register
+    		for (int col = 0; col < matrix->ncol; col++)
+    		{
+    			std::string s = to_string(col);
+    			matrix->MatrixDACConfig->SetParameter("Ram"+s, matrix->TDAC[col][row]); //0b1011
+    			matrix->MatrixDACConfig->SetParameter("colinj"+s,  0);
+    			matrix->MatrixDACConfig->SetParameter("hitbus"+s, 1);
+    			matrix->MatrixDACConfig->SetParameter("unused"+s,  0);
     		}
     	}
+
+    	else
+    		{
+    		for (int col = 0; col < matrix->ncol; col++)
+    		{
+        		double_col=int(std::floor(double(col)/2));
+        		col_s = to_string(double_col);
+        		if(col%2==0){
+        				matrix->MatrixDACConfig->SetParameter("RamL"+col_s,matrix->TDAC[col][row]);
+        				matrix->MatrixDACConfig->SetParameter("colinjL"+col_s,0);
+        		}
+        		else {
+        				matrix->MatrixDACConfig->SetParameter("RamR"+col_s, matrix->TDAC[col][row]);
+        				matrix->MatrixDACConfig->SetParameter("colinjR"+col_s,0);
+        		}
+
+
+    		}
+    		};
 
     	std::string row_s = to_string(row);
     	matrix->MatrixDACConfig->SetParameter("writedac"+row_s,1);
     	matrix->MatrixDACConfig->SetParameter("unused"+row_s,  0);
     	matrix->MatrixDACConfig->SetParameter("rowinjection"+row_s,0);
     	matrix->MatrixDACConfig->SetParameter("analogbuffer"+row_s,0);
-
-    	this->Fill_SR(0);
-    	this->Shift_SR(0);
+    	this->ProgramSR(matrix);
     	matrix->MatrixDACConfig->SetParameter("writedac"+row_s,0);
 
 
-    }
+    };
 
 }
 
@@ -383,7 +2104,7 @@ void ATLASPix::ComputeSCurves(ATLASPixMatrix *matrix,double vmax,int nstep, int 
 
 	int step = 0;
     for(double v=0;v<=vmax;v+=(vmax/nstep)){
-		setPulse(npulses,tup,tdown,v);
+		setPulse(matrix,npulses,tup,tdown,v);
 		std::cout << "  bias :" << v << "V"<< std::endl;
 
 		for(int col=0;col< matrix->ncol; col++){
@@ -481,6 +2202,7 @@ void ATLASPix::powerUp() {
   _hal->setBiasRegulator(BIAS_3, _config.Get("GatePix_M1ISO", ATLASPix_GatePix_M1ISO));
   _hal->powerBiasRegulator(BIAS_3, true);
 
+  usleep(10000);
   // Power rails: After Biasing
   LOG(logINFO) << DEVICE_NAME << ": Powering details after biasing";
   LOG(logDEBUG) << " VDDD";
@@ -495,7 +2217,7 @@ void ATLASPix::powerUp() {
   _hal->setVoltageRegulator(PWR_OUT_2, _config.Get("vssa", ATLASPix_VSSA), _config.Get("vssa_current", ATLASPix_VSSA_CURRENT));
   _hal->powerVoltageRegulator(PWR_OUT_2, true);
 
-  usleep(10000);
+
   //this->powerStatusLog();
 
 
@@ -543,7 +2265,7 @@ void ATLASPix::powerDown() {
   LOG(logDEBUG) << "Turning off GatePix_M1ISO";
   _hal->powerBiasRegulator(BIAS_3, false);
 
-  this->powerStatusLog();
+  //this->powerStatusLog();
 
 }
 
@@ -592,7 +2314,7 @@ void ATLASPix::Initialize_SR(ATLASPixMatrix *matrix){
 	matrix->CurrentDACConfig->AddParameter("unlock",    4, ATLASPix_Config::LSBFirst, 0b101); // unlock = x101
 	matrix->CurrentDACConfig->AddParameter("BLResPix", "5,4,3,1,0,2",  5);
 	matrix->CurrentDACConfig->AddParameter("ThResPix", "5,4,3,1,0,2",  0);
-	matrix->CurrentDACConfig->AddParameter("VNPix", "5,4,3,1,0,2",  60);
+	matrix->CurrentDACConfig->AddParameter("VNPix", "5,4,3,1,0,2",  20);
 	matrix->CurrentDACConfig->AddParameter("VNFBPix", "5,4,3,1,0,2", 10);
 	matrix->CurrentDACConfig->AddParameter("VNFollPix", "5,4,3,1,0,2", 10);
 	matrix->CurrentDACConfig->AddParameter("VNRegCasc", "5,4,3,1,0,2", 20);     //hier : VNHitbus
@@ -604,6 +2326,7 @@ void ATLASPix::Initialize_SR(ATLASPixMatrix *matrix){
 	matrix->CurrentDACConfig->AddParameter("VNBiasPix", "5,4,3,1,0,2",  0);
 	matrix->CurrentDACConfig->AddParameter("VPLoadPix", "5,4,3,1,0,2",  5);
 	matrix->CurrentDACConfig->AddParameter("VNOutPix", "5,4,3,1,0,2", 5);
+
 	//DigitalDACs
 	matrix->CurrentDACConfig->AddParameter("VPVCO", "5,4,3,1,0,2",  7);//5);//7);
 	matrix->CurrentDACConfig->AddParameter("VNVCO", "5,4,3,1,0,2",  15);//15);
@@ -650,12 +2373,20 @@ void ATLASPix::Initialize_SR(ATLASPixMatrix *matrix){
 	if(matrix->type==1){
 
 	//Column Register
-	for (int col = 0; col < matrix->ncol; col++)
-	{
+		for (int col = 0; col < matrix->ncol; col++)
+		{
 			std::string s = to_string(col);
-			matrix->MatrixDACConfig->AddParameter("Ram"+s, 4, ATLASPix_Config::LSBFirst,  0b1011);
+			matrix->MatrixDACConfig->AddParameter("Ram"+s, 4, ATLASPix_Config::LSBFirst,  0b1011); //0b1011
+
+			if(col==0){
+			matrix->MatrixDACConfig->AddParameter("colinj"+s, 1, ATLASPix_Config::LSBFirst,  1);
+			}
+			else{
 			matrix->MatrixDACConfig->AddParameter("colinj"+s, 1, ATLASPix_Config::LSBFirst,  0);
-			matrix->MatrixDACConfig->AddParameter("hitbus"+s, 1, ATLASPix_Config::LSBFirst,  1);
+
+			}
+
+			matrix->MatrixDACConfig->AddParameter("hitbus"+s, 1, ATLASPix_Config::LSBFirst,  0);
 			matrix->MatrixDACConfig->AddParameter("unused"+s, 10, ATLASPix_Config::LSBFirst,  0);
 		}
 	}
@@ -666,9 +2397,9 @@ void ATLASPix::Initialize_SR(ATLASPixMatrix *matrix){
 		{
 			std::string s = to_string(col);
 			matrix->MatrixDACConfig->AddParameter("RamL"+s, 3, ATLASPix_Config::LSBFirst,  0);
-			matrix->MatrixDACConfig->AddParameter("colinjL"+s, 1, ATLASPix_Config::LSBFirst,  0);
+			matrix->MatrixDACConfig->AddParameter("colinjL"+s, 1, ATLASPix_Config::LSBFirst,  1);
 			matrix->MatrixDACConfig->AddParameter("RamR"+s, 3, ATLASPix_Config::LSBFirst,  0);
-			matrix->MatrixDACConfig->AddParameter("colinjR"+s, 1, ATLASPix_Config::LSBFirst,  0);
+			matrix->MatrixDACConfig->AddParameter("colinjR"+s, 1, ATLASPix_Config::LSBFirst,  1);
 		}
 
 	}
@@ -680,8 +2411,15 @@ void ATLASPix::Initialize_SR(ATLASPixMatrix *matrix){
 		std::string s = to_string(row);
 		matrix->MatrixDACConfig->AddParameter("writedac"+s, 1, ATLASPix_Config::LSBFirst, 0);
 		matrix->MatrixDACConfig->AddParameter("unused"+s,   3, ATLASPix_Config::LSBFirst, 0);
-		matrix->MatrixDACConfig->AddParameter("rowinjection"+s, 1, ATLASPix_Config::LSBFirst, 0);
+		matrix->MatrixDACConfig->AddParameter("rowinjection"+s, 1, ATLASPix_Config::LSBFirst, 1);
+
+		if(row==0){
+		matrix->MatrixDACConfig->AddParameter("analogbuffer"+s, 1, ATLASPix_Config::LSBFirst, 1);
+		}
+		else{
 		matrix->MatrixDACConfig->AddParameter("analogbuffer"+s, 1, ATLASPix_Config::LSBFirst, 0);
+
+		}
 	}
 
 
@@ -737,8 +2475,8 @@ void ATLASPix::Fill_SR(ATLASPixMatrix *matrix)
 	 matrix->Registers.push_back(buffer);
 
 
-     std::cout << "size of shift buffer " << matrix->Registers.size() << std::endl;
-     std::cout << "number of bits " << nbits << std::endl;
+     //std::cout << "size of shift buffer " << matrix->Registers.size() << std::endl;
+     //std::cout << "number of bits " << nbits << std::endl;
 
 }
 
@@ -778,9 +2516,9 @@ void ATLASPix::Shift_SR(ATLASPixMatrix *matrix){
 		usleep(10);
 		*RAM_write_enable =0x0;
 
-		 std::cout << matrix->Registers[i] << " " ;
-		 std::cout << std::hex << matrix->Registers[i] << " ";
-		 this->printBits(sizeof(matrix->Registers[i]),&matrix->Registers[i]);
+		 //std::cout << matrix->Registers[i] << " " ;
+		 //std::cout << std::hex << matrix->Registers[i] << " ";
+		 //this->printBits(sizeof(matrix->Registers[i]),&matrix->Registers[i]);
 
 	};
 
@@ -796,6 +2534,15 @@ void ATLASPix::Shift_SR(ATLASPixMatrix *matrix){
 
 }
 
+
+void ATLASPix::ProgramSR(ATLASPixMatrix *matrix){
+
+	this->Fill_SR(matrix);
+ 	this->Shift_SR(matrix);
+
+}
+
+
 void ATLASPix::resetPulser(){
 
 
@@ -810,7 +2557,7 @@ void ATLASPix::resetPulser(){
 
 }
 
-void ATLASPix::setPulse(uint32_t npulse,uint32_t n_up,uint32_t n_down, double voltage){
+void ATLASPix::setPulse(ATLASPixMatrix *matrix,uint32_t npulse,uint32_t n_up,uint32_t n_down, double voltage){
 
 	LOG(logDEBUG) << " Set injection voltages ";
     _hal->setBiasRegulator(INJ_1,voltage);
@@ -834,7 +2581,7 @@ void ATLASPix::setPulse(uint32_t npulse,uint32_t n_up,uint32_t n_down, double vo
 	 *pulse_count = npulse;
 	 *high_cnt = n_up;
 	 *low_cnt = n_down;
-	 *output_enable = 0xFFFFFFF;
+	 *output_enable = 0xFFFFF;//matrix->PulserMask;
 
 	 this->pulse_width = std::ceil(((npulse*n_up + npulse*n_down)*(1.0/160.0e6))/1e-6) + 10;
 }
