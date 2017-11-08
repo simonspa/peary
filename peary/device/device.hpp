@@ -109,6 +109,8 @@ namespace caribou {
     virtual void lock()=0;
     virtual void unlock()=0;
     virtual void setThreshold()=0;
+    virtual void pulse(uint32_t npulse,uint32_t tup,uint32_t tdown,double amplitude)=0;
+
     // Controlling the device
 
     /** Set register on the device

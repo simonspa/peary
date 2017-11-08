@@ -153,6 +153,8 @@ pearycli::pearycli() : c("# ") {
   c.registerCommand("lock", lock, "lock the device", 1,"DEVICE_ID");
   c.registerCommand("unlock", unlock, "unlock the device", 1,"DEVICE_ID");
   c.registerCommand("setThreshold", setThreshold, "setting threshold", 1,"DEVICE_ID");
+  c.registerCommand("pulse", pulse, "pulse", 5,"DEVICE_ID");
+
 }
 
 pearycli::~pearycli() {
@@ -805,7 +807,15 @@ int pearycli::unlock(const std::vector<std::string>& input) {
   }
   return ret::Ok;
 }
-
+int pearycli::pulse(const std::vector<std::string>& input) {
+  try {
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(5)));
+    dev->pulse(std::stoi(input.at(1)),std::stoi(input.at(2)),std::stoi(input.at(3)),std::stof(input.at(4)));
+  } catch(caribou::caribouException& e) {
+    return ret::Error;
+  }
+  return ret::Ok;
+}
 int pearycli::setThreshold(const std::vector<std::string>& input) {
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));

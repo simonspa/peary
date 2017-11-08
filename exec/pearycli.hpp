@@ -69,6 +69,7 @@ namespace caribou {
     static int lock(const std::vector<std::string>& input);
     static int unlock(const std::vector<std::string>& input);
     static int setThreshold(const std::vector<std::string>& input);
+    static int pulse(const std::vector<std::string>& input);
 
 
     // Create new Peary device manager

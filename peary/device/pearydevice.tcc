@@ -293,6 +293,15 @@ namespace caribou {
     throw caribou::DeviceImplException("setThreshold not implemented for this device");
   }
   
+    template <typename T> void pearyDevice<T>::pulse(uint32_t npulse,uint32_t tup,uint32_t tdown,double amplitude) {
+    LOG(logCRITICAL) << "pulse not implemented for this device";
+    throw caribou::DeviceImplException("pulse not implemented for this device");
+  }
+  
+  
+  
+  
+  
   template <typename T> void pearyDevice<T>::configure() {
 
     if(!_is_powered) {
