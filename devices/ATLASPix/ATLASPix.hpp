@@ -118,8 +118,7 @@ namespace caribou {
     void ProgramSR(ATLASPixMatrix *matrix);
     void initTDAC(ATLASPixMatrix *matrix,uint32_t value);
     void setOneTDAC(ATLASPixMatrix *matrix,uint32_t col,uint32_t row,uint32_t value);
-//    void setAllTDAC(ATLASPixMatrix *matrix);
-//
+    void writePixelInj(ATLASPixMatrix *matrix, uint32_t inj_col, uint32_t inj_row);
     void writeOneTDAC(ATLASPixMatrix *matrix,uint32_t col,uint32_t row,uint32_t value);
     void writeAllTDAC(ATLASPixMatrix *matrix);
     void writeUniformTDAC(ATLASPixMatrix *matrix,uint32_t value);

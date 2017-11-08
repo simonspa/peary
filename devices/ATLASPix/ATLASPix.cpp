@@ -159,10 +159,13 @@ void ATLASPix::configure() {
 
   //this->ComputeSCurves(0,0.5,50,128,100,100);
 
-  this->writeUniformTDAC(simpleM1,0b0000);
-  this->writeUniformTDAC(simpleM1ISO,0b0000);
-  this->writeUniformTDAC(simpleM2,0b000);
+//  this->writeUniformTDAC(simpleM1,0b0000);
+//  this->writeUniformTDAC(simpleM1ISO,0b0000);
+//  this->writeUniformTDAC(simpleM2,0b000);
 
+  this->writePixelInj(this->simpleM1,0,0);
+  this->writePixelInj(this->simpleM1ISO,0,0);
+  this->writePixelInj(this->simpleM2,0,0);
 
 
 
@@ -2086,63 +2089,46 @@ void ATLASPix::writeUniformTDAC(ATLASPixMatrix *matrix,uint32_t value){
 }
 
 
-void ATLASPix::writePixelInj(ATLASPixMatrix *matrix, uint32_t inj_col, uint32_t inj_row){
+void ATLASPix::writePixelInj(ATLASPixMatrix *matrix, uint32_t col, uint32_t row){
 
 
 	std::string col_s;
 	int double_col=0;
 
-	for (int row = 0; row < matrix->nrow; row++){
-    	if(matrix->type==1){
+	if(matrix->type==1){
+	std::string s = to_string(col);
+	matrix->MatrixDACConfig->SetParameter("Ram"+s, matrix->TDAC[col][row]); //0b1011
+	matrix->MatrixDACConfig->SetParameter("colinj"+s,  1);
+	matrix->MatrixDACConfig->SetParameter("hitbus"+s, 1);
+	matrix->MatrixDACConfig->SetParameter("unused"+s,  0);
+	}
+	else{
 
-    	//Column Register
-    		for (int col = 0; col < matrix->ncol; col++)
-    		{
-    			if(row == inj_row && col == inj_col) {
-        			std::string s = to_string(col);
-        			matrix->MatrixDACConfig->SetParameter("Ram"+s, matrix->TDAC[col][row]); //0b1011
-        			matrix->MatrixDACConfig->SetParameter("colinj"+s,  0);
-        			matrix->MatrixDACConfig->SetParameter("hitbus"+s, 1);
-        			matrix->MatrixDACConfig->SetParameter("unused"+s,  0);
-    			}
-    			std::string s = to_string(col);
-    			matrix->MatrixDACConfig->SetParameter("Ram"+s, matrix->TDAC[col][row]); //0b1011
-    			matrix->MatrixDACConfig->SetParameter("colinj"+s,  0);
-    			matrix->MatrixDACConfig->SetParameter("hitbus"+s, 1);
-    			matrix->MatrixDACConfig->SetParameter("unused"+s,  0);
-    		}
-    	}
-
-    	else
-    		{
-    		for (int col = 0; col < matrix->ncol; col++)
-    		{
-        		double_col=int(std::floor(double(col)/2));
-        		col_s = to_string(double_col);
-        		if(col%2==0){
-        				matrix->MatrixDACConfig->SetParameter("RamL"+col_s,matrix->TDAC[col][row]);
-        				matrix->MatrixDACConfig->SetParameter("colinjL"+col_s,0);
-        		}
-        		else {
-        				matrix->MatrixDACConfig->SetParameter("RamR"+col_s, matrix->TDAC[col][row]);
-        				matrix->MatrixDACConfig->SetParameter("colinjR"+col_s,0);
-        		}
+		double_col=int(std::floor(double(col)/2));
+		col_s = to_string(double_col);
+		if(col%2==0){
+				matrix->MatrixDACConfig->SetParameter("RamL"+col_s,matrix->TDAC[col][row]);
+				matrix->MatrixDACConfig->SetParameter("colinjL"+col_s,1);
+		}
+		else {
+				matrix->MatrixDACConfig->SetParameter("RamR"+col_s, matrix->TDAC[col][row]);
+				matrix->MatrixDACConfig->SetParameter("colinjR"+col_s,1);
+		}
 
 
-    		}
-    		};
+	}
 
-    	std::cout << "processing row : " << row << std::endl;
-    	std::string row_s = to_string(row);
-    	matrix->MatrixDACConfig->SetParameter("writedac"+row_s,1);
-    	matrix->MatrixDACConfig->SetParameter("unused"+row_s,  0);
-    	matrix->MatrixDACConfig->SetParameter("rowinjection"+row_s,0);
-    	matrix->MatrixDACConfig->SetParameter("analogbuffer"+row_s,0);
-    	this->ProgramSR(matrix);
-    	matrix->MatrixDACConfig->SetParameter("writedac"+row_s,0);
+	std::string row_s = to_string(row);
+	matrix->MatrixDACConfig->SetParameter("writedac"+row_s,1);
+	matrix->MatrixDACConfig->SetParameter("unused"+row_s,  0);
+	matrix->MatrixDACConfig->SetParameter("rowinjection"+row_s,1);
+	matrix->MatrixDACConfig->SetParameter("analogbuffer"+row_s,1);
+	this->ProgramSR(matrix);
+	matrix->MatrixDACConfig->SetParameter("writedac"+row_s,0);
+	this->ProgramSR(matrix);
 
 
-    };
+
 
 }
 
