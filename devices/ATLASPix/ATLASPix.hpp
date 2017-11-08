@@ -122,6 +122,7 @@ namespace caribou {
 //
     void writeOneTDAC(ATLASPixMatrix *matrix,uint32_t col,uint32_t row,uint32_t value);
     void writeAllTDAC(ATLASPixMatrix *matrix);
+    void writeUniformTDAC(ATLASPixMatrix *matrix,uint32_t value);
 
     void ComputeSCurves(ATLASPixMatrix *matrix,double vmax,int nstep, int npulses,int tup,int tdown);
     void tune(ATLASPixMatrix *matrix, double vmax,int nstep, int npulses, bool tuning_verification);
@@ -131,6 +132,8 @@ namespace caribou {
     void setPulse(ATLASPixMatrix *matrix,uint32_t npulse,uint32_t n_up,uint32_t n_down,double voltage);
     void sendPulse();
     void resetCounters();
+
+    void pulse(uint32_t npulse,uint32_t tup,uint32_t tdown,double amplitude);
 
     // Setting Special Register
     void setSpecialRegister(std::string name, uint32_t value);
