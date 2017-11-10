@@ -118,7 +118,7 @@ namespace caribou {
     void ProgramSR(ATLASPixMatrix *matrix);
     void initTDAC(ATLASPixMatrix *matrix,uint32_t value);
     void setOneTDAC(ATLASPixMatrix *matrix,uint32_t col,uint32_t row,uint32_t value);
-    void writePixelInj(ATLASPixMatrix *matrix, uint32_t inj_col, uint32_t inj_row);
+    void writePixelInj(ATLASPixMatrix *matrix, uint32_t inj_col, uint32_t inj_row,bool ana_state,bool hb_state);
     void writeOneTDAC(ATLASPixMatrix *matrix,uint32_t col,uint32_t row,uint32_t value);
     void writeAllTDAC(ATLASPixMatrix *matrix);
     void writeUniformTDAC(ATLASPixMatrix *matrix,uint32_t value);
@@ -140,7 +140,7 @@ namespace caribou {
 
     int readCounter(ATLASPixMatrix *matrix);
 
-
+    void SetPixelInjection(uint32_t col, uint32_t row,bool ana_state,bool hb_state);
   private:
     // analog power supply
     // digital power supply

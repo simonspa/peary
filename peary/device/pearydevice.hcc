@@ -108,7 +108,7 @@ namespace caribou {
     virtual void unlock();
     virtual void setThreshold();
     virtual void pulse(uint32_t npulse,uint32_t tup,uint32_t tdown,double amplitude);
-    
+    virtual void SetPixelInjection(uint32_t col,uint32_t row,bool ana_state,bool hb_state);
 
     // Controlling the device
     void setRegister(std::string name, uint32_t value);
