@@ -16,7 +16,7 @@
 #include <iostream>
 #include <algorithm>
 #include <array>
-
+#include <bitset>
 
 struct ATLASPixMatrix {
 
@@ -111,6 +111,9 @@ namespace caribou {
 
 
     void configureClock();
+
+    pearydata getData();
+
 
     void Initialize_SR(ATLASPixMatrix *matrix);
     void Shift_SR(ATLASPixMatrix *matrix);

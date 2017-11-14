@@ -2061,7 +2061,7 @@ void ATLASPix::writeUniformTDAC(ATLASPixMatrix *matrix,uint32_t value){
         		col_s = to_string(double_col);
         		if(col%2==0){
         				matrix->MatrixDACConfig->SetParameter("RamL"+col_s,value);
-        				matrix->MatrixDACConfig->SetParameter("colinjL"+col_s,1);
+        				matrix->MatrixDACConfig->SetParameter("colinjL"+col_s,0);
         		}
         		else {
         				matrix->MatrixDACConfig->SetParameter("RamR"+col_s, value);
@@ -2875,3 +2875,34 @@ caribouDevice* caribou::generator(const caribou::Configuration config) {
   ATLASPix* mDevice = new ATLASPix(config);
   return dynamic_cast<caribouDevice*>(mDevice);
 }
+
+
+pearydata ATLASPix::getData(){
+
+
+
+	 void* readout_base = _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
+
+	 volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
+	 volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x4);
+	 volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
+	 volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
+
+	 *fifo_config = 0b1;
+
+	 for(int i=0;i<100;i++){
+
+		 std::cout << "fifo_status" <<   std::bitset<32>(*fifo_status) << std::endl;
+		 std::cout << "data word 1" <<   std::bitset<32>(*data) << std::endl;
+		 std::cout << "data word 1" <<   std::bitset<32>(*data) << std::endl;
+		 std::cout << "leds " <<   std::bitset<32>(*leds) << std::endl;
+
+
+	 }
+
+	 pearydata dummy;
+	 return dummy;
+
+}
+
+
