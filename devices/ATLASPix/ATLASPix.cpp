@@ -1990,10 +1990,21 @@ void ATLASPix::writeOneTDAC(ATLASPixMatrix *matrix,uint32_t col,uint32_t row,uin
 	//Column Register
 
 			std::string s = to_string(col);
-			matrix->MatrixDACConfig->AddParameter("Ram"+s, 4, ATLASPix_Config::LSBFirst,  matrix->TDAC[col][row]); //0b1011
-			matrix->MatrixDACConfig->AddParameter("colinj"+s, 1, ATLASPix_Config::LSBFirst,  0);
-			matrix->MatrixDACConfig->AddParameter("hitbus"+s, 1, ATLASPix_Config::LSBFirst,  1);
-			matrix->MatrixDACConfig->AddParameter("unused"+s, 10, ATLASPix_Config::LSBFirst,  0);
+			matrix->MatrixDACConfig->SetParameter("colinjDown"+s,  0);
+			matrix->MatrixDACConfig->SetParameter("hitbusDown"+s,  0);
+			matrix->MatrixDACConfig->SetParameter("unusedDown"+s,  0);
+			matrix->MatrixDACConfig->SetParameter("colinjUp"+s,   0);
+			matrix->MatrixDACConfig->SetParameter("hitbusUp"+s,  0);
+			matrix->MatrixDACConfig->SetParameter("unusedUp"+s,  0);
+
+			if(row<200){
+			matrix->MatrixDACConfig->SetParameter("RamDown"+s, matrix->TDAC[col][row]); //0b1011
+			//matrix->MatrixDACConfig->SetParameter("RamUp"+s, 4, ATLASPix_Config::LSBFirst,  matrix->TDAC[col][row]); //0b1011
+			}
+			else{
+			//matrix->MatrixDACConfig->SetParameter("RamDown"+s, 4, ATLASPix_Config::LSBFirst,  matrix->TDAC[col][row]); //0b1011
+			matrix->MatrixDACConfig->SetParameter("RamUp"+s,matrix->TDAC[col][row]); //0b1011
+			}
 
 	}
 
@@ -2047,10 +2058,18 @@ void ATLASPix::writeUniformTDAC(ATLASPixMatrix *matrix,uint32_t value){
     		for (int col = 0; col < matrix->ncol; col++)
     		{
     			std::string s = to_string(col);
-    			matrix->MatrixDACConfig->SetParameter("Ram"+s,value); //0b1011
-    			matrix->MatrixDACConfig->SetParameter("colinj"+s,  0);
-    			matrix->MatrixDACConfig->SetParameter("hitbus"+s, 0);
-    			matrix->MatrixDACConfig->SetParameter("unused"+s,  0);
+    			matrix->MatrixDACConfig->SetParameter("colinjDown"+s,  0);
+    			matrix->MatrixDACConfig->SetParameter("hitbusDown"+s,  0);
+    			matrix->MatrixDACConfig->SetParameter("unusedDown"+s,  0);
+    			matrix->MatrixDACConfig->SetParameter("colinjUp"+s,   0);
+    			matrix->MatrixDACConfig->SetParameter("hitbusUp"+s,  0);
+    			matrix->MatrixDACConfig->SetParameter("unusedUp"+s,  0);
+
+
+    			matrix->MatrixDACConfig->SetParameter("RamDown"+s, value); //0b1011
+    			matrix->MatrixDACConfig->SetParameter("RamUp"+s, value); //0b1011
+
+
     		}
     	}
 
@@ -2152,11 +2171,31 @@ void ATLASPix::writePixelInj(ATLASPixMatrix *matrix, uint32_t col, uint32_t row,
 
 
 	if(matrix->type==1){
-	std::string s = to_string(col);
-	matrix->MatrixDACConfig->SetParameter("Ram"+s, matrix->TDAC[col][row]); //0b1011
-	matrix->MatrixDACConfig->SetParameter("colinj"+s,  inj);
-	matrix->MatrixDACConfig->SetParameter("hitbus"+s, hb_state);
-	matrix->MatrixDACConfig->SetParameter("unused"+s,  0);
+		std::string s = to_string(col);
+
+		if(row<200){
+		matrix->MatrixDACConfig->SetParameter("RamDown"+s, matrix->TDAC[col][row]); //0b1011
+		matrix->MatrixDACConfig->SetParameter("colinjDown"+s,  inj);
+		matrix->MatrixDACConfig->SetParameter("hitbusDown"+s,  hb_state);
+		matrix->MatrixDACConfig->SetParameter("unusedDown"+s,  3);
+		matrix->MatrixDACConfig->SetParameter("colinjUp"+s,   inj);
+		matrix->MatrixDACConfig->SetParameter("hitbusUp"+s,  0);
+		matrix->MatrixDACConfig->SetParameter("unusedUp"+s,  3);
+
+		}
+		else{
+		std::cout << "up pixels" << std::endl;
+		matrix->MatrixDACConfig->SetParameter("RamUp"+s,matrix->TDAC[col][row]); //0b1011
+		matrix->MatrixDACConfig->SetParameter("colinjDown"+s,  inj);
+		matrix->MatrixDACConfig->SetParameter("hitbusDown"+s,  0);
+		matrix->MatrixDACConfig->SetParameter("unusedDown"+s,  3);
+		matrix->MatrixDACConfig->SetParameter("colinjUp"+s,   inj);
+		matrix->MatrixDACConfig->SetParameter("hitbusUp"+s,  hb_state);
+		matrix->MatrixDACConfig->SetParameter("unusedUp"+s,  3);
+
+
+		}
+
 	}
 	else{
 
@@ -2175,13 +2214,13 @@ void ATLASPix::writePixelInj(ATLASPixMatrix *matrix, uint32_t col, uint32_t row,
 	}
 
 	std::string row_s = to_string(row);
-	matrix->MatrixDACConfig->SetParameter("writedac"+row_s,1);
+	//matrix->MatrixDACConfig->SetParameter("writedac"+row_s,1);
 	matrix->MatrixDACConfig->SetParameter("unused"+row_s,  0);
 	matrix->MatrixDACConfig->SetParameter("rowinjection"+row_s,inj);
 	matrix->MatrixDACConfig->SetParameter("analogbuffer"+row_s,ana_state);
 	this->ProgramSR(matrix);
-	matrix->MatrixDACConfig->SetParameter("writedac"+row_s,0);
-	this->ProgramSR(matrix);
+	//matrix->MatrixDACConfig->SetParameter("writedac"+row_s,0);
+	//this->ProgramSR(matrix);
 
 
 
@@ -2203,10 +2242,22 @@ void ATLASPix::writeAllTDAC(ATLASPixMatrix *matrix){
     		for (int col = 0; col < matrix->ncol; col++)
     		{
     			std::string s = to_string(col);
-    			matrix->MatrixDACConfig->SetParameter("Ram"+s, matrix->TDAC[col][row]); //0b1011
-    			matrix->MatrixDACConfig->SetParameter("colinj"+s,  0);
-    			matrix->MatrixDACConfig->SetParameter("hitbus"+s, 1);
-    			matrix->MatrixDACConfig->SetParameter("unused"+s,  0);
+    			matrix->MatrixDACConfig->SetParameter("colinjDown"+s,  0);
+    			matrix->MatrixDACConfig->SetParameter("hitbusDown"+s,  0);
+    			matrix->MatrixDACConfig->SetParameter("unusedDown"+s,  0);
+    			matrix->MatrixDACConfig->SetParameter("colinjUp"+s,   0);
+    			matrix->MatrixDACConfig->SetParameter("hitbusUp"+s,  0);
+    			matrix->MatrixDACConfig->SetParameter("unusedUp"+s,  0);
+
+    			if(row<200){
+    			matrix->MatrixDACConfig->SetParameter("RamDown"+s, matrix->TDAC[col][row]); //0b1011
+    			//matrix->MatrixDACConfig->SetParameter("RamUp"+s, 4, ATLASPix_Config::LSBFirst,  matrix->TDAC[col][row]); //0b1011
+    			}
+    			else{
+    			//matrix->MatrixDACConfig->SetParameter("RamDown"+s, 4, ATLASPix_Config::LSBFirst,  matrix->TDAC[col][row]); //0b1011
+    			matrix->MatrixDACConfig->SetParameter("RamUp"+s,matrix->TDAC[col][row]); //0b1011
+    			}
+
     		}
     	}
 
@@ -2594,18 +2645,14 @@ void ATLASPix::Initialize_SR(ATLASPixMatrix *matrix){
 		for (int col = 0; col < matrix->ncol; col++)
 		{
 			std::string s = to_string(col);
-			matrix->MatrixDACConfig->AddParameter("Ram"+s, 4, ATLASPix_Config::LSBFirst,  0b000); //0b1011
-
-			if(col==0){
-			matrix->MatrixDACConfig->AddParameter("colinj"+s, 1, ATLASPix_Config::LSBFirst,  0);
-			}
-			else{
-			matrix->MatrixDACConfig->AddParameter("colinj"+s, 1, ATLASPix_Config::LSBFirst,  0);
-
-			}
-
-			matrix->MatrixDACConfig->AddParameter("hitbus"+s, 1, ATLASPix_Config::LSBFirst,  0);
-			matrix->MatrixDACConfig->AddParameter("unused"+s, 10, ATLASPix_Config::LSBFirst,  0);
+			matrix->MatrixDACConfig->AddParameter("RamDown"+s, 4, ATLASPix_Config::LSBFirst,  0b000); //0b1011
+			matrix->MatrixDACConfig->AddParameter("colinjDown"+s, 1, ATLASPix_Config::LSBFirst,  0);
+			matrix->MatrixDACConfig->AddParameter("hitbusDown"+s, 1, ATLASPix_Config::LSBFirst,  0);
+			matrix->MatrixDACConfig->AddParameter("unusedDown"+s, 2, ATLASPix_Config::LSBFirst,  0);
+			matrix->MatrixDACConfig->AddParameter("RamUp"+s, 4, ATLASPix_Config::LSBFirst,  0b000); //0b1011
+			matrix->MatrixDACConfig->AddParameter("colinjUp"+s, 1, ATLASPix_Config::LSBFirst,  0);
+			matrix->MatrixDACConfig->AddParameter("hitbusUp"+s, 1, ATLASPix_Config::LSBFirst,  0);
+			matrix->MatrixDACConfig->AddParameter("unusedUp"+s, 2, ATLASPix_Config::LSBFirst,  0);
 		}
 	}
 
