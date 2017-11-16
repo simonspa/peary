@@ -14,6 +14,7 @@
 #include <string>
 #include <iterator>
 #include <iostream>
+#include <fstream>
 #include <algorithm>
 #include <array>
 #include <bitset>
@@ -79,7 +80,7 @@ namespace caribou {
 
     void lock();
     void unlock();
-    void setThreshold();
+    void setThreshold(double threshold);
     /** Turn on the power supply for the ATLASPix chip
      */
     void powerUp();
@@ -126,9 +127,16 @@ namespace caribou {
     void writeAllTDAC(ATLASPixMatrix *matrix);
     void writeUniformTDAC(ATLASPixMatrix *matrix,uint32_t value);
 
+    void setAllTDAC(uint32_t value);
+
     void ComputeSCurves(ATLASPixMatrix *matrix,double vmax,int nstep, int npulses,int tup,int tdown);
     void tune(ATLASPixMatrix *matrix, double vmax,int nstep, int npulses, bool tuning_verification);
 
+    void doSCurve(uint32_t col,uint32_t row,double vmin,double vmax,uint32_t npulses,uint32_t npoints);
+    void doSCurves(double vmin,double vmax,uint32_t npulses,uint32_t npoints);
+
+
+    void doNoiseCurve(uint32_t col,uint32_t row);
 
     void resetPulser();
     void setPulse(ATLASPixMatrix *matrix,uint32_t npulse,uint32_t n_up,uint32_t n_down,double voltage);
@@ -144,6 +152,7 @@ namespace caribou {
     int readCounter(ATLASPixMatrix *matrix);
 
     void SetPixelInjection(uint32_t col, uint32_t row,bool ana_state,bool hb_state);
+    void SetPixelInjection(ATLASPixMatrix *matrix,uint32_t col, uint32_t row,bool ana_state,bool hb_state);
   private:
     // analog power supply
     // digital power supply
