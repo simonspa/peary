@@ -71,6 +71,10 @@ namespace caribou {
     static int setThreshold(const std::vector<std::string>& input);
     static int pulse(const std::vector<std::string>& input);
     static int SetPixelInjection(const std::vector<std::string>& input);
+    static int doNoiseCurve(const std::vector<std::string>& input);
+	static int doSCurve(const std::vector<std::string>& input);
+	static int doSCurves(const std::vector<std::string>& input);
+	static int setAllTDAC(const std::vector<std::string>& input);
 
 
     // Create new Peary device manager

@@ -152,10 +152,13 @@ pearycli::pearycli() : c("# ") {
 
   c.registerCommand("lock", lock, "lock the device", 1,"DEVICE_ID");
   c.registerCommand("unlock", unlock, "unlock the device", 1,"DEVICE_ID");
-  c.registerCommand("setThreshold", setThreshold, "setting threshold", 1,"DEVICE_ID");
-  c.registerCommand("pulse", pulse, "pulse", 5,"DEVICE_ID");
+  c.registerCommand("setThreshold", setThreshold, "Setting threshold, usage setThreshold Threshold(V) device ID", 2,"DEVICE_ID");
+  c.registerCommand("pulse", pulse, "pulse, usage pulse npulse nup ndown amplitude device ID", 5,"DEVICE_ID");
   c.registerCommand("setPixelInjection", SetPixelInjection, "Set pixel injection and output, usage : setPixelInjection col row analog_output state hitbus state", 5,"DEVICE_ID");
-
+  c.registerCommand("doSCurve", doSCurve, "Perform a s-curve measurement, usage doSCurve col row vmin vmax npulses npoints device_id", 7,"DEVICE_ID");
+  c.registerCommand("doSCurves", doSCurves, "Perform  s-curve measurement for the whole matrix, usage doSCurve vmin vmax npulses npoints device_id", 5,"DEVICE_ID");
+  c.registerCommand("doNoiseCurve", doNoiseCurve, "determine the noise floor for a given pixel, usage : doNoiseCurve col row", 3,"DEVICE_ID");
+  c.registerCommand("setAllTDAC", setAllTDAC, "Setting TDAC for the whole matrix, usage setAllTDAC value device ID", 2,"DEVICE_ID");
 
 }
 
@@ -823,8 +826,8 @@ int pearycli::pulse(const std::vector<std::string>& input) {
 
 int pearycli::setThreshold(const std::vector<std::string>& input) {
   try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
-    dev->setThreshold();
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(2)));
+    dev->setThreshold(std::stof(input.at(1)));
   } catch(caribou::caribouException& e) {
     return ret::Error;
   }
@@ -842,6 +845,50 @@ int  pearycli::SetPixelInjection(const std::vector<std::string>& input){
 
 }
 
+int  pearycli::doNoiseCurve(const std::vector<std::string>& input){
+try {
+  caribouDevice* dev = manager->getDevice(std::stoi(input.at(3)));
+  dev->doNoiseCurve(std::stoi(input.at(1)),std::stoi(input.at(2)));
+} catch(caribou::caribouException& e) {
+  return ret::Error;
+}
+return ret::Ok;
+
+}
+
+
+int  pearycli::doSCurve(const std::vector<std::string>& input){
+try {
+  caribouDevice* dev = manager->getDevice(std::stoi(input.at(7)));
+  std::cout << std::stoi(input.at(7)) << std::endl;
+  dev->doSCurve(std::stoi(input.at(1)),std::stoi(input.at(2)),std::stof(input.at(3)),std::stof(input.at(4)),std::stoi(input.at(5)),std::stoi(input.at(6)));
+} catch(caribou::caribouException& e) {
+  return ret::Error;
+}
+return ret::Ok;
+
+}
+
+int  pearycli::doSCurves(const std::vector<std::string>& input){
+try {
+  caribouDevice* dev = manager->getDevice(std::stoi(input.at(5)));
+  dev->doSCurves(std::stof(input.at(1)),std::stof(input.at(2)),std::stoi(input.at(3)),std::stoi(input.at(4)));
+} catch(caribou::caribouException& e) {
+  return ret::Error;
+}
+return ret::Ok;
+
+}
+
+int pearycli::setAllTDAC(const std::vector<std::string>& input) {
+  try {
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(2)));
+    dev->setAllTDAC(std::stof(input.at(1)));
+  } catch(caribou::caribouException& e) {
+    return ret::Error;
+  }
+  return ret::Ok;
+}
 
 
 int pearycli::scanThreshold(const std::vector<std::string>& input) {

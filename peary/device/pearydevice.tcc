@@ -288,7 +288,7 @@ namespace caribou {
     throw caribou::DeviceImplException("unlock not implemented for this device");
   }
   
-      template <typename T> void pearyDevice<T>::setThreshold() {
+      template <typename T> void pearyDevice<T>::setThreshold(double threshold) {
     LOG(logCRITICAL) << "setThreshold not implemented for this device";
     throw caribou::DeviceImplException("setThreshold not implemented for this device");
   }
@@ -303,6 +303,24 @@ namespace caribou {
     throw caribou::DeviceImplException("SetPixelInjection not implemented for this device");
   }
   
+  
+    template <typename T> void pearyDevice<T>::doSCurve(uint32_t col,uint32_t row,double vmin,double vmax,uint32_t npulses,uint32_t npoints){
+    LOG(logCRITICAL) << "doSCurve not implemented for this device";
+    throw caribou::DeviceImplException("doSCurve not implemented for this device");
+  }
+     template <typename T> void pearyDevice<T>::doSCurves(double vmin,double vmax,uint32_t npulses,uint32_t npoints){
+    LOG(logCRITICAL) << "doSCurves not implemented for this device";
+    throw caribou::DeviceImplException("doSCurves not implemented for this device");
+  }
+     template <typename T> void pearyDevice<T>::setAllTDAC(uint32_t value){
+    LOG(logCRITICAL) << "doSCurves not implemented for this device";
+    throw caribou::DeviceImplException("doSCurves not implemented for this device");
+  } 
+   
+    template <typename T> void pearyDevice<T>::doNoiseCurve(uint32_t col,uint32_t row){
+    LOG(logCRITICAL) << "doNoiseCurve not implemented for this device";
+    throw caribou::DeviceImplException("doNoiseCurve not implemented for this device");
+  }
   
   
   template <typename T> void pearyDevice<T>::configure() {
