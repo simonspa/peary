@@ -18,6 +18,8 @@
 #include <algorithm>
 #include <array>
 #include <bitset>
+#include <cstdlib>
+
 
 struct ATLASPixMatrix {
 
@@ -46,8 +48,8 @@ struct ATLASPixMatrix {
     std::vector<uint32_t> Registers;
 
     //TDAC and mask maps
-    std::array<std::array<int, 56>, 400> TDAC;
-    std::array<std::array<int, 56>, 400> MASK;
+    std::array<std::array<int, 400>, 56> TDAC;
+    std::array<std::array<int, 400>, 56> MASK;
 
     //info about matrix, SR etc...
     int ncol,nrow,ndoublecol;
@@ -126,9 +128,9 @@ namespace caribou {
     void writeOneTDAC(ATLASPixMatrix *matrix,uint32_t col,uint32_t row,uint32_t value);
     void writeAllTDAC(ATLASPixMatrix *matrix);
     void writeUniformTDAC(ATLASPixMatrix *matrix,uint32_t value);
-
+    void loadAllTDAC(std::string filename);
     void setAllTDAC(uint32_t value);
-
+    void setMaskPixel(ATLASPixMatrix *matrix,uint32_t col,uint32_t row,uint32_t value);
     void ComputeSCurves(ATLASPixMatrix *matrix,double vmax,int nstep, int npulses,int tup,int tdown);
     void tune(ATLASPixMatrix *matrix, double vmax,int nstep, int npulses, bool tuning_verification);
 
