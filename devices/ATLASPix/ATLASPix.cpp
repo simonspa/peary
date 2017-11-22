@@ -2571,11 +2571,17 @@ void ATLASPix::loadAllTDAC(std::string filename){
 
 
 			myfile >> col >> row >> TDAC >> mask ;
-			//std::cout << data << " col: " << col << " row: " << row << " TDAC: " << TDAC << " mask : " << mask << std::endl;
+
+			//std::cout  << " ---------------------------- " << std::endl;
+			//std::cout  << " col: " << col << " row: " << row << " TDAC: " << TDAC << " mask : " << mask << std::endl;
 
 
 			this->setOneTDAC(simpleM1,col,row,TDAC);
 			this->setMaskPixel(simpleM1,col,row,mask);
+
+			//std::cout  << " col: " << col << " row: " << row << " TDAC: " << this->simpleM1->TDAC[col][row] << " mask : " <<  this->simpleM1->MASK[col][row] << std::endl;
+			//std::cout  << " ---------------------------- " << std::endl;
+
 		}
 		this->writeAllTDAC(simpleM1);
 
@@ -2605,11 +2611,14 @@ void ATLASPix::writeAllTDAC(ATLASPixMatrix *matrix){
 
     			if(row<200){
     			matrix->MatrixDACConfig->SetParameter("RamDown"+s, matrix->TDAC[col][row]); //0b1011
-    			//matrix->MatrixDACConfig->SetParameter("RamUp"+s, 4, ATLASPix_Config::LSBFirst,  matrix->TDAC[col][row]); //0b1011
+    			matrix->MatrixDACConfig->SetParameter("RamUp"+s,matrix->TDAC[col][row]); //0b1011
+
+
     			}
     			else{
-    			//matrix->MatrixDACConfig->SetParameter("RamDown"+s, 4, ATLASPix_Config::LSBFirst,  matrix->TDAC[col][row]); //0b1011
     			matrix->MatrixDACConfig->SetParameter("RamUp"+s,matrix->TDAC[col][row]); //0b1011
+    			matrix->MatrixDACConfig->SetParameter("RamDown"+s, matrix->TDAC[col][row]); //0b1011
+
     			}
 
     		}
