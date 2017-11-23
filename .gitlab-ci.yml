@@ -77,11 +77,11 @@ cmp:centos7-llvm:
 rebuild_meta-caribou:
     stage: rebuild_meta-caribou
     variables: 
-      META-CARIBOU_REF_NAME: master
+      META_CARIBOU_REF_NAME: master
     only:
       - master
     script:
-      - "curl -X POST -F token=META_CARIBOU_TOKEN -F ref=META-CARIBOU_REF_NAME https://gitlab.cern.ch/api/v4/projects/13971/trigger/pipeline"
+      - "curl -X POST -F token=${META_CARIBOU_TOKEN} -F ref=${META_CARIBOU_REF_NAME} https://gitlab.cern.ch/api/v4/projects/13971/trigger/pipeline"
 
 ############################
 # Format and Lint Checking #
