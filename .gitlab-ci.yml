@@ -81,7 +81,7 @@ rebuild_meta-caribou:
     only:
       - master
     script:
-      - "curl -X POST -F token=META-CARIBOU_TOKEN -F ref=META-CARIBOU_REF_NAME https://gitlab.cern.ch/api/v4/projects/13971/trigger/pipeline"
+      - "curl -X POST -F token=META_CARIBOU_TOKEN -F ref=META-CARIBOU_REF_NAME https://gitlab.cern.ch/api/v4/projects/13971/trigger/pipeline"
 
 ############################
 # Format and Lint Checking #
