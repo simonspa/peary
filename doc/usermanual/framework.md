@@ -12,17 +12,17 @@
 
 ## Car Board Hardware Abstraction Layer
 
-## Interfaces
+## Hardware Interfaces
 
-## Interface Manager
+### Interface Manager
 
-## Interface Emulators
+### Interface Emulators
 
-### I2C
+#### I2C
 
-### SPI
+#### SPI
 
-#### Non-Standard SPI Interface for CLICpix2
+##### Non-Standard SPI Interface for CLICpix2
 
 ### IPSocket
 
