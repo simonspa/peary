@@ -12,17 +12,23 @@ This user manual aims at providing an overview of the software framework and fac
 
 When using the Caribou Linux distribution on the Caribou DAQ system, the latest version or `peary` is always pre-installed.
 
-To compile the project on a development machine, the following steps have to be peformed:
+To compile the project on a development machine, the following steps have to be performed. The repository contains git submodules, thus repository has to be cloned recursively:
 
 ```
 # clone the repository:
-$ git clone https://gitlab.cern.ch/Caribou/peary.git
+$ git clone --recursive https://gitlab.cern.ch/Caribou/peary.git
 $ cd peary
 $ mkdir build && cd build
 # Run CMake to prepare the Makefiles:
 $ cmake ..
 # Compile the project and install to the default location (source directory):
 $ make install
+```
+
+If the repository has been cloned without recursing into the submodules, they need to be initialized separately:
+
+```
+$ git submodule update --init --recursive
 ```
 
 ### Compiling on machines without I2C and SPI
@@ -35,7 +41,7 @@ $ cmake -DINTERFACE_I2C=OFF ..
 
 A list of available interfaces can be found in the section [Interfaces](framework.md#hardware-interfaces).
 
-## Compiling only certain devices
+### Compiling certain devices only
 
 The compilation of any supported device can be turned on or off since some devices come with special dependencies which not every user might be able or willing to satisfy. Some devices are *not built by default* and need to be explicitly activated using the appropriate CMake option:
 
