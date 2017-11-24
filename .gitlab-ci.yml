@@ -108,6 +108,7 @@ cmp:usermanual:
     image: gitlab-registry.cern.ch/clicdp/publications/templates/custom_ci_worker:fedora-latex-latest
     dependencies: []
     script:
+        - export LC_ALL=C.UTF-8 && export LANG=C.UTF-8
         - mkdir -p public/peary-manual
         - mkdocs build
         - mv site/* public/peary-manual/
