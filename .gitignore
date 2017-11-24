@@ -28,3 +28,4 @@ obj/
 # ignore devtool files (yocto)
 oe-logs
 oe-workdir
+site/

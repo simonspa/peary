@@ -1,0 +1,14 @@
+site_name: Peary Caribou
+repo_url: https://gitlab.cern.ch/Caribou/peary
+repo_name: CERN GitLab
+edit_uri: edit/master/doc/usermanual/
+docs_dir: doc/usermanual
+theme: readthedocs
+
+pages:
+    - Introduction: index.md
+    - Executables: exec.md
+    - Framework: framework.md
+    - Utilities: utils.md
+    - Devices: devices.md
+    - About: about.md
