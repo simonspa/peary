@@ -1,5 +1,6 @@
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
+  EOS_PATH: "/eos/project/c/caribou/www/"
 
 stages:
   - compile
