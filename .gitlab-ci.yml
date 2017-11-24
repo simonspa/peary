@@ -5,7 +5,7 @@ stages:
   - compile
   - format
   - unittest
-  - rebuild_meta-caribou
+  - deployment
 
 #######################
 # Compilation targets #
@@ -75,8 +75,8 @@ cmp:centos7-llvm:
     expire_in: 3 hour
 
 rebuild_meta-caribou:
-    stage: rebuild_meta-caribou
-    variables: 
+    stage: deployment
+    variables:
       META_CARIBOU_REF_NAME: master
     only:
       - master
