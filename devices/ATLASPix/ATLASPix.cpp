@@ -170,9 +170,9 @@ void ATLASPix::configure() {
   this->writeUniformTDAC(simpleM1ISO,0b0000);
   this->writeUniformTDAC(simpleM2,0b000);
 
-  std::cout << "loading TDACs" << std::endl;
+  //std::cout << "loading TDACs" << std::endl;
   //this->loadAllTDAC("/home/root/TDAC.txt");
-  std::cout << "done" << std::endl;
+ // std::cout << "done" << std::endl;
 
 
 
@@ -2302,6 +2302,7 @@ void ATLASPix::writePixelInj(ATLASPixMatrix *matrix, uint32_t col, uint32_t row,
 
 		if(row<200){
 		matrix->MatrixDACConfig->SetParameter("RamDown"+s, matrix->TDAC[col][row]); //0b1011
+		matrix->MatrixDACConfig->SetParameter("RamUp"+s, matrix->TDAC[col][row]); //0b1011
 		matrix->MatrixDACConfig->SetParameter("colinjDown"+s,  inj);
 		matrix->MatrixDACConfig->SetParameter("hitbusDown"+s,  hb_state);
 		matrix->MatrixDACConfig->SetParameter("unusedDown"+s,  3);
@@ -2313,6 +2314,7 @@ void ATLASPix::writePixelInj(ATLASPixMatrix *matrix, uint32_t col, uint32_t row,
 		else{
 		//std::cout << "up pixels" << std::endl;
 		matrix->MatrixDACConfig->SetParameter("RamUp"+s,matrix->TDAC[col][row]); //0b1011
+		matrix->MatrixDACConfig->SetParameter("RamDown"+s, matrix->TDAC[col][row]); //0b1011
 		matrix->MatrixDACConfig->SetParameter("colinjDown"+s,  inj);
 		matrix->MatrixDACConfig->SetParameter("hitbusDown"+s,  0);
 		matrix->MatrixDACConfig->SetParameter("unusedDown"+s,  3);
@@ -2817,11 +2819,17 @@ void ATLASPix::doSCurves(double vmin,double vmax,uint32_t npulses,uint32_t npoin
 	//Setting Time Stamp in the file name
 	std::time_t t = std::time(NULL);
 	std::tm *ptm = std::localtime(&t);
-	std::stringstream ss;
+	std::stringstream ss,ss2;
 	ss << "PEARYDATA/ATLASPixGradeA_02/" <<"_"<< ptm->tm_year+1900 <<"_"<< ptm->tm_mon+1 <<"_"<< ptm->tm_mday <<"@"<< ptm->tm_hour+1 <<"_"<< ptm->tm_min+1 << "_"<<ptm->tm_sec+1;
+	<<"_VNPix" << std::to_string(simpleM1->CurrentDACConfig->GetParameter("VNPix"))
+	<< "_VNFBPix" << std::to_string(simpleM1->CurrentDACConfig->GetParameter("VNFBPix")) << "/";
+
+	ss<< ss2.str() << ptm->tm_year+1900 <<"_"<< ptm->tm_mon+1 <<"_"<< ptm->tm_mday <<"@"<< ptm->tm_hour+1 <<"_"<< ptm->tm_min+1 << "_"<<ptm->tm_sec+1;
 
 	std::string cmd;
 	cmd+="mkdir -p ";
+	cmd+=ss2.str();
+	cmd+= " ";
 	cmd+=ss.str();
 	const int dir_err = system(cmd.c_str());
 
