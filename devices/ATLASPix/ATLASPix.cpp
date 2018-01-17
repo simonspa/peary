@@ -2819,16 +2819,11 @@ void ATLASPix::doSCurves(double vmin,double vmax,uint32_t npulses,uint32_t npoin
 	//Setting Time Stamp in the file name
 	std::time_t t = std::time(NULL);
 	std::tm *ptm = std::localtime(&t);
-	std::stringstream ss,ss2;
-	ss << "PEARYDATA/ATLASPixGradeA_02/" <<"_"<< ptm->tm_year+1900 <<"_"<< ptm->tm_mon+1 <<"_"<< ptm->tm_mday <<"@"<< ptm->tm_hour+1 <<"_"<< ptm->tm_min+1 << "_"<<ptm->tm_sec+1;
-	<<"_VNPix" << std::to_string(simpleM1->CurrentDACConfig->GetParameter("VNPix"))
-	<< "_VNFBPix" << std::to_string(simpleM1->CurrentDACConfig->GetParameter("VNFBPix")) << "/";
-
-	ss<< ss2.str() << ptm->tm_year+1900 <<"_"<< ptm->tm_mon+1 <<"_"<< ptm->tm_mday <<"@"<< ptm->tm_hour+1 <<"_"<< ptm->tm_min+1 << "_"<<ptm->tm_sec+1;
+	std::stringstream ss;
+	ss << "PEARYDATA/ATLASPixGradeA_02/" <<"_"<< ptm->tm_year+1900 <<"_"<< ptm->tm_mon+1 <<"_"<< ptm->tm_mday <<"@"<< ptm->tm_hour+1 <<"_"<< ptm->tm_min+1 << "_"<<ptm->tm_sec+1 <<"_VNPix";
 
 	std::string cmd;
 	cmd+="mkdir -p ";
-	cmd+=ss2.str();
 	cmd+= " ";
 	cmd+=ss.str();
 	const int dir_err = system(cmd.c_str());
