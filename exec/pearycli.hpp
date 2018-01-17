@@ -75,7 +75,10 @@ namespace caribou {
 	static int doSCurve(const std::vector<std::string>& input);
 	static int doSCurves(const std::vector<std::string>& input);
 	static int setAllTDAC(const std::vector<std::string>& input);
-
+	static int LoadTDAC(const std::vector<std::string>& input);
+	static int LoadConfig(const std::vector<std::string>& input);
+	static int WriteConfig(const std::vector<std::string>& input);
+	static int TDACScan(const std::vector<std::string>& input);
 
     // Create new Peary device manager
     static caribou::caribouDeviceMgr* manager;

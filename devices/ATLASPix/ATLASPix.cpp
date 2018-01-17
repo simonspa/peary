@@ -82,8 +82,8 @@ ATLASPix::ATLASPix(const caribou::Configuration config) : pearyDevice(config, st
   this->simpleM1ISO->nrow=nrow_m1iso;
   this->simpleM2->nrow=nrow_m2;
 
-  this->simpleM1->counter=1;
-  this->simpleM1ISO->counter=2;
+  this->simpleM1->counter=2;
+  this->simpleM1ISO->counter=1;
   this->simpleM2->counter=3;
 
   this->simpleM1->nSRbuffer = 104;
@@ -171,7 +171,7 @@ void ATLASPix::configure() {
   this->writeUniformTDAC(simpleM2,0b000);
 
   std::cout << "loading TDACs" << std::endl;
-  this->loadAllTDAC("/home/root/TDAC.txt");
+  //this->loadAllTDAC("/home/root/TDAC.txt");
   std::cout << "done" << std::endl;
 
 
@@ -252,7 +252,9 @@ void ATLASPix::setThreshold(double threshold){
 	  _hal->setBiasRegulator(BIAS_28, _config.Get("ThPix_M2", threshold));
 	  _hal->powerBiasRegulator(BIAS_28, true);
 
-
+	simpleM1->ThPix=threshold;
+	simpleM2->ThPix=threshold;
+	simpleM1ISO->ThPix=threshold;
 
 }
 
@@ -1933,7 +1935,7 @@ void ATLASPix::Initialize_SR(ATLASPixMatrix *matrix){
 	matrix->CurrentDACConfig->AddParameter("unlock",    4, ATLASPix_Config::LSBFirst, 0b1010); // unlock = x101
 	matrix->CurrentDACConfig->AddParameter("BLResPix", "5,4,3,1,0,2",  5);
 	matrix->CurrentDACConfig->AddParameter("ThResPix", "5,4,3,1,0,2",  0);
-	matrix->CurrentDACConfig->AddParameter("VNPix", "5,4,3,1,0,2",  60);
+	matrix->CurrentDACConfig->AddParameter("VNPix", "5,4,3,1,0,2",  10);
 	matrix->CurrentDACConfig->AddParameter("VNFBPix", "5,4,3,1,0,2", 20);
 	matrix->CurrentDACConfig->AddParameter("VNFollPix", "5,4,3,1,0,2", 10);
 	matrix->CurrentDACConfig->AddParameter("VNRegCasc", "5,4,3,1,0,2", 20);     //hier : VNHitbus
@@ -2511,6 +2513,18 @@ void ATLASPix::writeUniformTDAC(ATLASPixMatrix *matrix,uint32_t value){
     		}
     		};
 
+    	for (int row = 0; row < matrix->nrow; row++){
+
+    	//std::cout << "processing row : " << row << std::endl;
+    	std::string row_s = to_string(row);
+    	matrix->MatrixDACConfig->SetParameter("writedac"+row_s,0);
+    	matrix->MatrixDACConfig->SetParameter("unused"+row_s,  0);
+    	matrix->MatrixDACConfig->SetParameter("rowinjection"+row_s,0);
+    	matrix->MatrixDACConfig->SetParameter("analogbuffer"+row_s,0);
+    	};
+
+
+    	this->ProgramSR(matrix);
 
 
     	for (int row = 0; row < matrix->nrow; row++){
@@ -2586,6 +2600,13 @@ void ATLASPix::loadAllTDAC(std::string filename){
 		this->writeAllTDAC(simpleM1);
 
 }
+
+
+void ATLASPix::LoadTDAC(std::string filename){
+
+this->loadAllTDAC(filename);
+}
+
 
 void ATLASPix::writeAllTDAC(ATLASPixMatrix *matrix){
 
@@ -2748,12 +2769,40 @@ void ATLASPix::doSCurve(uint32_t col,uint32_t row,double vmin,double vmax,uint32
 	for(int i=0;i<npoints;i++){
 
 		this->pulse(npulses,10000,10000,vinj);
-		cnt=this->readCounter(simpleM1ISO);
+		cnt=this->readCounter(simpleM1);
 		std::cout << "V : " << vinj << " count : " << cnt << std::endl;
 		vinj+=dv;
 	}
 
 	this->SetPixelInjection(col,row,0,0);
+
+}
+
+pearydata ATLASPix::getData(){
+
+
+
+	 void* readout_base = _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
+
+	 volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
+	 volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x4);
+	 volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
+	 volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
+
+	 *fifo_config = 0b1;
+
+	 for(int i=0;i<100;i++){
+
+		 std::cout << "fifo_status" <<   std::bitset<32>(*fifo_status) << std::endl;
+		 std::cout << "data word 1" <<   std::bitset<32>(*data) << std::endl;
+		 std::cout << "data word 1" <<   std::bitset<32>(*data) << std::endl;
+		 std::cout << "leds " <<   std::bitset<32>(*leds) << std::endl;
+
+
+	 }
+
+	 pearydata dummy;
+	 return dummy;
 
 }
 
@@ -2769,7 +2818,7 @@ void ATLASPix::doSCurves(double vmin,double vmax,uint32_t npulses,uint32_t npoin
 	std::time_t t = std::time(NULL);
 	std::tm *ptm = std::localtime(&t);
 	std::stringstream ss;
-	ss <<"_"<< ptm->tm_year+1900 <<"_"<< ptm->tm_mon+1 <<"_"<< ptm->tm_mday <<"@"<< ptm->tm_hour+1 <<"_"<< ptm->tm_min+1 << "_"<<ptm->tm_sec+1;
+	ss << "PEARYDATA/ATLASPixGradeA_02/" <<"_"<< ptm->tm_year+1900 <<"_"<< ptm->tm_mon+1 <<"_"<< ptm->tm_mday <<"@"<< ptm->tm_hour+1 <<"_"<< ptm->tm_min+1 << "_"<<ptm->tm_sec+1;
 
 	std::string cmd;
 	cmd+="mkdir -p ";
@@ -2817,11 +2866,14 @@ void ATLASPix::doSCurves(double vmin,double vmax,uint32_t npulses,uint32_t npoin
 
 			for(int i=0;i<npoints;i++){
 				this->pulse(npulses,1000,1000,vinj);
-				cnt=this->readCounter(simpleM1ISO);
+				//cnt=this->readCounter(simpleM1ISO);
+				cnt=this->readCounter(simpleM1);
+				//this->getData();
 				myfile << vinj << " " << cnt << " ";
 				//std::cout << "V : " << vinj << " count : " << cnt << std::endl;
 				vinj+=dv;
 			}
+
 			this->SetPixelInjection(simpleM1,col,row,0,0);
 			myfile << std::endl;
 
@@ -2834,6 +2886,114 @@ void ATLASPix::doSCurves(double vmin,double vmax,uint32_t npulses,uint32_t npoin
 	myfile.close();
 
 }
+
+
+void ATLASPix::doSCurves(std::string basefolder,double vmin,double vmax,uint32_t npulses,uint32_t npoints){
+
+	std::cout << "Ok lets get started" << std::endl;
+	int cnt=0;
+	double vinj=vmin;
+	double dv = (vmax-vmin)/(npoints-1);
+	std::cout << "vmin : " << vmin << " vmax : " << vmax << " dV  : "<< dv << std::endl;
+
+	std::string filename;
+	filename+=basefolder;
+	filename+="/";
+	filename+="M1_VNDAC_";
+	filename+=std::to_string(simpleM1->CurrentDACConfig->GetParameter("VNDACPix"));
+	filename+="_TDAC_";
+	filename+=std::to_string(simpleM1->TDAC[0][0]>>1);
+	//filename+=ss.str();
+	filename+=".txt";
+
+
+	std::cout << "writing to file : " << filename << std::endl;
+
+
+	std::ofstream myfile;
+	myfile.open (filename);
+
+	myfile << npoints << std::endl;
+
+    std::clock_t start;
+    double duration;
+
+	for(int col=0;col< simpleM1->ncol; col++){
+		for(int row=0;row< simpleM1->nrow; row++){
+
+
+
+		    //start = std::clock();
+
+			if(row%5==0){std::cout << "X: " << col << " Y: " << row << "\n" ;}
+
+
+			vinj=vmin;
+			//this->SetPixelInjection(simpleM1,0,0,1,1);
+			//this->SetPixelInjection(simpleM1,0,0,0,0);
+
+			this->SetPixelInjection(simpleM1,col,row,1,1);
+			this->resetCounters();
+
+			for(int i=0;i<npoints;i++){
+				this->pulse(npulses,1000,1000,vinj);
+				//cnt=this->readCounter(simpleM1ISO);
+				cnt=this->readCounter(simpleM1);
+				//this->getData();
+				myfile << vinj << " " << cnt << " ";
+				//std::cout << "V : " << vinj << " count : " << cnt << std::endl;
+				vinj+=dv;
+			}
+
+			this->SetPixelInjection(simpleM1,col,row,0,0);
+			myfile << std::endl;
+
+			//duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
+			//std::cout << duration << " s \n" ;
+
+
+		}}
+
+	myfile.close();
+
+}
+
+
+
+void ATLASPix::TDACScan(std::string basefolder,int VNDAC,int step,double vmin,double vmax,uint32_t npulses,uint32_t npoints){
+
+	int mat=1;
+
+	this->WriteConfig(basefolder+"/config");
+
+	ATLASPixMatrix *matrix;
+	if (mat==0){
+		matrix=simpleM2;
+	}
+	else if (mat==1) {
+		matrix=simpleM1;
+	}
+	else{
+		matrix=simpleM1ISO;
+
+	}
+
+	matrix->CurrentDACConfig->SetParameter("VNDACPix",VNDAC);
+
+
+	for(int tdac=0;tdac<=8;tdac+=step){
+
+
+		this->setAllTDAC(tdac);
+		this->doSCurves(basefolder, vmin, vmax, npulses,npoints);
+
+	}
+
+
+
+
+}
+
 
 
 void ATLASPix::doNoiseCurve(uint32_t col,uint32_t row){
@@ -2914,6 +3074,10 @@ void ATLASPix::powerUp() {
   _hal->setBiasRegulator(BIAS_1, _config.Get("GatePix_M2", ATLASPix_GatePix_M2));
   _hal->powerBiasRegulator(BIAS_1, true);
 
+  simpleM2->GNDDACPix=_config.Get("GndDACPix_M2", ATLASPix_GndDACPix_M2);
+  simpleM2->VMINUSPix=_config.Get("GndDACPix_M2", ATLASPix_VMinusPix_M2);
+  simpleM2->GatePix=_config.Get("GndDACPix_M2", ATLASPix_GatePix_M2);
+
 
 
   // Bias voltages m1:
@@ -2929,7 +3093,9 @@ void ATLASPix::powerUp() {
   _hal->setBiasRegulator(BIAS_2, _config.Get("GatePix_M1", ATLASPix_GatePix_M1));
   _hal->powerBiasRegulator(BIAS_2, true);
 
-
+  simpleM1->GNDDACPix=_config.Get("GndDACPix_M1", ATLASPix_GndDACPix_M1);
+  simpleM1->VMINUSPix=_config.Get("GndDACPix_M1", ATLASPix_VMinusPix_M1);
+  simpleM1->GatePix=_config.Get("GndDACPix_M1", ATLASPix_GatePix_M1);
 
 
   // Bias voltages m1:
@@ -2946,26 +3112,33 @@ void ATLASPix::powerUp() {
   _hal->powerBiasRegulator(BIAS_3, true);
 
 
+  simpleM1ISO->GNDDACPix=_config.Get("GndDACPix_M1ISO", ATLASPix_GndDACPix_M1ISO);
+  simpleM1ISO->VMINUSPix=_config.Get("GndDACPix_M1ISO", ATLASPix_VMinusPix_M1ISO);
+  simpleM1ISO->GatePix=_config.Get("GndDACPix_M1ISO", ATLASPix_GatePix_M1ISO);
+
+
+
+
   // BL and Threshold from ext
 
   LOG(logDEBUG) << " BLPix m1 ISO ";
-  _hal->setBiasRegulator(BIAS_17, _config.Get("BLPix_M1ISO", ATLASPix_BLPix_M1ISO));
-  _hal->powerBiasRegulator(BIAS_17, true);
+  _hal->setBiasRegulator(BIAS_20, _config.Get("BLPix_M1ISO", ATLASPix_BLPix_M1ISO));
+  _hal->powerBiasRegulator(BIAS_20, true);
 
   LOG(logDEBUG) << " BLPix m1  ";
-  _hal->setBiasRegulator(BIAS_23, _config.Get("ThPix_M1", ATLASPix_BLPix_M1));
-  _hal->powerBiasRegulator(BIAS_23, true);
+  _hal->setBiasRegulator(BIAS_17, _config.Get("BLPix_M1", ATLASPix_BLPix_M1));
+  _hal->powerBiasRegulator(BIAS_17, true);
 
   LOG(logDEBUG) << " BLPix m2  ";
-  _hal->setBiasRegulator(BIAS_20, _config.Get("BLPix_M1", ATLASPix_BLPix_M2));
-  _hal->powerBiasRegulator(BIAS_20, true);
+  _hal->setBiasRegulator(BIAS_23, _config.Get("BLPix_M2", ATLASPix_BLPix_M2));
+  _hal->powerBiasRegulator(BIAS_23, true);
 
 
 
 
   LOG(logDEBUG) << " ThPix m1 ISO ";
-  _hal->setBiasRegulator(BIAS_31, _config.Get("ThPix_M1ISO", ATLASPix_ThPix_M1ISO));
-  _hal->powerBiasRegulator(BIAS_31, true);
+  _hal->setBiasRegulator(BIAS_28, _config.Get("ThPix_M1ISO", ATLASPix_ThPix_M1ISO));
+  _hal->powerBiasRegulator(BIAS_28, true);
 
 
   LOG(logDEBUG) << " ThPix m1  ";
@@ -2974,8 +3147,20 @@ void ATLASPix::powerUp() {
 
 
   LOG(logDEBUG) << " ThPix m2 ";
-  _hal->setBiasRegulator(BIAS_28, _config.Get("ThPix_M2", ATLASPix_ThPix_M2));
-  _hal->powerBiasRegulator(BIAS_28, true);
+  _hal->setBiasRegulator(BIAS_31, _config.Get("ThPix_M2", ATLASPix_ThPix_M2));
+  _hal->powerBiasRegulator(BIAS_31, true);
+
+
+
+  simpleM1->BLPix= _config.Get("BLPix_M1", ATLASPix_BLPix_M1);
+  simpleM2->BLPix= _config.Get("BLPix_M2", ATLASPix_BLPix_M2);
+  simpleM1ISO->BLPix= _config.Get("BLPix_M1ISO", ATLASPix_BLPix_M1ISO);
+
+  simpleM1->ThPix= _config.Get("ThPix_M1", ATLASPix_ThPix_M1);
+  simpleM2->ThPix= _config.Get("ThPix_M2", ATLASPix_ThPix_M2);
+  simpleM1ISO->ThPix= _config.Get("ThPix_M1ISO", ATLASPix_ThPix_M1ISO);
+
+
 
   std::cout << '\n';
 
@@ -3070,6 +3255,183 @@ void ATLASPix::powerStatusLog() {
 
 }
 
+
+
+void ATLASPix::WriteConfig(std::string basename){
+
+	int mat=1;
+
+	ATLASPixMatrix *matrix;
+	if (mat==0){
+		matrix=simpleM2;
+	}
+	else if (mat==1) {
+		matrix=simpleM1;
+	}
+	else{
+		matrix=simpleM1ISO;
+
+	}
+
+
+	std::ofstream myfile;
+	myfile.open(basename + ".cfg" );
+
+
+	static std::vector<std::string> VoltageDACs;
+	VoltageDACs = {"BLPix", "nu2","ThPix","nu3"};
+
+	for(auto const& value: VoltageDACs) {
+		myfile << std::left << std::setw(20) << value << " " << matrix->VoltageDACConfig->GetParameter(value) << std::endl;
+	}
+
+	static std::vector<std::string> CurrentDACs;
+	CurrentDACs = {"unlock","BLResPix","ThResPix","VNPix","VNFBPix","VNFollPix","VNRegCasc","VDel","VPComp","VPDAC","VNPix2","BLResDig","VNBiasPix","VPLoadPix","VNOutPix",
+					"VPVCO","VNVCO","VPDelDclMux","VNDelDclMux","VPDelDcl","VNDelDcl","VPDelPreEmp","VNDelPreEmp","VPDcl","VNDcl","VNLVDS","VNLVDSDel","VPPump","nu",
+					"RO_res_n","Ser_res_n","Aur_res_n","sendcnt","resetckdivend","maxcycend","slowdownend","timerend","ckdivend2","ckdivend","VPRegCasc","VPRamp","VNcompPix",
+					"VPFoll","VPFoll","VNDACPix","VPBiasRec","VNBiasRec","Invert","SelEx","SelSlow","EnPLL","TriggerDelay","Reset","ConnRes","SelTest","SelTestOut"};
+
+
+	for(auto const& value: CurrentDACs) {
+		myfile << std::left << std::setw(20) << value << " " << matrix->CurrentDACConfig->GetParameter(value) << std::endl;
+	}
+
+
+	static std::vector<std::string> ExternalBias;
+	ExternalBias = {"BLPix_ext", "ThPix_ext","VMINUSPix","GNDDACPix","GatePix"};
+
+	myfile << std::left << std::setw(20)<< "ThPix_ext" << " " << matrix->ThPix << std::endl;
+	myfile << std::left << std::setw(20)<< "BLPix_ext"<< " " << matrix->BLPix << std::endl;
+	myfile << std::left << std::setw(20)<< "VMINUSPix" << " " << matrix->VMINUSPix << std::endl;
+	myfile << std::left << std::setw(20)<< "GNDDACPix" << " " << matrix->GNDDACPix << std::endl;
+	myfile << std::left << std::setw(20)<< "GatePix" << " " << matrix->GatePix << std::endl;
+
+
+
+	std::ofstream TDACFile;
+	TDACFile.open(basename + "_TDAC.cfg" );
+
+
+	for(int col = 0;col<matrix->ncol;col++){
+		for(int row = 0;row<matrix->nrow;row++){
+
+			TDACFile << std::left << std::setw(3) << col << " " << std::left << std::setw(3) << row << " "  << std::left << std::setw(2) << matrix->TDAC[col][row] << " " << std::left << std::setw(1) << matrix->MASK[col][row] << std::endl ;
+		}
+	}
+
+
+	myfile.close();
+	TDACFile.close();
+}
+
+
+
+void ATLASPix::LoadConfig(std::string basename){
+
+
+	int mat=1;
+
+	ATLASPixMatrix *matrix;
+	if (mat==0){
+		matrix=simpleM2;
+	}
+	else if (mat==1) {
+		matrix=simpleM1;
+	}
+	else{
+		matrix=simpleM1ISO;
+
+	}
+
+	std::ifstream configfile;
+	configfile.open(basename + ".cfg" );
+
+	static std::vector<std::string> ExternalBias;
+	ExternalBias = {"BLPix_ext", "ThPix_ext","VMINUSPix","GNDDACPix","GatePix"};
+
+
+	static std::vector<std::string> CurrentDACs;
+	CurrentDACs = {"unlock","BLResPix","ThResPix","VNPix","VNFBPix","VNFollPix","VNRegCasc","VDel","VPComp","VPDAC","VNPix2","BLResDig","VNBiasPix","VPLoadPix","VNOutPix",
+					"VPVCO","VNVCO","VPDelDclMux","VNDelDclMux","VPDelDcl","VNDelDcl","VPDelPreEmp","VNDelPreEmp","VPDcl","VNDcl","VNLVDS","VNLVDSDel","VPPump","nu",
+					"RO_res_n","Ser_res_n","Aur_res_n","sendcnt","resetckdivend","maxcycend","slowdownend","timerend","ckdivend2","ckdivend","VPRegCasc","VPRamp","VNcompPix",
+					"VPFoll","VPFoll","VNDACPix","VPBiasRec","VNBiasRec","Invert","SelEx","SelSlow","EnPLL","TriggerDelay","Reset","ConnRes","SelTest","SelTestOut"};
+
+
+	static std::vector<std::string> VoltageDACs;
+	VoltageDACs = {"BLPix", "nu2","ThPix","nu3"};
+
+	std::string reg;
+	int value=0;
+	double bias=0;
+
+
+	while(!configfile.eof()){
+
+		configfile >> reg;
+
+		std::cout << "processing : " << reg << std::endl;
+
+
+
+		if (std::find(ExternalBias.begin(), ExternalBias.end(), reg) != ExternalBias.end()){
+			configfile >> bias;
+
+			if(reg=="BLPix_ext"){
+				  _hal->setBiasRegulator(BIAS_17, bias);
+				  _hal->powerBiasRegulator(BIAS_17, true);
+			}
+			else if(reg=="ThPix_ext"){
+				  _hal->setBiasRegulator(BIAS_25,bias);
+				  _hal->powerBiasRegulator(BIAS_25, true);
+			}
+			else if(reg=="VMINUSPix"){
+				  _hal->setBiasRegulator(BIAS_5,bias);
+				  _hal->powerBiasRegulator(BIAS_5, true);
+			}
+			else if(reg=="GNDDACPix"){
+				  _hal->setBiasRegulator(BIAS_9,bias);
+				  _hal->powerBiasRegulator(BIAS_9, true);
+			}
+			else if(reg=="GatePix"){
+				  _hal->setBiasRegulator(BIAS_2,bias);
+				  _hal->powerBiasRegulator(BIAS_2, true);
+			}
+			else {
+				printf("unknown external bias register %s",reg);
+			}
+		}
+		else if (std::find(CurrentDACs.begin(), CurrentDACs.end(), reg) != CurrentDACs.end()){
+			configfile >> value;
+			matrix->CurrentDACConfig->SetParameter(reg,value);
+		}
+
+		else if(std::find(VoltageDACs.begin(), VoltageDACs.end(), reg) != VoltageDACs.end()){
+			configfile >> value;
+			matrix->VoltageDACConfig->SetParameter(reg,value);
+		}
+
+		else {
+			std::cout << "unknown register : " << reg << std::endl;
+		}
+
+	}
+
+	this->ProgramSR(matrix);
+
+	this->LoadTDAC(basename+"_TDAC.cfg");
+
+
+
+}
+
+
+
+
+
+
+
+
+
 caribouDevice* caribou::generator(const caribou::Configuration config) {
   LOG(logDEBUG) << "Generator: " << DEVICE_NAME;
   ATLASPix* mDevice = new ATLASPix(config);
@@ -3077,32 +3439,5 @@ caribouDevice* caribou::generator(const caribou::Configuration config) {
 }
 
 //Data related
-pearydata ATLASPix::getData(){
-
-
-
-	 void* readout_base = _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
-
-	 volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
-	 volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x4);
-	 volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
-	 volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
-
-	 *fifo_config = 0b1;
-
-	 for(int i=0;i<100;i++){
-
-		 std::cout << "fifo_status" <<   std::bitset<32>(*fifo_status) << std::endl;
-		 std::cout << "data word 1" <<   std::bitset<32>(*data) << std::endl;
-		 std::cout << "data word 1" <<   std::bitset<32>(*data) << std::endl;
-		 std::cout << "leds " <<   std::bitset<32>(*leds) << std::endl;
-
-
-	 }
-
-	 pearydata dummy;
-	 return dummy;
-
-}
 
 

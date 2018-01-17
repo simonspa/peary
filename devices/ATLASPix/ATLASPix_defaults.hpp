@@ -18,9 +18,9 @@ namespace caribou {
 /** Definition of default values for the different DAC settings for ATLASPix
  */
 
-#define ATLASPix_VDDD 1.9
+#define ATLASPix_VDDD 1.8
 #define ATLASPix_VDDD_CURRENT 1
-#define ATLASPix_VDDA 1.9
+#define ATLASPix_VDDA 1.8
 #define ATLASPix_VDDA_CURRENT 1
 #define ATLASPix_VSSA 1.0
 #define ATLASPix_VSSA_CURRENT 0.3

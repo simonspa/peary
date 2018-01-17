@@ -156,9 +156,13 @@ pearycli::pearycli() : c("# ") {
   c.registerCommand("pulse", pulse, "pulse, usage pulse npulse nup ndown amplitude device ID", 5,"DEVICE_ID");
   c.registerCommand("setPixelInjection", SetPixelInjection, "Set pixel injection and output, usage : setPixelInjection col row analog_output state hitbus state", 5,"DEVICE_ID");
   c.registerCommand("doSCurve", doSCurve, "Perform a s-curve measurement, usage doSCurve col row vmin vmax npulses npoints device_id", 7,"DEVICE_ID");
-  c.registerCommand("doSCurves", doSCurves, "Perform  s-curve measurement for the whole matrix, usage doSCurve vmin vmax npulses npoints device_id", 5,"DEVICE_ID");
+  c.registerCommand("doSCurves", doSCurves, "Perform  s-curve measurement for the whole matrix, usage doSCurves vmin vmax npulses npoints device_id", 5,"DEVICE_ID");
   c.registerCommand("doNoiseCurve", doNoiseCurve, "determine the noise floor for a given pixel, usage : doNoiseCurve col row", 3,"DEVICE_ID");
   c.registerCommand("setAllTDAC", setAllTDAC, "Setting TDAC for the whole matrix, usage setAllTDAC value device ID", 2,"DEVICE_ID");
+  c.registerCommand("LoadTDAC", LoadTDAC, "Setting TDAC for the whole matrix, usage LoadTDAC filename device ID", 2,"DEVICE_ID");
+  c.registerCommand("LoadConfig", LoadConfig, "Load Config for the whole matrix, usage LoadConfig basename device ID", 2,"DEVICE_ID");
+  c.registerCommand("WriteConfig", WriteConfig, "Write Config for the whole matrix, usage WriteConfig basename device ID", 2,"DEVICE_ID");
+  c.registerCommand("TDACScan", TDACScan, "TDAC Scan for a given VNDAC for the whole matrix, usage TDACScan basefolder VNDAC TDACSteps vmin vmax npulses npoints device ID", 8,"DEVICE_ID");
 
 }
 
@@ -884,6 +888,52 @@ int pearycli::setAllTDAC(const std::vector<std::string>& input) {
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(2)));
     dev->setAllTDAC(std::stof(input.at(1)));
+  } catch(caribou::caribouException& e) {
+    return ret::Error;
+  }
+  return ret::Ok;
+}
+
+int pearycli::LoadTDAC(const std::vector<std::string>& input) {
+  try {
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(2)));
+    dev->LoadTDAC(input.at(1));
+  } catch(caribou::caribouException& e) {
+    return ret::Error;
+  }
+  return ret::Ok;
+}
+
+
+int pearycli::LoadConfig(const std::vector<std::string>& input) {
+  try {
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(2)));
+    dev->LoadConfig(input.at(1));
+  } catch(caribou::caribouException& e) {
+    return ret::Error;
+  }
+  return ret::Ok;
+}
+
+
+int pearycli::WriteConfig(const std::vector<std::string>& input) {
+  try {
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(2)));
+    dev->WriteConfig(input.at(1));
+  } catch(caribou::caribouException& e) {
+    return ret::Error;
+  }
+  return ret::Ok;
+}
+
+int pearycli::TDACScan(const std::vector<std::string>& input) {
+  try {
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(8)));
+
+
+    dev->TDACScan(input.at(1),std::stoi(input.at(2)),std::stoi(input.at(3)),std::stof(input.at(4)),std::stof(input.at(5)),std::stoi(input.at(6)),std::stoi(input.at(7)));
+
+
   } catch(caribou::caribouException& e) {
     return ret::Error;
   }

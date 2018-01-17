@@ -322,6 +322,26 @@ namespace caribou {
     throw caribou::DeviceImplException("doNoiseCurve not implemented for this device");
   }
   
+    template <typename T> void pearyDevice<T>::LoadTDAC(std::string filename){
+    LOG(logCRITICAL) << "LoadTDAC not implemented for this device";
+    throw caribou::DeviceImplException("LoadTDAC not implemented for this device");
+  } 
+
+    template <typename T> void pearyDevice<T>::LoadConfig(std::string basename){
+    LOG(logCRITICAL) << "LoadConfig not implemented for this device";
+    throw caribou::DeviceImplException("LoadConfig not implemented for this device");
+  } 
+
+    template <typename T> void pearyDevice<T>::WriteConfig(std::string basename){
+    LOG(logCRITICAL) << "WriteConfig not implemented for this device";
+    throw caribou::DeviceImplException("WriteConfig not implemented for this device");
+  } 
+  
+    template <typename T> void pearyDevice<T>::TDACScan(std::string basefolder,int VNDAC,int step,double vmin,double vmax,uint32_t npulses,uint32_t npoints){
+    LOG(logCRITICAL) << "TDACScan not implemented for this device";
+    throw caribou::DeviceImplException("TDACScan not implemented for this device");
+  } 
+  
   
   template <typename T> void pearyDevice<T>::configure() {
 

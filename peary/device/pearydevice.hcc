@@ -113,6 +113,11 @@ namespace caribou {
     virtual void doSCurves(double vmin,double vmax,uint32_t npulses,uint32_t npoints);
     virtual void doNoiseCurve(uint32_t col,uint32_t row);
     virtual void setAllTDAC(uint32_t value);
+    virtual void LoadTDAC(std::string filename);
+    virtual void LoadConfig(std::string basename);
+    virtual void WriteConfig(std::string basename);
+    virtual void TDACScan(std::string basefolder,int VNDAC,int step,double vmin,double vmax,uint32_t npulses,uint32_t npoints);
+    
     // Controlling the device
     void setRegister(std::string name, uint32_t value);
     virtual void setSpecialRegister(std::string, uint32_t){};

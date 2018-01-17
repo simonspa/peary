@@ -14,6 +14,7 @@
 #include <string>
 #include <iterator>
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <algorithm>
 #include <array>
@@ -39,6 +40,7 @@ struct ATLASPixMatrix {
     uint32_t nu2;
     double ThPix; // Voltage, to be translated to DAC value
     uint32_t nu3;
+    double VMINUSPix,GatePix,GNDDACPix;
 
 
     //Shift register vectors
@@ -129,13 +131,21 @@ namespace caribou {
     void writeAllTDAC(ATLASPixMatrix *matrix);
     void writeUniformTDAC(ATLASPixMatrix *matrix,uint32_t value);
     void loadAllTDAC(std::string filename);
+    void LoadTDAC(std::string filename);
     void setAllTDAC(uint32_t value);
     void setMaskPixel(ATLASPixMatrix *matrix,uint32_t col,uint32_t row,uint32_t value);
     void ComputeSCurves(ATLASPixMatrix *matrix,double vmax,int nstep, int npulses,int tup,int tdown);
     void tune(ATLASPixMatrix *matrix, double vmax,int nstep, int npulses, bool tuning_verification);
+    void TDACScan(std::string basefolder,int VNDAC,int step,double vmin,double vmax,uint32_t npulses,uint32_t npoints);
+
+    void WriteConfig(std::string filename);
+    void LoadConfig(std::string filename);
+
+
 
     void doSCurve(uint32_t col,uint32_t row,double vmin,double vmax,uint32_t npulses,uint32_t npoints);
     void doSCurves(double vmin,double vmax,uint32_t npulses,uint32_t npoints);
+    void doSCurves(std::string basefolder,double vmin,double vmax,uint32_t npulses,uint32_t npoints);
 
 
     void doNoiseCurve(uint32_t col,uint32_t row);
