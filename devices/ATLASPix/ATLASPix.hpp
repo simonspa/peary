@@ -59,6 +59,7 @@ struct ATLASPixMatrix {
     int counter;
     uint32_t SRmask,extraBits,PulserMask;
     int type;
+    std::string regcase;
 
 
 };
@@ -73,6 +74,8 @@ namespace caribou {
   public:
     ATLASPix(const caribou::Configuration config);
     ~ATLASPix();
+
+    void SetMatrix(std::string matrix);
 
     std::string getName();
 
@@ -180,6 +183,7 @@ namespace caribou {
 
     int pulse_width;
 
+    ATLASPixMatrix *theMatrix;
 
     ATLASPixMatrix *simpleM1;
     ATLASPixMatrix *simpleM1ISO;

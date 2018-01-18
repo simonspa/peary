@@ -40,90 +40,12 @@ uint32_t reverseBits(uint32_t n) {
 
 ATLASPix::ATLASPix(const caribou::Configuration config) : pearyDevice(config, std::string(DEFAULT_DEVICEPATH), ATLASPix_DEFAULT_I2C) {
 
-  // Set up periphery
-  _periphery.add("VDDD", PWR_OUT_4);
-  _periphery.add("VDDA", PWR_OUT_3);
-  _periphery.add("VSSA", PWR_OUT_2);
-  //_periphery.add("CMOS_LEVEL", PWR_OUT_1);
-  _periphery.add("GndDACPix_M1", BIAS_9);
-  _periphery.add("VMinusPix_M1", BIAS_5);
-  _periphery.add("GatePix_M1", BIAS_2);
-
-  _periphery.add("GndDACPix_M2", BIAS_6);
-  _periphery.add("VMinusPix_M2", BIAS_4);
-  _periphery.add("GatePix_M2", BIAS_1);
-
-  _periphery.add("GndDACPix_M1ISO", BIAS_12);
-  _periphery.add("VMinusPix_M1ISO", BIAS_8);
-  _periphery.add("GatePix_M1ISO", BIAS_3);
-
-  //Data structure containing the info about the matrices
-  this->simpleM1 = new ATLASPixMatrix();
-  this->simpleM1ISO = new ATLASPixMatrix();
-  this->simpleM2 = new ATLASPixMatrix();
-
-  this->simpleM2->BLPix=0.8-0.036;
-  this->simpleM2->ThPix=0.86+0.014;
-  this->simpleM1->BLPix=0.8-0.036;
-  this->simpleM1->ThPix=0.86+0.014;
-  this->simpleM1ISO->BLPix=0.8-0.036;
-  this->simpleM1ISO->ThPix=0.86+0.014;
-
-
-  this->simpleM1->ncol=ncol_m1;
-  this->simpleM1ISO->ncol=ncol_m1iso;
-  this->simpleM2->ncol=ncol_m2;
-
-  this->simpleM1->ndoublecol=ncol_m1/2;
-  this->simpleM1ISO->ndoublecol=ncol_m1iso/2;
-  this->simpleM2->ndoublecol=ncol_m2/2;
-
-  this->simpleM1->nrow=nrow_m1;
-  this->simpleM1ISO->nrow=nrow_m1iso;
-  this->simpleM2->nrow=nrow_m2;
-
-  this->simpleM1->counter=2;
-  this->simpleM1ISO->counter=1;
-  this->simpleM2->counter=3;
-
-  this->simpleM1->nSRbuffer = 104;
-  this->simpleM1ISO->nSRbuffer = 104;
-  this->simpleM2->nSRbuffer = 84;
-
-  this->simpleM1->extraBits = 16;
-  this->simpleM1ISO->extraBits = 16;
-  this->simpleM2->extraBits = 0;
-
-  this->simpleM1->SRmask=0x2;
-  this->simpleM1ISO->SRmask=0x4;
-  this->simpleM2->SRmask=0x1;
-
-  this->simpleM1->PulserMask=0x2;
-  this->simpleM2->PulserMask=0x1;
-  this->simpleM1ISO->PulserMask=0x4;
-
-
-
-  this->simpleM1->type=1;
-  this->simpleM1ISO->type=1;
-  this->simpleM2->type=2;
-
 
   //Configuring the clock to 160 MHz
   LOG(logINFO) << "Setting clock to 160MHz " << DEVICE_NAME;
   configureClock();
 
   _registers.add(ATLASPix_REGISTERS);
-
-
-
-  this->Initialize_SR(this->simpleM1);
-  this->Initialize_SR(this->simpleM1ISO);
-  this->Initialize_SR(this->simpleM2);
-
-
-
-
 
   void* pulser_base = _hal->getMappedMemoryRW(ATLASPix_PULSER_BASE_ADDRESS, ATLASPix_PULSER_MAP_SIZE, ATLASPix_PULSER_MASK);
   volatile uint32_t* inj_flag = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x0);
@@ -142,7 +64,119 @@ ATLASPix::ATLASPix(const caribou::Configuration config) : pearyDevice(config, st
 
 }
 
+
+void ATLASPix::SetMatrix(std::string matrix){
+
+	  // Set up periphery
+	  _periphery.add("VDDD", PWR_OUT_4);
+	  _periphery.add("VDDA", PWR_OUT_3);
+	  _periphery.add("VSSA", PWR_OUT_2);
+
+
+
+	this->theMatrix = new ATLASPixMatrix();
+
+	char Choice;
+	if(matrix=="M1"){ Choice = '1';}
+	else if(matrix=="M2"){ Choice = '2';}
+	else{ Choice = '3';};
+
+	switch(Choice){
+	case '1' :
+
+		  this->theMatrix->BLPix=0.8-0.036;
+		  this->theMatrix->ThPix=0.86+0.014;
+		  this->theMatrix->ncol=ncol_m1;
+		  this->theMatrix->ndoublecol=ncol_m1/2;
+		  this->theMatrix->nrow=nrow_m1;
+		  this->theMatrix->counter=2;
+		  this->theMatrix->nSRbuffer = 104;
+		  this->theMatrix->extraBits = 16;
+		  this->theMatrix->SRmask=0x2;
+		  this->theMatrix->PulserMask=0x2;
+		  this->theMatrix->type=1;
+		  this->theMatrix->regcase='1';
+
+		  this->theMatrix->GNDDACPix=ATLASPix_GndDACPix_M1;
+		  this->theMatrix->VMINUSPix=ATLASPix_VMinusPix_M1;
+		  this->theMatrix->GatePix=ATLASPix_GatePix_M1;
+
+
+		  _periphery.add("GNDDACPix", BIAS_9);
+		  _periphery.add("VMinusPix", BIAS_5);
+		  _periphery.add("GatePix", BIAS_2);
+		  _periphery.add("ThPix",BIAS_25);
+		  _periphery.add("BLPix",BIAS_17);
+		  break;
+
+	case '2' :
+
+		  this->theMatrix->BLPix=0.8-0.036;
+		  this->theMatrix->ThPix=0.86+0.014;
+		  this->theMatrix->ncol=ncol_m2;
+		  this->theMatrix->ndoublecol=ncol_m2/2;
+		  this->theMatrix->nrow=nrow_m2;
+		  this->theMatrix->counter=3;
+		  this->theMatrix->nSRbuffer = 84;
+		  this->theMatrix->extraBits = 0;
+		  this->theMatrix->SRmask=0x1;
+		  this->theMatrix->PulserMask=0x1;
+		  this->theMatrix->type=2;
+		  this->theMatrix->regcase='2';
+		  this->theMatrix->GNDDACPix=ATLASPix_GndDACPix_M2;
+		  this->theMatrix->VMINUSPix=ATLASPix_VMinusPix_M2;
+		  this->theMatrix->GatePix=ATLASPix_GatePix_M2;
+
+
+		  _periphery.add("GNDDACPix", BIAS_6);
+		  _periphery.add("VMinusPix", BIAS_4);
+		  _periphery.add("GatePix", BIAS_1);
+		  _periphery.add("ThPix",BIAS_28);
+		  _periphery.add("BLPix",BIAS_23);
+
+		  break;
+	case '3' :
+
+		  this->theMatrix->BLPix=0.8-0.036;
+		  this->theMatrix->ThPix=0.86+0.014;
+		  this->theMatrix->ncol=ncol_m1iso;
+		  this->theMatrix->ndoublecol=ncol_m1iso/2;
+		  this->theMatrix->nrow=nrow_m1iso;
+		  this->theMatrix->counter=1;
+		  this->theMatrix->nSRbuffer = 104;
+		  this->theMatrix->extraBits = 16;
+		  this->theMatrix->SRmask=0x4;
+		  this->theMatrix->PulserMask=0x4;
+		  this->theMatrix->type=1;
+		  this->theMatrix->regcase='3';
+		  this->theMatrix->GNDDACPix=ATLASPix_GndDACPix_M1ISO;
+		  this->theMatrix->VMINUSPix=ATLASPix_VMinusPix_M1ISO;
+		  this->theMatrix->GatePix=ATLASPix_GatePix_M1ISO;
+
+		  _periphery.add("GNDDACPix", BIAS_12);
+		  _periphery.add("VMinusPix", BIAS_8);
+		  _periphery.add("GatePix", BIAS_3);
+		  _periphery.add("ThPix",BIAS_31);
+		  _periphery.add("BLPix",BIAS_20);
+
+		  break;
+	default:
+		  std::cout << "unknown matrix : " << matrix << std::endl;
+		  break;
+
+
+	}
+	  this->Initialize_SR(this->theMatrix);
+
+
+}
+
+
+
+
 void ATLASPix::configure() {
+
+
  LOG(logINFO) << "Configuring " << DEVICE_NAME;
 
  this->resetPulser();
@@ -151,142 +185,86 @@ void ATLASPix::configure() {
  //this->powerOn();
  usleep(1000);
 
-
  // Build the SR string with default values and shift in the values in the chip
- 	std::cout << "sending default config " << std::endl;
- 	this->ProgramSR(simpleM1ISO);
-	this->ProgramSR(simpleM1);
-	this->ProgramSR(simpleM2);
-	//sleep(10);
-	//this->ProgramSR(simpleM1);
-	//sleep(10);
-	//this->ProgramSR(simpleM1ISO);
-	//sleep(10);
+ std::cout << "sending default config " << std::endl;
+ this->ProgramSR(theMatrix);
 
   //this->ComputeSCurves(0,0.5,50,128,100,100);
  std::cout << "sending default TDACs " << std::endl;
 
-  this->writeUniformTDAC(simpleM1,0b0000);
-  this->writeUniformTDAC(simpleM1ISO,0b0000);
-  this->writeUniformTDAC(simpleM2,0b000);
-
-  //std::cout << "loading TDACs" << std::endl;
-  //this->loadAllTDAC("/home/root/TDAC.txt");
- // std::cout << "done" << std::endl;
-
-
-
-//  this->resetCounters();
-//  this->setPulse(simpleM1,1,1000000,1000000, 0.5);
-//
-//
-//  while(1){
-//	  std::cout << "sending pulse" << std::endl;
-//	  this->sendPulse();
-//	  usleep(2000);
-//	  //std::cout << "Counter 0 : " << this->readCounter(simpleM1) << std::endl;
-//	  //std::cout << "Counter 1 : " << this->readCounter(simpleM1ISO) << std::endl;
-//	  //std::cout << "Counter 2 : " << this->readCounter(simpleM2) << std::endl;
-//	  int ddd = -1;
-//	  std::cin >> ddd;
-//	 if (ddd==0){break;}
-//  }
-
-
+ this->writeUniformTDAC(theMatrix,0b0000);
 
  // Call the base class configuration function:
   pearyDevice<iface_i2c>::configure();
 }
 
+
+
 void ATLASPix::lock(){
 
-	this->simpleM2->CurrentDACConfig->SetParameter("unlock",0x0);
-	this->ProgramSR(simpleM2);
+	this->theMatrix->CurrentDACConfig->SetParameter("unlock",0x0);
+	this->ProgramSR(theMatrix);
 
-	this->simpleM1->CurrentDACConfig->SetParameter("unlock",0x0);
-	this->ProgramSR(simpleM1);
-
-	this->simpleM1ISO->CurrentDACConfig->SetParameter("unlock",0x0);
-	this->ProgramSR(simpleM1ISO);
 }
 
 void ATLASPix::unlock(){
 
 
-	this->simpleM2->CurrentDACConfig->SetParameter("unlock",0b1010);
-	this->ProgramSR(simpleM2);
-
-
-	this->simpleM1->CurrentDACConfig->SetParameter("unlock",0b1010);
-	this->ProgramSR(simpleM1);
-
-
-	this->simpleM1ISO->CurrentDACConfig->SetParameter("unlock",0b1010);
-	this->ProgramSR(simpleM1ISO);
-
+	this->theMatrix->CurrentDACConfig->SetParameter("unlock",0b1010);
+	this->ProgramSR(theMatrix);
 
 
 }
 
 void ATLASPix::setThreshold(double threshold){
 
-	simpleM2->VoltageDACConfig->SetParameter("ThPix",static_cast<int>(floor(255 * threshold/1.8)));
-	simpleM1->VoltageDACConfig->SetParameter("ThPix",static_cast<int>(floor(255 * threshold/1.8)));
-	simpleM1ISO->VoltageDACConfig->SetParameter("ThPix",static_cast<int>(floor(255 * threshold/1.8)));
 
-	this->ProgramSR(simpleM2);
-	this->ProgramSR(simpleM1);
-	this->ProgramSR(simpleM1ISO);
+	theMatrix->VoltageDACConfig->SetParameter("ThPix",static_cast<int>(floor(255 * threshold/1.8)));
 
-	  LOG(logDEBUG) << " ThPix m1 ISO ";
-	  _hal->setBiasRegulator(BIAS_31, _config.Get("ThPix_M1ISO", threshold));
-	  _hal->powerBiasRegulator(BIAS_31, true);
+	this->ProgramSR(theMatrix);
 
+	LOG(logDEBUG) << " ThPix ";
+	this->setVoltage("ThPix",threshold);
+	this->switchOn("ThPix");
+	theMatrix->ThPix=threshold;
 
-	  LOG(logDEBUG) << " ThPix m1  ";
-	  _hal->setBiasRegulator(BIAS_25, _config.Get("ThPix_M1", threshold));
-	  _hal->powerBiasRegulator(BIAS_25, true);
-
-
-	  LOG(logDEBUG) << " ThPix m2 ";
-	  _hal->setBiasRegulator(BIAS_28, _config.Get("ThPix_M2", threshold));
-	  _hal->powerBiasRegulator(BIAS_28, true);
-
-	simpleM1->ThPix=threshold;
-	simpleM2->ThPix=threshold;
-	simpleM1ISO->ThPix=threshold;
 
 }
 
 void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 
-		std::cout << '\n' << "***You have set " << name << " as " << std::dec << value <<  "***" << '\n' << '\n';
 
-		char Choice = '1' ;
+
+		//UGLY HACK FIXME!!!
+		//std::cout << '\n' << "***You have set " << name << " as " << std::dec << value <<  "***" << '\n' << '\n';
+		char Choice;
+		if(theMatrix->regcase=="M1"){ Choice = '1';}
+		else if(theMatrix->regcase=="M2"){ Choice = '2';}
+		else{ Choice = '3';};
 
 		if(name == "unlock") {
 	    // Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("unlock",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("unlock",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					this->simpleM2->CurrentDACConfig->SetParameter("unlock",0x0);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("unlock",0x0);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("unlock",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("unlock",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -295,27 +273,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 
 		else if (name == "blrespix") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("BLResPix",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("BLResPix",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("BLResPix",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("BLResPix",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("BLResPix",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("BLResPix",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -323,27 +301,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "threspix") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("ThResPix",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("ThResPix",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("ThResPix",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("ThResPix",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("ThResPix",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("ThResPix",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -352,27 +330,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 
 		else if (name == "vnpix") {
 		// Set DAC value here calling setParameter
-			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			//std::cin >> Choice ;
+			////std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			////std::cin >> Choice ;
 			Choice = '1' ;
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("VNPix",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("VNPix",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("VNPix",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("VNPix",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("VNPix",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("VNPix",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -381,27 +359,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 
 		else if (name == "vnfbpix") {
 		// Set DAC value here calling setParameter
-			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			//std::cin >> Choice ;
+			////std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			////std::cin >> Choice ;
 			Choice='1';
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("VNFBPix",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("VNFBPix",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("VNFBPix",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("VNFBPix",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("VNFBPix",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("VNFBPix",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -409,27 +387,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "vnfollpix") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("VNFollPix",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("VNFollPix",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("VNFollPix",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("VNFollPix",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("VNFollPix",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("VNFollPix",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -437,27 +415,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "vnregcasc") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("VNRegCasc",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("VNRegCasc",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("VNRegCasc",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("VNRegCasc",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("VNRegCasc",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("VNRegCasc",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -465,27 +443,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "vdel") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("VDel",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("VDel",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("VDel",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("VDel",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("VDel",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("VDel",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -493,27 +471,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "vpcomp") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("VPComp",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("VPComp",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("VPComp",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("VPComp",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("VPComp",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("VPComp",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -521,27 +499,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "vpdac") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("VPDAC",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("VPDAC",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("VPDAC",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("VPDAC",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("VPDAC",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("VPDAC",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -549,27 +527,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "vnpix2") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("VNPix2",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("VNPix2",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("VNPix2",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("VNPix2",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("VNPix2",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("VNPix2",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -577,27 +555,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "blresdig") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("BLResDig",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("BLResDig",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("BLResDig",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("BLResDig",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("BLResDig",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("BLResDig",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -605,27 +583,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "vnbiaspix") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("VNBiasPix",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("VNBiasPix",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("VNBiasPix",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("VNBiasPix",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("VNBiasPix",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("VNBiasPix",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -633,27 +611,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "vploadpix") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("VPLoadPix",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("VPLoadPix",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("VPLoadPix",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("VPLoadPix",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("VPLoadPix",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("VPLoadPix",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -661,27 +639,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "vnoutpix") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("VNOutPix",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("VNOutPix",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("VNOutPix",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("VNOutPix",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("VNOutPix",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("VNOutPix",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -689,27 +667,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "vpvco") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("VPVCO",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("VPVCO",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("VPVCO",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("VPVCO",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("VPVCO",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("VPVCO",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -717,27 +695,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "vnvco") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("VNVCO",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("VNVCO",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("VNVCO",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("VNVCO",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("VNVCO",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("VNVCO",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -745,27 +723,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "vpdeldclmux") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("VPDelDclMux",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("VPDelDclMux",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("VPDelDclMux",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("VPDelDclMux",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("VPDelDclMux",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("VPDelDclMux",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -773,27 +751,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "vndeldclmux") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("VNDelDclMux",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("VNDelDclMux",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("VNDelDclMux",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("VNDelDclMux",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("VNDelDclMux",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("VNDelDclMux",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -801,27 +779,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "vpdeldcl") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("VPDelDcl",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("VPDelDcl",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("VPDelDcl",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("VPDelDcl",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("VPDelDcl",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("VPDelDcl",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -829,27 +807,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "vndeldcl") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("VNDelDcl",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("VNDelDcl",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("VNDelDcl",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("VNDelDcl",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("VNDelDcl",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("VNDelDcl",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -857,27 +835,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "vpdelpreemp") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("VPDelPreEmp",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("VPDelPreEmp",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("VPDelPreEmp",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("VPDelPreEmp",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("VPDelPreEmp",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("VPDelPreEmp",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -885,27 +863,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "vndelpreemp") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("VNDelPreEmp",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("VNDelPreEmp",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("VNDelPreEmp",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("VNDelPreEmp",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("VNDelPreEmp",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("VNDelPreEmp",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -913,27 +891,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "vpdcl") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("VPDcl",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("VPDcl",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("VPDcl",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("VPDcl",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("VPDcl",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("VPDcl",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -941,27 +919,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "vndcl") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("VNDcl",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("VNDcl",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("VNDcl",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("VNDcl",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("VNDcl",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("VNDcl",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -969,27 +947,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "vnlvds") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("VNLVDS",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("VNLVDS",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("VNLVDS",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("VNLVDS",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("VNLVDS",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("VNLVDS",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -997,27 +975,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "vnlvdsdel") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("VNLVDSDel",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("VNLVDSDel",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("VNLVDSDel",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("VNLVDSDel",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("VNLVDSDel",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("VNLVDSDel",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -1025,27 +1003,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "vppump") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("VPPump",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("VPPump",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("VPPump",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("VPPump",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("VPPump",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("VPPump",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -1053,27 +1031,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "nu") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("nu",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("nu",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("nu",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("nu",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("nu",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("nu",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -1081,27 +1059,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "ro_res_n") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("RO_res_n",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("RO_res_n",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("RO_res_n",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("RO_res_n",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("RO_res_n",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("RO_res_n",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -1109,27 +1087,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "ser_res_n") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("Ser_res_n",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("Ser_res_n",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("Ser_res_n",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("Ser_res_n",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("Ser_res_n",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("Ser_res_n",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -1137,27 +1115,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "aur_res_n") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("Aur_res_n",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("Aur_res_n",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("Aur_res_n",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("Aur_res_n",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("Aur_res_n",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("Aur_res_n",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -1165,27 +1143,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "sendcnt") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("sendcnt",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("sendcnt",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("sendcnt",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("sendcnt",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("sendcnt",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("sendcnt",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -1193,27 +1171,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "resetckdivend") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("resetckdivend",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("resetckdivend",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("resetckdivend",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("resetckdivend",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("resetckdivend",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("resetckdivend",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -1221,27 +1199,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "maxcycend") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("maxcycend",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("maxcycend",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("maxcycend",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("maxcycend",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("maxcycend",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("maxcycend",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -1249,27 +1227,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "slowdownend") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("slowdownend",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("slowdownend",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("slowdownend",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("slowdownend",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("slowdownend",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("slowdownend",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -1277,27 +1255,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "timerend") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("timerend",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("timerend",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("timerend",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("timerend",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("timerend",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("timerend",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -1305,27 +1283,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "ckdivend2") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("ckdivend2",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("ckdivend2",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("ckdivend2",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("ckdivend2",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("ckdivend2",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("ckdivend2",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -1333,27 +1311,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "ckdivend") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("ckdivend",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("ckdivend",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("ckdivend",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("ckdivend",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("ckdivend",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("ckdivend",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -1361,27 +1339,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "vpregcasc") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("VPRegCasc",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("VPRegCasc",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("VPRegCasc",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("VPRegCasc",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("VPRegCasc",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("VPRegCasc",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -1389,27 +1367,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "vpramp") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("VPRamp",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("VPRamp",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("VPRamp",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("VPRamp",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("VPRamp",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("VPRamp",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -1417,27 +1395,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "vncomppix") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("VNcompPix",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("VNcompPix",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("VNcompPix",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("VNcompPix",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("VNcompPix",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("VNcompPix",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -1445,27 +1423,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "vpfoll") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("VPFoll",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("VPFoll",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("VPFoll",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("VPFoll",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("VPFoll",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("VPFoll",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -1473,27 +1451,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "vndacpix") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			//std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			////std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("VNDACPix",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("VNDACPix",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("VNDACPix",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("VNDACPix",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("VNDACPix",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("VNDACPix",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -1501,27 +1479,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "vpbiasrec") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("VPBiasRec",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("VPBiasRec",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("VPBiasRec",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("VPBiasRec",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("VPBiasRec",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("VPBiasRec",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -1529,27 +1507,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "vnbiasrec") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("VNBiasRec",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("VNBiasRec",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("VNBiasRec",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("VNBiasRec",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("VNBiasRec",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("VNBiasRec",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -1557,27 +1535,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "invert") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("Invert",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("Invert",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("Invert",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("Invert",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("Invert",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("Invert",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -1585,27 +1563,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "selex") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("SelEx",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("SelEx",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("SelEx",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("SelEx",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("SelEx",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("SelEx",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -1613,27 +1591,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "selslow") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("SelSlow",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("SelSlow",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("SelSlow",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("SelSlow",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("SelSlow",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("SelSlow",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -1641,27 +1619,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "enpll") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("EnPLL",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("EnPLL",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("EnPLL",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("EnPLL",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("EnPLL",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("EnPLL",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -1669,27 +1647,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "triggerdelay") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("TriggerDelay",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("TriggerDelay",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("TriggerDelay",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("TriggerDelay",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("TriggerDelay",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("TriggerDelay",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -1697,27 +1675,27 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "reset") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("Reset",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("Reset",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("Reset",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("Reset",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("Reset",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("Reset",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			default : std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
@@ -1725,189 +1703,189 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		}
 		else if (name == "connres") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("ConnRes",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("ConnRes",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("ConnRes",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("ConnRes",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("ConnRes",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("ConnRes",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			}
 		}
 		else if (name == "seltest") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("SelTest",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("SelTest",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("SelTest",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("SelTest",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("SelTest",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("SelTest",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			}
 		}
 		else if (name == "seltestout") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("SelTestOut",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("SelTestOut",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("SelTestOut",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("SelTestOut",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("SelTestOut",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("SelTestOut",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			}
 		}
 		else if (name == "blpix") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->VoltageDACConfig->SetParameter("BLPix",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->VoltageDACConfig->SetParameter("BLPix",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->VoltageDACConfig->SetParameter("BLPix",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->VoltageDACConfig->SetParameter("BLPix",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->VoltageDACConfig->SetParameter("BLPix",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->VoltageDACConfig->SetParameter("BLPix",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			}
 		}
 		else if (name == "nu2") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("nu2",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("nu2",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("nu2",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("nu2",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("nu2",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("nu2",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			}
 		}
 		else if (name == "thpix") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->VoltageDACConfig->SetParameter("ThPix",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->VoltageDACConfig->SetParameter("ThPix",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->VoltageDACConfig->SetParameter("ThPix",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->VoltageDACConfig->SetParameter("ThPix",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->VoltageDACConfig->SetParameter("ThPix",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->VoltageDACConfig->SetParameter("ThPix",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			}
 		}
 		else if (name == "nu3") {
 		// Set DAC value here calling setParameter
-			std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-			std::cin >> Choice ;
+			//std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
+			//std::cin >> Choice ;
 
 			switch(Choice)
 			{
 			case '1' :
 				{
-					simpleM1->CurrentDACConfig->SetParameter("nu3",value);
-					this->ProgramSR(simpleM1);
+					theMatrix->CurrentDACConfig->SetParameter("nu3",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					simpleM2->CurrentDACConfig->SetParameter("nu3",value);
-					this->ProgramSR(simpleM2);
+					theMatrix->CurrentDACConfig->SetParameter("nu3",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					simpleM1ISO->CurrentDACConfig->SetParameter("nu3",value);
-					this->ProgramSR(simpleM1ISO);
+					theMatrix->CurrentDACConfig->SetParameter("nu3",value);
+					this->ProgramSR(theMatrix);
 					break ;
 				}
 			}
@@ -2270,9 +2248,7 @@ int ATLASPix::readCounter(ATLASPixMatrix *matrix)
 
 void ATLASPix::SetPixelInjection(uint32_t col, uint32_t row,bool ana_state,bool hb_state){
 
-	this->writePixelInj(this->simpleM1,col,row,ana_state,hb_state);
-	this->writePixelInj(this->simpleM1ISO,col,row,ana_state,hb_state);
-	this->writePixelInj(this->simpleM2,col,row,ana_state,hb_state);
+	this->writePixelInj(this->theMatrix,col,row,ana_state,hb_state);
 
 }
 
@@ -2560,17 +2536,7 @@ void ATLASPix::writeUniformTDAC(ATLASPixMatrix *matrix,uint32_t value){
 
 void ATLASPix::setAllTDAC(uint32_t value){
 
-
-
-	//std::cout << "before setall TDAC = " <<  simpleM1->TDAC[0][0]<< std::endl;
-
-	this->writeUniformTDAC(simpleM1,value);
-	//this->writeUniformTDAC(simpleM1ISO,value);
-	//this->writeUniformTDAC(simpleM2,value);
-
-
-	//std::cout << "after setall TDAC = " << simpleM1->TDAC[0][0]<< std::endl;
-
+	this->writeUniformTDAC(theMatrix,value);
 
 }
 
@@ -2592,14 +2558,14 @@ void ATLASPix::loadAllTDAC(std::string filename){
 			//std::cout  << " col: " << col << " row: " << row << " TDAC: " << TDAC << " mask : " << mask << std::endl;
 
 
-			this->setOneTDAC(simpleM1,col,row,TDAC);
-			this->setMaskPixel(simpleM1,col,row,mask);
+			this->setOneTDAC(theMatrix,col,row,TDAC);
+			this->setMaskPixel(theMatrix,col,row,mask);
 
 			//std::cout  << " col: " << col << " row: " << row << " TDAC: " << this->simpleM1->TDAC[col][row] << " mask : " <<  this->simpleM1->MASK[col][row] << std::endl;
 			//std::cout  << " ---------------------------- " << std::endl;
 
 		}
-		this->writeAllTDAC(simpleM1);
+		this->writeAllTDAC(theMatrix);
 
 }
 
@@ -2757,10 +2723,7 @@ void ATLASPix::ComputeSCurves(ATLASPixMatrix *matrix,double vmax,int nstep, int 
 void ATLASPix::doSCurve(uint32_t col,uint32_t row,double vmin,double vmax,uint32_t npulses,uint32_t npoints){
 
 
-	//this->SetPixelInjection(simpleM1,0,0,1,1);
-	//this->SetPixelInjection(simpleM1,0,0,0,0);
-
-	this->SetPixelInjection(simpleM1,col,row,1,1);
+	this->SetPixelInjection(theMatrix,col,row,1,1);
 	this->resetCounters();
 
 	int cnt=0;
@@ -2769,9 +2732,8 @@ void ATLASPix::doSCurve(uint32_t col,uint32_t row,double vmin,double vmax,uint32
 	double dv = (vmax-vmin)/(npoints-1);
 
 	for(int i=0;i<npoints;i++){
-
 		this->pulse(npulses,10000,10000,vinj);
-		cnt=this->readCounter(simpleM1);
+		cnt=this->readCounter(theMatrix);
 		std::cout << "V : " << vinj << " count : " << cnt << std::endl;
 		vinj+=dv;
 	}
@@ -2782,6 +2744,11 @@ void ATLASPix::doSCurve(uint32_t col,uint32_t row,double vmin,double vmax,uint32
 
 pearydata ATLASPix::getData(){
 
+	const unsigned int colmask = 0b011111111000000000000000000000000000;
+	const unsigned int ts2mask = 0b000000000011111100000000000000000000;
+	const unsigned int ts1mask = 0b000000000000000011111111111000000000;
+	const unsigned int rowmask = 0b000000000000000000000000000111111111;
+
 
 
 	 void* readout_base = _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
@@ -2790,15 +2757,48 @@ pearydata ATLASPix::getData(){
 	 volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x4);
 	 volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
 	 volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
+	 volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
 
 	 *fifo_config = 0b1;
+	 *ro = 0xF0000;
 
-	 for(int i=0;i<100;i++){
+	 uint64_t d1=0;
+	 uint64_t d2=0;
+	 uint64_t dataw =0;
 
-		 std::cout << "fifo_status" <<   std::bitset<32>(*fifo_status) << std::endl;
-		 std::cout << "data word 1" <<   std::bitset<32>(*data) << std::endl;
-		 std::cout << "data word 1" <<   std::bitset<32>(*data) << std::endl;
-		 std::cout << "leds " <<   std::bitset<32>(*leds) << std::endl;
+	 uint32_t row,col,ts1,ts2;
+
+	 for(int i=0;i<1;i++){
+
+		 //std::cout << "fifo_status" <<   std::bitset<32>(*fifo_status) << std::endl;
+		 d1 = *data;
+		 //std::cout << "data word 1: " <<   std::bitset<32>(d1) << std::endl;
+		 std::cout << "data word 1: "<< std::hex  << d1<< std::endl;
+
+		 //std::cout << "fifo_status: " <<   std::bitset<32>(*fifo_status) << std::endl;
+		 d2 = *data;
+		 //std::cout << "data word 2: " <<   std::bitset<32>(d2) << std::endl;
+		 std::cout << "data word 2: " << std::hex <<   d2 << std::endl;
+
+		 dataw = (d2 << 32) | (d1);
+		 std::cout << "data word: " <<   std::bitset<64>(dataw) << std::endl;
+		 std::cout << "data word (36bits): " <<   std::bitset<36>(dataw>>16) << std::endl;
+
+		 uint32_t stateA = dataw>>56;
+		 std::cout << "stateA : " << stateA << std::endl;
+
+		 //std::cout << "leds: " <<   std::bitset<32>(*leds) << std::endl;
+		 std::cout  << std::endl;
+
+
+
+		 col = ((dataw>>6) & colmask) >> 27;
+		 ts1 = ((dataw>>16) & ts1mask) >> 9;
+		 ts2 = ((dataw>>16) & ts2mask) >> 20;
+		 row = ((dataw>>16) & rowmask);
+
+		 std::cout  << std::dec  << "col : " << col << " row : " << row << " TS1 : " << ts1 << " TS2 : " << ts2<< std::endl;
+		 std::cout  << std::endl;
 
 
 	 }
@@ -2832,9 +2832,9 @@ void ATLASPix::doSCurves(double vmin,double vmax,uint32_t npulses,uint32_t npoin
 	filename+=ss.str();
 	filename+="/";
 	filename+="M1_VNDAC_";
-	filename+=std::to_string(simpleM1->CurrentDACConfig->GetParameter("VNDACPix"));
+	filename+=std::to_string(theMatrix->CurrentDACConfig->GetParameter("VNDACPix"));
 	filename+="_TDAC_";
-	filename+=std::to_string(simpleM1->TDAC[0][0]>>1);
+	filename+=std::to_string(theMatrix->TDAC[0][0]>>1);
 	//filename+=ss.str();
 	filename+=".txt";
 
@@ -2850,8 +2850,8 @@ void ATLASPix::doSCurves(double vmin,double vmax,uint32_t npulses,uint32_t npoin
     std::clock_t start;
     double duration;
 
-	for(int col=0;col< simpleM1->ncol; col++){
-		for(int row=0;row< simpleM1->nrow; row++){
+	for(int col=0;col< theMatrix->ncol; col++){
+		for(int row=0;row< theMatrix->nrow; row++){
 
 
 
@@ -2861,23 +2861,23 @@ void ATLASPix::doSCurves(double vmin,double vmax,uint32_t npulses,uint32_t npoin
 
 
 			vinj=vmin;
-			//this->SetPixelInjection(simpleM1,0,0,1,1);
-			//this->SetPixelInjection(simpleM1,0,0,0,0);
+			//this->SetPixelInjection(theMatrix,0,0,1,1);
+			//this->SetPixelInjection(theMatrix,0,0,0,0);
 
-			this->SetPixelInjection(simpleM1,col,row,1,1);
+			this->SetPixelInjection(theMatrix,col,row,1,1);
 			this->resetCounters();
 
 			for(int i=0;i<npoints;i++){
 				this->pulse(npulses,1000,1000,vinj);
-				//cnt=this->readCounter(simpleM1ISO);
-				cnt=this->readCounter(simpleM1);
+				//cnt=this->readCounter(theMatrixISO);
+				cnt=this->readCounter(theMatrix);
 				//this->getData();
 				myfile << vinj << " " << cnt << " ";
 				//std::cout << "V : " << vinj << " count : " << cnt << std::endl;
 				vinj+=dv;
 			}
 
-			this->SetPixelInjection(simpleM1,col,row,0,0);
+			this->SetPixelInjection(theMatrix,col,row,0,0);
 			myfile << std::endl;
 
 			//duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
@@ -2903,9 +2903,9 @@ void ATLASPix::doSCurves(std::string basefolder,double vmin,double vmax,uint32_t
 	filename+=basefolder;
 	filename+="/";
 	filename+="M1_VNDAC_";
-	filename+=std::to_string(simpleM1->CurrentDACConfig->GetParameter("VNDACPix"));
+	filename+=std::to_string(theMatrix->CurrentDACConfig->GetParameter("VNDACPix"));
 	filename+="_TDAC_";
-	filename+=std::to_string(simpleM1->TDAC[0][0]>>1);
+	filename+=std::to_string(theMatrix->TDAC[0][0]>>1);
 	//filename+=ss.str();
 	filename+=".txt";
 
@@ -2921,8 +2921,8 @@ void ATLASPix::doSCurves(std::string basefolder,double vmin,double vmax,uint32_t
     std::clock_t start;
     double duration;
 
-	for(int col=0;col< simpleM1->ncol; col++){
-		for(int row=0;row< simpleM1->nrow; row++){
+	for(int col=0;col< theMatrix->ncol; col++){
+		for(int row=0;row< theMatrix->nrow; row++){
 
 
 
@@ -2932,23 +2932,23 @@ void ATLASPix::doSCurves(std::string basefolder,double vmin,double vmax,uint32_t
 
 
 			vinj=vmin;
-			//this->SetPixelInjection(simpleM1,0,0,1,1);
-			//this->SetPixelInjection(simpleM1,0,0,0,0);
+			//this->SetPixelInjection(theMatrix,0,0,1,1);
+			//this->SetPixelInjection(theMatrix,0,0,0,0);
 
-			this->SetPixelInjection(simpleM1,col,row,1,1);
+			this->SetPixelInjection(theMatrix,col,row,1,1);
 			this->resetCounters();
 
 			for(int i=0;i<npoints;i++){
 				this->pulse(npulses,1000,1000,vinj);
-				//cnt=this->readCounter(simpleM1ISO);
-				cnt=this->readCounter(simpleM1);
+				//cnt=this->readCounter(theMatrixISO);
+				cnt=this->readCounter(theMatrix);
 				//this->getData();
 				myfile << vinj << " " << cnt << " ";
 				//std::cout << "V : " << vinj << " count : " << cnt << std::endl;
 				vinj+=dv;
 			}
 
-			this->SetPixelInjection(simpleM1,col,row,0,0);
+			this->SetPixelInjection(theMatrix,col,row,0,0);
 			myfile << std::endl;
 
 			//duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
@@ -2965,27 +2965,13 @@ void ATLASPix::doSCurves(std::string basefolder,double vmin,double vmax,uint32_t
 
 void ATLASPix::TDACScan(std::string basefolder,int VNDAC,int step,double vmin,double vmax,uint32_t npulses,uint32_t npoints){
 
-	int mat=1;
 
 	this->WriteConfig(basefolder+"/config");
 
-	ATLASPixMatrix *matrix;
-	if (mat==0){
-		matrix=simpleM2;
-	}
-	else if (mat==1) {
-		matrix=simpleM1;
-	}
-	else{
-		matrix=simpleM1ISO;
-
-	}
-
-	matrix->CurrentDACConfig->SetParameter("VNDACPix",VNDAC);
+	theMatrix->CurrentDACConfig->SetParameter("VNDACPix",VNDAC);
 
 
-	for(int tdac=0;tdac<=8;tdac+=step){
-
+	for(int tdac=0;tdac<=7;tdac+=step){
 
 		this->setAllTDAC(tdac);
 		this->doSCurves(basefolder, vmin, vmax, npulses,npoints);
@@ -3014,11 +3000,8 @@ void ATLASPix::doNoiseCurve(uint32_t col,uint32_t row){
 		this->resetCounters();
 		usleep(1000);
 		this->setThreshold(threshold);
-		std::cout << "M1  : " << this->readCounter(simpleM1)<< std::endl;
-		std::cout << "M1ISO  : " << this->readCounter(simpleM1ISO)<< std::endl;
-		std::cout << "M2  : " << this->readCounter(simpleM2)<< std::endl;
-
-		cnt = this->readCounter(simpleM1ISO);
+		std::cout << "Count  : " << this->readCounter(theMatrix)<< std::endl;
+		cnt = this->readCounter(theMatrix);
 		threshold -=0.001;
 
 
@@ -3049,140 +3032,38 @@ void ATLASPix::powerUp() {
   LOG(logINFO) << DEVICE_NAME << ": Powering up ATLASPix";
   std::cout << '\n';
 
- // Power rails: Before Biasing
- // LOG(logINFO) << DEVICE_NAME << ": Powering details before biasing";
-  LOG(logDEBUG) << " VDDD";
-  _hal->setVoltageRegulator(PWR_OUT_4, _config.Get("vddd", ATLASPix_VDDD), _config.Get("vddd_current", ATLASPix_VDDD_CURRENT));
-  _hal->powerVoltageRegulator(PWR_OUT_4, true);
+  this->setVoltage("VDDD",ATLASPix_VDDD,ATLASPix_VDDD_CURRENT);
+  this->switchOn("VDDD");
 
-  LOG(logDEBUG) << " VDDA";
-  _hal->setVoltageRegulator(PWR_OUT_3, _config.Get("vdda", ATLASPix_VDDA), _config.Get("vdda_current", ATLASPix_VDDA_CURRENT));
-  _hal->powerVoltageRegulator(PWR_OUT_3, true);
+  this->setVoltage("VDDA",ATLASPix_VDDA,ATLASPix_VDDA_CURRENT);
+  this->switchOn("VDDA");
 
-  LOG(logDEBUG) << " VSSA";
-  _hal->setVoltageRegulator(PWR_OUT_2, _config.Get("vssa", ATLASPix_VSSA), _config.Get("vssa_current", ATLASPix_VSSA_CURRENT));
-  _hal->powerVoltageRegulator(PWR_OUT_2, true);
-
-  //this->powerStatusLog();
-  // Bias voltages m2:
-  LOG(logDEBUG) << " GNDDacPix m2 ";
-  _hal->setBiasRegulator(BIAS_6, _config.Get("GndDACPix_M2", ATLASPix_GndDACPix_M2));
-  _hal->powerBiasRegulator(BIAS_6, true);
-
-  LOG(logDEBUG) << " VMinusPix m2 ";
-  _hal->setBiasRegulator(BIAS_4, _config.Get("VMinusPix_M2", ATLASPix_VMinusPix_M2));
-  _hal->powerBiasRegulator(BIAS_4, true);
-
-  LOG(logDEBUG) << " GatePix m2 ";
-  _hal->setBiasRegulator(BIAS_1, _config.Get("GatePix_M2", ATLASPix_GatePix_M2));
-  _hal->powerBiasRegulator(BIAS_1, true);
-
-  simpleM2->GNDDACPix=_config.Get("GndDACPix_M2", ATLASPix_GndDACPix_M2);
-  simpleM2->VMINUSPix=_config.Get("GndDACPix_M2", ATLASPix_VMinusPix_M2);
-  simpleM2->GatePix=_config.Get("GndDACPix_M2", ATLASPix_GatePix_M2);
+  this->setVoltage("VSSA",ATLASPix_VSSA,ATLASPix_VSSA_CURRENT);
+  this->switchOn("VSSA");
 
 
 
-  // Bias voltages m1:
-  LOG(logDEBUG) << " GNDDacPix m1 ";
-  _hal->setBiasRegulator(BIAS_9, _config.Get("GndDACPix_M1", ATLASPix_GndDACPix_M1));
-  _hal->powerBiasRegulator(BIAS_9, true);
+  // Analog biases
 
-  LOG(logDEBUG) << " VMinusPix m1";
-  _hal->setBiasRegulator(BIAS_5, _config.Get("VMinusPix_M1", ATLASPix_VMinusPix_M1));
-  _hal->powerBiasRegulator(BIAS_5, true);
+  this->setVoltage("GNDDACPix",theMatrix->GNDDACPix);
+  this->switchOn("GNDDACPix");
 
-  LOG(logDEBUG) << " GatePix m1 ";
-  _hal->setBiasRegulator(BIAS_2, _config.Get("GatePix_M1", ATLASPix_GatePix_M1));
-  _hal->powerBiasRegulator(BIAS_2, true);
+  this->setVoltage("VMinusPix",theMatrix->VMINUSPix);
+  this->switchOn("VMinusPix");
 
-  simpleM1->GNDDACPix=_config.Get("GndDACPix_M1", ATLASPix_GndDACPix_M1);
-  simpleM1->VMINUSPix=_config.Get("GndDACPix_M1", ATLASPix_VMinusPix_M1);
-  simpleM1->GatePix=_config.Get("GndDACPix_M1", ATLASPix_GatePix_M1);
-
-
-  // Bias voltages m1:
-  LOG(logDEBUG) << " GNDDacPix m1 iso";
-  _hal->setBiasRegulator(BIAS_12, _config.Get("GndDACPix_M1ISO", ATLASPix_GndDACPix_M1ISO));
-  _hal->powerBiasRegulator(BIAS_12, true);
-
-  LOG(logDEBUG) << " VMinusPix m1 iso ";
-  _hal->setBiasRegulator(BIAS_8, _config.Get("VMinusPix_M1ISO", ATLASPix_VMinusPix_M1ISO));
-  _hal->powerBiasRegulator(BIAS_8, true);
-
-  LOG(logDEBUG) << " GatePix m1 iso ";
-  _hal->setBiasRegulator(BIAS_3, _config.Get("GatePix_M1ISO", ATLASPix_GatePix_M1ISO));
-  _hal->powerBiasRegulator(BIAS_3, true);
-
-
-  simpleM1ISO->GNDDACPix=_config.Get("GndDACPix_M1ISO", ATLASPix_GndDACPix_M1ISO);
-  simpleM1ISO->VMINUSPix=_config.Get("GndDACPix_M1ISO", ATLASPix_VMinusPix_M1ISO);
-  simpleM1ISO->GatePix=_config.Get("GndDACPix_M1ISO", ATLASPix_GatePix_M1ISO);
+  this->setVoltage("GatePix",theMatrix->GatePix);
+  this->switchOn("GatePix");
 
 
 
+  // Threshold and Baseline
+  this->setVoltage("ThPix",theMatrix->ThPix);
+  this->switchOn("ThPix");
 
-  // BL and Threshold from ext
-
-  LOG(logDEBUG) << " BLPix m1 ISO ";
-  _hal->setBiasRegulator(BIAS_20, _config.Get("BLPix_M1ISO", ATLASPix_BLPix_M1ISO));
-  _hal->powerBiasRegulator(BIAS_20, true);
-
-  LOG(logDEBUG) << " BLPix m1  ";
-  _hal->setBiasRegulator(BIAS_17, _config.Get("BLPix_M1", ATLASPix_BLPix_M1));
-  _hal->powerBiasRegulator(BIAS_17, true);
-
-  LOG(logDEBUG) << " BLPix m2  ";
-  _hal->setBiasRegulator(BIAS_23, _config.Get("BLPix_M2", ATLASPix_BLPix_M2));
-  _hal->powerBiasRegulator(BIAS_23, true);
+  this->setVoltage("BLPix",theMatrix->BLPix);
+  this->switchOn("BLPix");
 
 
-
-
-  LOG(logDEBUG) << " ThPix m1 ISO ";
-  _hal->setBiasRegulator(BIAS_28, _config.Get("ThPix_M1ISO", ATLASPix_ThPix_M1ISO));
-  _hal->powerBiasRegulator(BIAS_28, true);
-
-
-  LOG(logDEBUG) << " ThPix m1  ";
-  _hal->setBiasRegulator(BIAS_25, _config.Get("ThPix_M1", ATLASPix_ThPix_M1));
-  _hal->powerBiasRegulator(BIAS_25, true);
-
-
-  LOG(logDEBUG) << " ThPix m2 ";
-  _hal->setBiasRegulator(BIAS_31, _config.Get("ThPix_M2", ATLASPix_ThPix_M2));
-  _hal->powerBiasRegulator(BIAS_31, true);
-
-
-
-  simpleM1->BLPix= _config.Get("BLPix_M1", ATLASPix_BLPix_M1);
-  simpleM2->BLPix= _config.Get("BLPix_M2", ATLASPix_BLPix_M2);
-  simpleM1ISO->BLPix= _config.Get("BLPix_M1ISO", ATLASPix_BLPix_M1ISO);
-
-  simpleM1->ThPix= _config.Get("ThPix_M1", ATLASPix_ThPix_M1);
-  simpleM2->ThPix= _config.Get("ThPix_M2", ATLASPix_ThPix_M2);
-  simpleM1ISO->ThPix= _config.Get("ThPix_M1ISO", ATLASPix_ThPix_M1ISO);
-
-
-
-  std::cout << '\n';
-
-  /*// Power rails: After Biasing
-  LOG(logINFO) << DEVICE_NAME << ": Powering details after biasing";
-  LOG(logDEBUG) << " VDDD";
-  _hal->setVoltageRegulator(PWR_OUT_4, _config.Get("vddd", ATLASPix_VDDD), _config.Get("vddd_current", ATLASPix_VDDD_CURRENT));
-  _hal->powerVoltageRegulator(PWR_OUT_4, true);
-
-  LOG(logDEBUG) << " VDDA";
-  _hal->setVoltageRegulator(PWR_OUT_3, _config.Get("vdda", ATLASPix_VDDA), _config.Get("vdda_current", ATLASPix_VDDA_CURRENT));
-  _hal->powerVoltageRegulator(PWR_OUT_3, true);
-
-  LOG(logDEBUG) << " VSSA";
-  _hal->setVoltageRegulator(PWR_OUT_2, _config.Get("vssa", ATLASPix_VSSA), _config.Get("vssa_current", ATLASPix_VSSA_CURRENT));
-  _hal->powerVoltageRegulator(PWR_OUT_2, true);
-
-  //usleep(100000);
-  //powerStatusLog()*/
 
 
 }
@@ -3191,46 +3072,23 @@ void ATLASPix::powerDown() {
   LOG(logINFO) << DEVICE_NAME << ": Power off ATLASPix";
 
   LOG(logDEBUG) << "Powering off VDDA";
-  _hal->powerVoltageRegulator(PWR_OUT_4, false);
+  this->switchOff("VDDA");
 
   LOG(logDEBUG) << "Powering off VDDD";
-  _hal->powerVoltageRegulator(PWR_OUT_3, false);
+  this->switchOff("VDDD");
 
   LOG(logDEBUG) << "Powering off VSSA";
-  _hal->powerVoltageRegulator(PWR_OUT_2, false);
+  this->switchOff("VSSA");
 
-  LOG(logDEBUG) << "Powering off CMOS_LEVEL";
-  _hal->powerVoltageRegulator(PWR_OUT_1, false);
 
-  LOG(logDEBUG) << "Turning off GNDDacPix_M1";
-  _hal->powerBiasRegulator(BIAS_6, false);
+  LOG(logDEBUG) << "Turning off GNDDacPix";
+  this->switchOff("GNDDACPix");
 
   LOG(logDEBUG) << "Turning off VMinusPix_M1";
-  _hal->powerBiasRegulator(BIAS_4, false);
+  this->switchOff("VMinusPix");
 
   LOG(logDEBUG) << "Turning off GatePix_M1";
-  _hal->powerBiasRegulator(BIAS_1, false);
-
-  LOG(logDEBUG) << "Turning off GNDDacPix_M2";
-  _hal->powerBiasRegulator(BIAS_9, false);
-
-  LOG(logDEBUG) << "Turning off VMinusPix_M2";
-  _hal->powerBiasRegulator(BIAS_5, false);
-
-  LOG(logDEBUG) << "Turning off GatePix_M2";
-  _hal->powerBiasRegulator(BIAS_2, false);
-
-  LOG(logDEBUG) << "Turning off GNDDacPix_M1ISO";
-  _hal->powerBiasRegulator(BIAS_12, false);
-
-  LOG(logDEBUG) << "Turning off VMinusPix_M1ISO";
-  _hal->powerBiasRegulator(BIAS_8, false);
-
-  LOG(logDEBUG) << "Turning off GatePix_M1ISO";
-  _hal->powerBiasRegulator(BIAS_3, false);
-
-  //this->powerStatusLog();
-
+  this->switchOff("GatePix");
 }
 
 void ATLASPix::daqStart() {
@@ -3262,20 +3120,6 @@ void ATLASPix::powerStatusLog() {
 
 void ATLASPix::WriteConfig(std::string basename){
 
-	int mat=1;
-
-	ATLASPixMatrix *matrix;
-	if (mat==0){
-		matrix=simpleM2;
-	}
-	else if (mat==1) {
-		matrix=simpleM1;
-	}
-	else{
-		matrix=simpleM1ISO;
-
-	}
-
 
 	std::ofstream myfile;
 	myfile.open(basename + ".cfg" );
@@ -3285,7 +3129,7 @@ void ATLASPix::WriteConfig(std::string basename){
 	VoltageDACs = {"BLPix", "nu2","ThPix","nu3"};
 
 	for(auto const& value: VoltageDACs) {
-		myfile << std::left << std::setw(20) << value << " " << matrix->VoltageDACConfig->GetParameter(value) << std::endl;
+		myfile << std::left << std::setw(20) << value << " " << theMatrix->VoltageDACConfig->GetParameter(value) << std::endl;
 	}
 
 	static std::vector<std::string> CurrentDACs;
@@ -3296,18 +3140,18 @@ void ATLASPix::WriteConfig(std::string basename){
 
 
 	for(auto const& value: CurrentDACs) {
-		myfile << std::left << std::setw(20) << value << " " << matrix->CurrentDACConfig->GetParameter(value) << std::endl;
+		myfile << std::left << std::setw(20) << value << " " << theMatrix->CurrentDACConfig->GetParameter(value) << std::endl;
 	}
 
 
 	static std::vector<std::string> ExternalBias;
 	ExternalBias = {"BLPix_ext", "ThPix_ext","VMINUSPix","GNDDACPix","GatePix"};
 
-	myfile << std::left << std::setw(20)<< "ThPix_ext" << " " << matrix->ThPix << std::endl;
-	myfile << std::left << std::setw(20)<< "BLPix_ext"<< " " << matrix->BLPix << std::endl;
-	myfile << std::left << std::setw(20)<< "VMINUSPix" << " " << matrix->VMINUSPix << std::endl;
-	myfile << std::left << std::setw(20)<< "GNDDACPix" << " " << matrix->GNDDACPix << std::endl;
-	myfile << std::left << std::setw(20)<< "GatePix" << " " << matrix->GatePix << std::endl;
+	myfile << std::left << std::setw(20)<< "ThPix_ext" << " " << theMatrix->ThPix << std::endl;
+	myfile << std::left << std::setw(20)<< "BLPix_ext"<< " " << theMatrix->BLPix << std::endl;
+	myfile << std::left << std::setw(20)<< "VMINUSPix" << " " << theMatrix->VMINUSPix << std::endl;
+	myfile << std::left << std::setw(20)<< "GNDDACPix" << " " << theMatrix->GNDDACPix << std::endl;
+	myfile << std::left << std::setw(20)<< "GatePix" << " " << theMatrix->GatePix << std::endl;
 
 
 
@@ -3315,10 +3159,10 @@ void ATLASPix::WriteConfig(std::string basename){
 	TDACFile.open(basename + "_TDAC.cfg" );
 
 
-	for(int col = 0;col<matrix->ncol;col++){
-		for(int row = 0;row<matrix->nrow;row++){
+	for(int col = 0;col<theMatrix->ncol;col++){
+		for(int row = 0;row<theMatrix->nrow;row++){
 
-			TDACFile << std::left << std::setw(3) << col << " " << std::left << std::setw(3) << row << " "  << std::left << std::setw(2) << matrix->TDAC[col][row] << " " << std::left << std::setw(1) << matrix->MASK[col][row] << std::endl ;
+			TDACFile << std::left << std::setw(3) << col << " " << std::left << std::setw(3) << row << " "  << std::left << std::setw(2) << theMatrix->TDAC[col][row] << " " << std::left << std::setw(1) << theMatrix->MASK[col][row] << std::endl ;
 		}
 	}
 
@@ -3330,21 +3174,6 @@ void ATLASPix::WriteConfig(std::string basename){
 
 
 void ATLASPix::LoadConfig(std::string basename){
-
-
-	int mat=1;
-
-	ATLASPixMatrix *matrix;
-	if (mat==0){
-		matrix=simpleM2;
-	}
-	else if (mat==1) {
-		matrix=simpleM1;
-	}
-	else{
-		matrix=simpleM1ISO;
-
-	}
 
 	std::ifstream configfile;
 	configfile.open(basename + ".cfg" );
@@ -3405,12 +3234,12 @@ void ATLASPix::LoadConfig(std::string basename){
 		}
 		else if (std::find(CurrentDACs.begin(), CurrentDACs.end(), reg) != CurrentDACs.end()){
 			configfile >> value;
-			matrix->CurrentDACConfig->SetParameter(reg,value);
+			theMatrix->CurrentDACConfig->SetParameter(reg,value);
 		}
 
 		else if(std::find(VoltageDACs.begin(), VoltageDACs.end(), reg) != VoltageDACs.end()){
 			configfile >> value;
-			matrix->VoltageDACConfig->SetParameter(reg,value);
+			theMatrix->VoltageDACConfig->SetParameter(reg,value);
 		}
 
 		else {
@@ -3419,20 +3248,13 @@ void ATLASPix::LoadConfig(std::string basename){
 
 	}
 
-	this->ProgramSR(matrix);
+	this->ProgramSR(theMatrix);
 
 	this->LoadTDAC(basename+"_TDAC.cfg");
 
 
 
 }
-
-
-
-
-
-
-
 
 
 caribouDevice* caribou::generator(const caribou::Configuration config) {

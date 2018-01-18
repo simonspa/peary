@@ -342,6 +342,10 @@ namespace caribou {
     throw caribou::DeviceImplException("TDACScan not implemented for this device");
   } 
   
+    template <typename T> void pearyDevice<T>::SetMatrix(std::string matrix){
+    LOG(logCRITICAL) << "SetMatrix not implemented for this device";
+    throw caribou::DeviceImplException("SetMatrix not implemented for this device");
+  } 
   
   template <typename T> void pearyDevice<T>::configure() {
 
