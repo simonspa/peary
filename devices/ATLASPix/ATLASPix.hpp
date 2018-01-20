@@ -21,7 +21,6 @@
 #include <bitset>
 #include <cstdlib>
 
-
 struct ATLASPixMatrix {
 
     ATLASPix_Config *CurrentDACConfig;
@@ -140,6 +139,7 @@ namespace caribou {
     void ComputeSCurves(ATLASPixMatrix *matrix,double vmax,int nstep, int npulses,int tup,int tdown);
     void tune(ATLASPixMatrix *matrix, double vmax,int nstep, int npulses, bool tuning_verification);
     void TDACScan(std::string basefolder,int VNDAC,int step,double vmin,double vmax,uint32_t npulses,uint32_t npoints);
+    void SetInjectionMask(uint32_t mask,uint32_t state);
 
     void WriteConfig(std::string filename);
     void LoadConfig(std::string filename);
@@ -188,6 +188,10 @@ namespace caribou {
     ATLASPixMatrix *simpleM1;
     ATLASPixMatrix *simpleM1ISO;
     ATLASPixMatrix *simpleM2;
+
+    void TakeData();
+    //std::thread datathread;
+
 
 //    ATLASPix_Config *CurrentDACConfig_M1;
 //    ATLASPix_Config *MatrixDACConfig_M1;

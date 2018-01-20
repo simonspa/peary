@@ -23,19 +23,64 @@
 using namespace caribou;
 
 
-/*
-uint32_t reverseBits(uint32_t n) {
+
+uint32_t reverseBits(uint8_t n) {
         uint32_t x;
-        for(auto i = 31; n; ) {
+        for(auto i = 7; n; ) {
             x |= (n & 1) << i;
             n >>= 1;
             -- i;
         }
         return x;
     }
-*/
+
 
 // BASIC Configuration
+
+
+struct pixelhit{
+
+  uint32_t col=0;
+  uint32_t row=0;
+  uint32_t ts1=0;
+  uint32_t ts2=0;
+
+};
+
+pixelhit decodeHit(uint32_t hit){
+
+	 pixelhit tmp;
+	 uint8_t buf=0;
+
+	 buf=((hit >> 23) & 0xFF);
+
+	 tmp.col=(24-((buf>>2)&0b00111111));
+	 tmp.row= 255 -(reverseBits(hit & 0xFF));
+	 tmp.ts2=hit>>18 & 0b00111111;
+	 tmp.ts1=(hit>>8 & 0b1111111111)+  (hit>>16 & 0b11);
+
+
+	 if((buf>>1 & 0x1)==0)tmp.row+=200;
+	 return tmp;
+}
+
+
+namespace Color {
+    enum Code {
+    	 FG_DEFAULT = 39, BOLD= 1, REVERSE=7,RESET=0, FG_BLACK = 30, FG_RED = 31, FG_GREEN = 32, FG_YELLOW = 33, FG_BLUE = 34, FG_MAGENTA = 35, FG_CYAN = 36, FG_LIGHT_GRAY = 37, FG_DARK_GRAY = 90, FG_LIGHT_RED = 91, FG_LIGHT_GREEN = 92, FG_LIGHT_YELLOW = 93, FG_LIGHT_BLUE = 94, FG_LIGHT_MAGENTA = 95, FG_LIGHT_CYAN = 96, FG_WHITE = 97, BG_RED = 41, BG_GREEN = 42, BG_BLUE = 44, BG_DEFAULT = 49
+    };
+    class Modifier {
+        Code code;
+    public:
+        Modifier(Code pCode) : code(pCode) {}
+        friend std::ostream&
+        operator<<(std::ostream& os, const Modifier& mod) {
+            return os << "\033[" << mod.code << "m";
+        }
+    };
+}
+
+
 
 
 ATLASPix::ATLASPix(const caribou::Configuration config) : pearyDevice(config, std::string(DEFAULT_DEVICEPATH), ATLASPix_DEFAULT_I2C) {
@@ -84,8 +129,8 @@ void ATLASPix::SetMatrix(std::string matrix){
 	switch(Choice){
 	case '1' :
 
-		  this->theMatrix->BLPix=0.8-0.036;
-		  this->theMatrix->ThPix=0.86+0.014;
+		  this->theMatrix->BLPix=0.8;
+		  this->theMatrix->ThPix=0.85;
 		  this->theMatrix->ncol=ncol_m1;
 		  this->theMatrix->ndoublecol=ncol_m1/2;
 		  this->theMatrix->nrow=nrow_m1;
@@ -111,8 +156,8 @@ void ATLASPix::SetMatrix(std::string matrix){
 
 	case '2' :
 
-		  this->theMatrix->BLPix=0.8-0.036;
-		  this->theMatrix->ThPix=0.86+0.014;
+		  this->theMatrix->BLPix=0.8;
+		  this->theMatrix->ThPix=0.85;
 		  this->theMatrix->ncol=ncol_m2;
 		  this->theMatrix->ndoublecol=ncol_m2/2;
 		  this->theMatrix->nrow=nrow_m2;
@@ -137,7 +182,7 @@ void ATLASPix::SetMatrix(std::string matrix){
 		  break;
 	case '3' :
 
-		  this->theMatrix->BLPix=0.8-0.036;
+		  this->theMatrix->BLPix=0.8;
 		  this->theMatrix->ThPix=0.86+0.014;
 		  this->theMatrix->ncol=ncol_m1iso;
 		  this->theMatrix->ndoublecol=ncol_m1iso/2;
@@ -196,6 +241,9 @@ void ATLASPix::configure() {
 
  // Call the base class configuration function:
   pearyDevice<iface_i2c>::configure();
+
+  this->setMaskPixel(theMatrix,1, 19,1);
+  this->writeOneTDAC(theMatrix,1,19,0);
 }
 
 
@@ -1946,12 +1994,12 @@ void ATLASPix::Initialize_SR(ATLASPixMatrix *matrix){
 	matrix->CurrentDACConfig->AddParameter("Ser_res_n",     1, ATLASPix_Config::LSBFirst,  1);//1);  //for fastreadout start set 1
 	matrix->CurrentDACConfig->AddParameter("Aur_res_n",     1, ATLASPix_Config::LSBFirst,  1);//1);  //for fastreadout start set 1
 	matrix->CurrentDACConfig->AddParameter("sendcnt",     1, ATLASPix_Config::LSBFirst,  0);//0);
-	matrix->CurrentDACConfig->AddParameter("resetckdivend", "3,2,1,0",  0);//2);
-	matrix->CurrentDACConfig->AddParameter("maxcycend", "5,4,3,2,1,0",  63);//10); // probably 0 not allowed
+	matrix->CurrentDACConfig->AddParameter("resetckdivend", "3,2,1,0",  15);//2);
+	matrix->CurrentDACConfig->AddParameter("maxcycend", "5,4,3,2,1,0",  10);//10); // probably 0 not allowed
 	matrix->CurrentDACConfig->AddParameter("slowdownend", "3,2,1,0",  0);//1);
 	matrix->CurrentDACConfig->AddParameter("timerend", "3,2,1,0",  1);//8); // darf nicht 0!! sonst werden debug ausgaben verschluckt
-	matrix->CurrentDACConfig->AddParameter("ckdivend2", "5,4,3,2,1,0",  0);//1);
-	matrix->CurrentDACConfig->AddParameter("ckdivend", "5,4,3,2,1,0",  0);//1);
+	matrix->CurrentDACConfig->AddParameter("ckdivend2", "5,4,3,2,1,0",  4);//1);
+	matrix->CurrentDACConfig->AddParameter("ckdivend", "5,4,3,2,1,0",  4);//1);
 	matrix->CurrentDACConfig->AddParameter("VPRegCasc", "5,4,3,1,0,2",  20);
 	matrix->CurrentDACConfig->AddParameter("VPRamp", "5,4,3,1,0,2",  0); // was 4, off for HB/Thlow usage and fastreadout
 	matrix->CurrentDACConfig->AddParameter("VNcompPix", "5,4,3,1,0,2",  10);     //VNComparator
@@ -2335,7 +2383,7 @@ void ATLASPix::writePixelInj(ATLASPixMatrix *matrix, uint32_t col, uint32_t row,
 void ATLASPix::pulse(uint32_t npulse,uint32_t tup,uint32_t tdown,double amplitude){
 
 	  this->resetCounters();
-	  this->setPulse(simpleM1,npulse,tup,tdown,amplitude);
+	  this->setPulse(theMatrix,npulse,tup,tdown,amplitude);
 	  //std::cout << "sending pulse" << std::endl;
 	  this->sendPulse();
 	  usleep(2000);
@@ -2742,12 +2790,228 @@ void ATLASPix::doSCurve(uint32_t col,uint32_t row,double vmin,double vmax,uint32
 
 }
 
+
+
+void ATLASPix::SetInjectionMask(uint32_t mask,uint32_t state){
+
+
+	for (int col =0 ;col<theMatrix->ncol;col++){
+		int row=0;
+		if((col+mask)%5){
+
+		if(theMatrix->type==1){
+			std::string s = to_string(col);
+
+			if(row<200){
+			theMatrix->MatrixDACConfig->SetParameter("RamDown"+s, theMatrix->TDAC[col][row]); //0b1011
+			theMatrix->MatrixDACConfig->SetParameter("RamUp"+s, theMatrix->TDAC[col][row]); //0b1011
+			theMatrix->MatrixDACConfig->SetParameter("colinjDown"+s,  state);
+			theMatrix->MatrixDACConfig->SetParameter("hitbusDown"+s,  0);
+			theMatrix->MatrixDACConfig->SetParameter("unusedDown"+s,  3);
+			theMatrix->MatrixDACConfig->SetParameter("colinjUp"+s,   0);
+			theMatrix->MatrixDACConfig->SetParameter("hitbusUp"+s,  0);
+			theMatrix->MatrixDACConfig->SetParameter("unusedUp"+s,  3);
+
+			}
+			else{
+			//std::cout << "up pixels" << std::endl;
+			theMatrix->MatrixDACConfig->SetParameter("RamUp"+s,theMatrix->TDAC[col][row]); //0b1011
+			theMatrix->MatrixDACConfig->SetParameter("RamDown"+s, theMatrix->TDAC[col][row]); //0b1011
+			theMatrix->MatrixDACConfig->SetParameter("colinjDown"+s,  0);
+			theMatrix->MatrixDACConfig->SetParameter("hitbusDown"+s,  0);
+			theMatrix->MatrixDACConfig->SetParameter("unusedDown"+s,  3);
+			theMatrix->MatrixDACConfig->SetParameter("colinjUp"+s,   state);
+			theMatrix->MatrixDACConfig->SetParameter("hitbusUp"+s,  0);
+			theMatrix->MatrixDACConfig->SetParameter("unusedUp"+s,  3);
+
+
+			}
+
+		}
+		else{
+
+			int double_col=int(std::floor(double(col)/2));
+			std::string col_s = to_string(double_col);
+			if(col%2==0){
+					theMatrix->MatrixDACConfig->SetParameter("RamL"+col_s,theMatrix->TDAC[col][row] & 0b111);
+					theMatrix->MatrixDACConfig->SetParameter("colinjL"+col_s,state);
+			}
+			else {
+					theMatrix->MatrixDACConfig->SetParameter("RamR"+col_s, theMatrix->TDAC[col][row] & 0b111);
+					theMatrix->MatrixDACConfig->SetParameter("colinjR"+col_s,state);
+			}
+
+
+		}
+
+	}};
+
+	for (int row =0 ;row<theMatrix->nrow;row++){
+		int col=0;
+		if((row+mask)%25){
+
+			std::string row_s = to_string(row);
+			theMatrix->MatrixDACConfig->SetParameter("writedac"+row_s,1);
+			theMatrix->MatrixDACConfig->SetParameter("unused"+row_s,  0);
+			theMatrix->MatrixDACConfig->SetParameter("rowinjection"+row_s,state);
+			theMatrix->MatrixDACConfig->SetParameter("analogbuffer"+row_s,0);
+	}};
+
+	this->ProgramSR(theMatrix);
+
+	for (int row =0 ;row<theMatrix->nrow;row++){
+		int col=0;
+		if((row+mask)%5){
+
+			std::string row_s = to_string(row);
+			theMatrix->MatrixDACConfig->SetParameter("writedac"+row_s,0);
+		};
+	};
+
+	this->ProgramSR(theMatrix);
+
+
+}
+
+
 pearydata ATLASPix::getData(){
 
-	const unsigned int colmask = 0b011111111000000000000000000000000000;
-	const unsigned int ts2mask = 0b000000000011111100000000000000000000;
-	const unsigned int ts1mask = 0b000000000000000011111111111000000000;
-	const unsigned int rowmask = 0b000000000000000000000000000111111111;
+	const unsigned int colmask = 0b11111111000000000000000000000000;
+	const unsigned int ts2mask = 0b00000000111111000000000000000000;
+	const unsigned int ts1mask = 0b00000000000000111111111100000000;
+	const unsigned int rowmask = 0b00000000000000000000000011111111;
+
+
+
+	 void* readout_base = _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
+
+	 volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
+	 volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x4);
+	 volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
+	 volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
+	 volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
+
+
+	 //READOUT on
+	 *fifo_config = 0b1;
+	 *ro = 0xF0000;
+
+	 uint64_t d1=0;
+	 uint64_t d2=0;
+	 uint64_t dataw =0;
+
+	 uint32_t row,col,ts1,ts2;
+
+	 std::ofstream disk;
+	 disk.open("PEARYDATA/tmp.dat",std::ios::out);
+
+	 Color::Modifier red(Color::FG_RED);
+	 Color::Modifier green(Color::FG_GREEN);
+	 Color::Modifier blue(Color::FG_BLUE);
+	 Color::Modifier cyan(Color::FG_CYAN);
+	 Color::Modifier mag(Color::FG_MAGENTA);
+	 Color::Modifier bold(Color::BOLD);
+	 Color::Modifier rev(Color::REVERSE);
+	 Color::Modifier def(Color::FG_DEFAULT);
+	 Color::Modifier reset(Color::RESET);
+	 uint32_t hit =0;
+
+	 int to,cnt;
+	 to=1;
+	 cnt=0;
+
+	 while(to){
+		 while((*fifo_status & 0x4)==0 & to==1){
+			 usleep(1);
+			 cnt++;
+			 if (cnt>1e5){to=0;}
+			 };
+
+		 if(to==0){break;}
+
+		 d1 = *data;
+		 d2 = *data;
+
+		 dataw = (d2 << 32) | (d1);
+		 uint32_t stateA = dataw>>56 & 0xFF;
+
+
+		 if(stateA==4) {
+			 uint32_t DO = (dataw >> 48) & 0xFF;
+			 hit += DO<<24;
+
+			 uint32_t TrTS = (dataw>>8) & 0xFFFFFF;
+			 uint32_t TSf = (dataw) & 0b111111;
+			 //std::cout  << blue << bold << rev  << "stateA : " << stateA << reset  << std::endl;
+			 //std::cout <<  bold <<   "DO: " << DO << " TrTS: "  <<TrTS << " TSf: " <<  TSf << reset << std::endl;
+		 }
+		 else if(stateA==5) {
+			 uint32_t DO = (dataw >> 48) & 0xFF;
+			 hit += DO << 16;
+			 uint32_t TrTS = (dataw>>32) & 0xFF;
+			 uint32_t TrCnt = (dataw) & 0xFFFFFFFF;
+			 //std::cout  << cyan << bold << rev <<  "stateA : " << stateA << reset  << std::endl;
+			 //std::cout <<  bold << "DO: " << DO  << " TrTS: "<< TrTS << " TrCnt: " << TrCnt << reset << std::endl;
+
+		 }
+		 else if(stateA==6){
+			 uint32_t DO = (dataw >> 48) & 0xFF;
+			 hit += DO << 8;
+			 uint32_t TS = (dataw>>8) & 0xFF;
+			 uint32_t TOT = (dataw) & 0b111111;
+			 //std::cout << green << bold << rev << "stateA : " << stateA  << reset << std::endl;
+			 //std::cout << bold  << "DO: " << DO << " TS: " <<  TS << " TOT: " << TOT << reset << std::endl;
+		 }
+		 else if(stateA==7) {
+			 uint32_t DO = (dataw >> 48) & 0xFF;
+			 hit+=DO ;
+
+			 pixelhit pix=decodeHit(hit);
+
+			 //std::cout  << mag << bold << rev << "stateA : " << stateA << reset  << std::endl;
+			 //std::cout <<  rev << bold << red << std::hex << "HEXA: "<< hit << std::dec << reset << std::endl;
+			 //std::cout <<  rev << bold << red << "X: "<< std::bitset<8>(((hit >> 23) & 0xFF)) << " Y: " << std::bitset<8>(hit&0xFF) <<  reset << std::endl;
+			 std::cout <<  rev << bold << red << "X: "<< pix.col  << " Y: " << pix.row << " " << pix.ts1 << " " << pix.ts2 << reset << std::endl;
+			 disk << pix.col  << " " << pix.row << " " << pix.ts1 << " " << pix.ts2 << std::endl;
+			 hit=0;
+		 }
+		 else  {
+			 uint32_t DO = (dataw >> 48) & 0xFF;
+			 //std::cout  << red << "stateA : " << stateA << std::endl;
+			 //std::cout <<  bold << "DO: "<< std::bitset<8>(DO) << reset << std::endl;
+
+		 };
+
+	 }//while data
+
+//		 this->SetPixelInjection(col,row,0,0);
+//
+//		 }};
+
+	 disk.close();
+
+	 pearydata dummy;
+	 return dummy;
+
+}
+
+
+
+//void ATLASPix::daqStart(){
+//
+//	//std::thread t(&caribou::ATLASPix::TakeData);
+//
+//
+//}
+
+
+
+void ATLASPix::TakeData(){
+
+	const unsigned int colmask = 0b11111111000000000000000000000000;
+	const unsigned int ts2mask = 0b00000000111111000000000000000000;
+	const unsigned int ts1mask = 0b00000000000000111111111100000000;
+	const unsigned int rowmask = 0b00000000000000000000000011111111;
 
 
 
@@ -2768,45 +3032,71 @@ pearydata ATLASPix::getData(){
 
 	 uint32_t row,col,ts1,ts2;
 
-	 for(int i=0;i<1;i++){
+	 std::ofstream disk;
+	 disk.open("PEARYDATA/tmp.dat",std::ios::out | std::ios::binary);
 
-		 //std::cout << "fifo_status" <<   std::bitset<32>(*fifo_status) << std::endl;
+	 Color::Modifier red(Color::FG_RED);
+	 Color::Modifier green(Color::FG_GREEN);
+	 Color::Modifier blue(Color::FG_BLUE);
+	 Color::Modifier cyan(Color::FG_CYAN);
+	 Color::Modifier mag(Color::FG_MAGENTA);
+	 Color::Modifier bold(Color::BOLD);
+	 Color::Modifier rev(Color::REVERSE);
+	 Color::Modifier def(Color::FG_DEFAULT);
+	 Color::Modifier reset(Color::RESET);
+
+	 for(int i=0;i<10000;i++){
+//	 while(1){
+		 while((*fifo_status & 0x1)==1){usleep(1);}
+
+//		 std::cout << "fifo_status" <<   std::bitset<32>(*fifo_status) << std::endl;
 		 d1 = *data;
-		 //std::cout << "data word 1: " <<   std::bitset<32>(d1) << std::endl;
-		 std::cout << "data word 1: "<< std::hex  << d1<< std::endl;
+//		 std::cout << "data word 1: " <<   std::bitset<32>(d1) << std::endl;
 
-		 //std::cout << "fifo_status: " <<   std::bitset<32>(*fifo_status) << std::endl;
+//		 std::cout << "fifo_status: " <<   std::bitset<32>(*fifo_status) << std::endl;
 		 d2 = *data;
-		 //std::cout << "data word 2: " <<   std::bitset<32>(d2) << std::endl;
-		 std::cout << "data word 2: " << std::hex <<   d2 << std::endl;
 
+//		 std::cout << "data word 2: " <<   std::bitset<32>(d2) << std::endl;
+//		 //std::cout << "data word 2: " << std::hex <<   d2 << std::endl;
+//
 		 dataw = (d2 << 32) | (d1);
+		 uint32_t stateA = dataw>>56 & 0xFF;
+
+		 if(stateA==6){std::cout << green << bold << rev << "stateA : " << stateA  << std::endl;}
+		 else if(stateA==4) {std::cout  << blue << "stateA : " << stateA  << std::endl;}
+		 else if(stateA==5) {std::cout  << cyan << "stateA : " << stateA  << std::endl;}
+		 else if(stateA==7) {std::cout  << mag << "stateA : " << stateA  << std::endl;}
+		 else  {std::cout  << red << "stateA : " << stateA << std::endl;};
+
+
 		 std::cout << "data word: " <<   std::bitset<64>(dataw) << std::endl;
-		 std::cout << "data word (36bits): " <<   std::bitset<36>(dataw>>16) << std::endl;
-
-		 uint32_t stateA = dataw>>56;
-		 std::cout << "stateA : " << stateA << std::endl;
-
-		 //std::cout << "leds: " <<   std::bitset<32>(*leds) << std::endl;
-		 std::cout  << std::endl;
 
 
+		 if(stateA==6){
+////
+		 uint32_t hit = ((dataw>>48) & 0xFF) << 24 | (dataw & 0xFFFFFF);
+		 col = (hit & colmask) >> 24;
+		 ts2 = (hit & ts2mask) >> 18;
+		 ts1 = (hit & ts1mask) >> 8;
+		 row = (hit & rowmask);
 
-		 col = ((dataw>>6) & colmask) >> 27;
-		 ts1 = ((dataw>>16) & ts1mask) >> 9;
-		 ts2 = ((dataw>>16) & ts2mask) >> 20;
-		 row = ((dataw>>16) & rowmask);
-
+		 std::cout  << "Hit data : "<< std::bitset<8>(col) << " "  << std::bitset<8>(row) <<  " " <<  std::bitset<10>(ts1) << " " <<   std::bitset<6>(ts2)   << reset <<   std::endl;
 		 std::cout  << std::dec  << "col : " << col << " row : " << row << " TS1 : " << ts1 << " TS2 : " << ts2<< std::endl;
-		 std::cout  << std::endl;
 
+		 disk << hit;
+
+		 }
+
+		 //std::cout  << std::endl;
+//
+		// usleep(1000);
 
 	 }
 
-	 pearydata dummy;
-	 return dummy;
+	 disk.close();
 
 }
+
 
 void ATLASPix::doSCurves(double vmin,double vmax,uint32_t npulses,uint32_t npoints){
 
@@ -3016,7 +3306,15 @@ void ATLASPix::doNoiseCurve(uint32_t col,uint32_t row){
 
 
 void ATLASPix::reset() {
-  LOG(logDEBUG) << "Resetting " << DEVICE_NAME;
+  //LOG(logINFO) << "Resetting " << DEVICE_NAME;
+
+	 void* readout_base = _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
+	 volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
+
+	 *fifo_config = 0b10000;
+	 sleep(1);
+	 *fifo_config = 0b00000;
+
 }
 
 ATLASPix::~ATLASPix() {
