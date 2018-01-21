@@ -65,6 +65,17 @@ pixelhit decodeHit(uint32_t hit){
 }
 
 
+uint32_t gray_decode(uint32_t g)
+{
+    for (uint32_t bit = 1U << 31; bit > 1; bit >>= 1)
+    {
+        if (g & bit) g ^= bit >> 1;
+    }
+    return g;
+}
+
+
+
 namespace Color {
     enum Code {
     	 FG_DEFAULT = 39, BOLD= 1, REVERSE=7,RESET=0, FG_BLACK = 30, FG_RED = 31, FG_GREEN = 32, FG_YELLOW = 33, FG_BLUE = 34, FG_MAGENTA = 35, FG_CYAN = 36, FG_LIGHT_GRAY = 37, FG_DARK_GRAY = 90, FG_LIGHT_RED = 91, FG_LIGHT_GREEN = 92, FG_LIGHT_YELLOW = 93, FG_LIGHT_BLUE = 94, FG_LIGHT_MAGENTA = 95, FG_LIGHT_CYAN = 96, FG_WHITE = 97, BG_RED = 41, BG_GREEN = 42, BG_BLUE = 44, BG_DEFAULT = 49
@@ -2915,6 +2926,9 @@ pearydata ATLASPix::getData(){
 	 Color::Modifier def(Color::FG_DEFAULT);
 	 Color::Modifier reset(Color::RESET);
 	 uint32_t hit =0;
+	 uint32_t timestamp =0;
+	 uint32_t chipts =0;
+	 uint32_t TrTS,TrTS1,TSf,TrTS2,TrCNT;
 
 	 int to,cnt;
 	 to=1;
@@ -2936,20 +2950,45 @@ pearydata ATLASPix::getData(){
 		 uint32_t stateA = dataw>>56 & 0xFF;
 
 
-		 if(stateA==4) {
+		 if(stateA==0) {
+			 uint32_t DO = (dataw >> 48) & 0xFF;
+			 timestamp += DO<<24;
+			 //std::cout  << blue << bold << rev  << "stateA : " << stateA << reset  << std::endl;
+			 //std::cout <<  bold <<   "DO: " << DO << " TrTS: "  <<TrTS << " TSf: " <<  TSf << reset << std::endl;
+		 }
+		 else if(stateA==1) {
+			 uint32_t DO = (dataw >> 48) & 0xFF;
+			 timestamp += DO<<16;
+			 //std::cout  << blue << bold << rev  << "stateA : " << stateA << reset  << std::endl;
+			 //std::cout <<  bold <<   "DO: " << DO << " TrTS: "  <<TrTS << " TSf: " <<  TSf << reset << std::endl;
+		 }
+		 else if(stateA==2) {
+			 uint32_t DO = (dataw >> 48) & 0xFF;
+			 timestamp += DO<<8;
+			 //std::cout  << blue << bold << rev  << "stateA : " << stateA << reset  << std::endl;
+			 //std::cout <<  bold <<   "DO: " << DO << " TrTS: "  <<TrTS << " TSf: " <<  TSf << reset << std::endl;
+		 }
+		 else if(stateA==3) {
+			 uint32_t DO = (dataw >> 48) & 0xFF;
+			 timestamp += DO;
+			 //std::cout  << blue << bold << rev  << "stateA : " << stateA << reset  << std::endl;
+			 //std::cout <<  bold <<   "DO: " << DO << " TrTS: "  <<TrTS << " TSf: " <<  TSf << reset << std::endl;
+			 disk << std::bitset<32>(timestamp) << " " << std::dec << (timestamp >>8) << " " << gray_decode(timestamp & 0xF) << std::endl;
+		 }
+
+		 else if(stateA==4) {
 			 uint32_t DO = (dataw >> 48) & 0xFF;
 			 hit += DO<<24;
-
-			 uint32_t TrTS = (dataw>>8) & 0xFFFFFF;
-			 uint32_t TSf = (dataw) & 0b111111;
+			 TrTS1 = (dataw>>8) & 0xFFFFFF;
+			 TSf = (dataw) & 0b111111;
 			 //std::cout  << blue << bold << rev  << "stateA : " << stateA << reset  << std::endl;
 			 //std::cout <<  bold <<   "DO: " << DO << " TrTS: "  <<TrTS << " TSf: " <<  TSf << reset << std::endl;
 		 }
 		 else if(stateA==5) {
 			 uint32_t DO = (dataw >> 48) & 0xFF;
 			 hit += DO << 16;
-			 uint32_t TrTS = (dataw>>32) & 0xFF;
-			 uint32_t TrCnt = (dataw) & 0xFFFFFFFF;
+			 TrTS2 = (dataw>>32) & 0xFFFF;
+			 TrCNT = (dataw) & 0xFFFFFFFF;
 			 //std::cout  << cyan << bold << rev <<  "stateA : " << stateA << reset  << std::endl;
 			 //std::cout <<  bold << "DO: " << DO  << " TrTS: "<< TrTS << " TrCnt: " << TrCnt << reset << std::endl;
 
@@ -2957,22 +2996,16 @@ pearydata ATLASPix::getData(){
 		 else if(stateA==6){
 			 uint32_t DO = (dataw >> 48) & 0xFF;
 			 hit += DO << 8;
-			 uint32_t TS = (dataw>>8) & 0xFF;
-			 uint32_t TOT = (dataw) & 0b111111;
+			 chipts= ((dataw & 0xFFF00)>>2) | (dataw & 0b111111);
 			 //std::cout << green << bold << rev << "stateA : " << stateA  << reset << std::endl;
 			 //std::cout << bold  << "DO: " << DO << " TS: " <<  TS << " TOT: " << TOT << reset << std::endl;
 		 }
 		 else if(stateA==7) {
 			 uint32_t DO = (dataw >> 48) & 0xFF;
 			 hit+=DO ;
-
 			 pixelhit pix=decodeHit(hit);
-
-			 //std::cout  << mag << bold << rev << "stateA : " << stateA << reset  << std::endl;
-			 //std::cout <<  rev << bold << red << std::hex << "HEXA: "<< hit << std::dec << reset << std::endl;
-			 //std::cout <<  rev << bold << red << "X: "<< std::bitset<8>(((hit >> 23) & 0xFF)) << " Y: " << std::bitset<8>(hit&0xFF) <<  reset << std::endl;
 			 std::cout <<  rev << bold << red << "X: "<< pix.col  << " Y: " << pix.row << " " << pix.ts1 << " " << pix.ts2 << reset << std::endl;
-			 disk << pix.col  << " " << pix.row << " " << pix.ts1 << " " << pix.ts2 << std::endl;
+			 disk << pix.col  << " " << pix.row << " " << pix.ts1 << " " << pix.ts2 << " " << TrTS1 << " " <<  TSf << " " << TrCNT << std::endl;
 			 hit=0;
 		 }
 		 else  {
