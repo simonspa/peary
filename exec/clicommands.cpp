@@ -164,6 +164,7 @@ pearycli::pearycli() : c("# ") {
   c.registerCommand("WriteConfig", WriteConfig, "Write Config for the whole matrix, usage WriteConfig basename device ID", 2,"DEVICE_ID");
   c.registerCommand("TDACScan", TDACScan, "TDAC Scan for a given VNDAC for the whole matrix, usage TDACScan basefolder VNDAC TDACSteps vmin vmax npulses npoints device ID", 8,"DEVICE_ID");
   c.registerCommand("SetMatrix", SetMatrix, "Set Matrix associated to this device, usage WriteConfig matrix(M1,M2,M1ISO) device ID", 2,"DEVICE_ID");
+  c.registerCommand("MaskPixel", MaskPixel, "mask a pixel in the matrix, usage MaskPixel col row device ID", 3,"DEVICE_ID");
 
 }
 
@@ -951,6 +952,18 @@ int pearycli::SetMatrix(const std::vector<std::string>& input) {
   }
   return ret::Ok;
 }
+
+
+int pearycli::MaskPixel(const std::vector<std::string>& input) {
+  try {
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(3)));
+    dev->MaskPixel(std::stoi(input.at(1)),std::stoi(input.at(2)));
+  } catch(caribou::caribouException& e) {
+    return ret::Error;
+  }
+  return ret::Ok;
+}
+
 
 int pearycli::scanThreshold(const std::vector<std::string>& input) {
 

@@ -118,7 +118,7 @@ namespace caribou {
     virtual void WriteConfig(std::string basename);
     virtual void TDACScan(std::string basefolder,int VNDAC,int step,double vmin,double vmax,uint32_t npulses,uint32_t npoints);
     virtual void SetMatrix(std::string matrix);
-    
+    virtual void MaskPixel(uint32_t col,uint32_t row);
     // Controlling the device
     void setRegister(std::string name, uint32_t value);
     virtual void setSpecialRegister(std::string, uint32_t){};

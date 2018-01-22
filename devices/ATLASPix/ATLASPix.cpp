@@ -253,8 +253,7 @@ void ATLASPix::configure() {
  // Call the base class configuration function:
   pearyDevice<iface_i2c>::configure();
 
-  this->setMaskPixel(theMatrix,1, 19,1);
-  this->writeOneTDAC(theMatrix,1,19,0);
+
 }
 
 
@@ -2417,6 +2416,7 @@ void ATLASPix::initTDAC(ATLASPixMatrix *matrix,uint32_t value){
 		for(int row=0;row < matrix->nrow;row++){
 			matrix->MASK[col][row]=0;
 			matrix->TDAC[col][row] = (actual_value << 1) | matrix->MASK[col][row];
+			//matrix->TDAC[col][row] = (actual_value) ;
 			}
 		}
 }
@@ -2428,15 +2428,27 @@ void ATLASPix::setOneTDAC(ATLASPixMatrix *matrix,uint32_t col,uint32_t row,uint3
 		std::cout << "Value out of range, setting TDAC to 7" << std::endl;
 		actual_value = 7;
 	}
-	matrix->MASK[col][row]=0;
+	//matrix->MASK[col][row]=0;
 	matrix->TDAC[col][row] = (actual_value << 1) | matrix->MASK[col][row];
+	//std::cout << std::bitset<4>(matrix->TDAC[col][row]) << std::endl;
+
 }
 
 void ATLASPix::setMaskPixel(ATLASPixMatrix *matrix,uint32_t col,uint32_t row,uint32_t value){
 
 	matrix->MASK[col][row]=value;
-	matrix->TDAC[col][row] = matrix->TDAC[col][row]  | matrix->MASK[col][row];
+	matrix->TDAC[col][row] = matrix->TDAC[col][row] << 1  | matrix->MASK[col][row];
+	std::cout << std::bitset<4>(matrix->TDAC[col][row]) << std::endl;
 }
+
+
+void ATLASPix::MaskPixel(uint32_t col,uint32_t row){
+
+	this->setMaskPixel(theMatrix,col,row,1);
+	//std::cout << "pixel masked col:" << col << " row: " << row << " " << theMatrix->MASK[col][row] << std::endl;
+	this->writeOneTDAC(theMatrix,col,row,0);
+}
+
 
 void ATLASPix::writeOneTDAC(ATLASPixMatrix *matrix,uint32_t col,uint32_t row,uint32_t value){
 
@@ -2455,12 +2467,16 @@ void ATLASPix::writeOneTDAC(ATLASPixMatrix *matrix,uint32_t col,uint32_t row,uin
 			matrix->MatrixDACConfig->SetParameter("unusedUp"+s,  0);
 
 			if(row<200){
-			matrix->MatrixDACConfig->SetParameter("RamDown"+s, matrix->TDAC[col][row]); //0b1011
+			matrix->MatrixDACConfig->SetParameter("RamDown"+s,matrix->TDAC[col][row]); //0b1011
+			//std::cout << std::bitset<4>(matrix->TDAC[col][row]) << std::endl;
+
 			//matrix->MatrixDACConfig->SetParameter("RamUp"+s, 4, ATLASPix_Config::LSBFirst,  matrix->TDAC[col][row]); //0b1011
 			}
 			else{
 			//matrix->MatrixDACConfig->SetParameter("RamDown"+s, 4, ATLASPix_Config::LSBFirst,  matrix->TDAC[col][row]); //0b1011
 			matrix->MatrixDACConfig->SetParameter("RamUp"+s,matrix->TDAC[col][row]); //0b1011
+			std::cout << std::bitset<4>(matrix->TDAC[col][row]) << std::endl;
+
 			}
 
 	}

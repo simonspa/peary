@@ -346,6 +346,12 @@ namespace caribou {
     LOG(logCRITICAL) << "SetMatrix not implemented for this device";
     throw caribou::DeviceImplException("SetMatrix not implemented for this device");
   } 
+ 
+     template <typename T> void pearyDevice<T>::MaskPixel(uint32_t col,uint32_t row){
+    LOG(logCRITICAL) << "MaskPixel not implemented for this device";
+    throw caribou::DeviceImplException("MaskPixel not implemented for this device");
+  } 
+ 
   
   template <typename T> void pearyDevice<T>::configure() {
 

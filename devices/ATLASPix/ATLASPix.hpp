@@ -140,7 +140,7 @@ namespace caribou {
     void tune(ATLASPixMatrix *matrix, double vmax,int nstep, int npulses, bool tuning_verification);
     void TDACScan(std::string basefolder,int VNDAC,int step,double vmin,double vmax,uint32_t npulses,uint32_t npoints);
     void SetInjectionMask(uint32_t mask,uint32_t state);
-
+    void MaskPixel(uint32_t col,uint32_t row);
     void WriteConfig(std::string filename);
     void LoadConfig(std::string filename);
 
