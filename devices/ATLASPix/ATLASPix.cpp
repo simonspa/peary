@@ -69,6 +69,9 @@ pixelhit decodeHit(uint32_t hit){
 	 tmp.ts1=(hit>>8 & 0b1111111111)+  (hit>>16 & 0b11);
 
 
+	 tmp.col=tmp.col & 0b11111;
+	 tmp.row=tmp.row & 0b111111111;
+
 	 if((buf>>1 & 0x1)==0)tmp.row+=200;
 	 return tmp;
 }
