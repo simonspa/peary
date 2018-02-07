@@ -2968,6 +2968,7 @@ pearydata ATLASPix::getData(){
 	 uint32_t TrTS,TrTS1,TSf,TrTS2,TrCNT;
 
 	 int to,cnt;
+	 int prev_tr=0;
 	 to=1;
 	 cnt=0;
 
@@ -3021,7 +3022,7 @@ pearydata ATLASPix::getData(){
 			 TSf = (dataw) & 0b111111;
 			 fpga_ts = (dataw << 32)& 0xFFFFFFFF00000000;
 
-			 std::cout  << blue << bold << rev  << "dataw : " << std::bitset<64>(dataw) << reset  << std::endl;
+			 //std::cout  << blue << bold << rev  << "dataw : " << std::bitset<64>(dataw) << reset  << std::endl;
 			 //std::cout <<  bold <<   "DO: " << DO << " TrTS: "  <<TrTS << " TSf: " <<  TSf << reset << std::endl;
 		 }
 		 else if(stateA==5) {
@@ -3045,13 +3046,17 @@ pearydata ATLASPix::getData(){
 			 uint32_t DO = (dataw >> 48) & 0xFF;
 			 hit+=DO ;
 			 pixelhit pix=decodeHit(hit);
-			 std::cout <<  rev << bold << red << "X: "<< pix.col  << " Y: " << pix.row << " " << pix.ts1 << " " << pix.ts2 << reset << std::endl;
-			 disk << pix.col  << " " << pix.row << " " << pix.ts1 << " " << pix.ts2 << " " << TrTS1 << " " <<  TSf << " " << TrCNT << std::endl;
 			 fpga_ts+=(dataw & 0x00000000FFFFFFFF) ;
-			 double delay=double(fpga_ts-fpga_ts_prev)*(10.0e-9);
+			 //std::cout <<  rev << bold << red << "X: "<< pix.col  << " Y: " << pix.row << " " << pix.ts1 << " " << pix.ts2 << reset << std::endl;
+			 disk << pix.col  << " " << pix.row << " " << pix.ts1 << " " << pix.ts2 << " " << fpga_ts << " " << TrCNT << std::endl;
+
+			 if(TrCNT-prev_tr>1)std::cout << green << "Event : " << TrCNT << std::endl;
+			 prev_tr=TrCNT;
+
+			 //double delay=double(fpga_ts-fpga_ts_prev)*(10.0e-9);
 			//std::cout << red << bold << rev << "ts : " << std::bitset<64>(fpga_ts)   << reset << std::endl;
-			 std::cout <<  rev << bold << red << "FPGA TS: "<<fpga_ts << " tr CNT : " << TrCNT << " delay : " << delay <<  reset << std::endl;
-			 fpga_ts_prev=fpga_ts;
+			 //std::cout <<  rev << bold << red << "FPGA TS: "<<fpga_ts << " tr CNT : " << TrCNT << " delay : " << delay <<  reset << std::endl;
+			 //fpga_ts_prev=fpga_ts;
 			 hit=0;
 		 }
 		 else  {
