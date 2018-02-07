@@ -2932,12 +2932,20 @@ pearydata ATLASPix::getData(){
 
 
 	 //READOUT on
-	 *fifo_config = 0b1;
+	 *fifo_config = 0b11;
 	 *ro = 0xF0000;
+	 usleep(1);
+	 *ro = 0x10000;
+	 usleep(1);
+	 *ro = 0x00000;
+
+
 
 	 uint64_t d1=0;
 	 uint64_t d2=0;
 	 uint64_t dataw =0;
+	 uint64_t fpga_ts =0;
+	 uint64_t fpga_ts_prev =0;
 
 	 uint32_t row,col,ts1,ts2;
 
@@ -2974,6 +2982,7 @@ pearydata ATLASPix::getData(){
 
 		 d1 = *data;
 		 d2 = *data;
+		 usleep(10);
 
 		 dataw = (d2 << 32) | (d1);
 		 uint32_t stateA = dataw>>56 & 0xFF;
@@ -3010,7 +3019,9 @@ pearydata ATLASPix::getData(){
 			 hit += DO<<24;
 			 TrTS1 = (dataw>>8) & 0xFFFFFF;
 			 TSf = (dataw) & 0b111111;
-			 //std::cout  << blue << bold << rev  << "stateA : " << stateA << reset  << std::endl;
+			 fpga_ts = (dataw << 32)& 0xFFFFFFFF00000000;
+
+			 std::cout  << blue << bold << rev  << "dataw : " << std::bitset<64>(dataw) << reset  << std::endl;
 			 //std::cout <<  bold <<   "DO: " << DO << " TrTS: "  <<TrTS << " TSf: " <<  TSf << reset << std::endl;
 		 }
 		 else if(stateA==5) {
@@ -3026,7 +3037,8 @@ pearydata ATLASPix::getData(){
 			 uint32_t DO = (dataw >> 48) & 0xFF;
 			 hit += DO << 8;
 			 chipts= ((dataw & 0xFFF00)>>2) | (dataw & 0b111111);
-			 //std::cout << green << bold << rev << "stateA : " << stateA  << reset << std::endl;
+			 //std::cout << green << bold << rev << "dataw : " << std::bitset<64>(dataw)   << reset << std::endl;
+			 //fpga_ts+=(dataw & 0x00000000FFFFFFFF) ;
 			 //std::cout << bold  << "DO: " << DO << " TS: " <<  TS << " TOT: " << TOT << reset << std::endl;
 		 }
 		 else if(stateA==7) {
@@ -3035,6 +3047,11 @@ pearydata ATLASPix::getData(){
 			 pixelhit pix=decodeHit(hit);
 			 std::cout <<  rev << bold << red << "X: "<< pix.col  << " Y: " << pix.row << " " << pix.ts1 << " " << pix.ts2 << reset << std::endl;
 			 disk << pix.col  << " " << pix.row << " " << pix.ts1 << " " << pix.ts2 << " " << TrTS1 << " " <<  TSf << " " << TrCNT << std::endl;
+			 fpga_ts+=(dataw & 0x00000000FFFFFFFF) ;
+			 double delay=double(fpga_ts-fpga_ts_prev)*(10.0e-9);
+			//std::cout << red << bold << rev << "ts : " << std::bitset<64>(fpga_ts)   << reset << std::endl;
+			 std::cout <<  rev << bold << red << "FPGA TS: "<<fpga_ts << " tr CNT : " << TrCNT << " delay : " << delay <<  reset << std::endl;
+			 fpga_ts_prev=fpga_ts;
 			 hit=0;
 		 }
 		 else  {
