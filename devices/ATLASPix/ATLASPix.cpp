@@ -34,6 +34,15 @@ uint32_t reverseBits(uint8_t n) {
         return x;
     }
 
+uint32_t reverseBits64(uint64_t n) {
+        uint32_t x;
+        for(auto i = 63; n; ) {
+            x |= (n & 1) << i;
+            n >>= 1;
+            -- i;
+        }
+        return x;
+    }
 
 // BASIC Configuration
 
@@ -2944,6 +2953,7 @@ pearydata ATLASPix::getData(){
 	 uint32_t hit =0;
 	 uint32_t timestamp =0;
 	 uint32_t chipts =0;
+
 	 uint32_t TrTS,TrTS1,TSf,TrTS2,TrCNT;
 
 	 int to,cnt;
