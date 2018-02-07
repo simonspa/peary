@@ -2438,7 +2438,7 @@ void ATLASPix::setMaskPixel(ATLASPixMatrix *matrix,uint32_t col,uint32_t row,uin
 
 	matrix->MASK[col][row]=value;
 	matrix->TDAC[col][row] = matrix->TDAC[col][row] << 1  | matrix->MASK[col][row];
-	std::cout << std::bitset<4>(matrix->TDAC[col][row]) << std::endl;
+	//std::cout << std::bitset<4>(matrix->TDAC[col][row]) << std::endl;
 }
 
 
@@ -2475,7 +2475,7 @@ void ATLASPix::writeOneTDAC(ATLASPixMatrix *matrix,uint32_t col,uint32_t row,uin
 			else{
 			//matrix->MatrixDACConfig->SetParameter("RamDown"+s, 4, ATLASPix_Config::LSBFirst,  matrix->TDAC[col][row]); //0b1011
 			matrix->MatrixDACConfig->SetParameter("RamUp"+s,matrix->TDAC[col][row]); //0b1011
-			std::cout << std::bitset<4>(matrix->TDAC[col][row]) << std::endl;
+			//std::cout << std::bitset<4>(matrix->TDAC[col][row]) << std::endl;
 
 			}
 
