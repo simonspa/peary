@@ -2931,16 +2931,6 @@ pearydata ATLASPix::getData(){
 	 volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
 
 
-	 //READOUT on
-	 *fifo_config = 0b11;
-	 *ro = 0xF0000;
-	 usleep(1);
-	 *ro = 0x10000;
-	 usleep(1);
-	 *ro = 0x00000;
-
-
-
 	 uint64_t d1=0;
 	 uint64_t d2=0;
 	 uint64_t dataw =0;
@@ -2972,6 +2962,21 @@ pearydata ATLASPix::getData(){
 	 to=1;
 	 cnt=0;
 
+
+
+	 //READOUT on
+	 *fifo_config = 0b0;
+	 *ro = 0x00000;
+	 usleep(1);
+	 *fifo_config = 0b100000;
+	 *ro = 0xF0000;
+	 usleep(10);
+	 *ro = 0x00000;
+	 *fifo_config = 0b11;
+
+
+
+
 	 while(to){
 		 while((*fifo_status & 0x4)==0 & to==1){
 			 usleep(1);
@@ -2982,6 +2987,7 @@ pearydata ATLASPix::getData(){
 		 if(to==0){break;}
 
 		 d1 = *data;
+		 usleep(10);
 		 d2 = *data;
 		 usleep(10);
 
@@ -3012,7 +3018,7 @@ pearydata ATLASPix::getData(){
 			 timestamp += DO;
 			 //std::cout  << blue << bold << rev  << "stateA : " << stateA << reset  << std::endl;
 			 //std::cout <<  bold <<   "DO: " << DO << " TrTS: "  <<TrTS << " TSf: " <<  TSf << reset << std::endl;
-			 disk << std::bitset<32>(timestamp) << " " << std::dec << (timestamp >>8) << " " << gray_decode(timestamp & 0xF) << std::endl;
+			 //disk << std::bitset<32>(timestamp) << " " << std::dec << (timestamp >>8) << " " << gray_decode(timestamp & 0xF) << std::endl;
 		 }
 
 		 else if(stateA==4) {
@@ -3047,16 +3053,16 @@ pearydata ATLASPix::getData(){
 			 hit+=DO ;
 			 pixelhit pix=decodeHit(hit);
 			 fpga_ts+=(dataw & 0x00000000FFFFFFFF) ;
-			 //std::cout <<  rev << bold << red << "X: "<< pix.col  << " Y: " << pix.row << " " << pix.ts1 << " " << pix.ts2 << reset << std::endl;
+			 std::cout <<  rev << bold << red << "X: "<< pix.col  << " Y: " << pix.row << " " << pix.ts1 << " " << pix.ts2 << reset << std::endl;
 			 disk << pix.col  << " " << pix.row << " " << pix.ts1 << " " << pix.ts2 << " " << fpga_ts << " " << TrCNT << std::endl;
 
-			 if(TrCNT-prev_tr>1)std::cout << green << "Event : " << TrCNT << std::endl;
-			 prev_tr=TrCNT;
+			 //if(TrCNT-prev_tr>1)std::cout << green << "Event : " << TrCNT << std::endl;
+			 //prev_tr=TrCNT;
 
-			 //double delay=double(fpga_ts-fpga_ts_prev)*(10.0e-9);
-			//std::cout << red << bold << rev << "ts : " << std::bitset<64>(fpga_ts)   << reset << std::endl;
-			 //std::cout <<  rev << bold << red << "FPGA TS: "<<fpga_ts << " tr CNT : " << TrCNT << " delay : " << delay <<  reset << std::endl;
-			 //fpga_ts_prev=fpga_ts;
+			 double delay=double(fpga_ts-fpga_ts_prev)*(10.0e-9);
+			 //std::cout << red << bold << rev << "ts : " <<fpga_ts   << reset << std::endl;
+			 std::cout <<  rev << bold << red << "FPGA TS: "<<fpga_ts << " tr CNT : " << TrCNT << " delay : " << delay <<  reset << std::endl;
+			 fpga_ts_prev=fpga_ts;
 			 hit=0;
 		 }
 		 else  {
