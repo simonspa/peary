@@ -3026,7 +3026,8 @@ pearydata ATLASPix::getData(){
 			 hit += DO<<24;
 			 TrTS1 = (dataw>>8) & 0xFFFFFF;
 			 TSf = (dataw) & 0b111111;
-			 fpga_ts = (dataw << 32)& 0xFFFFFFFF00000000;
+			 fpga_ts = 0;
+			 fpga_ts += (dataw << 32);
 
 			 //std::cout  << blue << bold << rev  << "dataw : " << std::bitset<64>(dataw) << reset  << std::endl;
 			 //std::cout <<  bold <<   "DO: " << DO << " TrTS: "  <<TrTS << " TSf: " <<  TSf << reset << std::endl;
