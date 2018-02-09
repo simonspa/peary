@@ -190,6 +190,7 @@ namespace caribou {
     // Raw and decoded data readback
     std::vector<uint32_t> getRawData();
     pearydata getData();
+    void dataTuning();
 
     // Two types:
     //  * trigger based: "events" are returned

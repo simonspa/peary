@@ -121,6 +121,8 @@ namespace caribou {
 
     pearydata getData();
 
+    std::vector<int> getCountingData();
+    void dataTuning(ATLASPixMatrix *matrix, double vmax,int nstep, int npulses);
 
     void Initialize_SR(ATLASPixMatrix *matrix);
     void Shift_SR(ATLASPixMatrix *matrix);

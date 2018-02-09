@@ -64,6 +64,7 @@ namespace caribou {
 
     static int getRawData(const std::vector<std::string>& input);
     static int getData(const std::vector<std::string>& input);
+    static int dataTuning(const std::vector<std::string>& input);
     static int acquire(const std::vector<std::string>& input);
     static int flushMatrix(const std::vector<std::string>& input);
     static int lock(const std::vector<std::string>& input);
