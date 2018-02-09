@@ -2967,10 +2967,9 @@ pearydata ATLASPix::getData(){
 	 //READOUT on
 	 *fifo_config = 0b0;
 	 *ro = 0x00000;
-	 usleep(1);
-	 *fifo_config = 0b100000;
-	 *ro = 0xF0000;
+
 	 usleep(10);
+
 	 *ro = 0x00000;
 	 *fifo_config = 0b11;
 
@@ -3029,7 +3028,7 @@ pearydata ATLASPix::getData(){
 			 fpga_ts = 0;
 			 fpga_ts += (dataw << 32);
 
-			 //std::cout  << blue << bold << rev  << "dataw : " << std::bitset<64>(dataw) << reset  << std::endl;
+			 std::cout  << blue << bold << rev  << "dataw : " << std::bitset<64>(dataw) << reset  << std::endl;
 			 //std::cout <<  bold <<   "DO: " << DO << " TrTS: "  <<TrTS << " TSf: " <<  TSf << reset << std::endl;
 		 }
 		 else if(stateA==5) {
@@ -3059,6 +3058,7 @@ pearydata ATLASPix::getData(){
 
 			 //if(TrCNT-prev_tr>1)std::cout << green << "Event : " << TrCNT << std::endl;
 			 //prev_tr=TrCNT;
+			 std::cout  << red << bold << rev  << "dataw : " << std::bitset<64>(dataw) << reset  << std::endl;
 
 			 double delay=double(fpga_ts-fpga_ts_prev)*(10.0e-9);
 			 //std::cout << red << bold << rev << "ts : " <<fpga_ts   << reset << std::endl;
@@ -3079,6 +3079,8 @@ pearydata ATLASPix::getData(){
 //
 //		 }};
 
+
+	 *fifo_config = 0b10;
 	 disk.close();
 
 	 pearydata dummy;
