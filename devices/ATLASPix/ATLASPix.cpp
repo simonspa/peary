@@ -2941,6 +2941,7 @@ pearydata ATLASPix::getData(){
 
 	 std::ofstream disk;
 	 disk.open("PEARYDATA/tmp.dat",std::ios::out);
+	 disk << "X:	Y:	TS1:	TS2:	FPGA_TS:	TR_CNT:	TR_DELAY:	" << std::endl;
 
 	 Color::Modifier red(Color::FG_RED);
 	 Color::Modifier green(Color::FG_GREEN);
@@ -2980,7 +2981,7 @@ pearydata ATLASPix::getData(){
 		 while((*fifo_status & 0x4)==0 & to==1){
 			 usleep(1);
 			 cnt++;
-			 if (cnt>1e5){to=0;}
+			 if (cnt>1e7){to=0;}
 			 };
 
 		 if(to==0){break;}
@@ -3054,7 +3055,8 @@ pearydata ATLASPix::getData(){
 			 pixelhit pix=decodeHit(hit);
 			 fpga_ts+=(dataw & 0x00000000FFFFFFFF) ;
 			 std::cout <<  rev << bold << red << "X: "<< pix.col  << " Y: " << pix.row << " " << pix.ts1 << " " << pix.ts2 << reset << std::endl;
-			 disk << pix.col  << " " << pix.row << " " << pix.ts1 << " " << pix.ts2 << " " << fpga_ts << " " << TrCNT << std::endl;
+			 disk << pix.col  << "	" << pix.row << "	" << pix.ts1 << "	" << pix.ts2 << "	" << fpga_ts << "	" << TrCNT << std::endl;
+
 
 			 //if(TrCNT-prev_tr>1)std::cout << green << "Event : " << TrCNT << std::endl;
 			 //prev_tr=TrCNT;
@@ -3088,7 +3090,140 @@ pearydata ATLASPix::getData(){
 
 }
 
+std::vector<int> ATLASPix::getCountingData(){
 
+	 const unsigned int colmask = 0b11111111000000000000000000000000;
+	 const unsigned int ts2mask = 0b00000000111111000000000000000000;
+	 const unsigned int ts1mask = 0b00000000000000111111111100000000;
+	 const unsigned int rowmask = 0b00000000000000000000000011111111;
+
+	 void* readout_base = _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
+
+	 volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
+	 volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x4);
+	 volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
+	 volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
+	 volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
+
+	 uint64_t d1=0;
+	 uint64_t d2=0;
+	 uint64_t dataw =0;
+	 uint64_t fpga_ts =0;
+	 uint64_t fpga_ts_prev =0;
+
+	 uint32_t row,col,ts1,ts2;
+
+	 //std::ofstream disk;
+	 //disk.open("PEARYDATA/tmp.dat",std::ios::out);
+	 //disk << "X:	Y:	TS1:	TS2:	FPGA_TS:	TR_CNT:	TR_DELAY:	" << std::endl;
+
+	 Color::Modifier red(Color::FG_RED);
+	 Color::Modifier green(Color::FG_GREEN);
+	 Color::Modifier blue(Color::FG_BLUE);
+	 Color::Modifier cyan(Color::FG_CYAN);
+	 Color::Modifier mag(Color::FG_MAGENTA);
+	 Color::Modifier bold(Color::BOLD);
+	 Color::Modifier rev(Color::REVERSE);
+	 Color::Modifier def(Color::FG_DEFAULT);
+	 Color::Modifier reset(Color::RESET);
+	 uint32_t hit =0;
+	 uint32_t timestamp =0;
+	 uint32_t chipts =0;
+
+	 uint32_t TrTS,TrTS1,TSf,TrTS2,TrCNT;
+
+	 int to,cnt;
+	 int prev_tr=0;
+	 to=1;
+	 cnt=0;
+
+	 //READOUT on
+	 *fifo_config = 0b0;
+	 *ro = 0x00000;
+	 usleep(1);
+	 *fifo_config = 0b100000;
+	 *ro = 0xF0000;
+	 usleep(10);
+	 *ro = 0x00000;
+	 *fifo_config = 0b11;
+
+	 std::vector<int> pixels (25*400,0);
+
+	 while(to){
+		 while((*fifo_status & 0x4)==0 & to==1){
+			 usleep(1);
+			 cnt++;
+			 if (cnt>1e7){to=0;}
+			 };
+
+		 if(to==0){break;}
+
+		 d1 = *data;
+		 usleep(10);
+		 d2 = *data;
+		 usleep(10);
+
+		 dataw = (d2 << 32) | (d1);
+		 uint32_t stateA = dataw>>56 & 0xFF;
+
+		 if(stateA==0) {
+			 uint32_t DO = (dataw >> 48) & 0xFF;
+			 timestamp += DO<<24;
+		 }
+		 else if(stateA==1) {
+			 uint32_t DO = (dataw >> 48) & 0xFF;
+			 timestamp += DO<<16;
+		 }
+		 else if(stateA==2) {
+			 uint32_t DO = (dataw >> 48) & 0xFF;
+			 timestamp += DO<<8;
+		 }
+		 else if(stateA==3) {
+			 uint32_t DO = (dataw >> 48) & 0xFF;
+			 timestamp += DO;
+		 }
+		 else if(stateA==4) {
+			 uint32_t DO = (dataw >> 48) & 0xFF;
+			 hit += DO<<24;
+			 TrTS1 = (dataw>>8) & 0xFFFFFF;
+			 TSf = (dataw) & 0b111111;
+			 fpga_ts = 0;
+			 fpga_ts += (dataw << 32);
+		 }
+		 else if(stateA==5) {
+			 uint32_t DO = (dataw >> 48) & 0xFF;
+			 hit += DO << 16;
+			 TrTS2 = (dataw>>32) & 0xFFFF;
+			 TrCNT = (dataw) & 0xFFFFFFFF;
+		 }
+		 else if(stateA==6){
+			 uint32_t DO = (dataw >> 48) & 0xFF;
+			 hit += DO << 8;
+			 chipts= ((dataw & 0xFFF00)>>2) | (dataw & 0b111111);
+		 }
+		 else if(stateA==7) {
+			 uint32_t DO = (dataw >> 48) & 0xFF;
+			 hit+=DO ;
+			 pixelhit pix=decodeHit(hit);
+			 fpga_ts+=(dataw & 0x00000000FFFFFFFF) ;
+			 //std::cout << rev << bold << red << "X: "<< pix.col  << " Y: " << pix.row << " " << pix.ts1 << " " << pix.ts2 << reset << std::endl;
+			 //disk << pix.col  << "	" << pix.row << "	" << pix.ts1 << "	" << pix.ts2 << "	" << fpga_ts << "	" << TrCNT << std::endl;
+
+			 double delay=double(fpga_ts-fpga_ts_prev)*(10.0e-9);
+			 //std::cout << rev << bold << red << "FPGA TS: "<<fpga_ts << " tr CNT : " << TrCNT << " delay : " << delay <<  reset << std::endl;
+			 fpga_ts_prev=fpga_ts;
+			 hit=0;
+
+			 pixels.at(pix.col + pix.row*25) = pixels.at(pix.col + pix.row*25) +1;
+;
+
+		 }
+		 else  {
+			 uint32_t DO = (dataw >> 48) & 0xFF;
+		 };
+	 }
+	 //disk.close();
+}
 
 //void ATLASPix::daqStart(){
 //
@@ -3187,6 +3322,55 @@ void ATLASPix::TakeData(){
 	 }
 
 	 disk.close();
+
+}
+
+void ATLASPix::dataTuning(ATLASPixMatrix *matrix, double vmax,int nstep, int npulses) {
+	LOG(logINFO) << "Tuning using data" << DEVICE_NAME;
+
+	int spacing_row = 25;
+	int spacing_col = 5;
+
+	std::vector<std::vector<int>> pixels(nstep, std::vector< int >( 25*400 ));
+	int voltage_step = 0;
+
+	for (int TDAC_value = 0; TDAC_value < 8; TDAC_value++){
+		initTDAC(matrix, TDAC_value);
+		writeAllTDAC(matrix);
+		for (unsigned int selrow = 0; selrow < spacing_row; ++selrow) {
+			for (unsigned int selcol = 0; selcol < spacing_col; ++selcol) {
+				for (unsigned int col = 0; col < matrix->ncol; ++col) {
+					for (unsigned int row = 0; row < matrix->nrow; ++row) {
+						if ((row % spacing_row == selrow) && (col % spacing_col == selcol)) {
+							this->SetPixelInjection(col,row,1,1);
+						} else {
+							this->SetPixelInjection(col,row,0,0);
+						}
+					}
+				}
+
+				for(double v=0;v<=vmax;v+=(vmax/nstep)){
+					setPulse(matrix,npulses,100,100,v);
+					sendPulse();
+					//pixels[voltage_step] = this->getCountingData();
+					pixels[voltage_step] = this->getCountingData();
+					voltage_step++;
+				}
+			}
+		}
+
+		int col, row;
+		for (unsigned int index = 0; index < matrix->ncol * matrix->nrow; ++index) {
+			col = index%25;
+			row = (index - col)/25;
+			std::cout << "Index:    " << index << " X:      " << col << "   Y:      " << row << "   ";
+			for (int volt = 0; volt < nstep; volt++) {
+				std::cout << pixels[volt][index] << "   ";
+			}
+			std::cout << std::endl << std::endl;
+		}
+
+	}
 
 }
 
