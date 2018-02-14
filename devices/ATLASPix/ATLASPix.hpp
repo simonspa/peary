@@ -112,6 +112,7 @@ namespace caribou {
     // Reset the chip
     // The reset signal is asserted for ~5us
     void reset();
+    void isLocked();
 
 
     void LoadConfiguration(int matrix);

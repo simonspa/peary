@@ -1998,9 +1998,13 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 
 			 //volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
 			 //volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x4);
-			 //volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
+			 volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
 			 //volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
 			 volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
+
+			 *fifo_config = (*fifo_config & 0x7) + (0b1000);
+			 usleep(1);
+			 *fifo_config = (*fifo_config & 0xFFFFFFF7) + (0b0000);
 
 			 *ro = (*ro & 0xFFFCFFFF) + ((value << 16) & 0x30000);
 
@@ -2075,8 +2079,8 @@ void ATLASPix::Initialize_SR(ATLASPixMatrix *matrix){
 	matrix->CurrentDACConfig->AddParameter("Aur_res_n",     1, ATLASPix_Config::LSBFirst,  1);//1);  //for fastreadout start set 1
 	matrix->CurrentDACConfig->AddParameter("sendcnt",     1, ATLASPix_Config::LSBFirst,  0);//0);
 	matrix->CurrentDACConfig->AddParameter("resetckdivend", "3,2,1,0",  15);//2);
-	matrix->CurrentDACConfig->AddParameter("maxcycend", "5,4,3,2,1,0",  10);//10); // probably 0 not allowed
-	matrix->CurrentDACConfig->AddParameter("slowdownend", "3,2,1,0",  0);//1);
+	matrix->CurrentDACConfig->AddParameter("maxcycend", "5,4,3,2,1,0",  5);//10); // probably 0 not allowed
+	matrix->CurrentDACConfig->AddParameter("slowdownend", "3,2,1,0",  2);//1);
 	matrix->CurrentDACConfig->AddParameter("timerend", "3,2,1,0",  1);//8); // darf nicht 0!! sonst werden debug ausgaben verschluckt
 	matrix->CurrentDACConfig->AddParameter("ckdivend2", "5,4,3,2,1,0",  4);//1);
 	matrix->CurrentDACConfig->AddParameter("ckdivend", "5,4,3,2,1,0",  4);//1);
@@ -2539,6 +2543,7 @@ void ATLASPix::MaskPixel(uint32_t col,uint32_t row){
 	this->setMaskPixel(theMatrix,col,row,1);
 	//std::cout << "pixel masked col:" << col << " row: " << row << " " << theMatrix->MASK[col][row] << std::endl;
 	this->writeOneTDAC(theMatrix,col,row,0);
+	this->SetPixelInjection(col,row,0,0);
 }
 
 
@@ -2993,6 +2998,22 @@ void ATLASPix::SetInjectionMask(uint32_t mask,uint32_t state){
 }
 
 
+void ATLASPix::isLocked(){
+	 void* readout_base = _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
+	 volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x4);
+
+	 if((*fifo_status >> 5) & 0b1){
+		 std::cout << "yes" << std::endl;
+	 }
+	 else{
+		 std::cout << "no" << std::endl;
+	 }
+
+
+}
+
+
+
 pearydata ATLASPix::getData(){
 
 	const unsigned int colmask = 0b11111111000000000000000000000000;
@@ -3045,16 +3066,16 @@ pearydata ATLASPix::getData(){
 	 to=1;
 	 cnt=0;
 
-	 //this->setSpecialRegister("trigger_mode",2);
+	 this->setSpecialRegister("trigger_mode",2);
 
-	 //*fifo_config = 0b11;
+	 *fifo_config = 0b11;
 
 
 
 
 	 while(to){
 		 while((*fifo_status & 0x4)==0 & to==1){
-			 usleep(1);
+			 //usleep(1);
 			 cnt++;
 			 if (cnt>1e7){to=0;}
 			 };
@@ -3062,12 +3083,13 @@ pearydata ATLASPix::getData(){
 		 if(to==0){break;}
 
 		 d1 = *data;
-		 usleep(0.1);
+		 while((*fifo_status & 0x1)==0){continue;};
 		 d2 = *data;
 		 //usleep(10);
 
 		 dataw = (d2 << 32) | (d1);
 		 uint32_t stateA = dataw>>56 & 0xFF;
+		 //std::cout  << blue << bold << rev << dataw << " " << stateA <<   std::endl;
 
 
 		 if(stateA==0) {
@@ -3159,7 +3181,7 @@ pearydata ATLASPix::getData(){
 //		 }};
 
 
-	 *fifo_config = 0b10;
+	 //*fifo_config = 0b10;
 	 disk.close();
 
 	 pearydata dummy;

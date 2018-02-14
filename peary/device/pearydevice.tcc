@@ -357,6 +357,11 @@ namespace caribou {
     throw caribou::DeviceImplException("MaskPixel not implemented for this device");
   } 
  
+      template <typename T> void pearyDevice<T>::isLocked(){
+    LOG(logCRITICAL) << "MaskPixel not implemented for this device";
+    throw caribou::DeviceImplException("isLocked not implemented for this device");
+  } 
+ 
   
   template <typename T> void pearyDevice<T>::configure() {
 
