@@ -83,9 +83,7 @@ namespace caribou {
     void dataTuning(ATLASPixMatrix& matrix, double vmax,int nstep, int npulses);
 
     void Initialize_SR(ATLASPixMatrix& matrix);
-    void Shift_SR(ATLASPixMatrix& matrix);
-    void Fill_SR(ATLASPixMatrix& matrix);
-    void ProgramSR(ATLASPixMatrix& matrix);
+    void ProgramSR(const ATLASPixMatrix& matrix);
     void writePixelInj(ATLASPixMatrix& matrix, uint32_t inj_col, uint32_t inj_row,bool ana_state,bool hb_state);
     void writeOneTDAC(ATLASPixMatrix& matrix,uint32_t col,uint32_t row,uint32_t value);
     void writeAllTDAC(ATLASPixMatrix& matrix);

@@ -25,12 +25,6 @@ struct ATLASPixMatrix {
   uint32_t nu3;
   double VMINUSPix, GatePix, GNDDACPix;
 
-  // Shift register vectors
-  std::vector<bool> CurrentDACbits;
-  std::vector<bool> MatrixBits;
-  std::vector<bool> VoltageDACBits;
-  std::vector<uint32_t> Registers;
-
   // TDAC and mask maps
   std::array<std::array<int, 400>, 56> TDAC;
   std::array<std::array<int, 400>, 56> MASK;
@@ -57,6 +51,9 @@ struct ATLASPixMatrix {
   void loadGlobal(std::string basename);
   /// Load per-pixel trim dac configuration file
   void loadTDAC(std::string basename);
+
+  /// encode shift register content as vector of 32bit words
+  std::vector<uint32_t> encodeShiftRegister() const;
 };
 
 #endif // DEVICE_ATLASPIXMATRIX_H

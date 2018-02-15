@@ -229,9 +229,6 @@ void ATLASPix::SetMatrix(std::string matrix){
 	this->Initialize_SR(this->theMatrix);
 }
 
-
-
-
 void ATLASPix::configure() {
 
 
@@ -2129,60 +2126,11 @@ void ATLASPix::Initialize_SR(ATLASPixMatrix& matrix){
 
 }
 
+void ATLASPix::ProgramSR(const ATLASPixMatrix& matrix){
 
-void ATLASPix::Fill_SR(ATLASPixMatrix& matrix)
-{
-    uint32_t buffer =0;
-    uint32_t cnt =0;
-    uint32_t nbits =0;
-    matrix.VoltageDACBits = matrix.VoltageDACConfig->GenerateBitVector(ATLASPix_Config::GlobalInvertedMSBFirst);
-    matrix.CurrentDACbits = matrix.CurrentDACConfig->GenerateBitVector(ATLASPix_Config::GlobalInvertedMSBFirst);
-    matrix.MatrixBits = matrix.MatrixDACConfig->GenerateBitVector(ATLASPix_Config::GlobalInvertedMSBFirst);
-    //CurrentDACbits = CurrentDACConfig->GenerateBitVector(ATLASPix_Config::GlobalInvertedMSBFirst);
-
-
-    std::vector<bool> allbits;
-    allbits.insert( allbits.end(), matrix.VoltageDACBits.begin(), matrix.VoltageDACBits.end() );
-    allbits.insert( allbits.end(), matrix.CurrentDACbits.begin(), matrix.CurrentDACbits.end() );
-    allbits.insert( allbits.end(),  matrix.MatrixBits.begin(),  matrix.MatrixBits.end() );
-    allbits.insert( allbits.end(), matrix.CurrentDACbits.begin(), matrix.CurrentDACbits.end() );
-
-//    std::cout << matrix.VoltageDACBits.size() << std::endl;;
-//    std::cout << matrix.CurrentDACbits.size() << std::endl;;
-//    std::cout << matrix.MatrixBits.size() << std::endl;;
-//    std::cout << allbits.size() << std::endl;;
-
-
-    matrix.Registers.clear();
-
-    for (auto i = allbits.begin(); i != allbits.end(); ++i)
-     {
-       if(cnt==32){
-	 cnt=0;
-	 matrix.Registers.push_back(buffer);
-	 buffer=0;
-       };
-       buffer += *i << cnt;
-       cnt++;
-       nbits++;
-     }
-
-
-	 matrix.Registers.push_back(buffer);
-
-
-     //std::cout << "size of shift buffer " << matrix.Registers.size() << std::endl;
-     //std::cout << "number of bits " << nbits << std::endl;
-
-}
-
-
-void ATLASPix::Shift_SR(ATLASPixMatrix& matrix){
-
+	auto words = matrix.encodeShiftRegister();
 
 	void* control_base = _hal->getMappedMemoryRW(ATLASPix_CONTROL_BASE_ADDRESS, ATLASPix_CONTROL_MAP_SIZE, ATLASPix_RAM_address_MASK);
-
-
 	volatile uint32_t* RAM_address = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + 0x0);
 	volatile uint32_t* RAM_content = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + 0x4);
 	volatile uint32_t* RAM_write_enable = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + 0x8);
@@ -2193,54 +2141,31 @@ void ATLASPix::Shift_SR(ATLASPixMatrix& matrix){
 	volatile uint32_t* output_enable = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + 0x1C);
 
 	*Config_flag = 0;
-
 	*RAM_reg_limit = matrix.nSRbuffer;
 	*RAM_shift_limit = matrix.extraBits;
 
-	uint32_t tmp=0;
-
 	for(uint32_t i =0;i<=matrix.nSRbuffer;i++){
-		*RAM_address =i;
-		tmp=matrix.Registers[i];
-		*RAM_content = tmp;
+		uint32_t word = words[i];
+		*RAM_address = i;
+		*RAM_content = word;
 		usleep(10);
 		*RAM_write_enable =0x1;
 		usleep(10);
 		*RAM_write_enable =0x0;
-
-		 //std::cout << matrix.Registers[i] << " " ;
-		 //std::cout << std::hex << matrix.Registers[i] << " ";
-		 //this->printBits(sizeof(matrix.Registers[i]),&matrix.Registers[i]);
-
 	};
 
 	*output_enable = matrix.SRmask;
 	usleep(10);
-
-
 	*Config_flag = 0x1;
 	usleep(30000);
 	*Config_flag = 0;
 	*output_enable = 0x0;
-	//powerStatusLog();
-
 
 	// Sync RO state machine ckdivend with the one in the chip
 	 void* readout_base = _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
 	 volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
 	 *ro=(*ro & 0xFFFFFF00)+(matrix.CurrentDACConfig->GetParameter("ckdivend") & 0xFF);
-
 }
-
-
-void ATLASPix::ProgramSR(ATLASPixMatrix& matrix){
-
-	this->Fill_SR(matrix);
- 	this->Shift_SR(matrix);
-
-}
-
-
 
 // Injection and pulser
 

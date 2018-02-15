@@ -134,3 +134,42 @@ void ATLASPixMatrix::loadTDAC(std::string filename) {
     setMaskPixel(col, row, mask);
   }
 }
+
+std::vector<uint32_t> ATLASPixMatrix::encodeShiftRegister() const {
+  // encode all dacs in a single large bit vector
+  auto volBits = VoltageDACConfig->GenerateBitVector(ATLASPix_Config::GlobalInvertedMSBFirst);
+  auto curBits = CurrentDACConfig->GenerateBitVector(ATLASPix_Config::GlobalInvertedMSBFirst);
+  auto matBits = MatrixDACConfig->GenerateBitVector(ATLASPix_Config::GlobalInvertedMSBFirst);
+  std::vector<bool> bits;
+  bits.insert(bits.end(), volBits.begin(), volBits.end());
+  bits.insert(bits.end(), curBits.begin(), curBits.end());
+  bits.insert(bits.end(), matBits.begin(), matBits.end());
+  bits.insert(bits.end(), curBits.begin(), curBits.end());
+
+  // encode bitstream into list of 32bit words
+  std::vector<uint32_t> words;
+  uint32_t buffer = 0;
+  size_t cnt = 0;
+  for(auto i = bits.begin(); i != bits.end(); ++i) {
+    if(cnt == 32) {
+      words.push_back(buffer);
+      buffer = 0;
+      cnt = 0;
+    }
+    buffer += *i << cnt;
+    cnt += 1;
+  }
+  // loop adds words only after crossing a word boundary
+  // last word needs to be added manually
+  words.push_back(buffer);
+
+  // verify with configuration values
+  if(words.size() != nSRbuffer) {
+    LOG(logERROR) << "Encoded shift register size " << words.size() << " inconsistent with expected size " << nSRbuffer;
+  }
+  if(cnt != extraBits) {
+    LOG(logERROR) << "Encoded shift register extra bits " << cnt << " inconsistent with expected bits " << extraBits;
+  }
+
+  return words;
+}
