@@ -18,15 +18,6 @@ struct ATLASPixMatrix {
   std::unique_ptr<ATLASPix_Config> MatrixDACConfig;
   std::unique_ptr<ATLASPix_Config> VoltageDACConfig;
 
-  // global DACs
-  uint32_t unlock, BLResPix, ThResPix, VNPix, VNFBPix, VNFollPix, VNRegCasc, VDel, VPComp, VPDAC, VNPix2, BLResDig,
-    VNBiasPix, VPLoadPix, VNOutPix;
-  // Digital
-  uint32_t VPVCO, VNVCO, VPDelDclMux, VNDelDclMux, VPDelDcl, VNDelDcl, VPDelPreEmp, VNDelPreEmp, VPDcl, VNDcl, VNLVDS,
-    VNLVDSDel, VPPump, nu, RO_res_n, Ser_res_n, Aur_res_n, sendcnt, resetckdivend, maxcycend, slowdownend, timerend,
-    ckdivend2, ckdivend, VPRegCasc, VPRamp, VNcompPix, VPFoll, VNDACPix, VPBiasRec, VNBiasRec, Invert, SelEx, SelSlow, EnPLL,
-    TriggerDelay, Reset, ConnRes, SelTest, SelTestOut;
-
   // Voltage DACs
   double BLPix; // Voltage, to be translated to DAC value
   uint32_t nu2;
