@@ -2223,7 +2223,7 @@ void ATLASPix::pulse(uint32_t npulse,uint32_t tup,uint32_t tdown,double amplitud
 
 void ATLASPix::MaskPixel(uint32_t col,uint32_t row){
 
-	theMatrix.setMaskPixel(col,row,1);
+	theMatrix.setMask(col,row,1);
 	//std::cout << "pixel masked col:" << col << " row: " << row << " " << theMatrix.MASK[col][row] << std::endl;
 	this->writeOneTDAC(theMatrix,col,row,0);
 	this->SetPixelInjection(col,row,0,0);
@@ -2232,7 +2232,7 @@ void ATLASPix::MaskPixel(uint32_t col,uint32_t row){
 
 void ATLASPix::writeOneTDAC(ATLASPixMatrix& matrix,uint32_t col,uint32_t row,uint32_t value){
 
-	matrix.setOneTDAC(col,row,value);
+	matrix.setTDAC(col,row,value);
 
 	if((matrix.flavor == ATLASPix1Flavor::M1) || (matrix.flavor == ATLASPix1Flavor::M1Iso)){
 
@@ -2301,7 +2301,7 @@ void ATLASPix::writeUniformTDAC(ATLASPixMatrix& matrix,uint32_t value){
 	std::string col_s;
 	int double_col=0;
 
-	matrix.setAllTDAC(value);
+	matrix.setUniformTDAC(value);
 
 	//std::cout << "writing " <<  std::bitset<32>(value) << std::endl;
 
@@ -2481,7 +2481,7 @@ void ATLASPix::tune(ATLASPixMatrix& matrix, double vmax,int nstep, int npulses, 
 	LOG(logINFO) << "Tunning " << DEVICE_NAME;
 
 	for (int TDAC_value = 0; TDAC_value < 8; TDAC_value++){
-		matrix.setAllTDAC(TDAC_value);
+		matrix.setUniformTDAC(TDAC_value);
 		writeAllTDAC(matrix);
 		ComputeSCurves(matrix,vmax, nstep, npulses, 100, 100);
 		//s_curve plots
@@ -3077,7 +3077,7 @@ void ATLASPix::dataTuning(ATLASPixMatrix& matrix, double vmax,int nstep, int npu
 	int voltage_step = 0;
 
 	for (int TDAC_value = 0; TDAC_value < 8; TDAC_value++){
-		matrix.setAllTDAC(TDAC_value);
+		matrix.setUniformTDAC(TDAC_value);
 		writeAllTDAC(matrix);
 		for (unsigned int selrow = 0; selrow < spacing_row; ++selrow) {
 			for (unsigned int selcol = 0; selcol < spacing_col; ++selcol) {

@@ -13,7 +13,7 @@ enum class ATLASPix1Flavor { M1, M1Iso, M2, Undefined };
 
 /** ATLASPix matrix configuration and related methods.
  *
- * Implements configuration settings and encodings.
+ * Handles the shift register encoding and configuration files.
  */
 struct ATLASPixMatrix {
   std::unique_ptr<ATLASPix_Config> VoltageDACConfig;
@@ -51,9 +51,9 @@ struct ATLASPixMatrix {
   void _initializeM2ColumnParameters();
   void _initializeRowParameters();
 
-  void setMaskPixel(uint32_t col, uint32_t row, uint32_t value);
-  void setOneTDAC(uint32_t col, uint32_t row, uint32_t value);
-  void setAllTDAC(uint32_t value);
+  void setMask(uint32_t col, uint32_t row, uint32_t value);
+  void setTDAC(uint32_t col, uint32_t row, uint32_t value);
+  void setUniformTDAC(uint32_t value);
 
   /// Write global configuration file
   void writeGlobal(std::string basename) const;

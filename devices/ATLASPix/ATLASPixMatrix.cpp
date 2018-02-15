@@ -187,12 +187,12 @@ void ATLASPixMatrix::initializeM2() {
   _initializeRowParameters();
 }
 
-void ATLASPixMatrix::setMaskPixel(uint32_t col, uint32_t row, uint32_t value) {
+void ATLASPixMatrix::setMask(uint32_t col, uint32_t row, uint32_t value) {
   MASK[col][row] = value;
   TDAC[col][row] = TDAC[col][row] << 1 | value;
 }
 
-void ATLASPixMatrix::setOneTDAC(uint32_t col, uint32_t row, uint32_t value) {
+void ATLASPixMatrix::setTDAC(uint32_t col, uint32_t row, uint32_t value) {
   if(7 < value) {
     LOG(logWARNING) << "TDAC value out of range, setting to 7";
     value = 7;
@@ -201,7 +201,7 @@ void ATLASPixMatrix::setOneTDAC(uint32_t col, uint32_t row, uint32_t value) {
   TDAC[col][row] = (value << 1) | MASK[col][row];
 }
 
-void ATLASPixMatrix::setAllTDAC(uint32_t value) {
+void ATLASPixMatrix::setUniformTDAC(uint32_t value) {
   if(7 < value) {
     LOG(logWARNING) << "TDAC value out of range, setting to 7";
     value = 7;
@@ -306,8 +306,8 @@ void ATLASPixMatrix::loadTDAC(std::string filename) {
     uint32_t col, row, TDAC, mask;
     cfg >> col >> row >> TDAC >> mask;
 
-    setOneTDAC(col, row, TDAC);
-    setMaskPixel(col, row, mask);
+    setMask(col, row, mask);
+    setTDAC(col, row, TDAC);
   }
 }
 
