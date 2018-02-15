@@ -2122,92 +2122,6 @@ int ATLASPix::readCounter(ATLASPixMatrix& matrix)
 	return value;
 }
 
-void ATLASPix::SetPixelInjection(uint32_t col, uint32_t row,bool ana_state,bool hb_state){
-
-	this->writePixelInj(this->theMatrix,col,row,ana_state,hb_state);
-
-}
-
-void ATLASPix::SetPixelInjection(ATLASPixMatrix& matrix,uint32_t col, uint32_t row,bool ana_state,bool hb_state){
-
-	this->writePixelInj(matrix,col,row,ana_state,hb_state);
-
-
-}
-
-void ATLASPix::writePixelInj(ATLASPixMatrix& matrix, uint32_t col, uint32_t row, bool ana_state,bool hb_state){
-
-
-	std::string col_s;
-	int double_col=0;
-
-	bool inj = 0;
-
-	if(ana_state==true or hb_state==true){
-		inj=true;
-	}
-
-
-
-	if((matrix.flavor == ATLASPix1Flavor::M1) || (matrix.flavor == ATLASPix1Flavor::M1Iso)){
-		std::string s = to_string(col);
-
-		if(row<200){
-		matrix.MatrixDACConfig->SetParameter("RamDown"+s, matrix.TDAC[col][row]); //0b1011
-		matrix.MatrixDACConfig->SetParameter("RamUp"+s, matrix.TDAC[col][row]); //0b1011
-		matrix.MatrixDACConfig->SetParameter("colinjDown"+s,  inj);
-		matrix.MatrixDACConfig->SetParameter("hitbusDown"+s,  hb_state);
-		matrix.MatrixDACConfig->SetParameter("unusedDown"+s,  3);
-		matrix.MatrixDACConfig->SetParameter("colinjUp"+s,   inj);
-		matrix.MatrixDACConfig->SetParameter("hitbusUp"+s,  0);
-		matrix.MatrixDACConfig->SetParameter("unusedUp"+s,  3);
-
-		}
-		else{
-		//std::cout << "up pixels" << std::endl;
-		matrix.MatrixDACConfig->SetParameter("RamUp"+s,matrix.TDAC[col][row]); //0b1011
-		matrix.MatrixDACConfig->SetParameter("RamDown"+s, matrix.TDAC[col][row]); //0b1011
-		matrix.MatrixDACConfig->SetParameter("colinjDown"+s,  inj);
-		matrix.MatrixDACConfig->SetParameter("hitbusDown"+s,  0);
-		matrix.MatrixDACConfig->SetParameter("unusedDown"+s,  3);
-		matrix.MatrixDACConfig->SetParameter("colinjUp"+s,   inj);
-		matrix.MatrixDACConfig->SetParameter("hitbusUp"+s,  hb_state);
-		matrix.MatrixDACConfig->SetParameter("unusedUp"+s,  3);
-
-
-		}
-
-	}
-	else{
-
-		double_col=int(std::floor(double(col)/2));
-		col_s = to_string(double_col);
-		if(col%2==0){
-				matrix.MatrixDACConfig->SetParameter("RamL"+col_s,matrix.TDAC[col][row] & 0b111);
-				matrix.MatrixDACConfig->SetParameter("colinjL"+col_s,inj);
-		}
-		else {
-				matrix.MatrixDACConfig->SetParameter("RamR"+col_s, matrix.TDAC[col][row] & 0b111);
-				matrix.MatrixDACConfig->SetParameter("colinjR"+col_s,inj);
-		}
-
-
-	}
-
-	std::string row_s = to_string(row);
-	matrix.MatrixDACConfig->SetParameter("writedac"+row_s,1);
-	matrix.MatrixDACConfig->SetParameter("unused"+row_s,  0);
-	matrix.MatrixDACConfig->SetParameter("rowinjection"+row_s,inj);
-	matrix.MatrixDACConfig->SetParameter("analogbuffer"+row_s,ana_state);
-	this->ProgramSR(matrix);
-	matrix.MatrixDACConfig->SetParameter("writedac"+row_s,0);
-	this->ProgramSR(matrix);
-
-
-
-
-}
-
 void ATLASPix::pulse(uint32_t npulse,uint32_t tup,uint32_t tdown,double amplitude){
 
 	  this->resetCounters();
@@ -2217,7 +2131,6 @@ void ATLASPix::pulse(uint32_t npulse,uint32_t tup,uint32_t tdown,double amplitud
 	  usleep(2000);
 
 }
-
 
 // TDAC Manipulation
 
@@ -2229,6 +2142,14 @@ void ATLASPix::MaskPixel(uint32_t col,uint32_t row){
 	this->SetPixelInjection(col,row,0,0);
 }
 
+void ATLASPix::setAllTDAC(uint32_t value){
+	this->writeUniformTDAC(theMatrix, value);
+}
+
+void ATLASPix::LoadTDAC(std::string filename){
+	theMatrix.loadTDAC(filename);
+	writeAllTDAC(theMatrix);
+}
 
 void ATLASPix::writeOneTDAC(ATLASPixMatrix& matrix,uint32_t col,uint32_t row,uint32_t value){
 
@@ -2291,12 +2212,9 @@ void ATLASPix::writeOneTDAC(ATLASPixMatrix& matrix,uint32_t col,uint32_t row,uin
 	matrix.MatrixDACConfig->SetParameter("analogbuffer"+row_s,0);
 
 	this->ProgramSR(matrix);
-
-
 }
 
 void ATLASPix::writeUniformTDAC(ATLASPixMatrix& matrix,uint32_t value){
-
 
 	std::string col_s;
 	int double_col=0;
@@ -2386,17 +2304,6 @@ void ATLASPix::writeUniformTDAC(ATLASPixMatrix& matrix,uint32_t value){
     	this->ProgramSR(matrix);
 }
 
-void ATLASPix::setAllTDAC(uint32_t value){
-
-	this->writeUniformTDAC(theMatrix,value);
-
-}
-
-void ATLASPix::LoadTDAC(std::string filename){
-	theMatrix.loadTDAC(filename);
-	writeAllTDAC(theMatrix);
-}
-
 void ATLASPix::writeAllTDAC(ATLASPixMatrix& matrix){
 
 
@@ -2469,106 +2376,77 @@ void ATLASPix::writeAllTDAC(ATLASPixMatrix& matrix){
 
     	matrix.MatrixDACConfig->SetParameter("writedac"+row_s,0);
     	this->ProgramSR(matrix);
-
-
     };
-
 }
 
-// Tuning
+// injections
 
-void ATLASPix::tune(ATLASPixMatrix& matrix, double vmax,int nstep, int npulses, bool tuning_verification) {
-	LOG(logINFO) << "Tunning " << DEVICE_NAME;
+void ATLASPix::SetPixelInjection(uint32_t col, uint32_t row,bool ana_state,bool hb_state){
+	std::string col_s;
+	int double_col=0;
 
-	for (int TDAC_value = 0; TDAC_value < 8; TDAC_value++){
-		matrix.setUniformTDAC(TDAC_value);
-		writeAllTDAC(matrix);
-		ComputeSCurves(matrix,vmax, nstep, npulses, 100, 100);
-		//s_curve plots
+	bool inj = 0;
+
+	if(ana_state==true or hb_state==true){
+		inj=true;
 	}
 
-	//double threshold_target = 0;
-	const int cols = matrix.ncol;
-	const int rows = matrix.nrow;
-	int TDAC_map[cols][rows] = {0,0};
-	//threshold_target calculation;
-	//pixel TDAC interpolation for target
-	//==> new, tuned, TDAC map
 
-	for(int col=0;col<matrix.ncol;col++){
-			for(int row=0;row<matrix.nrow;row++){
-				matrix.TDAC[col][row] = TDAC_map[col][row];
-			}
-	}
-	writeAllTDAC(matrix);
-	if(tuning_verification == true){
-		ComputeSCurves(matrix,0.5,50,128,100,100);
-		//S_curve plots + threshold distribution
-	}
 
-}
+	if((theMatrix.flavor == ATLASPix1Flavor::M1) || (theMatrix.flavor == ATLASPix1Flavor::M1Iso)){
+		std::string s = to_string(col);
 
-void ATLASPix::ComputeSCurves(ATLASPixMatrix& matrix,double vmax,int nstep, int npulses,int tup,int tdown){
+		if(row<200){
+		theMatrix.MatrixDACConfig->SetParameter("RamDown"+s, theMatrix.TDAC[col][row]); //0b1011
+		theMatrix.MatrixDACConfig->SetParameter("RamUp"+s, theMatrix.TDAC[col][row]); //0b1011
+		theMatrix.MatrixDACConfig->SetParameter("colinjDown"+s,  inj);
+		theMatrix.MatrixDACConfig->SetParameter("hitbusDown"+s,  hb_state);
+		theMatrix.MatrixDACConfig->SetParameter("unusedDown"+s,  3);
+		theMatrix.MatrixDACConfig->SetParameter("colinjUp"+s,   inj);
+		theMatrix.MatrixDACConfig->SetParameter("hitbusUp"+s,  0);
+		theMatrix.MatrixDACConfig->SetParameter("unusedUp"+s,  3);
 
-    std::clock_t start;
-    double duration;
-
-    start = std::clock();
-    const int steps = nstep;
-    const int cols = matrix.ncol;
-    const int rows = matrix.nrow;
-	double s_curves[steps][cols][rows] = {0, 0, 0};
-
-	int step = 0;
-    for(double v=0;v<=vmax;v+=(vmax/nstep)){
-		setPulse(matrix,npulses,tup,tdown,v);
-		std::cout << "  bias :" << v << "V"<< std::endl;
-
-		for(int col=0;col< matrix.ncol; col++){
-			for(int row=0;row< matrix.nrow; row++){
-				sendPulse();
-// 2018-02-14 msmk:
-// I'm pretty sure this is a (major) bug. before my changes readCounter took a pointer to
-// an ATLASPixMatrix object. calling it with 0 means we are taking a nullptr that is then referenced
-// in the function. Not sure what was returned then?
-//				int sent = this->readCounter(0);
-				int rec = this->readCounter(matrix);
-//				double ratio = double(rec)/sent;
-				double ratio = double(rec)/npulses;
-				resetCounters();
-				s_curves[step][col][row] = ratio;
-			}
 		}
-		step++;
+		else{
+		//std::cout << "up pixels" << std::endl;
+		theMatrix.MatrixDACConfig->SetParameter("RamUp"+s,theMatrix.TDAC[col][row]); //0b1011
+		theMatrix.MatrixDACConfig->SetParameter("RamDown"+s, theMatrix.TDAC[col][row]); //0b1011
+		theMatrix.MatrixDACConfig->SetParameter("colinjDown"+s,  inj);
+		theMatrix.MatrixDACConfig->SetParameter("hitbusDown"+s,  0);
+		theMatrix.MatrixDACConfig->SetParameter("unusedDown"+s,  3);
+		theMatrix.MatrixDACConfig->SetParameter("colinjUp"+s,   inj);
+		theMatrix.MatrixDACConfig->SetParameter("hitbusUp"+s,  hb_state);
+		theMatrix.MatrixDACConfig->SetParameter("unusedUp"+s,  3);
+
+
+		}
+
 	}
-	duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
-	std::cout << "duration : " << duration << "s" << std::endl;
+	else{
 
-}
+		double_col=int(std::floor(double(col)/2));
+		col_s = to_string(double_col);
+		if(col%2==0){
+				theMatrix.MatrixDACConfig->SetParameter("RamL"+col_s,theMatrix.TDAC[col][row] & 0b111);
+				theMatrix.MatrixDACConfig->SetParameter("colinjL"+col_s,inj);
+		}
+		else {
+				theMatrix.MatrixDACConfig->SetParameter("RamR"+col_s, theMatrix.TDAC[col][row] & 0b111);
+				theMatrix.MatrixDACConfig->SetParameter("colinjR"+col_s,inj);
+		}
 
-void ATLASPix::doSCurve(uint32_t col,uint32_t row,double vmin,double vmax,uint32_t npulses,uint32_t npoints){
 
-
-	this->SetPixelInjection(theMatrix,col,row,1,1);
-	this->resetCounters();
-
-	int cnt=0;
-
-	double vinj=vmin;
-	double dv = (vmax-vmin)/(npoints-1);
-
-	for(int i=0;i<npoints;i++){
-		this->pulse(npulses,10000,10000,vinj);
-		cnt=this->readCounter(theMatrix);
-		std::cout << "V : " << vinj << " count : " << cnt << std::endl;
-		vinj+=dv;
 	}
 
-	this->SetPixelInjection(col,row,0,0);
-
+	std::string row_s = to_string(row);
+	theMatrix.MatrixDACConfig->SetParameter("writedac"+row_s,1);
+	theMatrix.MatrixDACConfig->SetParameter("unused"+row_s,  0);
+	theMatrix.MatrixDACConfig->SetParameter("rowinjection"+row_s,inj);
+	theMatrix.MatrixDACConfig->SetParameter("analogbuffer"+row_s,ana_state);
+	this->ProgramSR(theMatrix);
+	theMatrix.MatrixDACConfig->SetParameter("writedac"+row_s,0);
+	this->ProgramSR(theMatrix);
 }
-
-
 
 void ATLASPix::SetInjectionMask(uint32_t mask,uint32_t state){
 
@@ -2647,10 +2525,100 @@ void ATLASPix::SetInjectionMask(uint32_t mask,uint32_t state){
 	};
 
 	this->ProgramSR(theMatrix);
+}
 
+// Tuning
+
+void ATLASPix::tune(ATLASPixMatrix& matrix, double vmax,int nstep, int npulses, bool tuning_verification) {
+	LOG(logINFO) << "Tunning " << DEVICE_NAME;
+
+	for (int TDAC_value = 0; TDAC_value < 8; TDAC_value++){
+		matrix.setUniformTDAC(TDAC_value);
+		writeAllTDAC(matrix);
+		ComputeSCurves(matrix,vmax, nstep, npulses, 100, 100);
+		//s_curve plots
+	}
+
+	//double threshold_target = 0;
+	const int cols = matrix.ncol;
+	const int rows = matrix.nrow;
+	int TDAC_map[cols][rows] = {0,0};
+	//threshold_target calculation;
+	//pixel TDAC interpolation for target
+	//==> new, tuned, TDAC map
+
+	for(int col=0;col<matrix.ncol;col++){
+			for(int row=0;row<matrix.nrow;row++){
+				matrix.TDAC[col][row] = TDAC_map[col][row];
+			}
+	}
+	writeAllTDAC(matrix);
+	if(tuning_verification == true){
+		ComputeSCurves(matrix,0.5,50,128,100,100);
+		//S_curve plots + threshold distribution
+	}
 
 }
 
+void ATLASPix::ComputeSCurves(ATLASPixMatrix& matrix,double vmax,int nstep, int npulses,int tup,int tdown){
+
+    std::clock_t start;
+    double duration;
+
+    start = std::clock();
+    const int steps = nstep;
+    const int cols = matrix.ncol;
+    const int rows = matrix.nrow;
+	double s_curves[steps][cols][rows] = {0, 0, 0};
+
+	int step = 0;
+    for(double v=0;v<=vmax;v+=(vmax/nstep)){
+		setPulse(matrix,npulses,tup,tdown,v);
+		std::cout << "  bias :" << v << "V"<< std::endl;
+
+		for(int col=0;col< matrix.ncol; col++){
+			for(int row=0;row< matrix.nrow; row++){
+				sendPulse();
+// 2018-02-14 msmk:
+// I'm pretty sure this is a (major) bug. before my changes readCounter took a pointer to
+// an ATLASPixMatrix object. calling it with 0 means we are taking a nullptr that is then referenced
+// in the function. Not sure what was returned then?
+//				int sent = this->readCounter(0);
+				int rec = this->readCounter(matrix);
+//				double ratio = double(rec)/sent;
+				double ratio = double(rec)/npulses;
+				resetCounters();
+				s_curves[step][col][row] = ratio;
+			}
+		}
+		step++;
+	}
+	duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
+	std::cout << "duration : " << duration << "s" << std::endl;
+
+}
+
+void ATLASPix::doSCurve(uint32_t col,uint32_t row,double vmin,double vmax,uint32_t npulses,uint32_t npoints){
+
+
+	this->SetPixelInjection(col,row,1,1);
+	this->resetCounters();
+
+	int cnt=0;
+
+	double vinj=vmin;
+	double dv = (vmax-vmin)/(npoints-1);
+
+	for(int i=0;i<npoints;i++){
+		this->pulse(npulses,10000,10000,vinj);
+		cnt=this->readCounter(theMatrix);
+		std::cout << "V : " << vinj << " count : " << cnt << std::endl;
+		vinj+=dv;
+	}
+
+	this->SetPixelInjection(col,row,0,0);
+
+}
 
 void ATLASPix::isLocked(){
 	 void* readout_base = _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
@@ -3173,7 +3141,7 @@ void ATLASPix::doSCurves(double vmin,double vmax,uint32_t npulses,uint32_t npoin
 			//this->SetPixelInjection(theMatrix,0,0,1,1);
 			//this->SetPixelInjection(theMatrix,0,0,0,0);
 
-			this->SetPixelInjection(theMatrix,col,row,1,1);
+			this->SetPixelInjection(col,row,1,1);
 			this->resetCounters();
 
 			for(int i=0;i<npoints;i++){
@@ -3186,7 +3154,7 @@ void ATLASPix::doSCurves(double vmin,double vmax,uint32_t npulses,uint32_t npoin
 				vinj+=dv;
 			}
 
-			this->SetPixelInjection(theMatrix,col,row,0,0);
+			this->SetPixelInjection(col,row,0,0);
 			myfile << std::endl;
 
 			//duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
@@ -3244,7 +3212,7 @@ void ATLASPix::doSCurves(std::string basefolder,double vmin,double vmax,uint32_t
 			//this->SetPixelInjection(theMatrix,0,0,1,1);
 			//this->SetPixelInjection(theMatrix,0,0,0,0);
 
-			this->SetPixelInjection(theMatrix,col,row,1,1);
+			this->SetPixelInjection(col,row,1,1);
 			this->resetCounters();
 
 			for(int i=0;i<npoints;i++){
@@ -3257,7 +3225,7 @@ void ATLASPix::doSCurves(std::string basefolder,double vmin,double vmax,uint32_t
 				vinj+=dv;
 			}
 
-			this->SetPixelInjection(theMatrix,col,row,0,0);
+			this->SetPixelInjection(col,row,0,0);
 			myfile << std::endl;
 
 			//duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;

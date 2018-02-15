@@ -96,14 +96,11 @@ namespace caribou {
 
   private:
     void ProgramSR(const ATLASPixMatrix& matrix);
-    // Setting Special Register
     void setSpecialRegister(std::string name, uint32_t value);
-    void writePixelInj(ATLASPixMatrix& matrix, uint32_t inj_col, uint32_t inj_row,bool ana_state,bool hb_state);
-    void writeOneTDAC(ATLASPixMatrix& matrix,uint32_t col,uint32_t row,uint32_t value);
+    void writeOneTDAC(ATLASPixMatrix& matrix, uint32_t col,uint32_t row, uint32_t value);
+    void writeUniformTDAC(ATLASPixMatrix& matrix, uint32_t value);
     void writeAllTDAC(ATLASPixMatrix& matrix);
-    void writeUniformTDAC(ATLASPixMatrix& matrix,uint32_t value);
     void SetInjectionMask(uint32_t mask,uint32_t state);
-    void SetPixelInjection(ATLASPixMatrix& matrix,uint32_t col, uint32_t row,bool ana_state,bool hb_state);
     void doSCurves(std::string basefolder,double vmin,double vmax,uint32_t npulses,uint32_t npoints);
     void resetCounters();
     int readCounter(ATLASPixMatrix& matrix);
