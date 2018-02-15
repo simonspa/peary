@@ -82,8 +82,6 @@ namespace caribou {
     std::vector<int> getCountingData();
     void dataTuning(ATLASPixMatrix& matrix, double vmax,int nstep, int npulses);
 
-    void Initialize_SR(ATLASPixMatrix& matrix);
-    void ProgramSR(const ATLASPixMatrix& matrix);
     void writePixelInj(ATLASPixMatrix& matrix, uint32_t inj_col, uint32_t inj_row,bool ana_state,bool hb_state);
     void writeOneTDAC(ATLASPixMatrix& matrix,uint32_t col,uint32_t row,uint32_t value);
     void writeAllTDAC(ATLASPixMatrix& matrix);
@@ -120,6 +118,8 @@ namespace caribou {
     void SetPixelInjection(ATLASPixMatrix& matrix,uint32_t col, uint32_t row,bool ana_state,bool hb_state);
 
   private:
+    void Initialize_SR(ATLASPixMatrix& matrix);
+    void ProgramSR(const ATLASPixMatrix& matrix);
     void TakeData();
 
     ATLASPixMatrix theMatrix;

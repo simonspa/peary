@@ -128,6 +128,10 @@ ATLASPix::ATLASPix(const caribou::Configuration config) : pearyDevice(config, st
 
 }
 
+ATLASPix::~ATLASPix() {
+  LOG(logINFO) << DEVICE_NAME << ": Shutdown, delete device.";
+  powerOff();
+}
 
 void ATLASPix::SetMatrix(std::string matrix){
 
@@ -3504,11 +3508,6 @@ void ATLASPix::reset() {
 	 sleep(1);
 	 *fifo_config = 0b00000;
 
-}
-
-ATLASPix::~ATLASPix() {
-  LOG(logINFO) << DEVICE_NAME << ": Shutdown, delete device.";
-  powerOff();
 }
 
 std::string ATLASPix::getName() {
