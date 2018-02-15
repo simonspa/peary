@@ -2,27 +2,20 @@
  * Caribou implementation for the ATLASPix
  */
 
+#include "ATLASPix.hpp"
 
 #include <chrono>
-#include <fcntl.h>
-#include <fstream>
-#include <sstream>
-#include <sys/mman.h>
-#include <unistd.h>
 #include <cmath>
+#include <ctime>
+#include <fstream>
+#include <stdexcept>
 #include <string>
-#include "ATLASPix.hpp"
+#include <sstream>
+
 #include "hal.hpp"
 #include "log.hpp"
-#include <iostream>
-#include <cstdarg>
-#include <ctime>
-#include <stdexcept>
-#include <iomanip>
 
 using namespace caribou;
-
-
 
 uint32_t reverseBits(uint8_t n) {
         uint32_t x;
@@ -45,7 +38,6 @@ uint32_t reverseBits64(uint64_t n) {
     }
 
 // BASIC Configuration
-
 
 struct pixelhit{
 
@@ -70,7 +62,6 @@ uint32_t grey_decode(uint32_t g)
     return g;
 }
 
-
 pixelhit decodeHit(uint32_t hit,uint32_t TS, uint64_t fpga_ts,uint32_t SyncedTS,uint32_t triggercnt){
 
 	 pixelhit tmp;
@@ -82,24 +73,18 @@ pixelhit decodeHit(uint32_t hit,uint32_t TS, uint64_t fpga_ts,uint32_t SyncedTS,
 	 tmp.ATPbinaryCnt=(TS & 0xFFFF00) + grey_decode((TS & 0xFF));
 	 tmp.ATPGreyCnt=TS & 0xFF;
 
-
 	 buf=((hit >> 23) & 0xFF);
 
 	 tmp.col=(24-((buf>>2)&0b00111111));
 	 tmp.row= 255 -(reverseBits(hit & 0xFF));
 	 tmp.ts2=hit>>18 & 0b00111111;
 	 tmp.ts1=(hit>>8 & 0b1111111111)+  (hit>>16 & 0b11);
-
-
 	 tmp.col=tmp.col & 0b11111;
 	 tmp.row=tmp.row & 0b111111111;
 
 	 if((buf>>1 & 0x1)==0)tmp.row+=200;
 	 return tmp;
 }
-
-
-
 
 namespace Color {
     enum Code {
@@ -115,9 +100,6 @@ namespace Color {
         }
     };
 }
-
-
-
 
 ATLASPix::ATLASPix(const caribou::Configuration config) : pearyDevice(config, std::string(DEFAULT_DEVICEPATH), ATLASPix_DEFAULT_I2C) {
 
@@ -3936,7 +3918,3 @@ caribouDevice* caribou::generator(const caribou::Configuration config) {
   ATLASPix* mDevice = new ATLASPix(config);
   return dynamic_cast<caribouDevice*>(mDevice);
 }
-
-//Data related
-
-
