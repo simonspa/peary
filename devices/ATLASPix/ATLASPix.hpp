@@ -90,7 +90,6 @@ namespace caribou {
     void writeOneTDAC(ATLASPixMatrix& matrix,uint32_t col,uint32_t row,uint32_t value);
     void writeAllTDAC(ATLASPixMatrix& matrix);
     void writeUniformTDAC(ATLASPixMatrix& matrix,uint32_t value);
-    void loadAllTDAC(std::string filename);
     void LoadTDAC(std::string filename);
     void setAllTDAC(uint32_t value);
     void ComputeSCurves(ATLASPixMatrix& matrix,double vmax,int nstep, int npulses,int tup,int tdown);

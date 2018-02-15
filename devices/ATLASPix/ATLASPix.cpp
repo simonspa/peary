@@ -2641,41 +2641,10 @@ void ATLASPix::setAllTDAC(uint32_t value){
 
 }
 
-void ATLASPix::loadAllTDAC(std::string filename){
-
-
-		std::ifstream myfile(filename);
-		//myfile.open(filename);
-		char data[100];
-
-		uint32_t col,row,TDAC,mask;
-
-		while(!myfile.eof()){
-
-
-			myfile >> col >> row >> TDAC >> mask ;
-
-			//std::cout  << " ---------------------------- " << std::endl;
-			//std::cout  << " col: " << col << " row: " << row << " TDAC: " << TDAC << " mask : " << mask << std::endl;
-
-
-			theMatrix.setOneTDAC(col,row,TDAC);
-			theMatrix.setMaskPixel(col,row,mask);
-
-			//std::cout  << " col: " << col << " row: " << row << " TDAC: " << this->simpleM1->TDAC[col][row] << " mask : " <<  this->simpleM1->MASK[col][row] << std::endl;
-			//std::cout  << " ---------------------------- " << std::endl;
-
-		}
-		this->writeAllTDAC(theMatrix);
-
-}
-
-
 void ATLASPix::LoadTDAC(std::string filename){
-
-this->loadAllTDAC(filename);
+	theMatrix.loadTDAC(filename);
+	writeAllTDAC(theMatrix);
 }
-
 
 void ATLASPix::writeAllTDAC(ATLASPixMatrix& matrix){
 
@@ -2945,8 +2914,6 @@ void ATLASPix::isLocked(){
 
 
 }
-
-
 
 pearydata ATLASPix::getData(){
 
@@ -3257,15 +3224,6 @@ std::vector<int> ATLASPix::getCountingData(){
 	 }
 	 //disk.close();
 }
-
-//void ATLASPix::daqStart(){
-//
-//	//std::thread t(&caribou::ATLASPix::TakeData);
-//
-//
-//}
-
-
 
 void ATLASPix::TakeData(){
 
@@ -3649,8 +3607,6 @@ void ATLASPix::powerUp() {
   this->setVoltage("VSSA",ATLASPix_VSSA,ATLASPix_VSSA_CURRENT);
   this->switchOn("VSSA");
 
-
-
   // Analog biases
 
   this->setVoltage("GNDDACPix",theMatrix.GNDDACPix);
@@ -3662,18 +3618,13 @@ void ATLASPix::powerUp() {
   this->setVoltage("GatePix",theMatrix.GatePix);
   this->switchOn("GatePix");
 
-
-
   // Threshold and Baseline
+
   this->setVoltage("ThPix",theMatrix.ThPix);
   this->switchOn("ThPix");
 
   this->setVoltage("BLPix",theMatrix.BLPix);
   this->switchOn("BLPix");
-
-
-
-
 }
 
 void ATLASPix::powerDown() {
@@ -3724,146 +3675,33 @@ void ATLASPix::powerStatusLog() {
 
 }
 
-
-
 void ATLASPix::WriteConfig(std::string basename){
-
-
-	std::ofstream myfile;
-	myfile.open(basename + ".cfg" );
-
-
-	static std::vector<std::string> VoltageDACs;
-	VoltageDACs = {"BLPix", "nu2","ThPix","nu3"};
-
-	for(auto const& value: VoltageDACs) {
-		myfile << std::left << std::setw(20) << value << " " << theMatrix.VoltageDACConfig->GetParameter(value) << std::endl;
-	}
-
-	static std::vector<std::string> CurrentDACs;
-	CurrentDACs = {"unlock","BLResPix","ThResPix","VNPix","VNFBPix","VNFollPix","VNRegCasc","VDel","VPComp","VPDAC","VNPix2","BLResDig","VNBiasPix","VPLoadPix","VNOutPix",
-					"VPVCO","VNVCO","VPDelDclMux","VNDelDclMux","VPDelDcl","VNDelDcl","VPDelPreEmp","VNDelPreEmp","VPDcl","VNDcl","VNLVDS","VNLVDSDel","VPPump","nu",
-					"RO_res_n","Ser_res_n","Aur_res_n","sendcnt","resetckdivend","maxcycend","slowdownend","timerend","ckdivend2","ckdivend","VPRegCasc","VPRamp","VNcompPix",
-					"VPFoll","VPFoll","VNDACPix","VPBiasRec","VNBiasRec","Invert","SelEx","SelSlow","EnPLL","TriggerDelay","Reset","ConnRes","SelTest","SelTestOut"};
-
-
-	for(auto const& value: CurrentDACs) {
-		myfile << std::left << std::setw(20) << value << " " << theMatrix.CurrentDACConfig->GetParameter(value) << std::endl;
-	}
-
-
-	static std::vector<std::string> ExternalBias;
-	ExternalBias = {"BLPix_ext", "ThPix_ext","VMINUSPix","GNDDACPix","GatePix"};
-
-	myfile << std::left << std::setw(20)<< "ThPix_ext" << " " << theMatrix.ThPix << std::endl;
-	myfile << std::left << std::setw(20)<< "BLPix_ext"<< " " << theMatrix.BLPix << std::endl;
-	myfile << std::left << std::setw(20)<< "VMINUSPix" << " " << theMatrix.VMINUSPix << std::endl;
-	myfile << std::left << std::setw(20)<< "GNDDACPix" << " " << theMatrix.GNDDACPix << std::endl;
-	myfile << std::left << std::setw(20)<< "GatePix" << " " << theMatrix.GatePix << std::endl;
-
-
-
-	std::ofstream TDACFile;
-	TDACFile.open(basename + "_TDAC.cfg" );
-
-
-	for(int col = 0;col<theMatrix.ncol;col++){
-		for(int row = 0;row<theMatrix.nrow;row++){
-
-			TDACFile << std::left << std::setw(3) << col << " " << std::left << std::setw(3) << row << " "  << std::left << std::setw(2) << theMatrix.TDAC[col][row] << " " << std::left << std::setw(1) << theMatrix.MASK[col][row] << std::endl ;
-		}
-	}
-
-
-	myfile.close();
-	TDACFile.close();
+	theMatrix.writeGlobal(basename + ".cfg");
+	theMatrix.writeTDAC(basename + "_TDAC.cfg");
 }
-
-
 
 void ATLASPix::LoadConfig(std::string basename){
-
-	std::ifstream configfile;
-	configfile.open(basename + ".cfg" );
-
-	static std::vector<std::string> ExternalBias;
-	ExternalBias = {"BLPix_ext", "ThPix_ext","VMINUSPix","GNDDACPix","GatePix"};
-
-
-	static std::vector<std::string> CurrentDACs;
-	CurrentDACs = {"unlock","BLResPix","ThResPix","VNPix","VNFBPix","VNFollPix","VNRegCasc","VDel","VPComp","VPDAC","VNPix2","BLResDig","VNBiasPix","VPLoadPix","VNOutPix",
-					"VPVCO","VNVCO","VPDelDclMux","VNDelDclMux","VPDelDcl","VNDelDcl","VPDelPreEmp","VNDelPreEmp","VPDcl","VNDcl","VNLVDS","VNLVDSDel","VPPump","nu",
-					"RO_res_n","Ser_res_n","Aur_res_n","sendcnt","resetckdivend","maxcycend","slowdownend","timerend","ckdivend2","ckdivend","VPRegCasc","VPRamp","VNcompPix",
-					"VPFoll","VPFoll","VNDACPix","VPBiasRec","VNBiasRec","Invert","SelEx","SelSlow","EnPLL","TriggerDelay","Reset","ConnRes","SelTest","SelTestOut"};
-
-
-	static std::vector<std::string> VoltageDACs;
-	VoltageDACs = {"BLPix", "nu2","ThPix","nu3"};
-
-	std::string reg;
-	int value=0;
-	double bias=0;
-
-
-	while(!configfile.eof()){
-
-		configfile >> reg;
-
-		std::cout << "processing : " << reg << std::endl;
-
-
-
-		if (std::find(ExternalBias.begin(), ExternalBias.end(), reg) != ExternalBias.end()){
-			configfile >> bias;
-
-			if(reg=="BLPix_ext"){
-				  _hal->setBiasRegulator(BIAS_17, bias);
-				  _hal->powerBiasRegulator(BIAS_17, true);
-			}
-			else if(reg=="ThPix_ext"){
-				  _hal->setBiasRegulator(BIAS_25,bias);
-				  _hal->powerBiasRegulator(BIAS_25, true);
-			}
-			else if(reg=="VMINUSPix"){
-				  _hal->setBiasRegulator(BIAS_5,bias);
-				  _hal->powerBiasRegulator(BIAS_5, true);
-			}
-			else if(reg=="GNDDACPix"){
-				  _hal->setBiasRegulator(BIAS_9,bias);
-				  _hal->powerBiasRegulator(BIAS_9, true);
-			}
-			else if(reg=="GatePix"){
-				  _hal->setBiasRegulator(BIAS_2,bias);
-				  _hal->powerBiasRegulator(BIAS_2, true);
-			}
-			else {
-				printf("unknown external bias register %s",reg);
-			}
-		}
-		else if (std::find(CurrentDACs.begin(), CurrentDACs.end(), reg) != CurrentDACs.end()){
-			configfile >> value;
-			theMatrix.CurrentDACConfig->SetParameter(reg,value);
-		}
-
-		else if(std::find(VoltageDACs.begin(), VoltageDACs.end(), reg) != VoltageDACs.end()){
-			configfile >> value;
-			theMatrix.VoltageDACConfig->SetParameter(reg,value);
-		}
-
-		else {
-			std::cout << "unknown register : " << reg << std::endl;
-		}
-
-	}
-
+	theMatrix.loadGlobal(basename + ".cfg");
 	this->ProgramSR(theMatrix);
-
-	this->LoadTDAC(basename+"_TDAC.cfg");
-
-
-
+	// 2018-02-14 msmk:
+	// not sure if this is correct, but the previous version did a manual
+	// power up here as well. Could this be replaced by a call
+	// to powerUp directly? Is this the intended functionality, i.e.
+	// this loads configuration data from file and powers everything up or
+	// should this be just the loading which must be followed up by the actual
+	// powerUp command?
+	this->setVoltage("GNDDACPix", theMatrix.GNDDACPix);
+	this->switchOn("GNDDACPix");
+    this->setVoltage("VMinusPix", theMatrix.VMINUSPix);
+	this->switchOn("VMinusPix");
+    this->setVoltage("GatePix", theMatrix.GatePix);
+	this->switchOn("GatePix");
+    this->setVoltage("BLPix", theMatrix.BLPix);
+	this->switchOn("BLPix");
+	this->setVoltage("ThPix", theMatrix.ThPix);
+    this->switchOn("ThPix");
+    this->LoadTDAC(basename + "_TDAC.cfg");
 }
-
 
 caribouDevice* caribou::generator(const caribou::Configuration config) {
   LOG(logDEBUG) << "Generator: " << DEVICE_NAME;

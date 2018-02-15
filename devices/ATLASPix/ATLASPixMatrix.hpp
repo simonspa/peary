@@ -57,6 +57,15 @@ struct ATLASPixMatrix {
   void setMaskPixel(uint32_t col, uint32_t row, uint32_t value);
   void setOneTDAC(uint32_t col, uint32_t row, uint32_t value);
   void setAllTDAC(uint32_t value);
+
+  /// Write global configuration file
+  void writeGlobal(std::string basename) const;
+  /// Write per-pixel trim dac configuration file
+  void writeTDAC(std::string basename) const;
+  /// Load global configuration file
+  void loadGlobal(std::string basename);
+  /// Load per-pixel trim dac configuration file
+  void loadTDAC(std::string basename);
 };
 
 #endif // DEVICE_ATLASPIXMATRIX_H
