@@ -14,9 +14,9 @@
  * Implements configuration settings and encodings.
  */
 struct ATLASPixMatrix {
+  std::unique_ptr<ATLASPix_Config> VoltageDACConfig;
   std::unique_ptr<ATLASPix_Config> CurrentDACConfig;
   std::unique_ptr<ATLASPix_Config> MatrixDACConfig;
-  std::unique_ptr<ATLASPix_Config> VoltageDACConfig;
 
   // Voltage DACs
   double BLPix; // Voltage, to be translated to DAC value

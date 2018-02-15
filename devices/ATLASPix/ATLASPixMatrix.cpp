@@ -8,8 +8,8 @@
 using namespace caribou;
 
 ATLASPixMatrix::ATLASPixMatrix()
-    : CurrentDACConfig(std::make_unique<ATLASPix_Config>()), MatrixDACConfig(std::make_unique<ATLASPix_Config>()),
-      VoltageDACConfig(std::make_unique<ATLASPix_Config>()) {}
+    : VoltageDACConfig(std::make_unique<ATLASPix_Config>()), CurrentDACConfig(std::make_unique<ATLASPix_Config>()),
+      MatrixDACConfig(std::make_unique<ATLASPix_Config>()) {}
 
 void ATLASPixMatrix::setMaskPixel(uint32_t col, uint32_t row, uint32_t value) {
   MASK[col][row] = value;
