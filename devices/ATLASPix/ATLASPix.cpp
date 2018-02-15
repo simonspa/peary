@@ -2470,48 +2470,9 @@ void ATLASPix::pulse(uint32_t npulse,uint32_t tup,uint32_t tdown,double amplitud
 
 // TDAC Manipulation
 
-void ATLASPix::initTDAC(ATLASPixMatrix& matrix,uint32_t value){
-
-	uint32_t actual_value = value;
-	if(value>7){
-		std::cout << "Value out of range, setting TDAC to 7" << std::endl;
-		actual_value = 7;
-	}
-
-
-	for(int col=0;col<matrix.ncol;col++){
-		for(int row=0;row < matrix.nrow;row++){
-			matrix.MASK[col][row]=0;
-			matrix.TDAC[col][row] = (actual_value << 1) | matrix.MASK[col][row];
-			//matrix.TDAC[col][row] = (actual_value) ;
-			}
-		}
-}
-
-void ATLASPix::setOneTDAC(ATLASPixMatrix& matrix,uint32_t col,uint32_t row,uint32_t value){
-
-	uint32_t actual_value = value;
-	if(value>7){
-		std::cout << "Value out of range, setting TDAC to 7" << std::endl;
-		actual_value = 7;
-	}
-	//matrix.MASK[col][row]=0;
-	matrix.TDAC[col][row] = (actual_value << 1) | matrix.MASK[col][row];
-	//std::cout << std::bitset<4>(matrix.TDAC[col][row]) << std::endl;
-
-}
-
-void ATLASPix::setMaskPixel(ATLASPixMatrix& matrix,uint32_t col,uint32_t row,uint32_t value){
-
-	matrix.MASK[col][row]=value;
-	matrix.TDAC[col][row] = matrix.TDAC[col][row] << 1  | matrix.MASK[col][row];
-	//std::cout << std::bitset<4>(matrix.TDAC[col][row]) << std::endl;
-}
-
-
 void ATLASPix::MaskPixel(uint32_t col,uint32_t row){
 
-	this->setMaskPixel(theMatrix,col,row,1);
+	theMatrix.setMaskPixel(col,row,1);
 	//std::cout << "pixel masked col:" << col << " row: " << row << " " << theMatrix.MASK[col][row] << std::endl;
 	this->writeOneTDAC(theMatrix,col,row,0);
 	this->SetPixelInjection(col,row,0,0);
@@ -2520,7 +2481,7 @@ void ATLASPix::MaskPixel(uint32_t col,uint32_t row){
 
 void ATLASPix::writeOneTDAC(ATLASPixMatrix& matrix,uint32_t col,uint32_t row,uint32_t value){
 
-	this->setOneTDAC(matrix,col,row,value);
+	matrix.setOneTDAC(col,row,value);
 
 	if(matrix.type==1){
 
@@ -2589,8 +2550,7 @@ void ATLASPix::writeUniformTDAC(ATLASPixMatrix& matrix,uint32_t value){
 	std::string col_s;
 	int double_col=0;
 
-
-	this->initTDAC(matrix,value);
+	matrix.setAllTDAC(value);
 
 	//std::cout << "writing " <<  std::bitset<32>(value) << std::endl;
 
@@ -2699,8 +2659,8 @@ void ATLASPix::loadAllTDAC(std::string filename){
 			//std::cout  << " col: " << col << " row: " << row << " TDAC: " << TDAC << " mask : " << mask << std::endl;
 
 
-			this->setOneTDAC(theMatrix,col,row,TDAC);
-			this->setMaskPixel(theMatrix,col,row,mask);
+			theMatrix.setOneTDAC(col,row,TDAC);
+			theMatrix.setMaskPixel(col,row,mask);
 
 			//std::cout  << " col: " << col << " row: " << row << " TDAC: " << this->simpleM1->TDAC[col][row] << " mask : " <<  this->simpleM1->MASK[col][row] << std::endl;
 			//std::cout  << " ---------------------------- " << std::endl;
@@ -2801,7 +2761,7 @@ void ATLASPix::tune(ATLASPixMatrix& matrix, double vmax,int nstep, int npulses, 
 	LOG(logINFO) << "Tunning " << DEVICE_NAME;
 
 	for (int TDAC_value = 0; TDAC_value < 8; TDAC_value++){
-		initTDAC(matrix, TDAC_value);
+		matrix.setAllTDAC(TDAC_value);
 		writeAllTDAC(matrix);
 		ComputeSCurves(matrix,vmax, nstep, npulses, 100, 100);
 		//s_curve plots
@@ -3408,7 +3368,7 @@ void ATLASPix::dataTuning(ATLASPixMatrix& matrix, double vmax,int nstep, int npu
 	int voltage_step = 0;
 
 	for (int TDAC_value = 0; TDAC_value < 8; TDAC_value++){
-		initTDAC(matrix, TDAC_value);
+		matrix.setAllTDAC(TDAC_value);
 		writeAllTDAC(matrix);
 		for (unsigned int selrow = 0; selrow < spacing_row; ++selrow) {
 			for (unsigned int selcol = 0; selcol < spacing_col; ++selcol) {

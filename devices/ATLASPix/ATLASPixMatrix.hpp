@@ -53,6 +53,10 @@ struct ATLASPixMatrix {
   std::string regcase;
 
   ATLASPixMatrix();
+
+  void setMaskPixel(uint32_t col, uint32_t row, uint32_t value);
+  void setOneTDAC(uint32_t col, uint32_t row, uint32_t value);
+  void setAllTDAC(uint32_t value);
 };
 
 #endif // DEVICE_ATLASPIXMATRIX_H

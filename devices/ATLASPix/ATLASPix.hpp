@@ -86,8 +86,6 @@ namespace caribou {
     void Shift_SR(ATLASPixMatrix& matrix);
     void Fill_SR(ATLASPixMatrix& matrix);
     void ProgramSR(ATLASPixMatrix& matrix);
-    void initTDAC(ATLASPixMatrix& matrix,uint32_t value);
-    void setOneTDAC(ATLASPixMatrix& matrix,uint32_t col,uint32_t row,uint32_t value);
     void writePixelInj(ATLASPixMatrix& matrix, uint32_t inj_col, uint32_t inj_row,bool ana_state,bool hb_state);
     void writeOneTDAC(ATLASPixMatrix& matrix,uint32_t col,uint32_t row,uint32_t value);
     void writeAllTDAC(ATLASPixMatrix& matrix);
@@ -95,7 +93,6 @@ namespace caribou {
     void loadAllTDAC(std::string filename);
     void LoadTDAC(std::string filename);
     void setAllTDAC(uint32_t value);
-    void setMaskPixel(ATLASPixMatrix& matrix,uint32_t col,uint32_t row,uint32_t value);
     void ComputeSCurves(ATLASPixMatrix& matrix,double vmax,int nstep, int npulses,int tup,int tdown);
     void tune(ATLASPixMatrix& matrix, double vmax,int nstep, int npulses, bool tuning_verification);
     void TDACScan(std::string basefolder,int VNDAC,int step,double vmin,double vmax,uint32_t npulses,uint32_t npoints);
