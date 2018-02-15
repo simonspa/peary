@@ -140,79 +140,17 @@ void ATLASPix::SetMatrix(std::string matrix){
 	  _periphery.add("VDDA", PWR_OUT_3);
 	  _periphery.add("VSSA", PWR_OUT_2);
 
-	char Choice;
-	if(matrix=="M1"){ Choice = '1';}
-	else if(matrix=="M2"){ Choice = '2';}
-	else{ Choice = '3';};
-
-	switch(Choice){
-	case '1' :
-
-		  this->theMatrix.BLPix=0.8;
-		  this->theMatrix.ThPix=0.85;
-		  this->theMatrix.ncol=ncol_m1;
-		  this->theMatrix.ndoublecol=ncol_m1/2;
-		  this->theMatrix.nrow=nrow_m1;
-		  this->theMatrix.counter=2;
-		  this->theMatrix.nSRbuffer = 104;
-		  this->theMatrix.extraBits = 16;
-		  this->theMatrix.SRmask=0x2;
-		  this->theMatrix.PulserMask=0x2;
-		  this->theMatrix.flavor = ATLASPix1Flavor::M1;
-
-		  this->theMatrix.GNDDACPix=ATLASPix_GndDACPix_M1;
-		  this->theMatrix.VMINUSPix=ATLASPix_VMinusPix_M1;
-		  this->theMatrix.GatePix=ATLASPix_GatePix_M1;
-
+	  if (matrix == "M1") {
 
 		  _periphery.add("GNDDACPix", BIAS_9);
 		  _periphery.add("VMinusPix", BIAS_5);
 		  _periphery.add("GatePix", BIAS_2);
 		  _periphery.add("ThPix",BIAS_25);
 		  _periphery.add("BLPix",BIAS_17);
-		  break;
 
-	case '2' :
+		  theMatrix.initializeM1();
 
-		  this->theMatrix.BLPix=0.8;
-		  this->theMatrix.ThPix=0.85;
-		  this->theMatrix.ncol=ncol_m2;
-		  this->theMatrix.ndoublecol=ncol_m2/2;
-		  this->theMatrix.nrow=nrow_m2;
-		  this->theMatrix.counter=3;
-		  this->theMatrix.nSRbuffer = 84;
-		  this->theMatrix.extraBits = 0;
-		  this->theMatrix.SRmask=0x1;
-		  this->theMatrix.PulserMask=0x1;
-		  this->theMatrix.flavor = ATLASPix1Flavor::M2;
-		  this->theMatrix.GNDDACPix=ATLASPix_GndDACPix_M2;
-		  this->theMatrix.VMINUSPix=ATLASPix_VMinusPix_M2;
-		  this->theMatrix.GatePix=ATLASPix_GatePix_M2;
-
-
-		  _periphery.add("GNDDACPix", BIAS_6);
-		  _periphery.add("VMinusPix", BIAS_4);
-		  _periphery.add("GatePix", BIAS_1);
-		  _periphery.add("ThPix",BIAS_28);
-		  _periphery.add("BLPix",BIAS_23);
-
-		  break;
-	case '3' :
-
-		  this->theMatrix.BLPix=0.8;
-		  this->theMatrix.ThPix=0.86+0.014;
-		  this->theMatrix.ncol=ncol_m1iso;
-		  this->theMatrix.ndoublecol=ncol_m1iso/2;
-		  this->theMatrix.nrow=nrow_m1iso;
-		  this->theMatrix.counter=1;
-		  this->theMatrix.nSRbuffer = 104;
-		  this->theMatrix.extraBits = 16;
-		  this->theMatrix.SRmask=0x4;
-		  this->theMatrix.PulserMask=0x4;
-		  this->theMatrix.flavor = ATLASPix1Flavor::M1Iso;
-		  this->theMatrix.GNDDACPix=ATLASPix_GndDACPix_M1ISO;
-		  this->theMatrix.VMINUSPix=ATLASPix_VMinusPix_M1ISO;
-		  this->theMatrix.GatePix=ATLASPix_GatePix_M1ISO;
+	  } else if (matrix == "M1Iso") {
 
 		  _periphery.add("GNDDACPix", BIAS_12);
 		  _periphery.add("VMinusPix", BIAS_8);
@@ -220,18 +158,24 @@ void ATLASPix::SetMatrix(std::string matrix){
 		  _periphery.add("ThPix",BIAS_31);
 		  _periphery.add("BLPix",BIAS_20);
 
-		  break;
-	default:
-		  std::cout << "unknown matrix : " << matrix << std::endl;
-		  break;
+		  theMatrix.initializeM1Iso();
 
+	  } else if (matrix == "M2") {
 
-	}
-	this->Initialize_SR(this->theMatrix);
+		  _periphery.add("GNDDACPix", BIAS_6);
+		  _periphery.add("VMinusPix", BIAS_4);
+		  _periphery.add("GatePix", BIAS_1);
+		  _periphery.add("ThPix",BIAS_28);
+		  _periphery.add("BLPix",BIAS_23);
+
+		  theMatrix.initializeM2();
+
+	  } else {
+		  LOG(logCRITICAL) << "Unknown matrix flavor '" << matrix << "'";
+	  }
 }
 
 void ATLASPix::configure() {
-
 
  LOG(logINFO) << "Configuring " << DEVICE_NAME;
 
@@ -253,11 +197,8 @@ void ATLASPix::configure() {
  this->setSpecialRegister("ro_enable",0);
  this->setSpecialRegister("armduration",2000);
 
-
  // Call the base class configuration function:
   pearyDevice<iface_i2c>::configure();
-
-
 }
 
 void ATLASPix::lock(){
@@ -2009,127 +1950,6 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 
 void ATLASPix::configureClock() {
   _hal->configureSI5345((SI5345_REG_T const* const)si5345_revb_registers, SI5345_REVB_REG_CONFIG_NUM_REGS);
-}
-
-
-void ATLASPix::Initialize_SR(ATLASPixMatrix& matrix){
-
-	//DAC Block 1 for DIgital Part
-	//AnalogDACs
-	matrix.CurrentDACConfig->AddParameter("unlock",    4, ATLASPix_Config::LSBFirst, 0b1010); // unlock = x101
-	matrix.CurrentDACConfig->AddParameter("BLResPix", "5,4,3,1,0,2",  5);
-	matrix.CurrentDACConfig->AddParameter("ThResPix", "5,4,3,1,0,2",  0);
-	matrix.CurrentDACConfig->AddParameter("VNPix", "5,4,3,1,0,2",  10);
-	matrix.CurrentDACConfig->AddParameter("VNFBPix", "5,4,3,1,0,2", 20);
-	matrix.CurrentDACConfig->AddParameter("VNFollPix", "5,4,3,1,0,2", 10);
-	matrix.CurrentDACConfig->AddParameter("VNRegCasc", "5,4,3,1,0,2", 20);     //hier : VNHitbus
-	matrix.CurrentDACConfig->AddParameter("VDel", "5,4,3,1,0,2", 10);
-	matrix.CurrentDACConfig->AddParameter("VPComp", "5,4,3,1,0,2", 20);        //hier : VPHitbus
-	matrix.CurrentDACConfig->AddParameter("VPDAC", "5,4,3,1,0,2",  0);
-	matrix.CurrentDACConfig->AddParameter("VNPix2", "5,4,3,1,0,2",  0);
-	matrix.CurrentDACConfig->AddParameter("BLResDig", "5,4,3,1,0,2",  5);
-	matrix.CurrentDACConfig->AddParameter("VNBiasPix", "5,4,3,1,0,2",  0);
-	matrix.CurrentDACConfig->AddParameter("VPLoadPix", "5,4,3,1,0,2",  5);
-	matrix.CurrentDACConfig->AddParameter("VNOutPix", "5,4,3,1,0,2", 5);
-
-	//DigitalDACs
-	matrix.CurrentDACConfig->AddParameter("VPVCO", "5,4,3,1,0,2",  7);//5);//7);
-	matrix.CurrentDACConfig->AddParameter("VNVCO", "5,4,3,1,0,2",  15);//15);
-	matrix.CurrentDACConfig->AddParameter("VPDelDclMux", "5,4,3,1,0,2",  30);//30);
-	matrix.CurrentDACConfig->AddParameter("VNDelDclMux", "5,4,3,1,0,2",  30);//30);
-	matrix.CurrentDACConfig->AddParameter("VPDelDcl", "5,4,3,1,0,2",  30);//30);
-	matrix.CurrentDACConfig->AddParameter("VNDelDcl", "5,4,3,1,0,2",  30);//30);
-	matrix.CurrentDACConfig->AddParameter("VPDelPreEmp", "5,4,3,1,0,2",  30);//30);
-	matrix.CurrentDACConfig->AddParameter("VNDelPreEmp", "5,4,3,1,0,2",  30);//30);
-	matrix.CurrentDACConfig->AddParameter("VPDcl", "5,4,3,1,0,2",  30);//30);
-	matrix.CurrentDACConfig->AddParameter("VNDcl", "5,4,3,1,0,2",  30);//30);
-	matrix.CurrentDACConfig->AddParameter("VNLVDS", "5,4,3,1,0,2",  10);//10);
-	matrix.CurrentDACConfig->AddParameter("VNLVDSDel", "5,4,3,1,0,2",  00);//10);
-	matrix.CurrentDACConfig->AddParameter("VPPump", "5,4,3,1,0,2",  5);//5);
-
-	matrix.CurrentDACConfig->AddParameter("nu", "1,0",  0);
-	matrix.CurrentDACConfig->AddParameter("RO_res_n",     1, ATLASPix_Config::LSBFirst,  1);//1);  //for fastreadout start set 1
-	matrix.CurrentDACConfig->AddParameter("Ser_res_n",     1, ATLASPix_Config::LSBFirst,  1);//1);  //for fastreadout start set 1
-	matrix.CurrentDACConfig->AddParameter("Aur_res_n",     1, ATLASPix_Config::LSBFirst,  1);//1);  //for fastreadout start set 1
-	matrix.CurrentDACConfig->AddParameter("sendcnt",     1, ATLASPix_Config::LSBFirst,  0);//0);
-	matrix.CurrentDACConfig->AddParameter("resetckdivend", "3,2,1,0",  15);//2);
-	matrix.CurrentDACConfig->AddParameter("maxcycend", "5,4,3,2,1,0",  5);//10); // probably 0 not allowed
-	matrix.CurrentDACConfig->AddParameter("slowdownend", "3,2,1,0",  2);//1);
-	matrix.CurrentDACConfig->AddParameter("timerend", "3,2,1,0",  1);//8); // darf nicht 0!! sonst werden debug ausgaben verschluckt
-	matrix.CurrentDACConfig->AddParameter("ckdivend2", "5,4,3,2,1,0",  4);//1);
-	matrix.CurrentDACConfig->AddParameter("ckdivend", "5,4,3,2,1,0",  4);//1);
-	matrix.CurrentDACConfig->AddParameter("VPRegCasc", "5,4,3,1,0,2",  20);
-	matrix.CurrentDACConfig->AddParameter("VPRamp", "5,4,3,1,0,2",  0); // was 4, off for HB/Thlow usage and fastreadout
-	matrix.CurrentDACConfig->AddParameter("VNcompPix", "5,4,3,1,0,2",  10);     //VNComparator
-	matrix.CurrentDACConfig->AddParameter("VPFoll", "5,4,3,1,0,2",  10);
-	matrix.CurrentDACConfig->AddParameter("VNDACPix", "5,4,3,1,0,2",  8);
-	matrix.CurrentDACConfig->AddParameter("VPBiasRec", "5,4,3,1,0,2",  30);
-	matrix.CurrentDACConfig->AddParameter("VNBiasRec", "5,4,3,1,0,2",  30);
-	matrix.CurrentDACConfig->AddParameter("Invert",     1, ATLASPix_Config::LSBFirst, 0);// 0);
-	matrix.CurrentDACConfig->AddParameter("SelEx",     1, ATLASPix_Config::LSBFirst,  1);//1); //activated external clock input
-	matrix.CurrentDACConfig->AddParameter("SelSlow",     1, ATLASPix_Config::LSBFirst,  1);//1);
-	matrix.CurrentDACConfig->AddParameter("EnPLL",     1, ATLASPix_Config::LSBFirst,  0);//0);
-	matrix.CurrentDACConfig->AddParameter("TriggerDelay",     10, ATLASPix_Config::LSBFirst,  0);
-	matrix.CurrentDACConfig->AddParameter("Reset", 1, ATLASPix_Config::LSBFirst, 0);
-	matrix.CurrentDACConfig->AddParameter("ConnRes",     1, ATLASPix_Config::LSBFirst,  1);//1);   //activates termination for output lvds
-	matrix.CurrentDACConfig->AddParameter("SelTest",     1, ATLASPix_Config::LSBFirst,  0);
-	matrix.CurrentDACConfig->AddParameter("SelTestOut",     1, ATLASPix_Config::LSBFirst,  0);
-
-	if((matrix.flavor == ATLASPix1Flavor::M1) || (matrix.flavor == ATLASPix1Flavor::M1Iso)){
-
-	//Column Register
-		for (int col = 0; col < matrix.ncol; col++)
-		{
-			std::string s = to_string(col);
-			matrix.MatrixDACConfig->AddParameter("RamDown"+s, 4, ATLASPix_Config::LSBFirst,  0b000); //0b1011
-			matrix.MatrixDACConfig->AddParameter("colinjDown"+s, 1, ATLASPix_Config::LSBFirst,  0);
-			matrix.MatrixDACConfig->AddParameter("hitbusDown"+s, 1, ATLASPix_Config::LSBFirst,  0);
-			matrix.MatrixDACConfig->AddParameter("unusedDown"+s, 2, ATLASPix_Config::LSBFirst,  0);
-			matrix.MatrixDACConfig->AddParameter("RamUp"+s, 4, ATLASPix_Config::LSBFirst,  0b000); //0b1011
-			matrix.MatrixDACConfig->AddParameter("colinjUp"+s, 1, ATLASPix_Config::LSBFirst,  0);
-			matrix.MatrixDACConfig->AddParameter("hitbusUp"+s, 1, ATLASPix_Config::LSBFirst,  0);
-			matrix.MatrixDACConfig->AddParameter("unusedUp"+s, 2, ATLASPix_Config::LSBFirst,  0);
-		}
-	}
-
-	else
-		{
-		for (int col = 0; col < matrix.ndoublecol; col++)
-		{
-			std::string s = to_string(col);
-			matrix.MatrixDACConfig->AddParameter("RamL"+s, 3, ATLASPix_Config::LSBFirst,  0);
-			matrix.MatrixDACConfig->AddParameter("colinjL"+s, 1, ATLASPix_Config::LSBFirst,  0);
-			matrix.MatrixDACConfig->AddParameter("RamR"+s, 3, ATLASPix_Config::LSBFirst,  0);
-			matrix.MatrixDACConfig->AddParameter("colinjR"+s, 1, ATLASPix_Config::LSBFirst,  0);
-		}
-
-	}
-
-
-	//Row Register
-	for (int row = 0; row < matrix.nrow; row++)
-	{
-		std::string s = to_string(row);
-		matrix.MatrixDACConfig->AddParameter("writedac"+s, 1, ATLASPix_Config::LSBFirst, 0);
-		matrix.MatrixDACConfig->AddParameter("unused"+s,   3, ATLASPix_Config::LSBFirst, 0);
-		matrix.MatrixDACConfig->AddParameter("rowinjection"+s, 1, ATLASPix_Config::LSBFirst, 0);
-
-		if(row==0){
-		matrix.MatrixDACConfig->AddParameter("analogbuffer"+s, 1, ATLASPix_Config::LSBFirst, 0);
-		}
-		else{
-		matrix.MatrixDACConfig->AddParameter("analogbuffer"+s, 1, ATLASPix_Config::LSBFirst, 0);
-
-		}
-	}
-
-
-
-	matrix.VoltageDACConfig->AddParameter("BLPix", 8,ATLASPix_Config::LSBFirst, floor(255 * matrix.BLPix/1.8));
-	matrix.VoltageDACConfig->AddParameter("nu2", 2, ATLASPix_Config::LSBFirst, matrix.nu2);
-	matrix.VoltageDACConfig->AddParameter("ThPix", 8, ATLASPix_Config::LSBFirst, floor(255 * matrix.ThPix/1.8));
-	matrix.VoltageDACConfig->AddParameter("nu3", 2, ATLASPix_Config::LSBFirst, matrix.nu3);
-
 }
 
 void ATLASPix::ProgramSR(const ATLASPixMatrix& matrix){

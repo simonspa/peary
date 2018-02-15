@@ -1,15 +1,191 @@
 #include "ATLASPixMatrix.hpp"
 
 #include <algorithm>
+#include <cmath>
 #include <fstream>
 
+#include "ATLASPix_defaults.hpp"
 #include "log.hpp"
+#include "utils.hpp"
 
 using namespace caribou;
 
 ATLASPixMatrix::ATLASPixMatrix()
     : VoltageDACConfig(std::make_unique<ATLASPix_Config>()), CurrentDACConfig(std::make_unique<ATLASPix_Config>()),
       MatrixDACConfig(std::make_unique<ATLASPix_Config>()) {}
+
+void ATLASPixMatrix::_initializeGlobalParameters() {
+
+  VoltageDACConfig->AddParameter("BLPix", 8, ATLASPix_Config::LSBFirst, std::floor(255 * BLPix / 1.8));
+  VoltageDACConfig->AddParameter("nu2", 2, ATLASPix_Config::LSBFirst, nu2);
+  VoltageDACConfig->AddParameter("ThPix", 8, ATLASPix_Config::LSBFirst, std::floor(255 * ThPix / 1.8));
+  VoltageDACConfig->AddParameter("nu3", 2, ATLASPix_Config::LSBFirst, nu3);
+
+  // DAC Block 1 for DIgital Part
+  // AnalogDACs
+  CurrentDACConfig->AddParameter("unlock", 4, ATLASPix_Config::LSBFirst, 0b1010); // unlock = x101
+  CurrentDACConfig->AddParameter("BLResPix", "5,4,3,1,0,2", 5);
+  CurrentDACConfig->AddParameter("ThResPix", "5,4,3,1,0,2", 0);
+  CurrentDACConfig->AddParameter("VNPix", "5,4,3,1,0,2", 10);
+  CurrentDACConfig->AddParameter("VNFBPix", "5,4,3,1,0,2", 20);
+  CurrentDACConfig->AddParameter("VNFollPix", "5,4,3,1,0,2", 10);
+  CurrentDACConfig->AddParameter("VNRegCasc", "5,4,3,1,0,2", 20); // hier : VNHitbus
+  CurrentDACConfig->AddParameter("VDel", "5,4,3,1,0,2", 10);
+  CurrentDACConfig->AddParameter("VPComp", "5,4,3,1,0,2", 20); // hier : VPHitbus
+  CurrentDACConfig->AddParameter("VPDAC", "5,4,3,1,0,2", 0);
+  CurrentDACConfig->AddParameter("VNPix2", "5,4,3,1,0,2", 0);
+  CurrentDACConfig->AddParameter("BLResDig", "5,4,3,1,0,2", 5);
+  CurrentDACConfig->AddParameter("VNBiasPix", "5,4,3,1,0,2", 0);
+  CurrentDACConfig->AddParameter("VPLoadPix", "5,4,3,1,0,2", 5);
+  CurrentDACConfig->AddParameter("VNOutPix", "5,4,3,1,0,2", 5);
+
+  // DigitalDACs
+  CurrentDACConfig->AddParameter("VPVCO", "5,4,3,1,0,2", 7);        // 5);//7);
+  CurrentDACConfig->AddParameter("VNVCO", "5,4,3,1,0,2", 15);       // 15);
+  CurrentDACConfig->AddParameter("VPDelDclMux", "5,4,3,1,0,2", 30); // 30);
+  CurrentDACConfig->AddParameter("VNDelDclMux", "5,4,3,1,0,2", 30); // 30);
+  CurrentDACConfig->AddParameter("VPDelDcl", "5,4,3,1,0,2", 30);    // 30);
+  CurrentDACConfig->AddParameter("VNDelDcl", "5,4,3,1,0,2", 30);    // 30);
+  CurrentDACConfig->AddParameter("VPDelPreEmp", "5,4,3,1,0,2", 30); // 30);
+  CurrentDACConfig->AddParameter("VNDelPreEmp", "5,4,3,1,0,2", 30); // 30);
+  CurrentDACConfig->AddParameter("VPDcl", "5,4,3,1,0,2", 30);       // 30);
+  CurrentDACConfig->AddParameter("VNDcl", "5,4,3,1,0,2", 30);       // 30);
+  CurrentDACConfig->AddParameter("VNLVDS", "5,4,3,1,0,2", 10);      // 10);
+  CurrentDACConfig->AddParameter("VNLVDSDel", "5,4,3,1,0,2", 00);   // 10);
+  CurrentDACConfig->AddParameter("VPPump", "5,4,3,1,0,2", 5);       // 5);
+
+  CurrentDACConfig->AddParameter("nu", "1,0", 0);
+  CurrentDACConfig->AddParameter("RO_res_n", 1, ATLASPix_Config::LSBFirst, 1);  // 1);  //for fastreadout start set 1
+  CurrentDACConfig->AddParameter("Ser_res_n", 1, ATLASPix_Config::LSBFirst, 1); // 1);  //for fastreadout start set 1
+  CurrentDACConfig->AddParameter("Aur_res_n", 1, ATLASPix_Config::LSBFirst, 1); // 1);  //for fastreadout start set 1
+  CurrentDACConfig->AddParameter("sendcnt", 1, ATLASPix_Config::LSBFirst, 0);   // 0);
+  CurrentDACConfig->AddParameter("resetckdivend", "3,2,1,0", 15);               // 2);
+  CurrentDACConfig->AddParameter("maxcycend", "5,4,3,2,1,0", 5);                // 10); // probably 0 not allowed
+  CurrentDACConfig->AddParameter("slowdownend", "3,2,1,0", 2);                  // 1);
+  CurrentDACConfig->AddParameter("timerend", "3,2,1,0", 1); // 8); // darf nicht 0!! sonst werden debug ausgaben verschluckt
+  CurrentDACConfig->AddParameter("ckdivend2", "5,4,3,2,1,0", 4); // 1);
+  CurrentDACConfig->AddParameter("ckdivend", "5,4,3,2,1,0", 4);  // 1);
+  CurrentDACConfig->AddParameter("VPRegCasc", "5,4,3,1,0,2", 20);
+  CurrentDACConfig->AddParameter("VPRamp", "5,4,3,1,0,2", 0);     // was 4, off for HB/Thlow usage and fastreadout
+  CurrentDACConfig->AddParameter("VNcompPix", "5,4,3,1,0,2", 10); // VNComparator
+  CurrentDACConfig->AddParameter("VPFoll", "5,4,3,1,0,2", 10);
+  CurrentDACConfig->AddParameter("VNDACPix", "5,4,3,1,0,2", 8);
+  CurrentDACConfig->AddParameter("VPBiasRec", "5,4,3,1,0,2", 30);
+  CurrentDACConfig->AddParameter("VNBiasRec", "5,4,3,1,0,2", 30);
+  CurrentDACConfig->AddParameter("Invert", 1, ATLASPix_Config::LSBFirst, 0);  // 0);
+  CurrentDACConfig->AddParameter("SelEx", 1, ATLASPix_Config::LSBFirst, 1);   // 1); //activated external clock input
+  CurrentDACConfig->AddParameter("SelSlow", 1, ATLASPix_Config::LSBFirst, 1); // 1);
+  CurrentDACConfig->AddParameter("EnPLL", 1, ATLASPix_Config::LSBFirst, 0);   // 0);
+  CurrentDACConfig->AddParameter("TriggerDelay", 10, ATLASPix_Config::LSBFirst, 0);
+  CurrentDACConfig->AddParameter("Reset", 1, ATLASPix_Config::LSBFirst, 0);
+  CurrentDACConfig->AddParameter("ConnRes", 1, ATLASPix_Config::LSBFirst, 1); // 1);   //activates termination for output
+                                                                              // lvds
+  CurrentDACConfig->AddParameter("SelTest", 1, ATLASPix_Config::LSBFirst, 0);
+  CurrentDACConfig->AddParameter("SelTestOut", 1, ATLASPix_Config::LSBFirst, 0);
+}
+
+void ATLASPixMatrix::_initializeM1LikeColumnParameters() {
+  for(int col = 0; col < ncol; col++) {
+    std::string s = to_string(col);
+    MatrixDACConfig->AddParameter("RamDown" + s, 4, ATLASPix_Config::LSBFirst, 0b000); // 0b1011
+    MatrixDACConfig->AddParameter("colinjDown" + s, 1, ATLASPix_Config::LSBFirst, 0);
+    MatrixDACConfig->AddParameter("hitbusDown" + s, 1, ATLASPix_Config::LSBFirst, 0);
+    MatrixDACConfig->AddParameter("unusedDown" + s, 2, ATLASPix_Config::LSBFirst, 0);
+    MatrixDACConfig->AddParameter("RamUp" + s, 4, ATLASPix_Config::LSBFirst, 0b000); // 0b1011
+    MatrixDACConfig->AddParameter("colinjUp" + s, 1, ATLASPix_Config::LSBFirst, 0);
+    MatrixDACConfig->AddParameter("hitbusUp" + s, 1, ATLASPix_Config::LSBFirst, 0);
+    MatrixDACConfig->AddParameter("unusedUp" + s, 2, ATLASPix_Config::LSBFirst, 0);
+  }
+}
+
+void ATLASPixMatrix::_initializeM2ColumnParameters() {
+  for(int col = 0; col < ndoublecol; col++) {
+    std::string s = to_string(col);
+    MatrixDACConfig->AddParameter("RamL" + s, 3, ATLASPix_Config::LSBFirst, 0);
+    MatrixDACConfig->AddParameter("colinjL" + s, 1, ATLASPix_Config::LSBFirst, 0);
+    MatrixDACConfig->AddParameter("RamR" + s, 3, ATLASPix_Config::LSBFirst, 0);
+    MatrixDACConfig->AddParameter("colinjR" + s, 1, ATLASPix_Config::LSBFirst, 0);
+  }
+}
+
+void ATLASPixMatrix::_initializeRowParameters() {
+  for(int row = 0; row < nrow; row++) {
+    std::string s = to_string(row);
+    MatrixDACConfig->AddParameter("writedac" + s, 1, ATLASPix_Config::LSBFirst, 0);
+    MatrixDACConfig->AddParameter("unused" + s, 3, ATLASPix_Config::LSBFirst, 0);
+    MatrixDACConfig->AddParameter("rowinjection" + s, 1, ATLASPix_Config::LSBFirst, 0);
+    if(row == 0) {
+      MatrixDACConfig->AddParameter("analogbuffer" + s, 1, ATLASPix_Config::LSBFirst, 0);
+    } else {
+      MatrixDACConfig->AddParameter("analogbuffer" + s, 1, ATLASPix_Config::LSBFirst, 0);
+    }
+  }
+}
+
+void ATLASPixMatrix::initializeM1() {
+  BLPix = 0.8;
+  ThPix = 0.85;
+  ncol = ncol_m1;
+  ndoublecol = ncol_m1 / 2;
+  nrow = nrow_m1;
+  counter = 2;
+  nSRbuffer = 104;
+  extraBits = 16;
+  SRmask = 0x2;
+  PulserMask = 0x2;
+  flavor = ATLASPix1Flavor::M1;
+  GNDDACPix = ATLASPix_GndDACPix_M1;
+  VMINUSPix = ATLASPix_VMinusPix_M1;
+  GatePix = ATLASPix_GatePix_M1;
+
+  _initializeGlobalParameters();
+  _initializeM1LikeColumnParameters();
+  _initializeRowParameters();
+}
+
+void ATLASPixMatrix::initializeM1Iso() {
+
+  BLPix = 0.8;
+  ThPix = 0.86 + 0.014;
+  ncol = ncol_m1iso;
+  ndoublecol = ncol_m1iso / 2;
+  nrow = nrow_m1iso;
+  counter = 1;
+  nSRbuffer = 104;
+  extraBits = 16;
+  SRmask = 0x4;
+  PulserMask = 0x4;
+  flavor = ATLASPix1Flavor::M1Iso;
+  GNDDACPix = ATLASPix_GndDACPix_M1ISO;
+  VMINUSPix = ATLASPix_VMinusPix_M1ISO;
+  GatePix = ATLASPix_GatePix_M1ISO;
+
+  _initializeGlobalParameters();
+  _initializeM1LikeColumnParameters();
+  _initializeRowParameters();
+}
+
+void ATLASPixMatrix::initializeM2() {
+
+  BLPix = 0.8;
+  ThPix = 0.85;
+  ncol = ncol_m2;
+  ndoublecol = ncol_m2 / 2;
+  nrow = nrow_m2;
+  counter = 3;
+  nSRbuffer = 84;
+  extraBits = 0;
+  SRmask = 0x1;
+  PulserMask = 0x1;
+  flavor = ATLASPix1Flavor::M2;
+  GNDDACPix = ATLASPix_GndDACPix_M2;
+  VMINUSPix = ATLASPix_VMinusPix_M2;
+  GatePix = ATLASPix_GatePix_M2;
+
+  _initializeGlobalParameters();
+  _initializeM2ColumnParameters();
+  _initializeRowParameters();
+}
 
 void ATLASPixMatrix::setMaskPixel(uint32_t col, uint32_t row, uint32_t value) {
   MASK[col][row] = value;

@@ -118,7 +118,6 @@ namespace caribou {
     void SetPixelInjection(ATLASPixMatrix& matrix,uint32_t col, uint32_t row,bool ana_state,bool hb_state);
 
   private:
-    void Initialize_SR(ATLASPixMatrix& matrix);
     void ProgramSR(const ATLASPixMatrix& matrix);
     void TakeData();
 

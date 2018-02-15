@@ -40,6 +40,17 @@ struct ATLASPixMatrix {
 
   ATLASPixMatrix();
 
+  // initialize for M1 flavor
+  void initializeM1();
+  // initialize for M1Iso flavor
+  void initializeM1Iso();
+  // initialize for M2 flavor
+  void initializeM2();
+  void _initializeGlobalParameters();
+  void _initializeM1LikeColumnParameters();
+  void _initializeM2ColumnParameters();
+  void _initializeRowParameters();
+
   void setMaskPixel(uint32_t col, uint32_t row, uint32_t value);
   void setOneTDAC(uint32_t col, uint32_t row, uint32_t value);
   void setAllTDAC(uint32_t value);
