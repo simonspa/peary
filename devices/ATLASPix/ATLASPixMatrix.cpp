@@ -340,11 +340,13 @@ std::vector<uint32_t> ATLASPixMatrix::encodeShiftRegister() const {
   words.push_back(buffer);
 
   // verify with configuration values
-  if(words.size() != nSRbuffer) {
-    LOG(logERROR) << "Encoded shift register size " << words.size() << " inconsistent with expected size " << nSRbuffer;
-  }
   if(cnt != extraBits) {
     LOG(logERROR) << "Encoded shift register extra bits " << cnt << " inconsistent with expected bits " << extraBits;
+  }
+  // nSRbuffer counts the number of full buffer words
+  size_t expectedWords = (cnt == 0) ? nSRbuffer : (nSRbuffer + 1);
+  if(words.size() != expectedWords) {
+    LOG(logERROR) << "Encoded shift register size " << words.size() << " inconsistent with expected size " << expectedWords;
   }
 
   return words;
