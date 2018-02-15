@@ -25,9 +25,9 @@
 #include "ATLASPix_Config.hpp"
 
 struct ATLASPixMatrix {
-    ATLASPix_Config* CurrentDACConfig;
-    ATLASPix_Config* MatrixDACConfig;
-    ATLASPix_Config* VoltageDACConfig;
+    std::unique_ptr<ATLASPix_Config> CurrentDACConfig;
+    std::unique_ptr<ATLASPix_Config> MatrixDACConfig;
+    std::unique_ptr<ATLASPix_Config> VoltageDACConfig;
 
     //global DACs
     uint32_t unlock,BLResPix,ThResPix,VNPix,VNFBPix,VNFollPix,VNRegCasc,VDel,VPComp,VPDAC,VNPix2,BLResDig,VNBiasPix,VPLoadPix,VNOutPix;
@@ -60,6 +60,11 @@ struct ATLASPixMatrix {
     uint32_t SRmask,extraBits,PulserMask;
     int type;
     std::string regcase;
+
+    ATLASPixMatrix() :
+    	CurrentDACConfig(std::make_unique<ATLASPix_Config>()),
+		MatrixDACConfig(std::make_unique<ATLASPix_Config>()),
+		VoltageDACConfig(std::make_unique<ATLASPix_Config>()) {}
 };
 
 namespace caribou {

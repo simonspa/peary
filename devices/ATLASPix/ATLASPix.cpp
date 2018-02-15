@@ -2011,11 +2011,6 @@ void ATLASPix::configureClock() {
 
 void ATLASPix::Initialize_SR(ATLASPixMatrix& matrix){
 
-	matrix.CurrentDACConfig = new ATLASPix_Config();
-	matrix.MatrixDACConfig = new ATLASPix_Config();
-	matrix.VoltageDACConfig = new ATLASPix_Config();
-
-
 	//DAC Block 1 for DIgital Part
 	//AnalogDACs
 	matrix.CurrentDACConfig->AddParameter("unlock",    4, ATLASPix_Config::LSBFirst, 0b1010); // unlock = x101
