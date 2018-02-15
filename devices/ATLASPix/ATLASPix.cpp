@@ -136,10 +136,6 @@ void ATLASPix::SetMatrix(std::string matrix){
 	  _periphery.add("VDDA", PWR_OUT_3);
 	  _periphery.add("VSSA", PWR_OUT_2);
 
-
-
-	this->theMatrix = new ATLASPixMatrix();
-
 	char Choice;
 	if(matrix=="M1"){ Choice = '1';}
 	else if(matrix=="M2"){ Choice = '2';}
@@ -148,22 +144,22 @@ void ATLASPix::SetMatrix(std::string matrix){
 	switch(Choice){
 	case '1' :
 
-		  this->theMatrix->BLPix=0.8;
-		  this->theMatrix->ThPix=0.85;
-		  this->theMatrix->ncol=ncol_m1;
-		  this->theMatrix->ndoublecol=ncol_m1/2;
-		  this->theMatrix->nrow=nrow_m1;
-		  this->theMatrix->counter=2;
-		  this->theMatrix->nSRbuffer = 104;
-		  this->theMatrix->extraBits = 16;
-		  this->theMatrix->SRmask=0x2;
-		  this->theMatrix->PulserMask=0x2;
-		  this->theMatrix->type=1;
-		  this->theMatrix->regcase='1';
+		  this->theMatrix.BLPix=0.8;
+		  this->theMatrix.ThPix=0.85;
+		  this->theMatrix.ncol=ncol_m1;
+		  this->theMatrix.ndoublecol=ncol_m1/2;
+		  this->theMatrix.nrow=nrow_m1;
+		  this->theMatrix.counter=2;
+		  this->theMatrix.nSRbuffer = 104;
+		  this->theMatrix.extraBits = 16;
+		  this->theMatrix.SRmask=0x2;
+		  this->theMatrix.PulserMask=0x2;
+		  this->theMatrix.type=1;
+		  this->theMatrix.regcase='1';
 
-		  this->theMatrix->GNDDACPix=ATLASPix_GndDACPix_M1;
-		  this->theMatrix->VMINUSPix=ATLASPix_VMinusPix_M1;
-		  this->theMatrix->GatePix=ATLASPix_GatePix_M1;
+		  this->theMatrix.GNDDACPix=ATLASPix_GndDACPix_M1;
+		  this->theMatrix.VMINUSPix=ATLASPix_VMinusPix_M1;
+		  this->theMatrix.GatePix=ATLASPix_GatePix_M1;
 
 
 		  _periphery.add("GNDDACPix", BIAS_9);
@@ -175,21 +171,21 @@ void ATLASPix::SetMatrix(std::string matrix){
 
 	case '2' :
 
-		  this->theMatrix->BLPix=0.8;
-		  this->theMatrix->ThPix=0.85;
-		  this->theMatrix->ncol=ncol_m2;
-		  this->theMatrix->ndoublecol=ncol_m2/2;
-		  this->theMatrix->nrow=nrow_m2;
-		  this->theMatrix->counter=3;
-		  this->theMatrix->nSRbuffer = 84;
-		  this->theMatrix->extraBits = 0;
-		  this->theMatrix->SRmask=0x1;
-		  this->theMatrix->PulserMask=0x1;
-		  this->theMatrix->type=2;
-		  this->theMatrix->regcase='2';
-		  this->theMatrix->GNDDACPix=ATLASPix_GndDACPix_M2;
-		  this->theMatrix->VMINUSPix=ATLASPix_VMinusPix_M2;
-		  this->theMatrix->GatePix=ATLASPix_GatePix_M2;
+		  this->theMatrix.BLPix=0.8;
+		  this->theMatrix.ThPix=0.85;
+		  this->theMatrix.ncol=ncol_m2;
+		  this->theMatrix.ndoublecol=ncol_m2/2;
+		  this->theMatrix.nrow=nrow_m2;
+		  this->theMatrix.counter=3;
+		  this->theMatrix.nSRbuffer = 84;
+		  this->theMatrix.extraBits = 0;
+		  this->theMatrix.SRmask=0x1;
+		  this->theMatrix.PulserMask=0x1;
+		  this->theMatrix.type=2;
+		  this->theMatrix.regcase='2';
+		  this->theMatrix.GNDDACPix=ATLASPix_GndDACPix_M2;
+		  this->theMatrix.VMINUSPix=ATLASPix_VMinusPix_M2;
+		  this->theMatrix.GatePix=ATLASPix_GatePix_M2;
 
 
 		  _periphery.add("GNDDACPix", BIAS_6);
@@ -201,21 +197,21 @@ void ATLASPix::SetMatrix(std::string matrix){
 		  break;
 	case '3' :
 
-		  this->theMatrix->BLPix=0.8;
-		  this->theMatrix->ThPix=0.86+0.014;
-		  this->theMatrix->ncol=ncol_m1iso;
-		  this->theMatrix->ndoublecol=ncol_m1iso/2;
-		  this->theMatrix->nrow=nrow_m1iso;
-		  this->theMatrix->counter=1;
-		  this->theMatrix->nSRbuffer = 104;
-		  this->theMatrix->extraBits = 16;
-		  this->theMatrix->SRmask=0x4;
-		  this->theMatrix->PulserMask=0x4;
-		  this->theMatrix->type=1;
-		  this->theMatrix->regcase='3';
-		  this->theMatrix->GNDDACPix=ATLASPix_GndDACPix_M1ISO;
-		  this->theMatrix->VMINUSPix=ATLASPix_VMinusPix_M1ISO;
-		  this->theMatrix->GatePix=ATLASPix_GatePix_M1ISO;
+		  this->theMatrix.BLPix=0.8;
+		  this->theMatrix.ThPix=0.86+0.014;
+		  this->theMatrix.ncol=ncol_m1iso;
+		  this->theMatrix.ndoublecol=ncol_m1iso/2;
+		  this->theMatrix.nrow=nrow_m1iso;
+		  this->theMatrix.counter=1;
+		  this->theMatrix.nSRbuffer = 104;
+		  this->theMatrix.extraBits = 16;
+		  this->theMatrix.SRmask=0x4;
+		  this->theMatrix.PulserMask=0x4;
+		  this->theMatrix.type=1;
+		  this->theMatrix.regcase='3';
+		  this->theMatrix.GNDDACPix=ATLASPix_GndDACPix_M1ISO;
+		  this->theMatrix.VMINUSPix=ATLASPix_VMinusPix_M1ISO;
+		  this->theMatrix.GatePix=ATLASPix_GatePix_M1ISO;
 
 		  _periphery.add("GNDDACPix", BIAS_12);
 		  _periphery.add("VMinusPix", BIAS_8);
@@ -230,9 +226,7 @@ void ATLASPix::SetMatrix(std::string matrix){
 
 
 	}
-	  this->Initialize_SR(this->theMatrix);
-
-
+	this->Initialize_SR(this->theMatrix);
 }
 
 
@@ -272,7 +266,7 @@ void ATLASPix::configure() {
 
 void ATLASPix::lock(){
 
-	this->theMatrix->CurrentDACConfig->SetParameter("unlock",0x0);
+	this->theMatrix.CurrentDACConfig->SetParameter("unlock",0x0);
 	this->ProgramSR(theMatrix);
 
 }
@@ -280,7 +274,7 @@ void ATLASPix::lock(){
 void ATLASPix::unlock(){
 
 
-	this->theMatrix->CurrentDACConfig->SetParameter("unlock",0b1010);
+	this->theMatrix.CurrentDACConfig->SetParameter("unlock",0b1010);
 	this->ProgramSR(theMatrix);
 
 
@@ -289,14 +283,14 @@ void ATLASPix::unlock(){
 void ATLASPix::setThreshold(double threshold){
 
 
-	theMatrix->VoltageDACConfig->SetParameter("ThPix",static_cast<int>(floor(255 * threshold/1.8)));
+	theMatrix.VoltageDACConfig->SetParameter("ThPix",static_cast<int>(floor(255 * threshold/1.8)));
 
 	this->ProgramSR(theMatrix);
 
 	LOG(logDEBUG) << " ThPix ";
 	this->setVoltage("ThPix",threshold);
 	this->switchOn("ThPix");
-	theMatrix->ThPix=threshold;
+	theMatrix.ThPix=threshold;
 
 
 }
@@ -308,8 +302,8 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		//UGLY HACK FIXME!!!
 		//std::cout << '\n' << "***You have set " << name << " as " << std::dec << value <<  "***" << '\n' << '\n';
 		char Choice;
-		if(theMatrix->regcase=="M1"){ Choice = '1';}
-		else if(theMatrix->regcase=="M2"){ Choice = '2';}
+		if(theMatrix.regcase=="M1"){ Choice = '1';}
+		else if(theMatrix.regcase=="M2"){ Choice = '2';}
 		else{ Choice = '3';};
 
 		if(name == "unlock") {
@@ -321,19 +315,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("unlock",value);
+					theMatrix.CurrentDACConfig->SetParameter("unlock",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("unlock",0x0);
+					theMatrix.CurrentDACConfig->SetParameter("unlock",0x0);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("unlock",value);
+					theMatrix.CurrentDACConfig->SetParameter("unlock",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -350,19 +344,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("BLResPix",value);
+					theMatrix.CurrentDACConfig->SetParameter("BLResPix",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("BLResPix",value);
+					theMatrix.CurrentDACConfig->SetParameter("BLResPix",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("BLResPix",value);
+					theMatrix.CurrentDACConfig->SetParameter("BLResPix",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -378,19 +372,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("ThResPix",value);
+					theMatrix.CurrentDACConfig->SetParameter("ThResPix",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("ThResPix",value);
+					theMatrix.CurrentDACConfig->SetParameter("ThResPix",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("ThResPix",value);
+					theMatrix.CurrentDACConfig->SetParameter("ThResPix",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -407,19 +401,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNPix",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNPix",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNPix",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNPix",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNPix",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNPix",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -436,19 +430,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNFBPix",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNFBPix",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNFBPix",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNFBPix",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNFBPix",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNFBPix",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -464,19 +458,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNFollPix",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNFollPix",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNFollPix",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNFollPix",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNFollPix",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNFollPix",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -492,19 +486,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNRegCasc",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNRegCasc",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNRegCasc",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNRegCasc",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNRegCasc",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNRegCasc",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -520,19 +514,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VDel",value);
+					theMatrix.CurrentDACConfig->SetParameter("VDel",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VDel",value);
+					theMatrix.CurrentDACConfig->SetParameter("VDel",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VDel",value);
+					theMatrix.CurrentDACConfig->SetParameter("VDel",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -548,19 +542,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VPComp",value);
+					theMatrix.CurrentDACConfig->SetParameter("VPComp",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VPComp",value);
+					theMatrix.CurrentDACConfig->SetParameter("VPComp",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VPComp",value);
+					theMatrix.CurrentDACConfig->SetParameter("VPComp",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -576,19 +570,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VPDAC",value);
+					theMatrix.CurrentDACConfig->SetParameter("VPDAC",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VPDAC",value);
+					theMatrix.CurrentDACConfig->SetParameter("VPDAC",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VPDAC",value);
+					theMatrix.CurrentDACConfig->SetParameter("VPDAC",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -604,19 +598,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNPix2",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNPix2",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNPix2",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNPix2",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNPix2",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNPix2",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -632,19 +626,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("BLResDig",value);
+					theMatrix.CurrentDACConfig->SetParameter("BLResDig",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("BLResDig",value);
+					theMatrix.CurrentDACConfig->SetParameter("BLResDig",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("BLResDig",value);
+					theMatrix.CurrentDACConfig->SetParameter("BLResDig",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -660,19 +654,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNBiasPix",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNBiasPix",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNBiasPix",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNBiasPix",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNBiasPix",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNBiasPix",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -688,19 +682,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VPLoadPix",value);
+					theMatrix.CurrentDACConfig->SetParameter("VPLoadPix",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VPLoadPix",value);
+					theMatrix.CurrentDACConfig->SetParameter("VPLoadPix",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VPLoadPix",value);
+					theMatrix.CurrentDACConfig->SetParameter("VPLoadPix",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -716,19 +710,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNOutPix",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNOutPix",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNOutPix",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNOutPix",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNOutPix",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNOutPix",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -744,19 +738,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VPVCO",value);
+					theMatrix.CurrentDACConfig->SetParameter("VPVCO",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VPVCO",value);
+					theMatrix.CurrentDACConfig->SetParameter("VPVCO",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VPVCO",value);
+					theMatrix.CurrentDACConfig->SetParameter("VPVCO",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -772,19 +766,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNVCO",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNVCO",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNVCO",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNVCO",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNVCO",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNVCO",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -800,19 +794,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VPDelDclMux",value);
+					theMatrix.CurrentDACConfig->SetParameter("VPDelDclMux",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VPDelDclMux",value);
+					theMatrix.CurrentDACConfig->SetParameter("VPDelDclMux",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VPDelDclMux",value);
+					theMatrix.CurrentDACConfig->SetParameter("VPDelDclMux",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -828,19 +822,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNDelDclMux",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNDelDclMux",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNDelDclMux",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNDelDclMux",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNDelDclMux",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNDelDclMux",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -856,19 +850,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VPDelDcl",value);
+					theMatrix.CurrentDACConfig->SetParameter("VPDelDcl",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VPDelDcl",value);
+					theMatrix.CurrentDACConfig->SetParameter("VPDelDcl",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VPDelDcl",value);
+					theMatrix.CurrentDACConfig->SetParameter("VPDelDcl",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -884,19 +878,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNDelDcl",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNDelDcl",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNDelDcl",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNDelDcl",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNDelDcl",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNDelDcl",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -912,19 +906,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VPDelPreEmp",value);
+					theMatrix.CurrentDACConfig->SetParameter("VPDelPreEmp",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VPDelPreEmp",value);
+					theMatrix.CurrentDACConfig->SetParameter("VPDelPreEmp",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VPDelPreEmp",value);
+					theMatrix.CurrentDACConfig->SetParameter("VPDelPreEmp",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -940,19 +934,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNDelPreEmp",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNDelPreEmp",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNDelPreEmp",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNDelPreEmp",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNDelPreEmp",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNDelPreEmp",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -968,19 +962,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VPDcl",value);
+					theMatrix.CurrentDACConfig->SetParameter("VPDcl",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VPDcl",value);
+					theMatrix.CurrentDACConfig->SetParameter("VPDcl",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VPDcl",value);
+					theMatrix.CurrentDACConfig->SetParameter("VPDcl",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -996,19 +990,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNDcl",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNDcl",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNDcl",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNDcl",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNDcl",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNDcl",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -1024,19 +1018,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNLVDS",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNLVDS",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNLVDS",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNLVDS",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNLVDS",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNLVDS",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -1052,19 +1046,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNLVDSDel",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNLVDSDel",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNLVDSDel",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNLVDSDel",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNLVDSDel",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNLVDSDel",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -1080,19 +1074,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VPPump",value);
+					theMatrix.CurrentDACConfig->SetParameter("VPPump",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VPPump",value);
+					theMatrix.CurrentDACConfig->SetParameter("VPPump",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VPPump",value);
+					theMatrix.CurrentDACConfig->SetParameter("VPPump",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -1108,19 +1102,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("nu",value);
+					theMatrix.CurrentDACConfig->SetParameter("nu",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("nu",value);
+					theMatrix.CurrentDACConfig->SetParameter("nu",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("nu",value);
+					theMatrix.CurrentDACConfig->SetParameter("nu",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -1136,19 +1130,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("RO_res_n",value);
+					theMatrix.CurrentDACConfig->SetParameter("RO_res_n",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("RO_res_n",value);
+					theMatrix.CurrentDACConfig->SetParameter("RO_res_n",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("RO_res_n",value);
+					theMatrix.CurrentDACConfig->SetParameter("RO_res_n",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -1164,19 +1158,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("Ser_res_n",value);
+					theMatrix.CurrentDACConfig->SetParameter("Ser_res_n",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("Ser_res_n",value);
+					theMatrix.CurrentDACConfig->SetParameter("Ser_res_n",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("Ser_res_n",value);
+					theMatrix.CurrentDACConfig->SetParameter("Ser_res_n",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -1192,19 +1186,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("Aur_res_n",value);
+					theMatrix.CurrentDACConfig->SetParameter("Aur_res_n",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("Aur_res_n",value);
+					theMatrix.CurrentDACConfig->SetParameter("Aur_res_n",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("Aur_res_n",value);
+					theMatrix.CurrentDACConfig->SetParameter("Aur_res_n",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -1220,19 +1214,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("sendcnt",value);
+					theMatrix.CurrentDACConfig->SetParameter("sendcnt",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("sendcnt",value);
+					theMatrix.CurrentDACConfig->SetParameter("sendcnt",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("sendcnt",value);
+					theMatrix.CurrentDACConfig->SetParameter("sendcnt",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -1248,19 +1242,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("resetckdivend",value);
+					theMatrix.CurrentDACConfig->SetParameter("resetckdivend",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("resetckdivend",value);
+					theMatrix.CurrentDACConfig->SetParameter("resetckdivend",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("resetckdivend",value);
+					theMatrix.CurrentDACConfig->SetParameter("resetckdivend",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -1276,19 +1270,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("maxcycend",value);
+					theMatrix.CurrentDACConfig->SetParameter("maxcycend",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("maxcycend",value);
+					theMatrix.CurrentDACConfig->SetParameter("maxcycend",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("maxcycend",value);
+					theMatrix.CurrentDACConfig->SetParameter("maxcycend",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -1304,19 +1298,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("slowdownend",value);
+					theMatrix.CurrentDACConfig->SetParameter("slowdownend",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("slowdownend",value);
+					theMatrix.CurrentDACConfig->SetParameter("slowdownend",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("slowdownend",value);
+					theMatrix.CurrentDACConfig->SetParameter("slowdownend",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -1332,19 +1326,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("timerend",value);
+					theMatrix.CurrentDACConfig->SetParameter("timerend",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("timerend",value);
+					theMatrix.CurrentDACConfig->SetParameter("timerend",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("timerend",value);
+					theMatrix.CurrentDACConfig->SetParameter("timerend",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -1360,19 +1354,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("ckdivend2",value);
+					theMatrix.CurrentDACConfig->SetParameter("ckdivend2",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("ckdivend2",value);
+					theMatrix.CurrentDACConfig->SetParameter("ckdivend2",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("ckdivend2",value);
+					theMatrix.CurrentDACConfig->SetParameter("ckdivend2",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -1388,19 +1382,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("ckdivend",value);
+					theMatrix.CurrentDACConfig->SetParameter("ckdivend",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("ckdivend",value);
+					theMatrix.CurrentDACConfig->SetParameter("ckdivend",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("ckdivend",value);
+					theMatrix.CurrentDACConfig->SetParameter("ckdivend",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -1416,19 +1410,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VPRegCasc",value);
+					theMatrix.CurrentDACConfig->SetParameter("VPRegCasc",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VPRegCasc",value);
+					theMatrix.CurrentDACConfig->SetParameter("VPRegCasc",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VPRegCasc",value);
+					theMatrix.CurrentDACConfig->SetParameter("VPRegCasc",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -1444,19 +1438,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VPRamp",value);
+					theMatrix.CurrentDACConfig->SetParameter("VPRamp",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VPRamp",value);
+					theMatrix.CurrentDACConfig->SetParameter("VPRamp",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VPRamp",value);
+					theMatrix.CurrentDACConfig->SetParameter("VPRamp",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -1472,19 +1466,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNcompPix",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNcompPix",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNcompPix",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNcompPix",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNcompPix",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNcompPix",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -1500,19 +1494,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VPFoll",value);
+					theMatrix.CurrentDACConfig->SetParameter("VPFoll",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VPFoll",value);
+					theMatrix.CurrentDACConfig->SetParameter("VPFoll",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VPFoll",value);
+					theMatrix.CurrentDACConfig->SetParameter("VPFoll",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -1528,19 +1522,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNDACPix",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNDACPix",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNDACPix",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNDACPix",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNDACPix",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNDACPix",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -1556,19 +1550,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VPBiasRec",value);
+					theMatrix.CurrentDACConfig->SetParameter("VPBiasRec",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VPBiasRec",value);
+					theMatrix.CurrentDACConfig->SetParameter("VPBiasRec",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VPBiasRec",value);
+					theMatrix.CurrentDACConfig->SetParameter("VPBiasRec",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -1584,19 +1578,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNBiasRec",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNBiasRec",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNBiasRec",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNBiasRec",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("VNBiasRec",value);
+					theMatrix.CurrentDACConfig->SetParameter("VNBiasRec",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -1612,19 +1606,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("Invert",value);
+					theMatrix.CurrentDACConfig->SetParameter("Invert",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("Invert",value);
+					theMatrix.CurrentDACConfig->SetParameter("Invert",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("Invert",value);
+					theMatrix.CurrentDACConfig->SetParameter("Invert",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -1640,19 +1634,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("SelEx",value);
+					theMatrix.CurrentDACConfig->SetParameter("SelEx",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("SelEx",value);
+					theMatrix.CurrentDACConfig->SetParameter("SelEx",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("SelEx",value);
+					theMatrix.CurrentDACConfig->SetParameter("SelEx",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -1668,19 +1662,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("SelSlow",value);
+					theMatrix.CurrentDACConfig->SetParameter("SelSlow",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("SelSlow",value);
+					theMatrix.CurrentDACConfig->SetParameter("SelSlow",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("SelSlow",value);
+					theMatrix.CurrentDACConfig->SetParameter("SelSlow",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -1696,19 +1690,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("EnPLL",value);
+					theMatrix.CurrentDACConfig->SetParameter("EnPLL",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("EnPLL",value);
+					theMatrix.CurrentDACConfig->SetParameter("EnPLL",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("EnPLL",value);
+					theMatrix.CurrentDACConfig->SetParameter("EnPLL",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -1724,19 +1718,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("TriggerDelay",value);
+					theMatrix.CurrentDACConfig->SetParameter("TriggerDelay",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("TriggerDelay",value);
+					theMatrix.CurrentDACConfig->SetParameter("TriggerDelay",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("TriggerDelay",value);
+					theMatrix.CurrentDACConfig->SetParameter("TriggerDelay",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -1752,19 +1746,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("Reset",value);
+					theMatrix.CurrentDACConfig->SetParameter("Reset",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("Reset",value);
+					theMatrix.CurrentDACConfig->SetParameter("Reset",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("Reset",value);
+					theMatrix.CurrentDACConfig->SetParameter("Reset",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -1780,19 +1774,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("ConnRes",value);
+					theMatrix.CurrentDACConfig->SetParameter("ConnRes",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("ConnRes",value);
+					theMatrix.CurrentDACConfig->SetParameter("ConnRes",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("ConnRes",value);
+					theMatrix.CurrentDACConfig->SetParameter("ConnRes",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -1807,19 +1801,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("SelTest",value);
+					theMatrix.CurrentDACConfig->SetParameter("SelTest",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("SelTest",value);
+					theMatrix.CurrentDACConfig->SetParameter("SelTest",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("SelTest",value);
+					theMatrix.CurrentDACConfig->SetParameter("SelTest",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -1834,19 +1828,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("SelTestOut",value);
+					theMatrix.CurrentDACConfig->SetParameter("SelTestOut",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("SelTestOut",value);
+					theMatrix.CurrentDACConfig->SetParameter("SelTestOut",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("SelTestOut",value);
+					theMatrix.CurrentDACConfig->SetParameter("SelTestOut",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -1861,19 +1855,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->VoltageDACConfig->SetParameter("BLPix",value);
+					theMatrix.VoltageDACConfig->SetParameter("BLPix",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->VoltageDACConfig->SetParameter("BLPix",value);
+					theMatrix.VoltageDACConfig->SetParameter("BLPix",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->VoltageDACConfig->SetParameter("BLPix",value);
+					theMatrix.VoltageDACConfig->SetParameter("BLPix",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -1888,19 +1882,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("nu2",value);
+					theMatrix.CurrentDACConfig->SetParameter("nu2",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("nu2",value);
+					theMatrix.CurrentDACConfig->SetParameter("nu2",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("nu2",value);
+					theMatrix.CurrentDACConfig->SetParameter("nu2",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -1915,19 +1909,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->VoltageDACConfig->SetParameter("ThPix",value);
+					theMatrix.VoltageDACConfig->SetParameter("ThPix",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->VoltageDACConfig->SetParameter("ThPix",value);
+					theMatrix.VoltageDACConfig->SetParameter("ThPix",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->VoltageDACConfig->SetParameter("ThPix",value);
+					theMatrix.VoltageDACConfig->SetParameter("ThPix",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -1942,19 +1936,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			{
 			case '1' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("nu3",value);
+					theMatrix.CurrentDACConfig->SetParameter("nu3",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '2' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("nu3",value);
+					theMatrix.CurrentDACConfig->SetParameter("nu3",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
 			case '3' :
 				{
-					theMatrix->CurrentDACConfig->SetParameter("nu3",value);
+					theMatrix.CurrentDACConfig->SetParameter("nu3",value);
 					this->ProgramSR(theMatrix);
 					break ;
 				}
@@ -2015,162 +2009,162 @@ void ATLASPix::configureClock() {
 }
 
 
-void ATLASPix::Initialize_SR(ATLASPixMatrix *matrix){
+void ATLASPix::Initialize_SR(ATLASPixMatrix& matrix){
 
-	matrix->CurrentDACConfig = new ATLASPix_Config();
-	matrix->MatrixDACConfig = new ATLASPix_Config();
-	matrix->VoltageDACConfig = new ATLASPix_Config();
+	matrix.CurrentDACConfig = new ATLASPix_Config();
+	matrix.MatrixDACConfig = new ATLASPix_Config();
+	matrix.VoltageDACConfig = new ATLASPix_Config();
 
 
 	//DAC Block 1 for DIgital Part
 	//AnalogDACs
-	matrix->CurrentDACConfig->AddParameter("unlock",    4, ATLASPix_Config::LSBFirst, 0b1010); // unlock = x101
-	matrix->CurrentDACConfig->AddParameter("BLResPix", "5,4,3,1,0,2",  5);
-	matrix->CurrentDACConfig->AddParameter("ThResPix", "5,4,3,1,0,2",  0);
-	matrix->CurrentDACConfig->AddParameter("VNPix", "5,4,3,1,0,2",  10);
-	matrix->CurrentDACConfig->AddParameter("VNFBPix", "5,4,3,1,0,2", 20);
-	matrix->CurrentDACConfig->AddParameter("VNFollPix", "5,4,3,1,0,2", 10);
-	matrix->CurrentDACConfig->AddParameter("VNRegCasc", "5,4,3,1,0,2", 20);     //hier : VNHitbus
-	matrix->CurrentDACConfig->AddParameter("VDel", "5,4,3,1,0,2", 10);
-	matrix->CurrentDACConfig->AddParameter("VPComp", "5,4,3,1,0,2", 20);        //hier : VPHitbus
-	matrix->CurrentDACConfig->AddParameter("VPDAC", "5,4,3,1,0,2",  0);
-	matrix->CurrentDACConfig->AddParameter("VNPix2", "5,4,3,1,0,2",  0);
-	matrix->CurrentDACConfig->AddParameter("BLResDig", "5,4,3,1,0,2",  5);
-	matrix->CurrentDACConfig->AddParameter("VNBiasPix", "5,4,3,1,0,2",  0);
-	matrix->CurrentDACConfig->AddParameter("VPLoadPix", "5,4,3,1,0,2",  5);
-	matrix->CurrentDACConfig->AddParameter("VNOutPix", "5,4,3,1,0,2", 5);
+	matrix.CurrentDACConfig->AddParameter("unlock",    4, ATLASPix_Config::LSBFirst, 0b1010); // unlock = x101
+	matrix.CurrentDACConfig->AddParameter("BLResPix", "5,4,3,1,0,2",  5);
+	matrix.CurrentDACConfig->AddParameter("ThResPix", "5,4,3,1,0,2",  0);
+	matrix.CurrentDACConfig->AddParameter("VNPix", "5,4,3,1,0,2",  10);
+	matrix.CurrentDACConfig->AddParameter("VNFBPix", "5,4,3,1,0,2", 20);
+	matrix.CurrentDACConfig->AddParameter("VNFollPix", "5,4,3,1,0,2", 10);
+	matrix.CurrentDACConfig->AddParameter("VNRegCasc", "5,4,3,1,0,2", 20);     //hier : VNHitbus
+	matrix.CurrentDACConfig->AddParameter("VDel", "5,4,3,1,0,2", 10);
+	matrix.CurrentDACConfig->AddParameter("VPComp", "5,4,3,1,0,2", 20);        //hier : VPHitbus
+	matrix.CurrentDACConfig->AddParameter("VPDAC", "5,4,3,1,0,2",  0);
+	matrix.CurrentDACConfig->AddParameter("VNPix2", "5,4,3,1,0,2",  0);
+	matrix.CurrentDACConfig->AddParameter("BLResDig", "5,4,3,1,0,2",  5);
+	matrix.CurrentDACConfig->AddParameter("VNBiasPix", "5,4,3,1,0,2",  0);
+	matrix.CurrentDACConfig->AddParameter("VPLoadPix", "5,4,3,1,0,2",  5);
+	matrix.CurrentDACConfig->AddParameter("VNOutPix", "5,4,3,1,0,2", 5);
 
 	//DigitalDACs
-	matrix->CurrentDACConfig->AddParameter("VPVCO", "5,4,3,1,0,2",  7);//5);//7);
-	matrix->CurrentDACConfig->AddParameter("VNVCO", "5,4,3,1,0,2",  15);//15);
-	matrix->CurrentDACConfig->AddParameter("VPDelDclMux", "5,4,3,1,0,2",  30);//30);
-	matrix->CurrentDACConfig->AddParameter("VNDelDclMux", "5,4,3,1,0,2",  30);//30);
-	matrix->CurrentDACConfig->AddParameter("VPDelDcl", "5,4,3,1,0,2",  30);//30);
-	matrix->CurrentDACConfig->AddParameter("VNDelDcl", "5,4,3,1,0,2",  30);//30);
-	matrix->CurrentDACConfig->AddParameter("VPDelPreEmp", "5,4,3,1,0,2",  30);//30);
-	matrix->CurrentDACConfig->AddParameter("VNDelPreEmp", "5,4,3,1,0,2",  30);//30);
-	matrix->CurrentDACConfig->AddParameter("VPDcl", "5,4,3,1,0,2",  30);//30);
-	matrix->CurrentDACConfig->AddParameter("VNDcl", "5,4,3,1,0,2",  30);//30);
-	matrix->CurrentDACConfig->AddParameter("VNLVDS", "5,4,3,1,0,2",  10);//10);
-	matrix->CurrentDACConfig->AddParameter("VNLVDSDel", "5,4,3,1,0,2",  00);//10);
-	matrix->CurrentDACConfig->AddParameter("VPPump", "5,4,3,1,0,2",  5);//5);
+	matrix.CurrentDACConfig->AddParameter("VPVCO", "5,4,3,1,0,2",  7);//5);//7);
+	matrix.CurrentDACConfig->AddParameter("VNVCO", "5,4,3,1,0,2",  15);//15);
+	matrix.CurrentDACConfig->AddParameter("VPDelDclMux", "5,4,3,1,0,2",  30);//30);
+	matrix.CurrentDACConfig->AddParameter("VNDelDclMux", "5,4,3,1,0,2",  30);//30);
+	matrix.CurrentDACConfig->AddParameter("VPDelDcl", "5,4,3,1,0,2",  30);//30);
+	matrix.CurrentDACConfig->AddParameter("VNDelDcl", "5,4,3,1,0,2",  30);//30);
+	matrix.CurrentDACConfig->AddParameter("VPDelPreEmp", "5,4,3,1,0,2",  30);//30);
+	matrix.CurrentDACConfig->AddParameter("VNDelPreEmp", "5,4,3,1,0,2",  30);//30);
+	matrix.CurrentDACConfig->AddParameter("VPDcl", "5,4,3,1,0,2",  30);//30);
+	matrix.CurrentDACConfig->AddParameter("VNDcl", "5,4,3,1,0,2",  30);//30);
+	matrix.CurrentDACConfig->AddParameter("VNLVDS", "5,4,3,1,0,2",  10);//10);
+	matrix.CurrentDACConfig->AddParameter("VNLVDSDel", "5,4,3,1,0,2",  00);//10);
+	matrix.CurrentDACConfig->AddParameter("VPPump", "5,4,3,1,0,2",  5);//5);
 
-	matrix->CurrentDACConfig->AddParameter("nu", "1,0",  0);
-	matrix->CurrentDACConfig->AddParameter("RO_res_n",     1, ATLASPix_Config::LSBFirst,  1);//1);  //for fastreadout start set 1
-	matrix->CurrentDACConfig->AddParameter("Ser_res_n",     1, ATLASPix_Config::LSBFirst,  1);//1);  //for fastreadout start set 1
-	matrix->CurrentDACConfig->AddParameter("Aur_res_n",     1, ATLASPix_Config::LSBFirst,  1);//1);  //for fastreadout start set 1
-	matrix->CurrentDACConfig->AddParameter("sendcnt",     1, ATLASPix_Config::LSBFirst,  0);//0);
-	matrix->CurrentDACConfig->AddParameter("resetckdivend", "3,2,1,0",  15);//2);
-	matrix->CurrentDACConfig->AddParameter("maxcycend", "5,4,3,2,1,0",  5);//10); // probably 0 not allowed
-	matrix->CurrentDACConfig->AddParameter("slowdownend", "3,2,1,0",  2);//1);
-	matrix->CurrentDACConfig->AddParameter("timerend", "3,2,1,0",  1);//8); // darf nicht 0!! sonst werden debug ausgaben verschluckt
-	matrix->CurrentDACConfig->AddParameter("ckdivend2", "5,4,3,2,1,0",  4);//1);
-	matrix->CurrentDACConfig->AddParameter("ckdivend", "5,4,3,2,1,0",  4);//1);
-	matrix->CurrentDACConfig->AddParameter("VPRegCasc", "5,4,3,1,0,2",  20);
-	matrix->CurrentDACConfig->AddParameter("VPRamp", "5,4,3,1,0,2",  0); // was 4, off for HB/Thlow usage and fastreadout
-	matrix->CurrentDACConfig->AddParameter("VNcompPix", "5,4,3,1,0,2",  10);     //VNComparator
-	matrix->CurrentDACConfig->AddParameter("VPFoll", "5,4,3,1,0,2",  10);
-	matrix->CurrentDACConfig->AddParameter("VNDACPix", "5,4,3,1,0,2",  8);
-	matrix->CurrentDACConfig->AddParameter("VPBiasRec", "5,4,3,1,0,2",  30);
-	matrix->CurrentDACConfig->AddParameter("VNBiasRec", "5,4,3,1,0,2",  30);
-	matrix->CurrentDACConfig->AddParameter("Invert",     1, ATLASPix_Config::LSBFirst, 0);// 0);
-	matrix->CurrentDACConfig->AddParameter("SelEx",     1, ATLASPix_Config::LSBFirst,  1);//1); //activated external clock input
-	matrix->CurrentDACConfig->AddParameter("SelSlow",     1, ATLASPix_Config::LSBFirst,  1);//1);
-	matrix->CurrentDACConfig->AddParameter("EnPLL",     1, ATLASPix_Config::LSBFirst,  0);//0);
-	matrix->CurrentDACConfig->AddParameter("TriggerDelay",     10, ATLASPix_Config::LSBFirst,  0);
-	matrix->CurrentDACConfig->AddParameter("Reset", 1, ATLASPix_Config::LSBFirst, 0);
-	matrix->CurrentDACConfig->AddParameter("ConnRes",     1, ATLASPix_Config::LSBFirst,  1);//1);   //activates termination for output lvds
-	matrix->CurrentDACConfig->AddParameter("SelTest",     1, ATLASPix_Config::LSBFirst,  0);
-	matrix->CurrentDACConfig->AddParameter("SelTestOut",     1, ATLASPix_Config::LSBFirst,  0);
+	matrix.CurrentDACConfig->AddParameter("nu", "1,0",  0);
+	matrix.CurrentDACConfig->AddParameter("RO_res_n",     1, ATLASPix_Config::LSBFirst,  1);//1);  //for fastreadout start set 1
+	matrix.CurrentDACConfig->AddParameter("Ser_res_n",     1, ATLASPix_Config::LSBFirst,  1);//1);  //for fastreadout start set 1
+	matrix.CurrentDACConfig->AddParameter("Aur_res_n",     1, ATLASPix_Config::LSBFirst,  1);//1);  //for fastreadout start set 1
+	matrix.CurrentDACConfig->AddParameter("sendcnt",     1, ATLASPix_Config::LSBFirst,  0);//0);
+	matrix.CurrentDACConfig->AddParameter("resetckdivend", "3,2,1,0",  15);//2);
+	matrix.CurrentDACConfig->AddParameter("maxcycend", "5,4,3,2,1,0",  5);//10); // probably 0 not allowed
+	matrix.CurrentDACConfig->AddParameter("slowdownend", "3,2,1,0",  2);//1);
+	matrix.CurrentDACConfig->AddParameter("timerend", "3,2,1,0",  1);//8); // darf nicht 0!! sonst werden debug ausgaben verschluckt
+	matrix.CurrentDACConfig->AddParameter("ckdivend2", "5,4,3,2,1,0",  4);//1);
+	matrix.CurrentDACConfig->AddParameter("ckdivend", "5,4,3,2,1,0",  4);//1);
+	matrix.CurrentDACConfig->AddParameter("VPRegCasc", "5,4,3,1,0,2",  20);
+	matrix.CurrentDACConfig->AddParameter("VPRamp", "5,4,3,1,0,2",  0); // was 4, off for HB/Thlow usage and fastreadout
+	matrix.CurrentDACConfig->AddParameter("VNcompPix", "5,4,3,1,0,2",  10);     //VNComparator
+	matrix.CurrentDACConfig->AddParameter("VPFoll", "5,4,3,1,0,2",  10);
+	matrix.CurrentDACConfig->AddParameter("VNDACPix", "5,4,3,1,0,2",  8);
+	matrix.CurrentDACConfig->AddParameter("VPBiasRec", "5,4,3,1,0,2",  30);
+	matrix.CurrentDACConfig->AddParameter("VNBiasRec", "5,4,3,1,0,2",  30);
+	matrix.CurrentDACConfig->AddParameter("Invert",     1, ATLASPix_Config::LSBFirst, 0);// 0);
+	matrix.CurrentDACConfig->AddParameter("SelEx",     1, ATLASPix_Config::LSBFirst,  1);//1); //activated external clock input
+	matrix.CurrentDACConfig->AddParameter("SelSlow",     1, ATLASPix_Config::LSBFirst,  1);//1);
+	matrix.CurrentDACConfig->AddParameter("EnPLL",     1, ATLASPix_Config::LSBFirst,  0);//0);
+	matrix.CurrentDACConfig->AddParameter("TriggerDelay",     10, ATLASPix_Config::LSBFirst,  0);
+	matrix.CurrentDACConfig->AddParameter("Reset", 1, ATLASPix_Config::LSBFirst, 0);
+	matrix.CurrentDACConfig->AddParameter("ConnRes",     1, ATLASPix_Config::LSBFirst,  1);//1);   //activates termination for output lvds
+	matrix.CurrentDACConfig->AddParameter("SelTest",     1, ATLASPix_Config::LSBFirst,  0);
+	matrix.CurrentDACConfig->AddParameter("SelTestOut",     1, ATLASPix_Config::LSBFirst,  0);
 
-	if(matrix->type==1){
+	if(matrix.type==1){
 
 	//Column Register
-		for (int col = 0; col < matrix->ncol; col++)
+		for (int col = 0; col < matrix.ncol; col++)
 		{
 			std::string s = to_string(col);
-			matrix->MatrixDACConfig->AddParameter("RamDown"+s, 4, ATLASPix_Config::LSBFirst,  0b000); //0b1011
-			matrix->MatrixDACConfig->AddParameter("colinjDown"+s, 1, ATLASPix_Config::LSBFirst,  0);
-			matrix->MatrixDACConfig->AddParameter("hitbusDown"+s, 1, ATLASPix_Config::LSBFirst,  0);
-			matrix->MatrixDACConfig->AddParameter("unusedDown"+s, 2, ATLASPix_Config::LSBFirst,  0);
-			matrix->MatrixDACConfig->AddParameter("RamUp"+s, 4, ATLASPix_Config::LSBFirst,  0b000); //0b1011
-			matrix->MatrixDACConfig->AddParameter("colinjUp"+s, 1, ATLASPix_Config::LSBFirst,  0);
-			matrix->MatrixDACConfig->AddParameter("hitbusUp"+s, 1, ATLASPix_Config::LSBFirst,  0);
-			matrix->MatrixDACConfig->AddParameter("unusedUp"+s, 2, ATLASPix_Config::LSBFirst,  0);
+			matrix.MatrixDACConfig->AddParameter("RamDown"+s, 4, ATLASPix_Config::LSBFirst,  0b000); //0b1011
+			matrix.MatrixDACConfig->AddParameter("colinjDown"+s, 1, ATLASPix_Config::LSBFirst,  0);
+			matrix.MatrixDACConfig->AddParameter("hitbusDown"+s, 1, ATLASPix_Config::LSBFirst,  0);
+			matrix.MatrixDACConfig->AddParameter("unusedDown"+s, 2, ATLASPix_Config::LSBFirst,  0);
+			matrix.MatrixDACConfig->AddParameter("RamUp"+s, 4, ATLASPix_Config::LSBFirst,  0b000); //0b1011
+			matrix.MatrixDACConfig->AddParameter("colinjUp"+s, 1, ATLASPix_Config::LSBFirst,  0);
+			matrix.MatrixDACConfig->AddParameter("hitbusUp"+s, 1, ATLASPix_Config::LSBFirst,  0);
+			matrix.MatrixDACConfig->AddParameter("unusedUp"+s, 2, ATLASPix_Config::LSBFirst,  0);
 		}
 	}
 
 	else
 		{
-		for (int col = 0; col < matrix->ndoublecol; col++)
+		for (int col = 0; col < matrix.ndoublecol; col++)
 		{
 			std::string s = to_string(col);
-			matrix->MatrixDACConfig->AddParameter("RamL"+s, 3, ATLASPix_Config::LSBFirst,  0);
-			matrix->MatrixDACConfig->AddParameter("colinjL"+s, 1, ATLASPix_Config::LSBFirst,  0);
-			matrix->MatrixDACConfig->AddParameter("RamR"+s, 3, ATLASPix_Config::LSBFirst,  0);
-			matrix->MatrixDACConfig->AddParameter("colinjR"+s, 1, ATLASPix_Config::LSBFirst,  0);
+			matrix.MatrixDACConfig->AddParameter("RamL"+s, 3, ATLASPix_Config::LSBFirst,  0);
+			matrix.MatrixDACConfig->AddParameter("colinjL"+s, 1, ATLASPix_Config::LSBFirst,  0);
+			matrix.MatrixDACConfig->AddParameter("RamR"+s, 3, ATLASPix_Config::LSBFirst,  0);
+			matrix.MatrixDACConfig->AddParameter("colinjR"+s, 1, ATLASPix_Config::LSBFirst,  0);
 		}
 
 	}
 
 
 	//Row Register
-	for (int row = 0; row < matrix->nrow; row++)
+	for (int row = 0; row < matrix.nrow; row++)
 	{
 		std::string s = to_string(row);
-		matrix->MatrixDACConfig->AddParameter("writedac"+s, 1, ATLASPix_Config::LSBFirst, 0);
-		matrix->MatrixDACConfig->AddParameter("unused"+s,   3, ATLASPix_Config::LSBFirst, 0);
-		matrix->MatrixDACConfig->AddParameter("rowinjection"+s, 1, ATLASPix_Config::LSBFirst, 0);
+		matrix.MatrixDACConfig->AddParameter("writedac"+s, 1, ATLASPix_Config::LSBFirst, 0);
+		matrix.MatrixDACConfig->AddParameter("unused"+s,   3, ATLASPix_Config::LSBFirst, 0);
+		matrix.MatrixDACConfig->AddParameter("rowinjection"+s, 1, ATLASPix_Config::LSBFirst, 0);
 
 		if(row==0){
-		matrix->MatrixDACConfig->AddParameter("analogbuffer"+s, 1, ATLASPix_Config::LSBFirst, 0);
+		matrix.MatrixDACConfig->AddParameter("analogbuffer"+s, 1, ATLASPix_Config::LSBFirst, 0);
 		}
 		else{
-		matrix->MatrixDACConfig->AddParameter("analogbuffer"+s, 1, ATLASPix_Config::LSBFirst, 0);
+		matrix.MatrixDACConfig->AddParameter("analogbuffer"+s, 1, ATLASPix_Config::LSBFirst, 0);
 
 		}
 	}
 
 
 
-	matrix->VoltageDACConfig->AddParameter("BLPix", 8,ATLASPix_Config::LSBFirst, floor(255 * matrix->BLPix/1.8));
-	matrix->VoltageDACConfig->AddParameter("nu2", 2, ATLASPix_Config::LSBFirst, matrix->nu2);
-	matrix->VoltageDACConfig->AddParameter("ThPix", 8, ATLASPix_Config::LSBFirst, floor(255 * matrix->ThPix/1.8));
-	matrix->VoltageDACConfig->AddParameter("nu3", 2, ATLASPix_Config::LSBFirst, matrix->nu3);
+	matrix.VoltageDACConfig->AddParameter("BLPix", 8,ATLASPix_Config::LSBFirst, floor(255 * matrix.BLPix/1.8));
+	matrix.VoltageDACConfig->AddParameter("nu2", 2, ATLASPix_Config::LSBFirst, matrix.nu2);
+	matrix.VoltageDACConfig->AddParameter("ThPix", 8, ATLASPix_Config::LSBFirst, floor(255 * matrix.ThPix/1.8));
+	matrix.VoltageDACConfig->AddParameter("nu3", 2, ATLASPix_Config::LSBFirst, matrix.nu3);
 
 }
 
 
-void ATLASPix::Fill_SR(ATLASPixMatrix *matrix)
+void ATLASPix::Fill_SR(ATLASPixMatrix& matrix)
 {
     uint32_t buffer =0;
     uint32_t cnt =0;
     uint32_t nbits =0;
-    matrix->VoltageDACBits = matrix->VoltageDACConfig->GenerateBitVector(ATLASPix_Config::GlobalInvertedMSBFirst);
-    matrix->CurrentDACbits = matrix->CurrentDACConfig->GenerateBitVector(ATLASPix_Config::GlobalInvertedMSBFirst);
-    matrix->MatrixBits = matrix->MatrixDACConfig->GenerateBitVector(ATLASPix_Config::GlobalInvertedMSBFirst);
+    matrix.VoltageDACBits = matrix.VoltageDACConfig->GenerateBitVector(ATLASPix_Config::GlobalInvertedMSBFirst);
+    matrix.CurrentDACbits = matrix.CurrentDACConfig->GenerateBitVector(ATLASPix_Config::GlobalInvertedMSBFirst);
+    matrix.MatrixBits = matrix.MatrixDACConfig->GenerateBitVector(ATLASPix_Config::GlobalInvertedMSBFirst);
     //CurrentDACbits = CurrentDACConfig->GenerateBitVector(ATLASPix_Config::GlobalInvertedMSBFirst);
 
 
     std::vector<bool> allbits;
-    allbits.insert( allbits.end(), matrix->VoltageDACBits.begin(), matrix->VoltageDACBits.end() );
-    allbits.insert( allbits.end(), matrix->CurrentDACbits.begin(), matrix->CurrentDACbits.end() );
-    allbits.insert( allbits.end(),  matrix->MatrixBits.begin(),  matrix->MatrixBits.end() );
-    allbits.insert( allbits.end(), matrix->CurrentDACbits.begin(), matrix->CurrentDACbits.end() );
+    allbits.insert( allbits.end(), matrix.VoltageDACBits.begin(), matrix.VoltageDACBits.end() );
+    allbits.insert( allbits.end(), matrix.CurrentDACbits.begin(), matrix.CurrentDACbits.end() );
+    allbits.insert( allbits.end(),  matrix.MatrixBits.begin(),  matrix.MatrixBits.end() );
+    allbits.insert( allbits.end(), matrix.CurrentDACbits.begin(), matrix.CurrentDACbits.end() );
 
-//    std::cout << matrix->VoltageDACBits.size() << std::endl;;
-//    std::cout << matrix->CurrentDACbits.size() << std::endl;;
-//    std::cout << matrix->MatrixBits.size() << std::endl;;
+//    std::cout << matrix.VoltageDACBits.size() << std::endl;;
+//    std::cout << matrix.CurrentDACbits.size() << std::endl;;
+//    std::cout << matrix.MatrixBits.size() << std::endl;;
 //    std::cout << allbits.size() << std::endl;;
 
 
-    matrix->Registers.clear();
+    matrix.Registers.clear();
 
     for (auto i = allbits.begin(); i != allbits.end(); ++i)
      {
        if(cnt==32){
 	 cnt=0;
-	 matrix->Registers.push_back(buffer);
+	 matrix.Registers.push_back(buffer);
 	 buffer=0;
        };
        buffer += *i << cnt;
@@ -2179,16 +2173,16 @@ void ATLASPix::Fill_SR(ATLASPixMatrix *matrix)
      }
 
 
-	 matrix->Registers.push_back(buffer);
+	 matrix.Registers.push_back(buffer);
 
 
-     //std::cout << "size of shift buffer " << matrix->Registers.size() << std::endl;
+     //std::cout << "size of shift buffer " << matrix.Registers.size() << std::endl;
      //std::cout << "number of bits " << nbits << std::endl;
 
 }
 
 
-void ATLASPix::Shift_SR(ATLASPixMatrix *matrix){
+void ATLASPix::Shift_SR(ATLASPixMatrix& matrix){
 
 
 	void* control_base = _hal->getMappedMemoryRW(ATLASPix_CONTROL_BASE_ADDRESS, ATLASPix_CONTROL_MAP_SIZE, ATLASPix_RAM_address_MASK);
@@ -2205,27 +2199,27 @@ void ATLASPix::Shift_SR(ATLASPixMatrix *matrix){
 
 	*Config_flag = 0;
 
-	*RAM_reg_limit = matrix->nSRbuffer;
-	*RAM_shift_limit = matrix->extraBits;
+	*RAM_reg_limit = matrix.nSRbuffer;
+	*RAM_shift_limit = matrix.extraBits;
 
 	uint32_t tmp=0;
 
-	for(uint32_t i =0;i<=matrix->nSRbuffer;i++){
+	for(uint32_t i =0;i<=matrix.nSRbuffer;i++){
 		*RAM_address =i;
-		tmp=matrix->Registers[i];
+		tmp=matrix.Registers[i];
 		*RAM_content = tmp;
 		usleep(10);
 		*RAM_write_enable =0x1;
 		usleep(10);
 		*RAM_write_enable =0x0;
 
-		 //std::cout << matrix->Registers[i] << " " ;
-		 //std::cout << std::hex << matrix->Registers[i] << " ";
-		 //this->printBits(sizeof(matrix->Registers[i]),&matrix->Registers[i]);
+		 //std::cout << matrix.Registers[i] << " " ;
+		 //std::cout << std::hex << matrix.Registers[i] << " ";
+		 //this->printBits(sizeof(matrix.Registers[i]),&matrix.Registers[i]);
 
 	};
 
-	*output_enable = matrix->SRmask;
+	*output_enable = matrix.SRmask;
 	usleep(10);
 
 
@@ -2239,12 +2233,12 @@ void ATLASPix::Shift_SR(ATLASPixMatrix *matrix){
 	// Sync RO state machine ckdivend with the one in the chip
 	 void* readout_base = _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
 	 volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
-	 *ro=(*ro & 0xFFFFFF00)+(matrix->CurrentDACConfig->GetParameter("ckdivend") & 0xFF);
+	 *ro=(*ro & 0xFFFFFF00)+(matrix.CurrentDACConfig->GetParameter("ckdivend") & 0xFF);
 
 }
 
 
-void ATLASPix::ProgramSR(ATLASPixMatrix *matrix){
+void ATLASPix::ProgramSR(ATLASPixMatrix& matrix){
 
 	this->Fill_SR(matrix);
  	this->Shift_SR(matrix);
@@ -2269,7 +2263,7 @@ void ATLASPix::resetPulser(){
 
 }
 
-void ATLASPix::setPulse(ATLASPixMatrix *matrix,uint32_t npulse,uint32_t n_up,uint32_t n_down, double voltage){
+void ATLASPix::setPulse(ATLASPixMatrix& matrix,uint32_t npulse,uint32_t n_up,uint32_t n_down, double voltage){
 
 	LOG(logDEBUG) << " Set injection voltages ";
     _hal->setBiasRegulator(INJ_1,voltage);
@@ -2293,7 +2287,7 @@ void ATLASPix::setPulse(ATLASPixMatrix *matrix,uint32_t npulse,uint32_t n_up,uin
 	 *pulse_count = npulse;
 	 *high_cnt = n_up;
 	 *low_cnt = n_down;
-	 *output_enable = 0xFFFFF;//matrix->PulserMask;
+	 *output_enable = 0xFFFFF;//matrix.PulserMask;
 
 	 this->pulse_width = std::ceil(((npulse*n_up + npulse*n_down)*(1.0/160.0e6))/1e-6) + 10;
 }
@@ -2352,12 +2346,12 @@ void ATLASPix::resetCounters()
 
 }
 
-int ATLASPix::readCounter(ATLASPixMatrix *matrix)
+int ATLASPix::readCounter(ATLASPixMatrix& matrix)
 {
 	void* counter_base = _hal->getMappedMemoryRW(ATLASPix_COUNTER_BASE_ADDRESS, ATLASPix_COUNTER_MAP_SIZE, ATLASPix_COUNTER_MASK);
 
 	int value = 0;
-	switch(matrix->counter){
+	switch(matrix.counter){
 					case 0 :
 						 {volatile uint32_t* cnt_value = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(counter_base) + 0x0);
 						 value = *cnt_value;}
@@ -2388,14 +2382,14 @@ void ATLASPix::SetPixelInjection(uint32_t col, uint32_t row,bool ana_state,bool 
 
 }
 
-void ATLASPix::SetPixelInjection(ATLASPixMatrix *matrix,uint32_t col, uint32_t row,bool ana_state,bool hb_state){
+void ATLASPix::SetPixelInjection(ATLASPixMatrix& matrix,uint32_t col, uint32_t row,bool ana_state,bool hb_state){
 
 	this->writePixelInj(matrix,col,row,ana_state,hb_state);
 
 
 }
 
-void ATLASPix::writePixelInj(ATLASPixMatrix *matrix, uint32_t col, uint32_t row, bool ana_state,bool hb_state){
+void ATLASPix::writePixelInj(ATLASPixMatrix& matrix, uint32_t col, uint32_t row, bool ana_state,bool hb_state){
 
 
 	std::string col_s;
@@ -2409,30 +2403,30 @@ void ATLASPix::writePixelInj(ATLASPixMatrix *matrix, uint32_t col, uint32_t row,
 
 
 
-	if(matrix->type==1){
+	if(matrix.type==1){
 		std::string s = to_string(col);
 
 		if(row<200){
-		matrix->MatrixDACConfig->SetParameter("RamDown"+s, matrix->TDAC[col][row]); //0b1011
-		matrix->MatrixDACConfig->SetParameter("RamUp"+s, matrix->TDAC[col][row]); //0b1011
-		matrix->MatrixDACConfig->SetParameter("colinjDown"+s,  inj);
-		matrix->MatrixDACConfig->SetParameter("hitbusDown"+s,  hb_state);
-		matrix->MatrixDACConfig->SetParameter("unusedDown"+s,  3);
-		matrix->MatrixDACConfig->SetParameter("colinjUp"+s,   inj);
-		matrix->MatrixDACConfig->SetParameter("hitbusUp"+s,  0);
-		matrix->MatrixDACConfig->SetParameter("unusedUp"+s,  3);
+		matrix.MatrixDACConfig->SetParameter("RamDown"+s, matrix.TDAC[col][row]); //0b1011
+		matrix.MatrixDACConfig->SetParameter("RamUp"+s, matrix.TDAC[col][row]); //0b1011
+		matrix.MatrixDACConfig->SetParameter("colinjDown"+s,  inj);
+		matrix.MatrixDACConfig->SetParameter("hitbusDown"+s,  hb_state);
+		matrix.MatrixDACConfig->SetParameter("unusedDown"+s,  3);
+		matrix.MatrixDACConfig->SetParameter("colinjUp"+s,   inj);
+		matrix.MatrixDACConfig->SetParameter("hitbusUp"+s,  0);
+		matrix.MatrixDACConfig->SetParameter("unusedUp"+s,  3);
 
 		}
 		else{
 		//std::cout << "up pixels" << std::endl;
-		matrix->MatrixDACConfig->SetParameter("RamUp"+s,matrix->TDAC[col][row]); //0b1011
-		matrix->MatrixDACConfig->SetParameter("RamDown"+s, matrix->TDAC[col][row]); //0b1011
-		matrix->MatrixDACConfig->SetParameter("colinjDown"+s,  inj);
-		matrix->MatrixDACConfig->SetParameter("hitbusDown"+s,  0);
-		matrix->MatrixDACConfig->SetParameter("unusedDown"+s,  3);
-		matrix->MatrixDACConfig->SetParameter("colinjUp"+s,   inj);
-		matrix->MatrixDACConfig->SetParameter("hitbusUp"+s,  hb_state);
-		matrix->MatrixDACConfig->SetParameter("unusedUp"+s,  3);
+		matrix.MatrixDACConfig->SetParameter("RamUp"+s,matrix.TDAC[col][row]); //0b1011
+		matrix.MatrixDACConfig->SetParameter("RamDown"+s, matrix.TDAC[col][row]); //0b1011
+		matrix.MatrixDACConfig->SetParameter("colinjDown"+s,  inj);
+		matrix.MatrixDACConfig->SetParameter("hitbusDown"+s,  0);
+		matrix.MatrixDACConfig->SetParameter("unusedDown"+s,  3);
+		matrix.MatrixDACConfig->SetParameter("colinjUp"+s,   inj);
+		matrix.MatrixDACConfig->SetParameter("hitbusUp"+s,  hb_state);
+		matrix.MatrixDACConfig->SetParameter("unusedUp"+s,  3);
 
 
 		}
@@ -2443,24 +2437,24 @@ void ATLASPix::writePixelInj(ATLASPixMatrix *matrix, uint32_t col, uint32_t row,
 		double_col=int(std::floor(double(col)/2));
 		col_s = to_string(double_col);
 		if(col%2==0){
-				matrix->MatrixDACConfig->SetParameter("RamL"+col_s,matrix->TDAC[col][row] & 0b111);
-				matrix->MatrixDACConfig->SetParameter("colinjL"+col_s,inj);
+				matrix.MatrixDACConfig->SetParameter("RamL"+col_s,matrix.TDAC[col][row] & 0b111);
+				matrix.MatrixDACConfig->SetParameter("colinjL"+col_s,inj);
 		}
 		else {
-				matrix->MatrixDACConfig->SetParameter("RamR"+col_s, matrix->TDAC[col][row] & 0b111);
-				matrix->MatrixDACConfig->SetParameter("colinjR"+col_s,inj);
+				matrix.MatrixDACConfig->SetParameter("RamR"+col_s, matrix.TDAC[col][row] & 0b111);
+				matrix.MatrixDACConfig->SetParameter("colinjR"+col_s,inj);
 		}
 
 
 	}
 
 	std::string row_s = to_string(row);
-	matrix->MatrixDACConfig->SetParameter("writedac"+row_s,1);
-	matrix->MatrixDACConfig->SetParameter("unused"+row_s,  0);
-	matrix->MatrixDACConfig->SetParameter("rowinjection"+row_s,inj);
-	matrix->MatrixDACConfig->SetParameter("analogbuffer"+row_s,ana_state);
+	matrix.MatrixDACConfig->SetParameter("writedac"+row_s,1);
+	matrix.MatrixDACConfig->SetParameter("unused"+row_s,  0);
+	matrix.MatrixDACConfig->SetParameter("rowinjection"+row_s,inj);
+	matrix.MatrixDACConfig->SetParameter("analogbuffer"+row_s,ana_state);
 	this->ProgramSR(matrix);
-	matrix->MatrixDACConfig->SetParameter("writedac"+row_s,0);
+	matrix.MatrixDACConfig->SetParameter("writedac"+row_s,0);
 	this->ProgramSR(matrix);
 
 
@@ -2481,7 +2475,7 @@ void ATLASPix::pulse(uint32_t npulse,uint32_t tup,uint32_t tdown,double amplitud
 
 // TDAC Manipulation
 
-void ATLASPix::initTDAC(ATLASPixMatrix *matrix,uint32_t value){
+void ATLASPix::initTDAC(ATLASPixMatrix& matrix,uint32_t value){
 
 	uint32_t actual_value = value;
 	if(value>7){
@@ -2490,71 +2484,71 @@ void ATLASPix::initTDAC(ATLASPixMatrix *matrix,uint32_t value){
 	}
 
 
-	for(int col=0;col<matrix->ncol;col++){
-		for(int row=0;row < matrix->nrow;row++){
-			matrix->MASK[col][row]=0;
-			matrix->TDAC[col][row] = (actual_value << 1) | matrix->MASK[col][row];
-			//matrix->TDAC[col][row] = (actual_value) ;
+	for(int col=0;col<matrix.ncol;col++){
+		for(int row=0;row < matrix.nrow;row++){
+			matrix.MASK[col][row]=0;
+			matrix.TDAC[col][row] = (actual_value << 1) | matrix.MASK[col][row];
+			//matrix.TDAC[col][row] = (actual_value) ;
 			}
 		}
 }
 
-void ATLASPix::setOneTDAC(ATLASPixMatrix *matrix,uint32_t col,uint32_t row,uint32_t value){
+void ATLASPix::setOneTDAC(ATLASPixMatrix& matrix,uint32_t col,uint32_t row,uint32_t value){
 
 	uint32_t actual_value = value;
 	if(value>7){
 		std::cout << "Value out of range, setting TDAC to 7" << std::endl;
 		actual_value = 7;
 	}
-	//matrix->MASK[col][row]=0;
-	matrix->TDAC[col][row] = (actual_value << 1) | matrix->MASK[col][row];
-	//std::cout << std::bitset<4>(matrix->TDAC[col][row]) << std::endl;
+	//matrix.MASK[col][row]=0;
+	matrix.TDAC[col][row] = (actual_value << 1) | matrix.MASK[col][row];
+	//std::cout << std::bitset<4>(matrix.TDAC[col][row]) << std::endl;
 
 }
 
-void ATLASPix::setMaskPixel(ATLASPixMatrix *matrix,uint32_t col,uint32_t row,uint32_t value){
+void ATLASPix::setMaskPixel(ATLASPixMatrix& matrix,uint32_t col,uint32_t row,uint32_t value){
 
-	matrix->MASK[col][row]=value;
-	matrix->TDAC[col][row] = matrix->TDAC[col][row] << 1  | matrix->MASK[col][row];
-	//std::cout << std::bitset<4>(matrix->TDAC[col][row]) << std::endl;
+	matrix.MASK[col][row]=value;
+	matrix.TDAC[col][row] = matrix.TDAC[col][row] << 1  | matrix.MASK[col][row];
+	//std::cout << std::bitset<4>(matrix.TDAC[col][row]) << std::endl;
 }
 
 
 void ATLASPix::MaskPixel(uint32_t col,uint32_t row){
 
 	this->setMaskPixel(theMatrix,col,row,1);
-	//std::cout << "pixel masked col:" << col << " row: " << row << " " << theMatrix->MASK[col][row] << std::endl;
+	//std::cout << "pixel masked col:" << col << " row: " << row << " " << theMatrix.MASK[col][row] << std::endl;
 	this->writeOneTDAC(theMatrix,col,row,0);
 	this->SetPixelInjection(col,row,0,0);
 }
 
 
-void ATLASPix::writeOneTDAC(ATLASPixMatrix *matrix,uint32_t col,uint32_t row,uint32_t value){
+void ATLASPix::writeOneTDAC(ATLASPixMatrix& matrix,uint32_t col,uint32_t row,uint32_t value){
 
 	this->setOneTDAC(matrix,col,row,value);
 
-	if(matrix->type==1){
+	if(matrix.type==1){
 
 	//Column Register
 
 			std::string s = to_string(col);
-			matrix->MatrixDACConfig->SetParameter("colinjDown"+s,  0);
-			matrix->MatrixDACConfig->SetParameter("hitbusDown"+s,  0);
-			matrix->MatrixDACConfig->SetParameter("unusedDown"+s,  0);
-			matrix->MatrixDACConfig->SetParameter("colinjUp"+s,   0);
-			matrix->MatrixDACConfig->SetParameter("hitbusUp"+s,  0);
-			matrix->MatrixDACConfig->SetParameter("unusedUp"+s,  0);
+			matrix.MatrixDACConfig->SetParameter("colinjDown"+s,  0);
+			matrix.MatrixDACConfig->SetParameter("hitbusDown"+s,  0);
+			matrix.MatrixDACConfig->SetParameter("unusedDown"+s,  0);
+			matrix.MatrixDACConfig->SetParameter("colinjUp"+s,   0);
+			matrix.MatrixDACConfig->SetParameter("hitbusUp"+s,  0);
+			matrix.MatrixDACConfig->SetParameter("unusedUp"+s,  0);
 
 			if(row<200){
-			matrix->MatrixDACConfig->SetParameter("RamDown"+s,matrix->TDAC[col][row]); //0b1011
-			//std::cout << std::bitset<4>(matrix->TDAC[col][row]) << std::endl;
+			matrix.MatrixDACConfig->SetParameter("RamDown"+s,matrix.TDAC[col][row]); //0b1011
+			//std::cout << std::bitset<4>(matrix.TDAC[col][row]) << std::endl;
 
-			//matrix->MatrixDACConfig->SetParameter("RamUp"+s, 4, ATLASPix_Config::LSBFirst,  matrix->TDAC[col][row]); //0b1011
+			//matrix.MatrixDACConfig->SetParameter("RamUp"+s, 4, ATLASPix_Config::LSBFirst,  matrix.TDAC[col][row]); //0b1011
 			}
 			else{
-			//matrix->MatrixDACConfig->SetParameter("RamDown"+s, 4, ATLASPix_Config::LSBFirst,  matrix->TDAC[col][row]); //0b1011
-			matrix->MatrixDACConfig->SetParameter("RamUp"+s,matrix->TDAC[col][row]); //0b1011
-			//std::cout << std::bitset<4>(matrix->TDAC[col][row]) << std::endl;
+			//matrix.MatrixDACConfig->SetParameter("RamDown"+s, 4, ATLASPix_Config::LSBFirst,  matrix.TDAC[col][row]); //0b1011
+			matrix.MatrixDACConfig->SetParameter("RamUp"+s,matrix.TDAC[col][row]); //0b1011
+			//std::cout << std::bitset<4>(matrix.TDAC[col][row]) << std::endl;
 
 			}
 
@@ -2566,35 +2560,35 @@ void ATLASPix::writeOneTDAC(ATLASPixMatrix *matrix,uint32_t col,uint32_t row,uin
     		int double_col=int(std::floor(double(col)/2));
     		std::string col_s = to_string(double_col);
     		if(col%2==0){
-    				matrix->MatrixDACConfig->SetParameter("RamL"+col_s,matrix->TDAC[col][row]);
-    				matrix->MatrixDACConfig->SetParameter("colinjL"+col_s,0);
+    				matrix.MatrixDACConfig->SetParameter("RamL"+col_s,matrix.TDAC[col][row]);
+    				matrix.MatrixDACConfig->SetParameter("colinjL"+col_s,0);
     		}
     		else {
-    				matrix->MatrixDACConfig->SetParameter("RamR"+col_s, matrix->TDAC[col][row]);
-    				matrix->MatrixDACConfig->SetParameter("colinjR"+col_s,0);
+    				matrix.MatrixDACConfig->SetParameter("RamR"+col_s, matrix.TDAC[col][row]);
+    				matrix.MatrixDACConfig->SetParameter("colinjR"+col_s,0);
     		}
 		}
 
 	std::string row_s = to_string(row);
-	matrix->MatrixDACConfig->SetParameter("writedac"+row_s,1);
-	matrix->MatrixDACConfig->SetParameter("unused"+row_s,  0);
-	matrix->MatrixDACConfig->SetParameter("rowinjection"+row_s,0);
-	matrix->MatrixDACConfig->SetParameter("analogbuffer"+row_s,0);
+	matrix.MatrixDACConfig->SetParameter("writedac"+row_s,1);
+	matrix.MatrixDACConfig->SetParameter("unused"+row_s,  0);
+	matrix.MatrixDACConfig->SetParameter("rowinjection"+row_s,0);
+	matrix.MatrixDACConfig->SetParameter("analogbuffer"+row_s,0);
 
 	this->ProgramSR(matrix);
 
 
-	matrix->MatrixDACConfig->SetParameter("writedac"+row_s,0);
-	matrix->MatrixDACConfig->SetParameter("unused"+row_s,  0);
-	matrix->MatrixDACConfig->SetParameter("rowinjection"+row_s,0);
-	matrix->MatrixDACConfig->SetParameter("analogbuffer"+row_s,0);
+	matrix.MatrixDACConfig->SetParameter("writedac"+row_s,0);
+	matrix.MatrixDACConfig->SetParameter("unused"+row_s,  0);
+	matrix.MatrixDACConfig->SetParameter("rowinjection"+row_s,0);
+	matrix.MatrixDACConfig->SetParameter("analogbuffer"+row_s,0);
 
 	this->ProgramSR(matrix);
 
 
 }
 
-void ATLASPix::writeUniformTDAC(ATLASPixMatrix *matrix,uint32_t value){
+void ATLASPix::writeUniformTDAC(ATLASPixMatrix& matrix,uint32_t value){
 
 
 	std::string col_s;
@@ -2605,22 +2599,22 @@ void ATLASPix::writeUniformTDAC(ATLASPixMatrix *matrix,uint32_t value){
 
 	//std::cout << "writing " <<  std::bitset<32>(value) << std::endl;
 
-    	if(matrix->type==1){
+    	if(matrix.type==1){
 
     	//Column Register
-    		for (int col = 0; col < matrix->ncol; col++)
+    		for (int col = 0; col < matrix.ncol; col++)
     		{
     			std::string s = to_string(col);
-    			matrix->MatrixDACConfig->SetParameter("colinjDown"+s,  0);
-    			matrix->MatrixDACConfig->SetParameter("hitbusDown"+s,  0);
-    			matrix->MatrixDACConfig->SetParameter("unusedDown"+s,  0);
-    			matrix->MatrixDACConfig->SetParameter("colinjUp"+s,   0);
-    			matrix->MatrixDACConfig->SetParameter("hitbusUp"+s,  0);
-    			matrix->MatrixDACConfig->SetParameter("unusedUp"+s,  0);
+    			matrix.MatrixDACConfig->SetParameter("colinjDown"+s,  0);
+    			matrix.MatrixDACConfig->SetParameter("hitbusDown"+s,  0);
+    			matrix.MatrixDACConfig->SetParameter("unusedDown"+s,  0);
+    			matrix.MatrixDACConfig->SetParameter("colinjUp"+s,   0);
+    			matrix.MatrixDACConfig->SetParameter("hitbusUp"+s,  0);
+    			matrix.MatrixDACConfig->SetParameter("unusedUp"+s,  0);
 
 
-    			matrix->MatrixDACConfig->SetParameter("RamDown"+s, matrix->TDAC[col][0] ); //0b1011
-    			matrix->MatrixDACConfig->SetParameter("RamUp"+s, matrix->TDAC[col][0] ); //0b1011
+    			matrix.MatrixDACConfig->SetParameter("RamDown"+s, matrix.TDAC[col][0] ); //0b1011
+    			matrix.MatrixDACConfig->SetParameter("RamUp"+s, matrix.TDAC[col][0] ); //0b1011
 
 
     		}
@@ -2628,58 +2622,58 @@ void ATLASPix::writeUniformTDAC(ATLASPixMatrix *matrix,uint32_t value){
 
     	else
     		{
-    		for (int col = 0; col < matrix->ncol; col++)
+    		for (int col = 0; col < matrix.ncol; col++)
     		{
         		double_col=int(std::floor(double(col)/2));
         		col_s = to_string(double_col);
         		if(col%2==0){
-        				matrix->MatrixDACConfig->SetParameter("RamL"+col_s,matrix->TDAC[col][0] );
-        				matrix->MatrixDACConfig->SetParameter("colinjL"+col_s,0);
+        				matrix.MatrixDACConfig->SetParameter("RamL"+col_s,matrix.TDAC[col][0] );
+        				matrix.MatrixDACConfig->SetParameter("colinjL"+col_s,0);
         		}
         		else {
-        				matrix->MatrixDACConfig->SetParameter("RamR"+col_s, matrix->TDAC[col][0] );
-        				matrix->MatrixDACConfig->SetParameter("colinjR"+col_s,0);
+        				matrix.MatrixDACConfig->SetParameter("RamR"+col_s, matrix.TDAC[col][0] );
+        				matrix.MatrixDACConfig->SetParameter("colinjR"+col_s,0);
         		}
 
 
     		}
     		};
 
-    	for (int row = 0; row < matrix->nrow; row++){
+    	for (int row = 0; row < matrix.nrow; row++){
 
     	//std::cout << "processing row : " << row << std::endl;
     	std::string row_s = to_string(row);
-    	matrix->MatrixDACConfig->SetParameter("writedac"+row_s,0);
-    	matrix->MatrixDACConfig->SetParameter("unused"+row_s,  0);
-    	matrix->MatrixDACConfig->SetParameter("rowinjection"+row_s,0);
-    	matrix->MatrixDACConfig->SetParameter("analogbuffer"+row_s,0);
+    	matrix.MatrixDACConfig->SetParameter("writedac"+row_s,0);
+    	matrix.MatrixDACConfig->SetParameter("unused"+row_s,  0);
+    	matrix.MatrixDACConfig->SetParameter("rowinjection"+row_s,0);
+    	matrix.MatrixDACConfig->SetParameter("analogbuffer"+row_s,0);
     	};
 
 
     	this->ProgramSR(matrix);
 
 
-    	for (int row = 0; row < matrix->nrow; row++){
+    	for (int row = 0; row < matrix.nrow; row++){
 
     	//std::cout << "processing row : " << row << std::endl;
     	std::string row_s = to_string(row);
-    	matrix->MatrixDACConfig->SetParameter("writedac"+row_s,1);
-    	matrix->MatrixDACConfig->SetParameter("unused"+row_s,  0);
-    	matrix->MatrixDACConfig->SetParameter("rowinjection"+row_s,0);
-    	matrix->MatrixDACConfig->SetParameter("analogbuffer"+row_s,0);
+    	matrix.MatrixDACConfig->SetParameter("writedac"+row_s,1);
+    	matrix.MatrixDACConfig->SetParameter("unused"+row_s,  0);
+    	matrix.MatrixDACConfig->SetParameter("rowinjection"+row_s,0);
+    	matrix.MatrixDACConfig->SetParameter("analogbuffer"+row_s,0);
     	};
 
 
     	this->ProgramSR(matrix);
 
-    	for (int row = 0; row < matrix->nrow; row++){
+    	for (int row = 0; row < matrix.nrow; row++){
 
     	//std::cout << "processing row : " << row << std::endl;
     	std::string row_s = to_string(row);
-    	matrix->MatrixDACConfig->SetParameter("writedac"+row_s,0);
-    	matrix->MatrixDACConfig->SetParameter("unused"+row_s,  0);
-    	matrix->MatrixDACConfig->SetParameter("rowinjection"+row_s,0);
-    	matrix->MatrixDACConfig->SetParameter("analogbuffer"+row_s,0);
+    	matrix.MatrixDACConfig->SetParameter("writedac"+row_s,0);
+    	matrix.MatrixDACConfig->SetParameter("unused"+row_s,  0);
+    	matrix.MatrixDACConfig->SetParameter("rowinjection"+row_s,0);
+    	matrix.MatrixDACConfig->SetParameter("analogbuffer"+row_s,0);
 
     	};
 
@@ -2730,7 +2724,7 @@ this->loadAllTDAC(filename);
 }
 
 
-void ATLASPix::writeAllTDAC(ATLASPixMatrix *matrix){
+void ATLASPix::writeAllTDAC(ATLASPixMatrix& matrix){
 
 
 	std::string col_s;
@@ -2738,29 +2732,29 @@ void ATLASPix::writeAllTDAC(ATLASPixMatrix *matrix){
 
 	//std::cout << "i am here" << std::endl;
 
-	for (int row = 0; row < matrix->nrow; row++){
-    	if(matrix->type==1){
+	for (int row = 0; row < matrix.nrow; row++){
+    	if(matrix.type==1){
 
     	//Column Register
-    		for (int col = 0; col < matrix->ncol; col++)
+    		for (int col = 0; col < matrix.ncol; col++)
     		{
     			std::string s = to_string(col);
-    			matrix->MatrixDACConfig->SetParameter("colinjDown"+s,  0);
-    			matrix->MatrixDACConfig->SetParameter("hitbusDown"+s,  0);
-    			matrix->MatrixDACConfig->SetParameter("unusedDown"+s,  0);
-    			matrix->MatrixDACConfig->SetParameter("colinjUp"+s,   0);
-    			matrix->MatrixDACConfig->SetParameter("hitbusUp"+s,  0);
-    			matrix->MatrixDACConfig->SetParameter("unusedUp"+s,  0);
+    			matrix.MatrixDACConfig->SetParameter("colinjDown"+s,  0);
+    			matrix.MatrixDACConfig->SetParameter("hitbusDown"+s,  0);
+    			matrix.MatrixDACConfig->SetParameter("unusedDown"+s,  0);
+    			matrix.MatrixDACConfig->SetParameter("colinjUp"+s,   0);
+    			matrix.MatrixDACConfig->SetParameter("hitbusUp"+s,  0);
+    			matrix.MatrixDACConfig->SetParameter("unusedUp"+s,  0);
 
     			if(row<200){
-    			matrix->MatrixDACConfig->SetParameter("RamDown"+s, matrix->TDAC[col][row]); //0b1011
-    			matrix->MatrixDACConfig->SetParameter("RamUp"+s,matrix->TDAC[col][row]); //0b1011
+    			matrix.MatrixDACConfig->SetParameter("RamDown"+s, matrix.TDAC[col][row]); //0b1011
+    			matrix.MatrixDACConfig->SetParameter("RamUp"+s,matrix.TDAC[col][row]); //0b1011
 
 
     			}
     			else{
-    			matrix->MatrixDACConfig->SetParameter("RamUp"+s,matrix->TDAC[col][row]); //0b1011
-    			matrix->MatrixDACConfig->SetParameter("RamDown"+s, matrix->TDAC[col][row]); //0b1011
+    			matrix.MatrixDACConfig->SetParameter("RamUp"+s,matrix.TDAC[col][row]); //0b1011
+    			matrix.MatrixDACConfig->SetParameter("RamDown"+s, matrix.TDAC[col][row]); //0b1011
 
     			}
 
@@ -2769,17 +2763,17 @@ void ATLASPix::writeAllTDAC(ATLASPixMatrix *matrix){
 
     	else
     		{
-    		for (int col = 0; col < matrix->ncol; col++)
+    		for (int col = 0; col < matrix.ncol; col++)
     		{
         		double_col=int(std::floor(double(col)/2));
         		col_s = to_string(double_col);
         		if(col%2==0){
-        				matrix->MatrixDACConfig->SetParameter("RamL"+col_s,matrix->TDAC[col][row]);
-        				matrix->MatrixDACConfig->SetParameter("colinjL"+col_s,0);
+        				matrix.MatrixDACConfig->SetParameter("RamL"+col_s,matrix.TDAC[col][row]);
+        				matrix.MatrixDACConfig->SetParameter("colinjL"+col_s,0);
         		}
         		else {
-        				matrix->MatrixDACConfig->SetParameter("RamR"+col_s, matrix->TDAC[col][row]);
-        				matrix->MatrixDACConfig->SetParameter("colinjR"+col_s,0);
+        				matrix.MatrixDACConfig->SetParameter("RamR"+col_s, matrix.TDAC[col][row]);
+        				matrix.MatrixDACConfig->SetParameter("colinjR"+col_s,0);
         		}
 
 
@@ -2789,18 +2783,18 @@ void ATLASPix::writeAllTDAC(ATLASPixMatrix *matrix){
     	if(row%25==0){std::cout << "processing row : " << row << std::endl;}
     	std::string row_s = to_string(row);
 
-    	matrix->MatrixDACConfig->SetParameter("unused"+row_s,  0);
-    	matrix->MatrixDACConfig->SetParameter("rowinjection"+row_s,0);
-    	matrix->MatrixDACConfig->SetParameter("analogbuffer"+row_s,0);
+    	matrix.MatrixDACConfig->SetParameter("unused"+row_s,  0);
+    	matrix.MatrixDACConfig->SetParameter("rowinjection"+row_s,0);
+    	matrix.MatrixDACConfig->SetParameter("analogbuffer"+row_s,0);
 
     	//Toggle the line
-    	matrix->MatrixDACConfig->SetParameter("writedac"+row_s,0);
+    	matrix.MatrixDACConfig->SetParameter("writedac"+row_s,0);
     	this->ProgramSR(matrix);
 
-    	matrix->MatrixDACConfig->SetParameter("writedac"+row_s,1);
+    	matrix.MatrixDACConfig->SetParameter("writedac"+row_s,1);
     	this->ProgramSR(matrix);
 
-    	matrix->MatrixDACConfig->SetParameter("writedac"+row_s,0);
+    	matrix.MatrixDACConfig->SetParameter("writedac"+row_s,0);
     	this->ProgramSR(matrix);
 
 
@@ -2810,7 +2804,7 @@ void ATLASPix::writeAllTDAC(ATLASPixMatrix *matrix){
 
 // Tuning
 
-void ATLASPix::tune(ATLASPixMatrix *matrix, double vmax,int nstep, int npulses, bool tuning_verification) {
+void ATLASPix::tune(ATLASPixMatrix& matrix, double vmax,int nstep, int npulses, bool tuning_verification) {
 	LOG(logINFO) << "Tunning " << DEVICE_NAME;
 
 	for (int TDAC_value = 0; TDAC_value < 8; TDAC_value++){
@@ -2821,16 +2815,16 @@ void ATLASPix::tune(ATLASPixMatrix *matrix, double vmax,int nstep, int npulses, 
 	}
 
 	//double threshold_target = 0;
-	const int cols = matrix->ncol;
-	const int rows = matrix->nrow;
+	const int cols = matrix.ncol;
+	const int rows = matrix.nrow;
 	int TDAC_map[cols][rows] = {0,0};
 	//threshold_target calculation;
 	//pixel TDAC interpolation for target
 	//==> new, tuned, TDAC map
 
-	for(int col=0;col<matrix->ncol;col++){
-			for(int row=0;row<matrix->nrow;row++){
-				matrix->TDAC[col][row] = TDAC_map[col][row];
+	for(int col=0;col<matrix.ncol;col++){
+			for(int row=0;row<matrix.nrow;row++){
+				matrix.TDAC[col][row] = TDAC_map[col][row];
 			}
 	}
 	writeAllTDAC(matrix);
@@ -2841,15 +2835,15 @@ void ATLASPix::tune(ATLASPixMatrix *matrix, double vmax,int nstep, int npulses, 
 
 }
 
-void ATLASPix::ComputeSCurves(ATLASPixMatrix *matrix,double vmax,int nstep, int npulses,int tup,int tdown){
+void ATLASPix::ComputeSCurves(ATLASPixMatrix& matrix,double vmax,int nstep, int npulses,int tup,int tdown){
 
     std::clock_t start;
     double duration;
 
     start = std::clock();
     const int steps = nstep;
-    const int cols = matrix->ncol;
-    const int rows = matrix->nrow;
+    const int cols = matrix.ncol;
+    const int rows = matrix.nrow;
 	double s_curves[steps][cols][rows] = {0, 0, 0};
 
 	int step = 0;
@@ -2857,12 +2851,17 @@ void ATLASPix::ComputeSCurves(ATLASPixMatrix *matrix,double vmax,int nstep, int 
 		setPulse(matrix,npulses,tup,tdown,v);
 		std::cout << "  bias :" << v << "V"<< std::endl;
 
-		for(int col=0;col< matrix->ncol; col++){
-			for(int row=0;row< matrix->nrow; row++){
+		for(int col=0;col< matrix.ncol; col++){
+			for(int row=0;row< matrix.nrow; row++){
 				sendPulse();
-				int sent = this->readCounter(0);
+// 2018-02-14 msmk:
+// I'm pretty sure this is a (major) bug. before my changes readCounter took a pointer to
+// an ATLASPixMatrix object. calling it with 0 means we are taking a nullptr that is then referenced
+// in the function. Not sure what was returned then?
+//				int sent = this->readCounter(0);
 				int rec = this->readCounter(matrix);
-				double ratio = double(rec)/sent;
+//				double ratio = double(rec)/sent;
+				double ratio = double(rec)/npulses;
 				resetCounters();
 				s_curves[step][col][row] = ratio;
 			}
@@ -2901,34 +2900,34 @@ void ATLASPix::doSCurve(uint32_t col,uint32_t row,double vmin,double vmax,uint32
 void ATLASPix::SetInjectionMask(uint32_t mask,uint32_t state){
 
 
-	for (int col =0 ;col<theMatrix->ncol;col++){
+	for (int col =0 ;col<theMatrix.ncol;col++){
 		int row=0;
 		if((col+mask)%5){
 
-		if(theMatrix->type==1){
+		if(theMatrix.type==1){
 			std::string s = to_string(col);
 
 			if(row<200){
-			theMatrix->MatrixDACConfig->SetParameter("RamDown"+s, theMatrix->TDAC[col][row]); //0b1011
-			theMatrix->MatrixDACConfig->SetParameter("RamUp"+s, theMatrix->TDAC[col][row]); //0b1011
-			theMatrix->MatrixDACConfig->SetParameter("colinjDown"+s,  state);
-			theMatrix->MatrixDACConfig->SetParameter("hitbusDown"+s,  0);
-			theMatrix->MatrixDACConfig->SetParameter("unusedDown"+s,  3);
-			theMatrix->MatrixDACConfig->SetParameter("colinjUp"+s,   0);
-			theMatrix->MatrixDACConfig->SetParameter("hitbusUp"+s,  0);
-			theMatrix->MatrixDACConfig->SetParameter("unusedUp"+s,  3);
+			theMatrix.MatrixDACConfig->SetParameter("RamDown"+s, theMatrix.TDAC[col][row]); //0b1011
+			theMatrix.MatrixDACConfig->SetParameter("RamUp"+s, theMatrix.TDAC[col][row]); //0b1011
+			theMatrix.MatrixDACConfig->SetParameter("colinjDown"+s,  state);
+			theMatrix.MatrixDACConfig->SetParameter("hitbusDown"+s,  0);
+			theMatrix.MatrixDACConfig->SetParameter("unusedDown"+s,  3);
+			theMatrix.MatrixDACConfig->SetParameter("colinjUp"+s,   0);
+			theMatrix.MatrixDACConfig->SetParameter("hitbusUp"+s,  0);
+			theMatrix.MatrixDACConfig->SetParameter("unusedUp"+s,  3);
 
 			}
 			else{
 			//std::cout << "up pixels" << std::endl;
-			theMatrix->MatrixDACConfig->SetParameter("RamUp"+s,theMatrix->TDAC[col][row]); //0b1011
-			theMatrix->MatrixDACConfig->SetParameter("RamDown"+s, theMatrix->TDAC[col][row]); //0b1011
-			theMatrix->MatrixDACConfig->SetParameter("colinjDown"+s,  0);
-			theMatrix->MatrixDACConfig->SetParameter("hitbusDown"+s,  0);
-			theMatrix->MatrixDACConfig->SetParameter("unusedDown"+s,  3);
-			theMatrix->MatrixDACConfig->SetParameter("colinjUp"+s,   state);
-			theMatrix->MatrixDACConfig->SetParameter("hitbusUp"+s,  0);
-			theMatrix->MatrixDACConfig->SetParameter("unusedUp"+s,  3);
+			theMatrix.MatrixDACConfig->SetParameter("RamUp"+s,theMatrix.TDAC[col][row]); //0b1011
+			theMatrix.MatrixDACConfig->SetParameter("RamDown"+s, theMatrix.TDAC[col][row]); //0b1011
+			theMatrix.MatrixDACConfig->SetParameter("colinjDown"+s,  0);
+			theMatrix.MatrixDACConfig->SetParameter("hitbusDown"+s,  0);
+			theMatrix.MatrixDACConfig->SetParameter("unusedDown"+s,  3);
+			theMatrix.MatrixDACConfig->SetParameter("colinjUp"+s,   state);
+			theMatrix.MatrixDACConfig->SetParameter("hitbusUp"+s,  0);
+			theMatrix.MatrixDACConfig->SetParameter("unusedUp"+s,  3);
 
 
 			}
@@ -2939,12 +2938,12 @@ void ATLASPix::SetInjectionMask(uint32_t mask,uint32_t state){
 			int double_col=int(std::floor(double(col)/2));
 			std::string col_s = to_string(double_col);
 			if(col%2==0){
-					theMatrix->MatrixDACConfig->SetParameter("RamL"+col_s,theMatrix->TDAC[col][row] & 0b111);
-					theMatrix->MatrixDACConfig->SetParameter("colinjL"+col_s,state);
+					theMatrix.MatrixDACConfig->SetParameter("RamL"+col_s,theMatrix.TDAC[col][row] & 0b111);
+					theMatrix.MatrixDACConfig->SetParameter("colinjL"+col_s,state);
 			}
 			else {
-					theMatrix->MatrixDACConfig->SetParameter("RamR"+col_s, theMatrix->TDAC[col][row] & 0b111);
-					theMatrix->MatrixDACConfig->SetParameter("colinjR"+col_s,state);
+					theMatrix.MatrixDACConfig->SetParameter("RamR"+col_s, theMatrix.TDAC[col][row] & 0b111);
+					theMatrix.MatrixDACConfig->SetParameter("colinjR"+col_s,state);
 			}
 
 
@@ -2952,25 +2951,25 @@ void ATLASPix::SetInjectionMask(uint32_t mask,uint32_t state){
 
 	}};
 
-	for (int row =0 ;row<theMatrix->nrow;row++){
+	for (int row =0 ;row<theMatrix.nrow;row++){
 		int col=0;
 		if((row+mask)%25){
 
 			std::string row_s = to_string(row);
-			theMatrix->MatrixDACConfig->SetParameter("writedac"+row_s,1);
-			theMatrix->MatrixDACConfig->SetParameter("unused"+row_s,  0);
-			theMatrix->MatrixDACConfig->SetParameter("rowinjection"+row_s,state);
-			theMatrix->MatrixDACConfig->SetParameter("analogbuffer"+row_s,0);
+			theMatrix.MatrixDACConfig->SetParameter("writedac"+row_s,1);
+			theMatrix.MatrixDACConfig->SetParameter("unused"+row_s,  0);
+			theMatrix.MatrixDACConfig->SetParameter("rowinjection"+row_s,state);
+			theMatrix.MatrixDACConfig->SetParameter("analogbuffer"+row_s,0);
 	}};
 
 	this->ProgramSR(theMatrix);
 
-	for (int row =0 ;row<theMatrix->nrow;row++){
+	for (int row =0 ;row<theMatrix.nrow;row++){
 		int col=0;
 		if((row+mask)%5){
 
 			std::string row_s = to_string(row);
-			theMatrix->MatrixDACConfig->SetParameter("writedac"+row_s,0);
+			theMatrix.MatrixDACConfig->SetParameter("writedac"+row_s,0);
 		};
 	};
 
@@ -3406,7 +3405,7 @@ void ATLASPix::TakeData(){
 
 }
 
-void ATLASPix::dataTuning(ATLASPixMatrix *matrix, double vmax,int nstep, int npulses) {
+void ATLASPix::dataTuning(ATLASPixMatrix& matrix, double vmax,int nstep, int npulses) {
 	LOG(logINFO) << "Tuning using data" << DEVICE_NAME;
 
 	int spacing_row = 25;
@@ -3420,8 +3419,8 @@ void ATLASPix::dataTuning(ATLASPixMatrix *matrix, double vmax,int nstep, int npu
 		writeAllTDAC(matrix);
 		for (unsigned int selrow = 0; selrow < spacing_row; ++selrow) {
 			for (unsigned int selcol = 0; selcol < spacing_col; ++selcol) {
-				for (unsigned int col = 0; col < matrix->ncol; ++col) {
-					for (unsigned int row = 0; row < matrix->nrow; ++row) {
+				for (unsigned int col = 0; col < matrix.ncol; ++col) {
+					for (unsigned int row = 0; row < matrix.nrow; ++row) {
 						if ((row % spacing_row == selrow) && (col % spacing_col == selcol)) {
 							this->SetPixelInjection(col,row,1,1);
 						} else {
@@ -3441,7 +3440,7 @@ void ATLASPix::dataTuning(ATLASPixMatrix *matrix, double vmax,int nstep, int npu
 		}
 
 		int col, row;
-		for (unsigned int index = 0; index < matrix->ncol * matrix->nrow; ++index) {
+		for (unsigned int index = 0; index < matrix.ncol * matrix.nrow; ++index) {
 			col = index%25;
 			row = (index - col)/25;
 			std::cout << "Index:    " << index << " X:      " << col << "   Y:      " << row << "   ";
@@ -3480,9 +3479,9 @@ void ATLASPix::doSCurves(double vmin,double vmax,uint32_t npulses,uint32_t npoin
 	filename+=ss.str();
 	filename+="/";
 	filename+="M1_VNDAC_";
-	filename+=std::to_string(theMatrix->CurrentDACConfig->GetParameter("VNDACPix"));
+	filename+=std::to_string(theMatrix.CurrentDACConfig->GetParameter("VNDACPix"));
 	filename+="_TDAC_";
-	filename+=std::to_string(theMatrix->TDAC[0][0]>>1);
+	filename+=std::to_string(theMatrix.TDAC[0][0]>>1);
 	//filename+=ss.str();
 	filename+=".txt";
 
@@ -3498,8 +3497,8 @@ void ATLASPix::doSCurves(double vmin,double vmax,uint32_t npulses,uint32_t npoin
     std::clock_t start;
     double duration;
 
-	for(int col=0;col< theMatrix->ncol; col++){
-		for(int row=0;row< theMatrix->nrow; row++){
+	for(int col=0;col< theMatrix.ncol; col++){
+		for(int row=0;row< theMatrix.nrow; row++){
 
 
 
@@ -3551,9 +3550,9 @@ void ATLASPix::doSCurves(std::string basefolder,double vmin,double vmax,uint32_t
 	filename+=basefolder;
 	filename+="/";
 	filename+="M1_VNDAC_";
-	filename+=std::to_string(theMatrix->CurrentDACConfig->GetParameter("VNDACPix"));
+	filename+=std::to_string(theMatrix.CurrentDACConfig->GetParameter("VNDACPix"));
 	filename+="_TDAC_";
-	filename+=std::to_string(theMatrix->TDAC[0][0]>>1);
+	filename+=std::to_string(theMatrix.TDAC[0][0]>>1);
 	//filename+=ss.str();
 	filename+=".txt";
 
@@ -3569,8 +3568,8 @@ void ATLASPix::doSCurves(std::string basefolder,double vmin,double vmax,uint32_t
     std::clock_t start;
     double duration;
 
-	for(int col=0;col< theMatrix->ncol; col++){
-		for(int row=0;row< theMatrix->nrow; row++){
+	for(int col=0;col< theMatrix.ncol; col++){
+		for(int row=0;row< theMatrix.nrow; row++){
 
 
 
@@ -3616,7 +3615,7 @@ void ATLASPix::TDACScan(std::string basefolder,int VNDAC,int step,double vmin,do
 
 	this->WriteConfig(basefolder+"/config");
 
-	theMatrix->CurrentDACConfig->SetParameter("VNDACPix",VNDAC);
+	theMatrix.CurrentDACConfig->SetParameter("VNDACPix",VNDAC);
 
 
 	for(int tdac=0;tdac<=7;tdac+=step){
@@ -3701,22 +3700,22 @@ void ATLASPix::powerUp() {
 
   // Analog biases
 
-  this->setVoltage("GNDDACPix",theMatrix->GNDDACPix);
+  this->setVoltage("GNDDACPix",theMatrix.GNDDACPix);
   this->switchOn("GNDDACPix");
 
-  this->setVoltage("VMinusPix",theMatrix->VMINUSPix);
+  this->setVoltage("VMinusPix",theMatrix.VMINUSPix);
   this->switchOn("VMinusPix");
 
-  this->setVoltage("GatePix",theMatrix->GatePix);
+  this->setVoltage("GatePix",theMatrix.GatePix);
   this->switchOn("GatePix");
 
 
 
   // Threshold and Baseline
-  this->setVoltage("ThPix",theMatrix->ThPix);
+  this->setVoltage("ThPix",theMatrix.ThPix);
   this->switchOn("ThPix");
 
-  this->setVoltage("BLPix",theMatrix->BLPix);
+  this->setVoltage("BLPix",theMatrix.BLPix);
   this->switchOn("BLPix");
 
 
@@ -3785,7 +3784,7 @@ void ATLASPix::WriteConfig(std::string basename){
 	VoltageDACs = {"BLPix", "nu2","ThPix","nu3"};
 
 	for(auto const& value: VoltageDACs) {
-		myfile << std::left << std::setw(20) << value << " " << theMatrix->VoltageDACConfig->GetParameter(value) << std::endl;
+		myfile << std::left << std::setw(20) << value << " " << theMatrix.VoltageDACConfig->GetParameter(value) << std::endl;
 	}
 
 	static std::vector<std::string> CurrentDACs;
@@ -3796,18 +3795,18 @@ void ATLASPix::WriteConfig(std::string basename){
 
 
 	for(auto const& value: CurrentDACs) {
-		myfile << std::left << std::setw(20) << value << " " << theMatrix->CurrentDACConfig->GetParameter(value) << std::endl;
+		myfile << std::left << std::setw(20) << value << " " << theMatrix.CurrentDACConfig->GetParameter(value) << std::endl;
 	}
 
 
 	static std::vector<std::string> ExternalBias;
 	ExternalBias = {"BLPix_ext", "ThPix_ext","VMINUSPix","GNDDACPix","GatePix"};
 
-	myfile << std::left << std::setw(20)<< "ThPix_ext" << " " << theMatrix->ThPix << std::endl;
-	myfile << std::left << std::setw(20)<< "BLPix_ext"<< " " << theMatrix->BLPix << std::endl;
-	myfile << std::left << std::setw(20)<< "VMINUSPix" << " " << theMatrix->VMINUSPix << std::endl;
-	myfile << std::left << std::setw(20)<< "GNDDACPix" << " " << theMatrix->GNDDACPix << std::endl;
-	myfile << std::left << std::setw(20)<< "GatePix" << " " << theMatrix->GatePix << std::endl;
+	myfile << std::left << std::setw(20)<< "ThPix_ext" << " " << theMatrix.ThPix << std::endl;
+	myfile << std::left << std::setw(20)<< "BLPix_ext"<< " " << theMatrix.BLPix << std::endl;
+	myfile << std::left << std::setw(20)<< "VMINUSPix" << " " << theMatrix.VMINUSPix << std::endl;
+	myfile << std::left << std::setw(20)<< "GNDDACPix" << " " << theMatrix.GNDDACPix << std::endl;
+	myfile << std::left << std::setw(20)<< "GatePix" << " " << theMatrix.GatePix << std::endl;
 
 
 
@@ -3815,10 +3814,10 @@ void ATLASPix::WriteConfig(std::string basename){
 	TDACFile.open(basename + "_TDAC.cfg" );
 
 
-	for(int col = 0;col<theMatrix->ncol;col++){
-		for(int row = 0;row<theMatrix->nrow;row++){
+	for(int col = 0;col<theMatrix.ncol;col++){
+		for(int row = 0;row<theMatrix.nrow;row++){
 
-			TDACFile << std::left << std::setw(3) << col << " " << std::left << std::setw(3) << row << " "  << std::left << std::setw(2) << theMatrix->TDAC[col][row] << " " << std::left << std::setw(1) << theMatrix->MASK[col][row] << std::endl ;
+			TDACFile << std::left << std::setw(3) << col << " " << std::left << std::setw(3) << row << " "  << std::left << std::setw(2) << theMatrix.TDAC[col][row] << " " << std::left << std::setw(1) << theMatrix.MASK[col][row] << std::endl ;
 		}
 	}
 
@@ -3890,12 +3889,12 @@ void ATLASPix::LoadConfig(std::string basename){
 		}
 		else if (std::find(CurrentDACs.begin(), CurrentDACs.end(), reg) != CurrentDACs.end()){
 			configfile >> value;
-			theMatrix->CurrentDACConfig->SetParameter(reg,value);
+			theMatrix.CurrentDACConfig->SetParameter(reg,value);
 		}
 
 		else if(std::find(VoltageDACs.begin(), VoltageDACs.end(), reg) != VoltageDACs.end()){
 			configfile >> value;
-			theMatrix->VoltageDACConfig->SetParameter(reg,value);
+			theMatrix.VoltageDACConfig->SetParameter(reg,value);
 		}
 
 		else {

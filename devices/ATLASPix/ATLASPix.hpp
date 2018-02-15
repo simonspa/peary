@@ -13,6 +13,7 @@
 #include <iterator>
 #include <iostream>
 #include <iomanip>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -24,9 +25,9 @@
 #include "ATLASPix_Config.hpp"
 
 struct ATLASPixMatrix {
-    ATLASPix_Config *CurrentDACConfig;
-    ATLASPix_Config *MatrixDACConfig;
-    ATLASPix_Config *VoltageDACConfig;
+    ATLASPix_Config* CurrentDACConfig;
+    ATLASPix_Config* MatrixDACConfig;
+    ATLASPix_Config* VoltageDACConfig;
 
     //global DACs
     uint32_t unlock,BLResPix,ThResPix,VNPix,VNFBPix,VNFollPix,VNRegCasc,VDel,VPComp,VPDAC,VNPix2,BLResDig,VNBiasPix,VPLoadPix,VNOutPix;
@@ -118,24 +119,24 @@ namespace caribou {
     pearydata getData();
 
     std::vector<int> getCountingData();
-    void dataTuning(ATLASPixMatrix *matrix, double vmax,int nstep, int npulses);
+    void dataTuning(ATLASPixMatrix& matrix, double vmax,int nstep, int npulses);
 
-    void Initialize_SR(ATLASPixMatrix *matrix);
-    void Shift_SR(ATLASPixMatrix *matrix);
-    void Fill_SR(ATLASPixMatrix *matrix);
-    void ProgramSR(ATLASPixMatrix *matrix);
-    void initTDAC(ATLASPixMatrix *matrix,uint32_t value);
-    void setOneTDAC(ATLASPixMatrix *matrix,uint32_t col,uint32_t row,uint32_t value);
-    void writePixelInj(ATLASPixMatrix *matrix, uint32_t inj_col, uint32_t inj_row,bool ana_state,bool hb_state);
-    void writeOneTDAC(ATLASPixMatrix *matrix,uint32_t col,uint32_t row,uint32_t value);
-    void writeAllTDAC(ATLASPixMatrix *matrix);
-    void writeUniformTDAC(ATLASPixMatrix *matrix,uint32_t value);
+    void Initialize_SR(ATLASPixMatrix& matrix);
+    void Shift_SR(ATLASPixMatrix& matrix);
+    void Fill_SR(ATLASPixMatrix& matrix);
+    void ProgramSR(ATLASPixMatrix& matrix);
+    void initTDAC(ATLASPixMatrix& matrix,uint32_t value);
+    void setOneTDAC(ATLASPixMatrix& matrix,uint32_t col,uint32_t row,uint32_t value);
+    void writePixelInj(ATLASPixMatrix& matrix, uint32_t inj_col, uint32_t inj_row,bool ana_state,bool hb_state);
+    void writeOneTDAC(ATLASPixMatrix& matrix,uint32_t col,uint32_t row,uint32_t value);
+    void writeAllTDAC(ATLASPixMatrix& matrix);
+    void writeUniformTDAC(ATLASPixMatrix& matrix,uint32_t value);
     void loadAllTDAC(std::string filename);
     void LoadTDAC(std::string filename);
     void setAllTDAC(uint32_t value);
-    void setMaskPixel(ATLASPixMatrix *matrix,uint32_t col,uint32_t row,uint32_t value);
-    void ComputeSCurves(ATLASPixMatrix *matrix,double vmax,int nstep, int npulses,int tup,int tdown);
-    void tune(ATLASPixMatrix *matrix, double vmax,int nstep, int npulses, bool tuning_verification);
+    void setMaskPixel(ATLASPixMatrix& matrix,uint32_t col,uint32_t row,uint32_t value);
+    void ComputeSCurves(ATLASPixMatrix& matrix,double vmax,int nstep, int npulses,int tup,int tdown);
+    void tune(ATLASPixMatrix& matrix, double vmax,int nstep, int npulses, bool tuning_verification);
     void TDACScan(std::string basefolder,int VNDAC,int step,double vmin,double vmax,uint32_t npulses,uint32_t npoints);
     void SetInjectionMask(uint32_t mask,uint32_t state);
     void MaskPixel(uint32_t col,uint32_t row);
@@ -149,7 +150,7 @@ namespace caribou {
     void doNoiseCurve(uint32_t col,uint32_t row);
 
     void resetPulser();
-    void setPulse(ATLASPixMatrix *matrix,uint32_t npulse,uint32_t n_up,uint32_t n_down,double voltage);
+    void setPulse(ATLASPixMatrix& matrix,uint32_t npulse,uint32_t n_up,uint32_t n_down,double voltage);
     void sendPulse();
     void resetCounters();
 
@@ -158,17 +159,16 @@ namespace caribou {
     // Setting Special Register
     void setSpecialRegister(std::string name, uint32_t value);
 
-    int readCounter(ATLASPixMatrix *matrix);
+    int readCounter(ATLASPixMatrix& matrix);
 
     void SetPixelInjection(uint32_t col, uint32_t row,bool ana_state,bool hb_state);
-    void SetPixelInjection(ATLASPixMatrix *matrix,uint32_t col, uint32_t row,bool ana_state,bool hb_state);
+    void SetPixelInjection(ATLASPixMatrix& matrix,uint32_t col, uint32_t row,bool ana_state,bool hb_state);
 
   private:
     void TakeData();
 
+    ATLASPixMatrix theMatrix;
     int pulse_width;
-
-    ATLASPixMatrix *theMatrix;
   };
 
   /** Device generator
