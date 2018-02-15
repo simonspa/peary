@@ -154,8 +154,7 @@ void ATLASPix::SetMatrix(std::string matrix){
 		  this->theMatrix.extraBits = 16;
 		  this->theMatrix.SRmask=0x2;
 		  this->theMatrix.PulserMask=0x2;
-		  this->theMatrix.type=1;
-		  this->theMatrix.regcase='1';
+		  this->theMatrix.flavor = ATLASPix1Flavor::M1;
 
 		  this->theMatrix.GNDDACPix=ATLASPix_GndDACPix_M1;
 		  this->theMatrix.VMINUSPix=ATLASPix_VMinusPix_M1;
@@ -181,8 +180,7 @@ void ATLASPix::SetMatrix(std::string matrix){
 		  this->theMatrix.extraBits = 0;
 		  this->theMatrix.SRmask=0x1;
 		  this->theMatrix.PulserMask=0x1;
-		  this->theMatrix.type=2;
-		  this->theMatrix.regcase='2';
+		  this->theMatrix.flavor = ATLASPix1Flavor::M2;
 		  this->theMatrix.GNDDACPix=ATLASPix_GndDACPix_M2;
 		  this->theMatrix.VMINUSPix=ATLASPix_VMinusPix_M2;
 		  this->theMatrix.GatePix=ATLASPix_GatePix_M2;
@@ -207,8 +205,7 @@ void ATLASPix::SetMatrix(std::string matrix){
 		  this->theMatrix.extraBits = 16;
 		  this->theMatrix.SRmask=0x4;
 		  this->theMatrix.PulserMask=0x4;
-		  this->theMatrix.type=1;
-		  this->theMatrix.regcase='3';
+		  this->theMatrix.flavor = ATLASPix1Flavor::M1Iso;
 		  this->theMatrix.GNDDACPix=ATLASPix_GndDACPix_M1ISO;
 		  this->theMatrix.VMINUSPix=ATLASPix_VMinusPix_M1ISO;
 		  this->theMatrix.GatePix=ATLASPix_GatePix_M1ISO;
@@ -259,8 +256,6 @@ void ATLASPix::configure() {
 
 }
 
-
-
 void ATLASPix::lock(){
 
 	this->theMatrix.CurrentDACConfig->SetParameter("unlock",0x0);
@@ -294,14 +289,21 @@ void ATLASPix::setThreshold(double threshold){
 
 void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 
-
-
-		//UGLY HACK FIXME!!!
-		//std::cout << '\n' << "***You have set " << name << " as " << std::dec << value <<  "***" << '\n' << '\n';
 		char Choice;
-		if(theMatrix.regcase=="M1"){ Choice = '1';}
-		else if(theMatrix.regcase=="M2"){ Choice = '2';}
-		else{ Choice = '3';};
+
+		switch (theMatrix.flavor) {
+		case ATLASPix1Flavor::M1:
+			Choice = '1';
+			break;
+		case ATLASPix1Flavor::M1Iso:
+			Choice = '3';
+			break;
+		case ATLASPix1Flavor::M2:
+			Choice = '2';
+			break;
+		default:
+			LOG(logERROR) << "Undefined matrix flavor";
+		}
 
 		if(name == "unlock") {
 	    // Set DAC value here calling setParameter
@@ -2069,7 +2071,7 @@ void ATLASPix::Initialize_SR(ATLASPixMatrix& matrix){
 	matrix.CurrentDACConfig->AddParameter("SelTest",     1, ATLASPix_Config::LSBFirst,  0);
 	matrix.CurrentDACConfig->AddParameter("SelTestOut",     1, ATLASPix_Config::LSBFirst,  0);
 
-	if(matrix.type==1){
+	if((matrix.flavor == ATLASPix1Flavor::M1) || (matrix.flavor == ATLASPix1Flavor::M1Iso)){
 
 	//Column Register
 		for (int col = 0; col < matrix.ncol; col++)
@@ -2323,7 +2325,7 @@ void ATLASPix::writePixelInj(ATLASPixMatrix& matrix, uint32_t col, uint32_t row,
 
 
 
-	if(matrix.type==1){
+	if((matrix.flavor == ATLASPix1Flavor::M1) || (matrix.flavor == ATLASPix1Flavor::M1Iso)){
 		std::string s = to_string(col);
 
 		if(row<200){
@@ -2408,7 +2410,7 @@ void ATLASPix::writeOneTDAC(ATLASPixMatrix& matrix,uint32_t col,uint32_t row,uin
 
 	matrix.setOneTDAC(col,row,value);
 
-	if(matrix.type==1){
+	if((matrix.flavor == ATLASPix1Flavor::M1) || (matrix.flavor == ATLASPix1Flavor::M1Iso)){
 
 	//Column Register
 
@@ -2479,7 +2481,7 @@ void ATLASPix::writeUniformTDAC(ATLASPixMatrix& matrix,uint32_t value){
 
 	//std::cout << "writing " <<  std::bitset<32>(value) << std::endl;
 
-    	if(matrix.type==1){
+    	if((matrix.flavor == ATLASPix1Flavor::M1) || (matrix.flavor == ATLASPix1Flavor::M1Iso)){
 
     	//Column Register
     		for (int col = 0; col < matrix.ncol; col++)
@@ -2580,7 +2582,7 @@ void ATLASPix::writeAllTDAC(ATLASPixMatrix& matrix){
 	//std::cout << "i am here" << std::endl;
 
 	for (int row = 0; row < matrix.nrow; row++){
-    	if(matrix.type==1){
+    	if((matrix.flavor == ATLASPix1Flavor::M1) || (matrix.flavor == ATLASPix1Flavor::M1Iso)){
 
     	//Column Register
     		for (int col = 0; col < matrix.ncol; col++)
@@ -2751,7 +2753,7 @@ void ATLASPix::SetInjectionMask(uint32_t mask,uint32_t state){
 		int row=0;
 		if((col+mask)%5){
 
-		if(theMatrix.type==1){
+		if((theMatrix.flavor == ATLASPix1Flavor::M1) || (theMatrix.flavor == ATLASPix1Flavor::M1Iso)){
 			std::string s = to_string(col);
 
 			if(row<200){
@@ -3460,13 +3462,7 @@ void ATLASPix::TDACScan(std::string basefolder,int VNDAC,int step,double vmin,do
 		this->doSCurves(basefolder, vmin, vmax, npulses,npoints);
 
 	}
-
-
-
-
 }
-
-
 
 void ATLASPix::doNoiseCurve(uint32_t col,uint32_t row){
 

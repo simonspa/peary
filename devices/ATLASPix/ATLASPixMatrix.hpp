@@ -9,6 +9,8 @@
 
 #include "ATLASPix_Config.hpp"
 
+enum class ATLASPix1Flavor { M1, M1Iso, M2, Undefined };
+
 /** ATLASPix matrix configuration and related methods.
  *
  * Implements configuration settings and encodings.
@@ -34,8 +36,7 @@ struct ATLASPixMatrix {
   int nSRbuffer, nbits;
   int counter;
   uint32_t SRmask, extraBits, PulserMask;
-  int type;
-  std::string regcase;
+  ATLASPix1Flavor flavor = ATLASPix1Flavor::Undefined;
 
   ATLASPixMatrix();
 
