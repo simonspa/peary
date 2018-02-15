@@ -2673,8 +2673,6 @@ void ATLASPix::writeUniformTDAC(ATLASPixMatrix& matrix,uint32_t value){
     	};
 
     	this->ProgramSR(matrix);
-
-
 }
 
 void ATLASPix::setAllTDAC(uint32_t value){

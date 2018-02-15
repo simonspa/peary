@@ -1,7 +1,7 @@
 SET(NAME "ATLASPix")
 
 SET(SOURCEFILES
-  ATLASPix.cpp ATLASPix_Config.cpp)
+  ATLASPix.cpp ATLASPixMatrix.cpp ATLASPix_Config.cpp)
 
 INCLUDE_DIRECTORIES(.)
 
