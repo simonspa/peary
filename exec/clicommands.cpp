@@ -135,7 +135,7 @@ pearycli::pearycli() : c("# ") {
   c.registerCommand(
     "powerStatusLog", powerStatusLog, "Perform a power and current measurement for the selected device", 1, "DEVICE_ID");
   c.registerCommand("setOutputDirectory", setOutputDirectory, "Set base directory for output files", 2, "PATH DEVICE_ID");
-  c.registerCommand("daqStop", daqStop, "Stop DAQ for the selected device", 1, "DEVICE_ID");
+  c.registerCommand("daqStart", daqStart, "Start DAQ for the selected device", 1, "DEVICE_ID");
   c.registerCommand("daqStop", daqStop, "Stop DAQ for the selected device", 1, "DEVICE_ID");
   c.registerCommand("getRawData", getRawData, "Retrieve raw data from the selected device", 1, "DEVICE_ID");
   c.registerCommand("getData", getData, "Retrieve decoded data from the selected device.", 1, "DEVICE_ID");
