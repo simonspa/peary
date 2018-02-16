@@ -140,6 +140,20 @@ IF(BUILD_server)
     ARCHIVE DESTINATION lib)
 ENDIF(BUILD_server)
 
+# Build flag for the Timepix3 telescope DAQ server
+OPTION(BUILD_ATPserver "Build ATLASPix server for receiving commands from Run Control?" ON)
+IF(BUILD_ATPserver)
+  # add target
+  ADD_EXECUTABLE(ATLASPixServer "exec/ATLASPixServer.cpp")
+  #ADD_EXECUTABLE(dummyclient "exec/dummyclient.cpp")
+  TARGET_LINK_LIBRARIES(ATLASPixServer ${PROJECT_NAME})
+  INSTALL(TARGETS ATLASPixServer 
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib)
+ENDIF(BUILD_ATPserver)
+
+
 ADD_EXECUTABLE(peary_app "exec/sample_application.cpp")
 TARGET_LINK_LIBRARIES(peary_app ${PROJECT_NAME})
 
