@@ -24,6 +24,10 @@
 using namespace caribou;
 
 caribou::caribouDeviceMgr* manager;
+caribouDevice* devM1;
+caribouDevice* devM1ISO;
+caribouDevice* devM2;
+
 int my_socket;
 std::ofstream myfile;
 
@@ -48,6 +52,7 @@ void termination_handler(int s) {
   delete manager;
   close(my_socket);
   fclose(lfile);
+
   exit(1);
 }
 
@@ -64,7 +69,7 @@ int main(int argc, char* argv[]) {
 
   int run_nr;
 
-  int bufSize = 50;
+  int bufSize = 1024;
   char* buffer = (char*)malloc(bufSize);
   std::string rundir = ".";
   std::string ipaddress;
@@ -112,9 +117,9 @@ int main(int argc, char* argv[]) {
 
 
 	// Get the device from the manager:
-  caribouDevice* devM1 = manager->getDevice(device_idM1);
-  caribouDevice* devM1ISO = manager->getDevice(device_idM1ISO);
-  caribouDevice* devM2 = manager->getDevice(device_idM2);
+  devM1 = manager->getDevice(device_idM1);
+  devM1ISO = manager->getDevice(device_idM1ISO);
+  devM2 = manager->getDevice(device_idM2);
 
 
   devM1->SetMatrix("M1");
@@ -262,9 +267,10 @@ int main(int argc, char* argv[]) {
    std::string echo;
    while (client > 0) {
    // Welcome message to client
+   memset(buffer,' ',bufSize);
+
    strcpy(buffer, "\n-> Welcome to ATLASPix server...\n");
    send(client, buffer, bufSize, 0);
-   memset(buffer, 0, sizeof buffer);
 
    std::cout << "- Connected with the client, waiting for commands..." << std::endl;
    // loop to recive messages from client
@@ -290,49 +296,88 @@ int main(int argc, char* argv[]) {
    if (cmd.find("configure") != std::string::npos) {
 	   devM1->configure();
 	   std::cout << "configuring device M1" << std::endl;
-	   memset(buffer, 0, sizeof buffer);
+	   strcpy(buffer, "[ATLASPixServer] configuring device M1\n");
+
+	   //memset(buffer, 0, sizeof buffer);
    }
    else if (cmd.find("start_run") != std::string::npos) {
-	   devM1->getData();
+	   devM1->daqStart();
 	   std::cout << "Starting Data acquisition" << std::endl;
-	   memset(buffer, 0, sizeof buffer);
+	   //memset(buffer, 0, sizeof buffer);
+	   strcpy(buffer, "[ATLASPixServer] Starting Data acquisition\n");
 
    }
 
    else if (cmd.find("stop_run") != std::string::npos) {
+	   devM1->daqStop();
+
 	   std::cout << "Stoping Data acquisition" << std::endl;
-	   memset(buffer, 0, sizeof buffer);
+	   //memset(buffer, 0, sizeof buffer);
+	   strcpy(buffer, "[ATLASPixServer] Stopping Data acquisition\n");
 
    }
 
    else if (cmd.find("setThreshold") != std::string::npos) {
 	   std::vector<std::string> words = split(cmd,' ');
-	   double value= std::stoi(words[1]);
+	   double value= std::stof(words[1]);
 	   devM1->setThreshold(value);
-	   std::cout << "Setting Threshold to " << words[2] << std::endl;
-	   memset(buffer, 0, sizeof buffer);
+	   std::cout << "Setting Threshold to " << value<< std::endl;
+	   //memset(buffer, 0, sizeof buffer);
+	   strcpy(buffer, "[ATLASPixServer] Setting threshold\n");
+
 
    }
 
    else if (cmd.find("setRegister") != std::string::npos) {
 	   std::vector<std::string> words = split(cmd,' ');
 	   uint32_t value= std::stoi(words[2]);
-	   devM1->setRegister(words[1],value);
 	   std::cout << "Setting register " << words[1] <<  " to " << words[2] << std::endl;
-	   memset(buffer, 0, sizeof buffer);
+	   devM1->setRegister(words[1],value);
+	   //memset(buffer, 0, sizeof buffer);
+	   strcpy(buffer, "[ATLASPixServer] Setting register\n");
+
+   }
+   else if (cmd.find("setDataFileName") != std::string::npos) {
+	   std::vector<std::string> words = split(cmd,' ');
+	   devM1->setDataFileName(words[1]);
+	   std::cout << "Setting Data Filename to " << words[1] << std::endl;
+	   //memset(buffer, 0, sizeof buffer);
+	   strcpy(buffer, "[ATLASPixServer] Setting Data Filename\n");
 
    }
 
+   else if (cmd.find("LoadConfig") != std::string::npos) {
+	   std::vector<std::string> words = split(cmd,' ');
+	   std::cout << "Loading Config with basename " << words[1] << std::endl;
+	   devM1->LoadConfig(words[1]);
+	   //memset(buffer, 0, sizeof buffer);
+	   strcpy(buffer, "[ATLASPixServer] Loading Config\n");
+
+   }
+
+   else if (cmd.find("WriteConfig") != std::string::npos) {
+	   std::vector<std::string> words = split(cmd,' ');
+	   std::cout << "Writing Config with basename " << words[1] << std::endl;
+	   devM1->WriteConfig(words[1]);
+	   //memset(buffer, 0, sizeof buffer);
+	   strcpy(buffer, "[ATLASPixServer] Writing Config\n");
+
+   }
    else if (cmd.find("exit") != std::string::npos) {
 	   std::cout << "Exiting" << std::endl;
 	   isExit=true;
-	   memset(buffer, 0, sizeof buffer);
+
+	   delete manager;
+	   close(my_socket);
+	   fclose(lfile);
+
+	   //memset(buffer, 0, sizeof buffer);
 
    }
 
    else {
 	   std::cout << "command not understood: " << cmd ;
-	   memset(buffer, 0, sizeof buffer);
+	   //memset(buffer, 0, sizeof buffer);
    }
 
    // send the message to the client
