@@ -109,6 +109,8 @@ ATLASPix::ATLASPix(const caribou::Configuration config) : pearyDevice(config, st
   LOG(logINFO) << "Setting clock to 160MHz " << DEVICE_NAME;
   configureClock();
 
+  this->datafile="PEARYDATA/tmp.dat";
+
   _registers.add(ATLASPix_REGISTERS);
 
   void* pulser_base = _hal->getMappedMemoryRW(ATLASPix_PULSER_BASE_ADDRESS, ATLASPix_PULSER_MAP_SIZE, ATLASPix_PULSER_MASK);
@@ -2663,7 +2665,7 @@ pearydata ATLASPix::getData(){
 	 uint64_t d2=0;
 
 	 std::ofstream disk;
-	 disk.open("PEARYDATA/tmp.dat",std::ios::out);
+	 disk.open(this->datafile,std::ios::out);
 	 disk << "X:	Y:	   TS1:	   TS2:		FPGA_TS:   SyncedCNT:   TR_CNT:	ATPBinCounter:   ATPGreyCounter:	" << std::endl;
 
 	 Color::Modifier red(Color::FG_RED);
@@ -2688,26 +2690,26 @@ pearydata ATLASPix::getData(){
 
 	 uint32_t ATPSyncedCNT,TrCNT;
 
-	 int to,cnt;
+	 int cnt;
 	 int prev_tr=0;
-	 to=1;
+	 //to=1;
 	 cnt=0;
 
 	 this->setSpecialRegister("trigger_mode",2);
 
 	 *fifo_config = 0b11;
 
+	 this->daqRunning= true;
 
 
-
-	 while(to){
-		 while((*fifo_status & 0x4)==0 & to==1){
+	 while(this->daqRunning){
+		 while((*fifo_status & 0x4)==0){
 			 //usleep(1);
 			 cnt++;
-			 if (cnt>1e7){to=0;}
+			 //if (this->daqRunning==false){to=0;}
 			 };
 
-		 if(to==0){break;}
+		 //if(to==0){break;}
 
 		 d1 = *data;
 		 while((*fifo_status & 0x1)==0){continue;};
@@ -2810,7 +2812,7 @@ pearydata ATLASPix::getData(){
 
 	 //*fifo_config = 0b10;
 	 disk.close();
-
+	 std::cout <<  bold << "end of Run" << std::endl;
 	 pearydata dummy;
 	 return dummy;
 
@@ -3431,6 +3433,23 @@ void ATLASPix::daqStop() {
 	  _daqIsRunning = false;
   }
 }
+
+void ATLASPix::datatakingthread() {
+	this->getData();
+}
+
+// Mathieu's implementation
+//void ATLASPix::daqStart() {
+//	this->daqRunning= true;
+//	this->dataTakingThread = new std::thread(&ATLASPix::datatakingthread,this);
+//	LOG(logINFO) << DEVICE_NAME << ": DAQ started.";
+//}
+//
+//void ATLASPix::daqStop() {
+//  LOG(logINFO) << DEVICE_NAME << ": DAQ stopped.";
+//  this->daqRunning= false;
+//  this->dataTakingThread->join();
+//}
 
 void ATLASPix::powerStatusLog() {
   LOG(logINFO) << DEVICE_NAME << " power status:";

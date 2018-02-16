@@ -9,14 +9,8 @@
 #include <atomic>
 #include <bitset>
 #include <cstdlib>
-#include <fstream>
-#include <iterator>
-#include <iostream>
-#include <iomanip>
-#include <memory>
 #include <string>
-#include <vector>
-#include <pthread.h>
+#include <thread>
 
 #include "device.hpp"
 #include "i2c.hpp"
@@ -113,6 +107,8 @@ namespace caribou {
     void tune(ATLASPixMatrix& matrix, double vmax,int nstep, int npulses, bool tuning_verification);
     void LoadConfiguration(int matrix);
     void TakeData();
+    void datatakingthread();
+    void setDataFileName(std::string filename){this->datafile=filename;};
     static void* runDaq(void*);
 
     ATLASPixMatrix theMatrix;
@@ -123,6 +119,10 @@ namespace caribou {
     pthread_t _daqThread;
     bool _daqIsRunning;
     std::atomic_flag _daqContinue;
+
+    bool daqRunning= false;
+    std::thread dataTakingThread;
+	std::string datafile;
   };
 
   /** Device generator

@@ -169,6 +169,7 @@ pearycli::pearycli() : c("# ") {
   c.registerCommand("SetMatrix", SetMatrix, "Set Matrix associated to this device, usage WriteConfig matrix(M1,M2,M1ISO) device ID", 2,"DEVICE_ID");
   c.registerCommand("MaskPixel", MaskPixel, "mask a pixel in the matrix, usage MaskPixel col row device ID", 3,"DEVICE_ID");
   c.registerCommand("isLocked", isLocked, "return the lock status of the receiver", 1,"DEVICE_ID");
+  c.registerCommand("setDataFileName", setDataFileName, "set the filename(and path) where the data will be saved", 2,"DEVICE_ID");
 
 }
 
@@ -1001,6 +1002,17 @@ int pearycli::isLocked(const std::vector<std::string>& input) {
   }
   return ret::Ok;
 }
+
+int pearycli::setDataFileName(const std::vector<std::string>& input) {
+  try {
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
+    dev->setDataFileName(input.at(2));
+  } catch(caribou::caribouException& e) {
+    return ret::Error;
+  }
+  return ret::Ok;
+}
+
 
 
 int pearycli::scanThreshold(const std::vector<std::string>& input) {

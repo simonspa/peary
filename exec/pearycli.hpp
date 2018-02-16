@@ -84,6 +84,7 @@ namespace caribou {
 	static int SetMatrix(const std::vector<std::string>& input);
 	static int MaskPixel(const std::vector<std::string>& input);
 	static int isLocked(const std::vector<std::string>& input);
+	static int setDataFileName(const std::vector<std::string>& input);
 
     // Create new Peary device manager
     static caribou::caribouDeviceMgr* manager;
