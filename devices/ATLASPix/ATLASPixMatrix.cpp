@@ -12,7 +12,16 @@ using namespace caribou;
 
 ATLASPixMatrix::ATLASPixMatrix()
     : VoltageDACConfig(std::make_unique<ATLASPix_Config>()), CurrentDACConfig(std::make_unique<ATLASPix_Config>()),
-      MatrixDACConfig(std::make_unique<ATLASPix_Config>()) {}
+      MatrixDACConfig(std::make_unique<ATLASPix_Config>()) {
+
+	// make sure we have reasonable defaults
+	for (auto& row : TDAC) {
+		row.fill(0);
+	}
+	for (auto& row : MASK) {
+		row.fill(0);
+	}
+}
 
 void ATLASPixMatrix::_initializeGlobalParameters() {
 
@@ -187,11 +196,6 @@ void ATLASPixMatrix::initializeM2() {
   _initializeRowParameters();
 }
 
-void ATLASPixMatrix::setMask(uint32_t col, uint32_t row, uint32_t value) {
-  MASK[col][row] = value;
-  TDAC[col][row] = TDAC[col][row] << 1 | value;
-}
-
 void ATLASPixMatrix::setTDAC(uint32_t col, uint32_t row, uint32_t value) {
   if(7 < value) {
     LOG(logWARNING) << "TDAC value out of range, setting to 7";
@@ -210,9 +214,14 @@ void ATLASPixMatrix::setUniformTDAC(uint32_t value) {
   for(int col = 0; col < ncol; col++) {
     for(int row = 0; row < nrow; row++) {
       MASK[col][row] = 0;
-      TDAC[col][row] = (value << 1) | MASK[col][row];
+      TDAC[col][row] = (value << 1);
     }
   }
+}
+
+void ATLASPixMatrix::setMask(uint32_t col, uint32_t row, uint32_t value) {
+  MASK[col][row] = (value & 0x1);
+  TDAC[col][row] = TDAC[col][row] | (value & 0x1);
 }
 
 static const std::vector<std::string> VoltageDACs = {"BLPix", "nu2", "ThPix", "nu3"};
@@ -293,7 +302,7 @@ void ATLASPixMatrix::writeTDAC(std::string filename) const {
     for(int row = 0; row < nrow; row++) {
       out << std::left << std::setw(3) << col << " ";
       out << std::left << std::setw(3) << row << " ";
-      out << std::left << std::setw(2) << TDAC[col][row] << " ";
+      out << std::left << std::setw(2) << (TDAC[col][row] >> 1) << " ";
       out << std::left << std::setw(1) << MASK[col][row] << std::endl;
     }
   }

@@ -28,8 +28,8 @@ struct ATLASPixMatrix {
   double VMINUSPix, GatePix, GNDDACPix;
 
   // TDAC and mask maps
-  std::array<std::array<int, 400>, 56> TDAC;
-  std::array<std::array<int, 400>, 56> MASK;
+  std::array<std::array<int, 400>, 56> TDAC; // last bit also encodes mask
+  std::array<std::array<int, 400>, 56> MASK; // duplicate of last TDAC bit
 
   // info about matrix, SR etc...
   int ncol, nrow, ndoublecol;
@@ -51,9 +51,9 @@ struct ATLASPixMatrix {
   void _initializeM2ColumnParameters();
   void _initializeRowParameters();
 
-  void setMask(uint32_t col, uint32_t row, uint32_t value);
   void setTDAC(uint32_t col, uint32_t row, uint32_t value);
   void setUniformTDAC(uint32_t value);
+  void setMask(uint32_t col, uint32_t row, uint32_t value);
 
   /// Write global configuration file
   void writeGlobal(std::string basename) const;
