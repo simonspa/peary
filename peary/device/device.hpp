@@ -124,6 +124,7 @@ namespace caribou {
     virtual void MaskPixel(uint32_t col,uint32_t row)=0;
     virtual void setAllTDAC(uint32_t value)=0;
     virtual void isLocked()=0;
+    virtual void setDataFileName(std::string filename)=0;
 
     // Controlling the device
 

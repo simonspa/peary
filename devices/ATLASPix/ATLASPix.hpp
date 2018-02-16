@@ -192,7 +192,16 @@ namespace caribou {
     ATLASPixMatrix *simpleM1ISO;
     ATLASPixMatrix *simpleM2;
 
+    bool daqRunning= false;
+    std::thread *dataTakingThread;
+	std::string datafile;
+
     void TakeData();
+    void datatakingthread();
+    void setDataFileName(std::string filename){this->datafile=filename;};
+
+
+
     //std::thread datathread;
 
 
