@@ -126,6 +126,8 @@ ATLASPix::ATLASPix(const caribou::Configuration config) : pearyDevice(config, st
   LOG(logINFO) << "Setting clock to 160MHz " << DEVICE_NAME;
   configureClock();
 
+  this->datafile="PEARYDATA/tmp.dat";
+
   _registers.add(ATLASPix_REGISTERS);
 
   void* pulser_base = _hal->getMappedMemoryRW(ATLASPix_PULSER_BASE_ADDRESS, ATLASPix_PULSER_MAP_SIZE, ATLASPix_PULSER_MASK);
@@ -3036,7 +3038,7 @@ pearydata ATLASPix::getData(){
 	 uint64_t d2=0;
 
 	 std::ofstream disk;
-	 disk.open("PEARYDATA/tmp.dat",std::ios::out);
+	 disk.open(this->datafile,std::ios::out);
 	 disk << "X:	Y:	   TS1:	   TS2:		FPGA_TS:   SyncedCNT:   TR_CNT:	ATPBinCounter:   ATPGreyCounter:	" << std::endl;
 
 	 Color::Modifier red(Color::FG_RED);
@@ -3183,7 +3185,7 @@ pearydata ATLASPix::getData(){
 
 	 //*fifo_config = 0b10;
 	 disk.close();
-
+	 std::cout <<  bold << "end of Run" << std::endl;
 	 pearydata dummy;
 	 return dummy;
 
