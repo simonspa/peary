@@ -9,6 +9,7 @@
 #include <atomic>
 #include <bitset>
 #include <cstdlib>
+#include <memory>
 #include <string>
 #include <thread>
 
@@ -107,21 +108,13 @@ namespace caribou {
     void tune(ATLASPixMatrix& matrix, double vmax,int nstep, int npulses, bool tuning_verification);
     void LoadConfiguration(int matrix);
     void TakeData();
-    void datatakingthread();
     void setDataFileName(std::string filename){this->datafile=filename;};
-    static void* runDaq(void*);
+    void runDaq();
 
     ATLASPixMatrix theMatrix;
     int pulse_width;
-    // std::thread segfaults immediately somewhere in the constructor.
-    // use pthreads directly instead for the thread handling.
-    // should be compatible with atomic_flag since it is lockfree.
-    pthread_t _daqThread;
-    bool _daqIsRunning;
-    std::atomic_flag _daqContinue;
-
-    bool daqRunning= false;
-    std::thread dataTakingThread;
+    bool _daqContinue;
+    std::thread* _daqThread;
 	std::string datafile;
   };
 
