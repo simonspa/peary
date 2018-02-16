@@ -135,12 +135,17 @@ ATLASPix::~ATLASPix() {
 
 void ATLASPix::SetMatrix(std::string matrix){
 
+
+      // avoid stupid case mistakes
+	  std::string name = matrix;
+      std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
 	  // Set up periphery
 	  _periphery.add("VDDD", PWR_OUT_4);
 	  _periphery.add("VDDA", PWR_OUT_3);
 	  _periphery.add("VSSA", PWR_OUT_2);
 
-	  if (matrix == "M1") {
+	  if (name == "m1") {
 
 		  _periphery.add("GNDDACPix", BIAS_9);
 		  _periphery.add("VMinusPix", BIAS_5);
@@ -150,7 +155,7 @@ void ATLASPix::SetMatrix(std::string matrix){
 
 		  theMatrix.initializeM1();
 
-	  } else if (matrix == "M1Iso") {
+	  } else if (name == "m1iso") {
 
 		  _periphery.add("GNDDACPix", BIAS_12);
 		  _periphery.add("VMinusPix", BIAS_8);
@@ -160,7 +165,7 @@ void ATLASPix::SetMatrix(std::string matrix){
 
 		  theMatrix.initializeM1Iso();
 
-	  } else if (matrix == "M2") {
+	  } else if (name == "m2") {
 
 		  _periphery.add("GNDDACPix", BIAS_6);
 		  _periphery.add("VMinusPix", BIAS_4);

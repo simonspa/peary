@@ -353,7 +353,7 @@ std::vector<uint32_t> ATLASPixMatrix::encodeShiftRegister() const {
     LOG(logERROR) << "Encoded shift register extra bits " << cnt << " inconsistent with expected bits " << extraBits;
   }
   // nSRbuffer counts the number of full buffer words
-  size_t expectedWords = (cnt == 0) ? nSRbuffer : (nSRbuffer + 1);
+  size_t expectedWords = (cnt == 32) ? nSRbuffer : (nSRbuffer + 1);
   if(words.size() != expectedWords) {
     LOG(logERROR) << "Encoded shift register size " << words.size() << " inconsistent with expected size " << expectedWords;
   }
