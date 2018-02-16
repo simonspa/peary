@@ -102,7 +102,7 @@ namespace Color {
     };
 }
 
-ATLASPix::ATLASPix(const caribou::Configuration config) : pearyDevice(config, std::string(DEFAULT_DEVICEPATH), ATLASPix_DEFAULT_I2C) {
+ATLASPix::ATLASPix(const caribou::Configuration config) : pearyDevice(config, std::string(DEFAULT_DEVICEPATH), ATLASPix_DEFAULT_I2C), _daqContinue(ATOMIC_FLAG_INIT) {
 
 
   //Configuring the clock to 160 MHz
@@ -128,7 +128,8 @@ ATLASPix::ATLASPix(const caribou::Configuration config) : pearyDevice(config, st
   *output_enable = 0xFFFFFFFF;
   *rst = 0x1;
 
-
+  // enable data taking
+  _daqContinue.test_and_set();
 }
 
 ATLASPix::~ATLASPix() {
@@ -2699,7 +2700,7 @@ pearydata ATLASPix::getData(){
 
 	 *fifo_config = 0b11;
 
-	 while(this->_daqContinue){
+	 while(this->_daqContinue.test_and_set()){
 		 while((*fifo_status & 0x4)==0){
 			 //usleep(1);
 			 cnt++;
@@ -3373,42 +3374,24 @@ using TimeoutTimepoint = std::chrono::steady_clock::time_point;
 
 void ATLASPix::daqStart() {
   // ensure only one daq thread is running
-  if (_daqThread && _daqThread->joinable()) {
+  if (_daqThread.joinable()) {
 	  LOG(logWARNING) << "Data aquisition is already running";
 	  return;
   }
   // arm the stop flag and start running
-  _daqContinue = true;
-  _daqThread = new std::thread(&ATLASPix::runDaq, this);
+  _daqContinue.test_and_set();
+  _daqThread = std::thread(&ATLASPix::runDaq, this);
 }
 
 void ATLASPix::daqStop() {
-  if (_daqThread) {
-    // signal to daq thread that we want to stop and wait until it does
-    _daqContinue = false;
-    _daqThread->join();
-    delete _daqThread;
-  }
+  // signal to daq thread that we want to stop and wait until it does
+  _daqContinue.clear();
+  _daqThread.join();
 }
 
 void ATLASPix::runDaq()
 {
-  while (true) {
-
-    // abort by external request
-	if (!_daqContinue) {
-		break;
-	}
-//	// abort by time-out
-//	if (endtime < TimeoutClock::now()) {
-//		LOG(logINFO) << "Data aquisition timeout reached";
-//		break;
-//	}
-
-    // sleep to simulate data taking
-    std::this_thread::sleep_for(std::chrono::seconds(2));
-	std::cout << "daq ping\n";
-  }
+  getData();
 }
 
 // Mathieu's implementation

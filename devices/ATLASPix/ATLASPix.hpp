@@ -9,7 +9,6 @@
 #include <atomic>
 #include <bitset>
 #include <cstdlib>
-#include <memory>
 #include <string>
 #include <thread>
 
@@ -113,8 +112,8 @@ namespace caribou {
 
     ATLASPixMatrix theMatrix;
     int pulse_width;
-    bool _daqContinue;
-    std::thread* _daqThread;
+    std::atomic_flag _daqContinue;
+    std::thread _daqThread;
 	std::string datafile;
   };
 
