@@ -11,6 +11,7 @@
 #include <stdexcept>
 #include <string>
 #include <sstream>
+#include <thread>
 
 #include "hal.hpp"
 #include "log.hpp"
@@ -101,7 +102,7 @@ namespace Color {
     };
 }
 
-ATLASPix::ATLASPix(const caribou::Configuration config) : pearyDevice(config, std::string(DEFAULT_DEVICEPATH), ATLASPix_DEFAULT_I2C) {
+ATLASPix::ATLASPix(const caribou::Configuration config) : pearyDevice(config, std::string(DEFAULT_DEVICEPATH), ATLASPix_DEFAULT_I2C), _daqIsRunning(false), _daqContinue(ATOMIC_FLAG_INIT) {
 
 
   //Configuring the clock to 160 MHz
@@ -130,6 +131,7 @@ ATLASPix::ATLASPix(const caribou::Configuration config) : pearyDevice(config, st
 
 ATLASPix::~ATLASPix() {
   LOG(logINFO) << DEVICE_NAME << ": Shutdown, delete device.";
+  daqStop(); // does nothing if no daq thread is running
   powerOff();
 }
 
@@ -3363,12 +3365,71 @@ void ATLASPix::powerDown() {
   this->switchOff("GatePix");
 }
 
+// daq thread implementation
+namespace {
+using TimeoutClock = std::chrono::steady_clock;
+using TimeoutDuration = std::chrono::steady_clock::duration;
+using TimeoutTimepoint = std::chrono::steady_clock::time_point;
+
+struct DaqThreadParams {
+	ATLASPix* device;
+	TimeoutDuration timeout = TimeoutDuration::max();
+};
+} // unnamed namespace
+
+void* ATLASPix::runDaq(void* p)
+{
+  // this functions takes ownership of parameters
+  std::unique_ptr<DaqThreadParams> params(reinterpret_cast<DaqThreadParams*>(p));
+  ATLASPix& device = *params->device;
+  TimeoutTimepoint endtime = TimeoutClock::now() + params->timeout;
+
+  while (true) {
+
+    // abort by external request
+	if (!(device._daqContinue.test_and_set())) {
+		break;
+	}
+	// abort by time-out
+	if (endtime < TimeoutClock::now()) {
+		LOG(logINFO) << "Data aquisition timeout reached";
+		break;
+	}
+
+    // sleep to simulate data taking
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+	std::cout << "daq ping\n";
+  }
+  return nullptr;
+}
+
 void ATLASPix::daqStart() {
-  LOG(logINFO) << DEVICE_NAME << ": DAQ started.";
+  // ensure only one daq thread is running
+  if (_daqIsRunning) {
+	  LOG(logWARNING) << "Data aquisition is already running";
+	  return;
+  }
+  // setup parameters, requires manual ownership transfer to avoid data race
+  DaqThreadParams* params = new DaqThreadParams();
+  params->device = this;
+  params->timeout = std::chrono::seconds(20);
+  // arm the stop flag and start running
+  _daqContinue.test_and_set();
+  if (!pthread_create(&_daqThread, nullptr, ATLASPix::runDaq, params)) {
+	_daqIsRunning = true;
+  } else {
+    LOG(logCRITICAL) << "Could not start DAQ thread";
+  }
 }
 
 void ATLASPix::daqStop() {
-  LOG(logINFO) << DEVICE_NAME << ": DAQ stopped.";
+  // signal to daq thread that we want to stop
+  _daqContinue.clear();
+  // wait for daq thread to actually stop
+  if (_daqIsRunning) {
+	  pthread_join(_daqThread, nullptr);
+	  _daqIsRunning = false;
+  }
 }
 
 void ATLASPix::powerStatusLog() {

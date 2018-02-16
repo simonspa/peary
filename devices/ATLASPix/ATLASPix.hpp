@@ -6,6 +6,7 @@
 #define DEVICE_ATLASPix_H
 
 #include <algorithm>
+#include <atomic>
 #include <bitset>
 #include <cstdlib>
 #include <fstream>
@@ -15,6 +16,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <pthread.h>
 
 #include "device.hpp"
 #include "i2c.hpp"
@@ -111,9 +113,16 @@ namespace caribou {
     void tune(ATLASPixMatrix& matrix, double vmax,int nstep, int npulses, bool tuning_verification);
     void LoadConfiguration(int matrix);
     void TakeData();
+    static void* runDaq(void*);
 
     ATLASPixMatrix theMatrix;
     int pulse_width;
+    // std::thread segfaults immediately somewhere in the constructor.
+    // use pthreads directly instead for the thread handling.
+    // should be compatible with atomic_flag since it is lockfree.
+    pthread_t _daqThread;
+    bool _daqIsRunning;
+    std::atomic_flag _daqContinue;
   };
 
   /** Device generator
