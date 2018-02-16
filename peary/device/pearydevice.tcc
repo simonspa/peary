@@ -53,6 +53,10 @@ namespace caribou {
     }
   }
 
+  template <typename T> void pearyDevice<T>::setOutputDirectory(std::string path) {
+    _output_directory = std::move(path);
+  }
+
   template <typename T> void pearyDevice<T>::setVoltage(std::string name, double voltage, double currentlimit) {
 
     // Resolve name against periphery dictionary
