@@ -1,5 +1,6 @@
 
 #include <cstdint>
+#include <cstdlib>
 #include <sys/file.h>
 
 #include "exceptions.hpp"
@@ -36,6 +37,19 @@ bool caribou::acquire_flock(std::string filename) {
   }
   LOG(logDEBUG) << "Acquired lock on " << file;
   return true;
+}
+
+void caribou::make_directories(std::string path) {
+  // 2018-02-16 msmk:
+  // dear universe,
+  // please accept this humble hack.
+  // it is ugly and crude
+  // but I'm not in the mood
+  // and at some point i'll take it back.
+  int err = system(("mkdir -p " + path).c_str());
+  if(err) {
+    LOG(logCRITICAL) << "Could not create directory '" << path << "'. error " << err;
+  }
 }
 
 uint8_t caribou::reverseByte(uint8_t n) {
