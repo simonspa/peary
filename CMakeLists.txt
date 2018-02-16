@@ -9,7 +9,6 @@ ENDIF(COMMAND CMAKE_POLICY)
 # Project name
 PROJECT(peary)
 
-
 ###############################
 # Setup the build environment #
 ###############################
@@ -44,6 +43,9 @@ ENDIF("${isSystemDir}" STREQUAL "-1")
 
 ADD_DEFINITIONS(-std=c++14)
 INCLUDE(cmake/Platform.cmake)
+
+SET(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+FIND_PACKAGE(Threads REQUIRED)
 
 ########################################
 # Figure out the current peary version #
@@ -122,7 +124,6 @@ ADD_SUBDIRECTORY(devices)
 # Add targets for Doxygen code reference and LaTeX User manual
 ADD_SUBDIRECTORY(doc)
 
-
 ################################################
 # Define build targets for sample applications #
 ################################################
@@ -145,14 +146,12 @@ OPTION(BUILD_ATPserver "Build ATLASPix server for receiving commands from Run Co
 IF(BUILD_ATPserver)
   # add target
   ADD_EXECUTABLE(ATLASPixServer "exec/ATLASPixServer.cpp")
-  #ADD_EXECUTABLE(dummyclient "exec/dummyclient.cpp")
-  TARGET_LINK_LIBRARIES(ATLASPixServer ${PROJECT_NAME} pthread )
+  TARGET_LINK_LIBRARIES(ATLASPixServer ${PROJECT_NAME})
   INSTALL(TARGETS ATLASPixServer 
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib)
 ENDIF(BUILD_ATPserver)
-
 
 ADD_EXECUTABLE(peary_app "exec/sample_application.cpp")
 TARGET_LINK_LIBRARIES(peary_app ${PROJECT_NAME})
