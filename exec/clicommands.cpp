@@ -134,7 +134,8 @@ pearycli::pearycli() : c("# ") {
                     "CHANNEL_ID[1:8] DEVICE_ID");
   c.registerCommand(
     "powerStatusLog", powerStatusLog, "Perform a power and current measurement for the selected device", 1, "DEVICE_ID");
-  c.registerCommand("daqStart", daqStart, "Start DAQ for the selected device", 1, "DEVICE_ID");
+  c.registerCommand("setOutputDirectory", setOutputDirectory, "Set base directory for output files", 2, "PATH DEVICE_ID");
+  c.registerCommand("daqStop", daqStop, "Stop DAQ for the selected device", 1, "DEVICE_ID");
   c.registerCommand("daqStop", daqStop, "Stop DAQ for the selected device", 1, "DEVICE_ID");
   c.registerCommand("getRawData", getRawData, "Retrieve raw data from the selected device", 1, "DEVICE_ID");
   c.registerCommand("getData", getData, "Retrieve decoded data from the selected device.", 1, "DEVICE_ID");
@@ -663,6 +664,17 @@ int pearycli::powerStatusLog(const std::vector<std::string>& input) {
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
     dev->powerStatusLog();
+  } catch(caribou::caribouException& e) {
+    LOG(logERROR) << e.what();
+    return ret::Error;
+  }
+  return ret::Ok;
+}
+
+int pearycli::setOutputDirectory(const std::vector<std::string>& input) {
+  try {
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(2)));
+    dev->setOutputDirectory(input.at(1));
   } catch(caribou::caribouException& e) {
     LOG(logERROR) << e.what();
     return ret::Error;

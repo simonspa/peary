@@ -59,6 +59,7 @@ namespace caribou {
     static int getADC(const std::vector<std::string>& input);
     static int powerStatusLog(const std::vector<std::string>& input);
 
+    static int setOutputDirectory(const std::vector<std::string>& input);
     static int daqStart(const std::vector<std::string>& input);
     static int daqStop(const std::vector<std::string>& input);
 
