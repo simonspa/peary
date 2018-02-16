@@ -337,13 +337,12 @@ int main(int argc, char* argv[]) {
 	   strcpy(buffer, "[ATLASPixServer] Setting register\n");
 
    }
-   else if (cmd.find("setDataFileName") != std::string::npos) {
+   else if (cmd.find("setOutputDirectory") != std::string::npos) {
 	   std::vector<std::string> words = split(cmd,' ');
-	   devM1->setDataFileName(words[1]);
-	   std::cout << "Setting Data Filename to " << words[1] << std::endl;
+	   devM1->setOutputDirectory(words[1]);
+	   std::cout << "Setting output directory to " << words[1] << std::endl;
 	   //memset(buffer, 0, sizeof buffer);
-	   strcpy(buffer, "[ATLASPixServer] Setting Data Filename\n");
-
+	   strcpy(buffer, "[ATLASPixServer] Setting output directory\n");
    }
 
    else if (cmd.find("LoadConfig") != std::string::npos) {

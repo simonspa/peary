@@ -107,14 +107,12 @@ namespace caribou {
     void tune(ATLASPixMatrix& matrix, double vmax,int nstep, int npulses, bool tuning_verification);
     void LoadConfiguration(int matrix);
     void TakeData();
-    void setDataFileName(std::string filename){this->datafile=filename;};
     void runDaq();
 
     ATLASPixMatrix theMatrix;
     int pulse_width;
     std::atomic_flag _daqContinue;
     std::thread _daqThread;
-	std::string datafile;
   };
 
   /** Device generator

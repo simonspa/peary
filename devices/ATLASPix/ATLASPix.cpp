@@ -109,8 +109,6 @@ ATLASPix::ATLASPix(const caribou::Configuration config) : pearyDevice(config, st
   LOG(logINFO) << "Setting clock to 160MHz " << DEVICE_NAME;
   configureClock();
 
-  this->datafile="PEARYDATA/tmp.dat";
-
   _registers.add(ATLASPix_REGISTERS);
 
   void* pulser_base = _hal->getMappedMemoryRW(ATLASPix_PULSER_BASE_ADDRESS, ATLASPix_PULSER_MAP_SIZE, ATLASPix_PULSER_MASK);
@@ -2651,8 +2649,6 @@ pearydata ATLASPix::getData(){
 	const unsigned int ts1mask = 0b00000000000000111111111100000000;
 	const unsigned int rowmask = 0b00000000000000000000000011111111;
 
-
-
 	 void* readout_base = _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
 
 	 volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
@@ -2661,12 +2657,12 @@ pearydata ATLASPix::getData(){
 	 volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
 	 volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
 
-
 	 uint64_t d1=0;
 	 uint64_t d2=0;
 
+	 make_directories(_output_directory);
 	 std::ofstream disk;
-	 disk.open(this->datafile,std::ios::out);
+	 disk.open(_output_directory + "/data.txt", std::ios::out);
 	 disk << "X:	Y:	   TS1:	   TS2:		FPGA_TS:   SyncedCNT:   TR_CNT:	ATPBinCounter:   ATPGreyCounter:	" << std::endl;
 
 	 Color::Modifier red(Color::FG_RED);

@@ -19,7 +19,8 @@ namespace caribou {
 
   template <typename T>
   pearyDevice<T>::pearyDevice(const caribou::Configuration config, std::string devpath, uint32_t devaddr)
-      : caribouDevice(config), _hal(nullptr), _config(config), _is_powered(false), _is_configured(false) {
+      : caribouDevice(config), _hal(nullptr), _config(config), _output_directory("PEARYDATA"), _is_powered(false),
+        _is_configured(false) {
 
     _hal = new caribouHAL<T>(_config.Get("devicepath", devpath), _config.Get("deviceaddress", devaddr));
   }
@@ -53,9 +54,7 @@ namespace caribou {
     }
   }
 
-  template <typename T> void pearyDevice<T>::setOutputDirectory(std::string path) {
-    _output_directory = std::move(path);
-  }
+  template <typename T> void pearyDevice<T>::setOutputDirectory(std::string path) { _output_directory = std::move(path); }
 
   template <typename T> void pearyDevice<T>::setVoltage(std::string name, double voltage, double currentlimit) {
 
@@ -285,95 +284,88 @@ namespace caribou {
     LOG(logCRITICAL) << "Pattern generator not implemented for this device";
     throw caribou::DeviceImplException("Pattern generator not implemented for this device");
   }
-  
-  
-    template <typename T> void pearyDevice<T>::lock() {
+
+  template <typename T> void pearyDevice<T>::lock() {
     LOG(logCRITICAL) << "lock not implemented for this device";
     throw caribou::DeviceImplException("lock not implemented for this device");
   }
- 
-    template <typename T> void pearyDevice<T>::unlock() {
+
+  template <typename T> void pearyDevice<T>::unlock() {
     LOG(logCRITICAL) << "unlock not implemented for this device";
     throw caribou::DeviceImplException("unlock not implemented for this device");
   }
-  
-      template <typename T> void pearyDevice<T>::setThreshold(double threshold) {
+
+  template <typename T> void pearyDevice<T>::setThreshold(double threshold) {
     LOG(logCRITICAL) << "setThreshold not implemented for this device";
     throw caribou::DeviceImplException("setThreshold not implemented for this device");
   }
-  
-    template <typename T> void pearyDevice<T>::pulse(uint32_t npulse,uint32_t tup,uint32_t tdown,double amplitude) {
+
+  template <typename T> void pearyDevice<T>::pulse(uint32_t npulse, uint32_t tup, uint32_t tdown, double amplitude) {
     LOG(logCRITICAL) << "pulse not implemented for this device";
     throw caribou::DeviceImplException("pulse not implemented for this device");
   }
-  
-  template <typename T> void pearyDevice<T>::SetPixelInjection(uint32_t col,uint32_t row,bool ana_state,bool hb_state){
+
+  template <typename T> void pearyDevice<T>::SetPixelInjection(uint32_t col, uint32_t row, bool ana_state, bool hb_state) {
     LOG(logCRITICAL) << "SetPixelInjection not implemented for this device";
     throw caribou::DeviceImplException("SetPixelInjection not implemented for this device");
   }
-  
-  
-    template <typename T> void pearyDevice<T>::doSCurve(uint32_t col,uint32_t row,double vmin,double vmax,uint32_t npulses,uint32_t npoints){
+
+  template <typename T>
+  void pearyDevice<T>::doSCurve(uint32_t col, uint32_t row, double vmin, double vmax, uint32_t npulses, uint32_t npoints) {
     LOG(logCRITICAL) << "doSCurve not implemented for this device";
     throw caribou::DeviceImplException("doSCurve not implemented for this device");
   }
-     template <typename T> void pearyDevice<T>::doSCurves(double vmin,double vmax,uint32_t npulses,uint32_t npoints){
+  template <typename T> void pearyDevice<T>::doSCurves(double vmin, double vmax, uint32_t npulses, uint32_t npoints) {
     LOG(logCRITICAL) << "doSCurves not implemented for this device";
     throw caribou::DeviceImplException("doSCurves not implemented for this device");
   }
-     template <typename T> void pearyDevice<T>::setAllTDAC(uint32_t value){
+  template <typename T> void pearyDevice<T>::setAllTDAC(uint32_t value) {
     LOG(logCRITICAL) << "doSCurves not implemented for this device";
     throw caribou::DeviceImplException("doSCurves not implemented for this device");
-  } 
-   
-    template <typename T> void pearyDevice<T>::doNoiseCurve(uint32_t col,uint32_t row){
+  }
+
+  template <typename T> void pearyDevice<T>::doNoiseCurve(uint32_t col, uint32_t row) {
     LOG(logCRITICAL) << "doNoiseCurve not implemented for this device";
     throw caribou::DeviceImplException("doNoiseCurve not implemented for this device");
   }
-  
-    template <typename T> void pearyDevice<T>::LoadTDAC(std::string filename){
+
+  template <typename T> void pearyDevice<T>::LoadTDAC(std::string filename) {
     LOG(logCRITICAL) << "LoadTDAC not implemented for this device";
     throw caribou::DeviceImplException("LoadTDAC not implemented for this device");
-  } 
+  }
 
-    template <typename T> void pearyDevice<T>::LoadConfig(std::string basename){
+  template <typename T> void pearyDevice<T>::LoadConfig(std::string basename) {
     LOG(logCRITICAL) << "LoadConfig not implemented for this device";
     throw caribou::DeviceImplException("LoadConfig not implemented for this device");
-  } 
+  }
 
-    template <typename T> void pearyDevice<T>::WriteConfig(std::string basename){
+  template <typename T> void pearyDevice<T>::WriteConfig(std::string basename) {
     LOG(logCRITICAL) << "WriteConfig not implemented for this device";
     throw caribou::DeviceImplException("WriteConfig not implemented for this device");
-  } 
-  
-    template <typename T> void pearyDevice<T>::TDACScan(std::string basefolder,int VNDAC,int step,double vmin,double vmax,uint32_t npulses,uint32_t npoints){
+  }
+
+  template <typename T>
+  void pearyDevice<T>::TDACScan(
+    std::string basefolder, int VNDAC, int step, double vmin, double vmax, uint32_t npulses, uint32_t npoints) {
     LOG(logCRITICAL) << "TDACScan not implemented for this device";
     throw caribou::DeviceImplException("TDACScan not implemented for this device");
-  } 
-  
-    template <typename T> void pearyDevice<T>::SetMatrix(std::string matrix){
+  }
+
+  template <typename T> void pearyDevice<T>::SetMatrix(std::string matrix) {
     LOG(logCRITICAL) << "SetMatrix not implemented for this device";
     throw caribou::DeviceImplException("SetMatrix not implemented for this device");
-  } 
- 
-     template <typename T> void pearyDevice<T>::MaskPixel(uint32_t col,uint32_t row){
+  }
+
+  template <typename T> void pearyDevice<T>::MaskPixel(uint32_t col, uint32_t row) {
     LOG(logCRITICAL) << "MaskPixel not implemented for this device";
     throw caribou::DeviceImplException("MaskPixel not implemented for this device");
-  } 
- 
-      template <typename T> void pearyDevice<T>::isLocked(){
+  }
+
+  template <typename T> void pearyDevice<T>::isLocked() {
     LOG(logCRITICAL) << "MaskPixel not implemented for this device";
     throw caribou::DeviceImplException("isLocked not implemented for this device");
-  } 
-  
-  
-        template <typename T> void pearyDevice<T>::setDataFileName(std::string filename){
-    LOG(logCRITICAL) << "MaskPixel not implemented for this device";
-    throw caribou::DeviceImplException("setDataFileName not implemented for this device");
-  } 
- 
- 
-  
+  }
+
   template <typename T> void pearyDevice<T>::configure() {
 
     if(!_is_powered) {
@@ -381,7 +373,8 @@ namespace caribou {
       return;
     }
 
-    // Set all registers provided in the configuratio file, skip those which are not set:
+    // Set all registers provided in the configuratio file, skip those which are
+    // not set:
     std::vector<std::string> dacs = _registers.getNames();
     LOG(logINFO) << "Setting registers from configuration:";
     for(auto i : dacs) {
