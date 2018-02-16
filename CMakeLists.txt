@@ -146,7 +146,7 @@ IF(BUILD_ATPserver)
   # add target
   ADD_EXECUTABLE(ATLASPixServer "exec/ATLASPixServer.cpp")
   #ADD_EXECUTABLE(dummyclient "exec/dummyclient.cpp")
-  TARGET_LINK_LIBRARIES(ATLASPixServer ${PROJECT_NAME})
+  TARGET_LINK_LIBRARIES(ATLASPixServer ${PROJECT_NAME} pthread )
   INSTALL(TARGETS ATLASPixServer 
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib

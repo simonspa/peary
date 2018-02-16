@@ -20,6 +20,7 @@
 #include <array>
 #include <bitset>
 #include <cstdlib>
+#include <thread>
 
 struct ATLASPixMatrix {
 
