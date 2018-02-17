@@ -2692,15 +2692,15 @@ pearydata ATLASPix::getData(){
 	 //to=1;
 	 cnt=0;
 
-	 this->setSpecialRegister("trigger_mode",2);
+	 //this->setSpecialRegister("trigger_mode",2);
 
-	 *fifo_config = 0b11;
+	 //*fifo_config = 0b11;
 
 	 while(this->_daqContinue.test_and_set()){
-		 while((*fifo_status & 0x4)==0){
+		 while(((*fifo_status & 0x4)==0) and this->_daqContinue.test_and_set()){
 			 //usleep(1);
 			 cnt++;
-			 //if (this->daqRunning==false){to=0;}
+			 //if (this->_daqContinue.test_and_set()==false){break;}
 			 };
 
 		 //if(to==0){break;}
