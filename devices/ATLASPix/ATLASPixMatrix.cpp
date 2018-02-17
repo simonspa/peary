@@ -72,8 +72,8 @@ void ATLASPixMatrix::_initializeGlobalParameters() {
   CurrentDACConfig->AddParameter("maxcycend", "5,4,3,2,1,0", 5);                // 10); // probably 0 not allowed
   CurrentDACConfig->AddParameter("slowdownend", "3,2,1,0", 2);                  // 1);
   CurrentDACConfig->AddParameter("timerend", "3,2,1,0", 1); // 8); // darf nicht 0!! sonst werden debug ausgaben verschluckt
-  CurrentDACConfig->AddParameter("ckdivend2", "5,4,3,2,1,0", 4); // 1);
-  CurrentDACConfig->AddParameter("ckdivend", "5,4,3,2,1,0", 4);  // 1);
+  CurrentDACConfig->AddParameter("ckdivend2", "5,4,3,2,1,0", 7); // 1);
+  CurrentDACConfig->AddParameter("ckdivend", "5,4,3,2,1,0", 0);  // 1);
   CurrentDACConfig->AddParameter("VPRegCasc", "5,4,3,1,0,2", 20);
   CurrentDACConfig->AddParameter("VPRamp", "5,4,3,1,0,2", 0);     // was 4, off for HB/Thlow usage and fastreadout
   CurrentDACConfig->AddParameter("VNcompPix", "5,4,3,1,0,2", 10); // VNComparator
