@@ -1930,9 +1930,9 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			 //volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
 			 volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
 
-			 *fifo_config = (*fifo_config & 0x7) + (0b1000);
-			 usleep(1);
-			 *fifo_config = (*fifo_config & 0xFFFFFFF7) + (0b0000);
+			 //*fifo_config = (*fifo_config & 0xFFFFFFF7) + (0b1000);
+			 //usleep(1);
+			 //*fifo_config = (*fifo_config & 0xFFFFFFF7) + (0b0000);
 
 			 *ro = (*ro & 0xFFFCFFFF) + ((value << 16) & 0x30000);
 
@@ -3295,9 +3295,9 @@ void ATLASPix::reset() {
 	 void* readout_base = _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
 	 volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
 
-	 *fifo_config = 0b10000;
+	 *fifo_config = (*fifo_config & 0xFFFFFFEF) + 0b10000;
 	 sleep(1);
-	 *fifo_config = 0b00000;
+	 *fifo_config =  (*fifo_config & 0xFFFFFFEF) + 0b00000;
 
 }
 
