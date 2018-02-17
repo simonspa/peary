@@ -2550,7 +2550,7 @@ void ATLASPix::tune(ATLASPixMatrix& matrix, double vmax,int nstep, int npulses, 
 	//double threshold_target = 0;
 	const int cols = matrix.ncol;
 	const int rows = matrix.nrow;
-	int TDAC_map[cols][rows] = {0,0};
+	int TDAC_map[cols][rows] ;//= {0,0};
 	//threshold_target calculation;
 	//pixel TDAC interpolation for target
 	//==> new, tuned, TDAC map
@@ -2577,7 +2577,7 @@ void ATLASPix::ComputeSCurves(ATLASPixMatrix& matrix,double vmax,int nstep, int 
     const int steps = nstep;
     const int cols = matrix.ncol;
     const int rows = matrix.nrow;
-	double s_curves[steps][cols][rows] = {0, 0, 0};
+	double s_curves[steps][cols][rows];// = {0, 0, 0};
 
 	int step = 0;
     for(double v=0;v<=vmax;v+=(vmax/nstep)){
