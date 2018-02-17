@@ -22,16 +22,15 @@ namespace caribou {
     typedef REG_T reg_type;
     typedef DATA_T data_type;
 
+    std::string devicePath() const { return _devicePath; }
+
   protected:
-    Interface(std::string devicePath) : devicePath(devicePath){};
+    Interface(std::string devicePath) : _devicePath(devicePath){};
     virtual ~Interface(){};
 
     // Path of the device
-    const std::string devicePath;
+    const std::string _devicePath;
 
-    template <typename T> friend class caribouHAL;
-
-  private:
     //////////////////////
     // Write operations
     //////////////////////

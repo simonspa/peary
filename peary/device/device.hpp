@@ -52,25 +52,6 @@ namespace caribou {
      */
     virtual std::string getName() = 0;
 
-    /** Return the identifier of the firmware currently loaded
-     */
-    virtual uint8_t getFirmwareID() = 0;
-
-    /** Return the board identifier of the CaR board installed
-     */
-    virtual uint8_t getCaRBoardID() = 0;
-
-    /** Read the ID from the chip board if available
-     *
-     *  Some chip boards feature an EPROM which stores a board ID and thus
-     *  allows identification of the attached chip board.
-     */
-    virtual uint16_t getChipID() = 0;
-
-    /** Return the human-readable device name of the firmware currently loaded
-     */
-    virtual std::string getDeviceName() = 0;
-
     /** Turn on the power supply for the attached device
      */
     virtual void powerOn() = 0;

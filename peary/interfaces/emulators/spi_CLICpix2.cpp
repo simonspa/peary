@@ -19,7 +19,7 @@ std::pair<spi_reg_t, spi_t> iface_spi_CLICpix2::write(const spi_address_t& addre
 
   std::pair<spi_reg_t, spi_t> rx = std::make_pair(spi_reg_t(), spi_t());
 
-  LOG(logINTERFACE) << "SPI (" << devicePath << ") address " << to_hex_string(address) << ": Register "
+  LOG(logINTERFACE) << "SPI (" << devicePath() << ") address " << to_hex_string(address) << ": Register "
                     << to_hex_string(data.first) << " Wrote data \"" << to_hex_string(data.second) << "\" Read data \""
                     << to_hex_string(rx.second) << "\"";
 
@@ -59,7 +59,7 @@ std::vector<std::pair<spi_reg_t, spi_t>> iface_spi_CLICpix2::write(const spi_add
                                 *static_cast<spi_t*>(_data.data() + loop.pos)));
   }
 
-  LOG(logINTERFACE) << "SPI (" << devicePath << ") address " << to_hex_string(address)
+  LOG(logINTERFACE) << "SPI (" << devicePath() << ") address " << to_hex_string(address)
                     << "\n\t Wrote block data (Reg: data): \"" << listVector(data, ", ", true)
                     << "\"\n\t Read  block data (Reg: data): \"" << listVector(rx, ", ", true) << "\"";
 

@@ -60,7 +60,7 @@ namespace caribou {
 
     void exploreInterface();
 
-    void configureMatrix(std::string filename);
+    void configureMatrix(std::string filename = std::string());
     void configurePatternGenerator(std::string filename);
     void triggerPatternGenerator(bool sleep);
 
@@ -90,7 +90,7 @@ namespace caribou {
 
     /* Map of pixelConfigs for configuration storage (row/col)
      */
-    std::map<std::pair<uint8_t, uint8_t>, pixelConfig> pixelsConfig;
+    std::map<std::pair<uint8_t, uint8_t>, pixelConfig> pixelsConfig{};
 
     // The functions sets clocks required by CLICpix2 to operate
     void configureClock();

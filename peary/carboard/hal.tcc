@@ -14,7 +14,7 @@ namespace caribou {
     LOG(logQUIET) << getFirmwareVersion();
 
     T& dev_iface = interface_manager::getInterface<T>(_devpath);
-    LOG(logDEBUGHAL) << "Prepared HAL for accessing device with interface at " << dev_iface.devicePath;
+    LOG(logDEBUGHAL) << "Prepared HAL for accessing device with interface at " << dev_iface.devicePath();
 
     if(!caribou::caribouHALbase::generalResetDone) { // CaR board needs to be reset
       generalReset();

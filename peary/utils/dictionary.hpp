@@ -41,6 +41,12 @@ namespace caribou {
       }
     }
 
+    // Check if register entry exists
+    bool has(std::string name) const {
+      std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+      return !(regs.find(name) == regs.end());
+    }
+
     // Return all register names:
     std::vector<std::string> getNames() const {
       std::vector<std::string> names;
@@ -80,6 +86,12 @@ namespace caribou {
       } catch(...) {
         throw ConfigInvalid("Component name \"" + name + "\" unknown");
       }
+    }
+
+    // Check if register entry exists
+    bool has(std::string name) const {
+      std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+      return !(comps.find(name) == comps.end());
     }
 
   private:

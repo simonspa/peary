@@ -58,6 +58,11 @@ void clicpix2::configure() {
   // FIXME set all DACs provided with config
   // Call the base class configuration function:
   pearyDevice<iface_spi_CLICpix2>::configure();
+
+  // If no matrix was given via the config, set a fully masked matrix:
+  if(_config.Get("matrix", "").empty()) {
+    configureMatrix();
+  }
 }
 
 void clicpix2::reset() {
@@ -192,8 +197,10 @@ void clicpix2::configureMatrix(std::string filename) {
   this->setRegister("comp", 0);
   this->setRegister("sp_comp", 0);
 
-  LOG(logDEBUG) << "Configuring the pixel matrix from file \"" << filename << "\"";
-  pixelsConfig = readMatrix(filename);
+  if(!filename.empty()) {
+    LOG(logDEBUG) << "Configuring the pixel matrix from file \"" << filename << "\"";
+    pixelsConfig = readMatrix(filename);
+  }
   programMatrix();
 
   // Read back the matrix configuration and thus clear it:
