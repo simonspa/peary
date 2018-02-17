@@ -30,7 +30,7 @@ namespace caribou {
 #define ATLASPix_GatePix_M2   2.0
 
 #define ATLASPix_GndDACPix_M1 0
-#define ATLASPix_VMinusPix_M1 0.6
+#define ATLASPix_VMinusPix_M1 0.8
 #define ATLASPix_GatePix_M1   2.0
 
 #define ATLASPix_GndDACPix_M1ISO 0
