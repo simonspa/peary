@@ -80,7 +80,7 @@ namespace caribou {
     void setAllTDAC(uint32_t value);
     void TDACScan(std::string basefolder,int VNDAC,int step,double vmin,double vmax,uint32_t npulses,uint32_t npoints);
     void MaskPixel(uint32_t col,uint32_t row);
-    void WriteConfig(std::string filename);
+    void WriteConfig(std::string name);
     void LoadConfig(std::string filename);
 
     void doSCurve(uint32_t col,uint32_t row,double vmin,double vmax,uint32_t npulses,uint32_t npoints);

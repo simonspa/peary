@@ -3419,9 +3419,10 @@ void ATLASPix::powerStatusLog() {
 
 }
 
-void ATLASPix::WriteConfig(std::string basename){
-	theMatrix.writeGlobal(basename + ".cfg");
-	theMatrix.writeTDAC(basename + "_TDAC.cfg");
+void ATLASPix::WriteConfig(std::string name) {
+	make_directories(_output_directory);
+	theMatrix.writeGlobal(_output_directory + "/" + name + ".cfg");
+	theMatrix.writeTDAC(_output_directory + "/" + name + "_TDAC.cfg");
 }
 
 void ATLASPix::LoadConfig(std::string basename){
