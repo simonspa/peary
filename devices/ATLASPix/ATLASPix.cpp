@@ -2657,64 +2657,43 @@ pearydata ATLASPix::getData(){
 	 volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
 	 volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
 
-	 uint64_t d1=0;
-	 uint64_t d2=0;
-
 	 make_directories(_output_directory);
 	 std::ofstream disk;
 	 disk.open(_output_directory + "/data.txt", std::ios::out);
 	 disk << "X:	Y:	   TS1:	   TS2:		FPGA_TS:   SyncedCNT:   TR_CNT:	ATPBinCounter:   ATPGreyCounter:	" << std::endl;
 
-	 Color::Modifier red(Color::FG_RED);
-	 Color::Modifier green(Color::FG_GREEN);
-	 Color::Modifier blue(Color::FG_BLUE);
-	 Color::Modifier cyan(Color::FG_CYAN);
-	 Color::Modifier mag(Color::FG_MAGENTA);
-	 Color::Modifier bold(Color::BOLD);
-	 Color::Modifier rev(Color::REVERSE);
-	 Color::Modifier def(Color::FG_DEFAULT);
-	 Color::Modifier reset(Color::RESET);
+	 uint64_t fpga_ts = 0;
+	 uint64_t fpga_ts_prev = 0;
+	 uint32_t hit = 0;
+	 uint32_t timestamp = 0;
+	 uint32_t ATPSyncedCNT = 0;
+	 uint32_t TrCNT = 0;
 
+	 while(true) {
 
+		 // check for stop request from another thread
+		 if (!_daqContinue.test_and_set())
+			 break;
+		 // check for new first half-word or restart loop
+		 if ((*fifo_status & 0x4) == 0)
+			 continue;
+		 uint64_t d1 = static_cast<uint64_t>(*data);
+		 // active wait for the second half-word
+		 // with an exit signal we need to also break out of the outer loop
+		 bool stopDaq = false;
+		 while ((*fifo_status & 0x1) == 0) {
+			 if (!_daqContinue.test_and_set()) {
+				 stopDaq = true;
+				 break;
+			 }
+		 }
+		 if (stopDaq)
+			 break;
+		 // combine two 32bit half-words into one 64bit fifo word
+		 uint64_t dataw = (static_cast<uint64_t>(*data) << 32) | d1;
 
-	 uint64_t dataw =0;
-
-	 uint64_t fpga_ts =0;
-	 uint64_t fpga_ts_prev =0;
-
-	 uint32_t hit =0;
-	 uint32_t timestamp =0;
-
-	 uint32_t ATPSyncedCNT,TrCNT;
-
-	 int cnt;
-	 int prev_tr=0;
-	 //to=1;
-	 cnt=0;
-
-	 //this->setSpecialRegister("trigger_mode",2);
-
-	 //*fifo_config = 0b11;
-
-	 while(this->_daqContinue.test_and_set()){
-		 while(((*fifo_status & 0x4)==0) and this->_daqContinue.test_and_set()){
-			 //usleep(1);
-			 cnt++;
-			 //if (this->_daqContinue.test_and_set()==false){break;}
-			 };
-
-		 //if(to==0){break;}
-
-		 d1 = *data;
-		 while((*fifo_status & 0x1)==0){continue;};
-		 d2 = *data;
-		 //usleep(10);
-
-		 dataw = (d2 << 32) | (d1);
+		 // depending on the fifo state machine words have different meanings
 		 uint32_t stateA = dataw>>56 & 0xFF;
-		 //std::cout  << blue << bold << rev << dataw << " " << stateA <<   std::endl;
-
-
 		 if(stateA==0) {
 			 uint32_t DO = (dataw >> 48) & 0xFF;
 			 timestamp += DO<<24;
@@ -2740,7 +2719,6 @@ pearydata ATLASPix::getData(){
 			 //std::cout <<  bold <<   "DO: " << DO << " TrTS: "  <<TrTS << " TSf: " <<  TSf << reset << std::endl;
 			 //disk << std::bitset<32>(timestamp) << " " << std::dec << (timestamp >>8) << " " << gray_decode(timestamp & 0xF) << std::endl;
 		 }
-
 		 else if(stateA==4) {
 			 uint32_t DO = (dataw >> 48) & 0xFF;
 			 hit += DO<<24;
@@ -2758,7 +2736,6 @@ pearydata ATLASPix::getData(){
 			 TrCNT = (dataw) & 0xFFFFFFFF;
 			 //std::cout  << cyan << bold << rev <<  "stateA : " << stateA << reset  << std::endl;
 			 //std::cout <<  bold << "DO: " << DO  << " TrTS: "<< TrTS << " TrCnt: " << TrCnt << reset << std::endl;
-
 		 }
 		 else if(stateA==6){
 			 uint32_t DO = (dataw >> 48) & 0xFF;
@@ -2778,15 +2755,14 @@ pearydata ATLASPix::getData(){
 					 << "	" << pix.fpga_ts << "	" << pix.SyncedTS  << " " << pix.triggercnt
 					 << " " << pix.ATPbinaryCnt << " " << pix.ATPGreyCnt << std::endl;
 
-
-			 std::cout << green << "Event : " << TrCNT << std::endl;
+//			 std::cout << green << "Event : " << TrCNT << std::endl;
 			 //double delay=double(fpga_ts-fpga_ts_prev)*(10.0e-9);
 			 //std::cout << red << bold << rev << "ts : " <<fpga_ts   << reset << std::endl;
 			 //std::cout <<  rev << bold << red << "FPGA TS: "<<fpga_ts << " tr CNT : " << TrCNT << " delay : " << delay <<  reset << std::endl;
 
-			 std::cout << bold  << rev<< blue << "X: " << pix.col  << " Y: " << pix.row << " TS1: " << pix.ts1 << " TS2: " << pix.ts2
+			 LOG(logINFO) << "X: " << pix.col  << " Y: " << pix.row << " TS1: " << pix.ts1 << " TS2: " << pix.ts2
 					 << " FPGATS: " << pix.fpga_ts << " SyncedTS: " << pix.SyncedTS  << " TriggerCNT: " << pix.triggercnt
-					 << " ATPBinCNT: " << pix.ATPbinaryCnt << " ATPGreyCNT: " << pix.ATPGreyCnt  << reset << std::endl;
+					 << " ATPBinCNT: " << pix.ATPbinaryCnt << " ATPGreyCNT: " << pix.ATPGreyCnt;
 			 fpga_ts_prev=fpga_ts;
 			 hit=0;
 		 }
@@ -2794,22 +2770,13 @@ pearydata ATLASPix::getData(){
 			 uint32_t DO = (dataw >> 48) & 0xFF;
 			 //std::cout  << red << "stateA : " << stateA << std::endl;
 			 //std::cout <<  bold << "DO: "<< std::bitset<8>(DO) << reset << std::endl;
-
 		 };
+	 }
 
-	 }//while data
-
-//		 this->SetPixelInjection(col,row,0,0);
-//
-//		 }};
-
-
-	 //*fifo_config = 0b10;
 	 disk.close();
-	 std::cout <<  bold << "end of Run" << std::endl;
+
 	 pearydata dummy;
 	 return dummy;
-
 }
 
 std::vector<int> ATLASPix::getCountingData(){
@@ -3389,18 +3356,6 @@ void ATLASPix::runDaq()
 {
   getData();
 }
-
-// Mathieu's implementation
-//void ATLASPix::daqStart() {
-//	this->daqRunning= true;
-//	this->dataTakingThread = new std::thread(&ATLASPix::datatakingthread,this);
-//}
-//
-//void ATLASPix::daqStop() {
-//  LOG(logINFO) << DEVICE_NAME << ": DAQ stopped.";
-//  this->daqRunning= false;
-//  this->dataTakingThread->join();
-//}
 
 void ATLASPix::powerStatusLog() {
   LOG(logINFO) << DEVICE_NAME << " power status:";
