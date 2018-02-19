@@ -156,6 +156,7 @@ pearycli::pearycli() : c("# ") {
   c.registerCommand("lock", lock, "lock the device", 1,"DEVICE_ID");
   c.registerCommand("unlock", unlock, "unlock the device", 1,"DEVICE_ID");
   c.registerCommand("setThreshold", setThreshold, "Setting threshold, usage setThreshold Threshold(V) device ID", 2,"DEVICE_ID");
+  c.registerCommand("setVMinus", setVMinus, "Setting VMinusPix, usage setVMinus VMinus(V) device ID", 2,"DEVICE_ID");
   c.registerCommand("pulse", pulse, "pulse, usage pulse npulse nup ndown amplitude device ID", 5,"DEVICE_ID");
   c.registerCommand("setPixelInjection", SetPixelInjection, "Set pixel injection and output, usage : setPixelInjection col row analog_output state hitbus state", 5,"DEVICE_ID");
   c.registerCommand("doSCurve", doSCurve, "Perform a s-curve measurement, usage doSCurve col row vmin vmax npulses npoints device_id", 7,"DEVICE_ID");
@@ -861,6 +862,16 @@ int pearycli::setThreshold(const std::vector<std::string>& input) {
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(2)));
     dev->setThreshold(std::stof(input.at(1)));
+  } catch(caribou::caribouException& e) {
+    return ret::Error;
+  }
+  return ret::Ok;
+}
+
+int pearycli::setVMinus(const std::vector<std::string>& input) {
+  try {
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(2)));
+    dev->setVMinus(std::stof(input.at(1)));
   } catch(caribou::caribouException& e) {
     return ret::Error;
   }
