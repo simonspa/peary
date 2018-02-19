@@ -2657,12 +2657,19 @@ void ATLASPix::isLocked(){
 
 }
 
-uint32_ ATLASPix::getTriggerCounter(){
+uint32_t ATLASPix::getTriggerCounter(){
 	 void* readout_base = _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
-	 volatile uint32_t* trg_cnt = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x14);
+	 volatile uint32_t* trg_cnt = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x18);
 	 return *trg_cnt;
 
 }
+
+
+
+void  ATLASPix::getTriggerCount(){
+	LOG(logINFO) << this->getTriggerCounter() << std::endl;
+}
+
 
 pearydata ATLASPix::getData(){
 

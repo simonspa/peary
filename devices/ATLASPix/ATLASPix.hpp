@@ -72,6 +72,8 @@ namespace caribou {
     void isLocked();
 
     void configureClock();
+    void getTriggerCount();
+
     uint32_t getTriggerCounter();
     pearydata getData();
 
