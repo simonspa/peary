@@ -42,6 +42,8 @@ namespace caribou {
     void lock();
     void unlock();
     void setThreshold(double threshold);
+    void setVMinus(double vminus);
+
     /** Turn on the power supply for the ATLASPix chip
      */
     void powerUp();

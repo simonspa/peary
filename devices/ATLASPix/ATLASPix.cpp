@@ -197,6 +197,7 @@ void ATLASPix::configure() {
  std::cout << "sending default config " << std::endl;
  this->ProgramSR(theMatrix);
 
+
   //this->ComputeSCurves(0,0.5,50,128,100,100);
  std::cout << "sending default TDACs " << std::endl;
 
@@ -236,6 +237,20 @@ void ATLASPix::setThreshold(double threshold){
 	this->setVoltage("ThPix",threshold);
 	this->switchOn("ThPix");
 	theMatrix.ThPix=threshold;
+
+
+}
+
+void ATLASPix::setVMinus(double vminus){
+
+
+	//theMatrix.VoltageDACConfig->SetParameter("ThPix",static_cast<int>(floor(255 * threshold/1.8)));
+
+	//this->ProgramSR(theMatrix);
+	theMatrix.VMINUSPix=vminus;
+	LOG(logDEBUG) << " VMinusPix ";
+	this->setVoltage("VMinusPix",vminus);
+	this->switchOn("VMinusPix");
 
 
 }
@@ -2760,7 +2775,7 @@ pearydata ATLASPix::getData(){
 			 //std::cout << red << bold << rev << "ts : " <<fpga_ts   << reset << std::endl;
 			 //std::cout <<  rev << bold << red << "FPGA TS: "<<fpga_ts << " tr CNT : " << TrCNT << " delay : " << delay <<  reset << std::endl;
 
-			 LOG(logINFO) << "X: " << pix.col  << " Y: " << pix.row << " TS1: " << pix.ts1 << " TS2: " << pix.ts2
+			 LOG(logINFO) << "X: " <<pix.col << " Y: " << pix.row << " TS1: " << pix.ts1 << " TS2: " << pix.ts2
 					 << " FPGATS: " << pix.fpga_ts << " SyncedTS: " << pix.SyncedTS  << " TriggerCNT: " << pix.triggercnt
 					 << " ATPBinCNT: " << pix.ATPbinaryCnt << " ATPGreyCNT: " << pix.ATPGreyCnt;
 			 fpga_ts_prev=fpga_ts;
