@@ -72,7 +72,7 @@ namespace caribou {
     void isLocked();
 
     void configureClock();
-
+    uint32_t getTriggerCounter();
     pearydata getData();
 
     std::vector<int> getCountingData();

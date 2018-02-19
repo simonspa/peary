@@ -2657,6 +2657,13 @@ void ATLASPix::isLocked(){
 
 }
 
+uint32_ ATLASPix::getTriggerCounter(){
+	 void* readout_base = _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
+	 volatile uint32_t* trg_cnt = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x14);
+	 return *trg_cnt;
+
+}
+
 pearydata ATLASPix::getData(){
 
 	const unsigned int colmask = 0b11111111000000000000000000000000;
@@ -2788,6 +2795,7 @@ pearydata ATLASPix::getData(){
 		 };
 	 }
 
+	 disk << this->getTriggerCounter() << std::endl;
 	 disk.close();
 
 	 pearydata dummy;
@@ -3365,6 +3373,7 @@ void ATLASPix::daqStop() {
   // signal to daq thread that we want to stop and wait until it does
   _daqContinue.clear();
   _daqThread.join();
+  LOG(logINFO) << "Trigger count at end of run : " << this->getTriggerCounter() << std::endl;
 }
 
 void ATLASPix::runDaq()
