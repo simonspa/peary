@@ -197,6 +197,7 @@ void ATLASPix::configure() {
  std::cout << "sending default config " << std::endl;
  this->ProgramSR(theMatrix);
 
+
   //this->ComputeSCurves(0,0.5,50,128,100,100);
  std::cout << "sending default TDACs " << std::endl;
 
@@ -236,6 +237,20 @@ void ATLASPix::setThreshold(double threshold){
 	this->setVoltage("ThPix",threshold);
 	this->switchOn("ThPix");
 	theMatrix.ThPix=threshold;
+
+
+}
+
+void ATLASPix::setVMinus(double vminus){
+
+
+	//theMatrix.VoltageDACConfig->SetParameter("ThPix",static_cast<int>(floor(255 * threshold/1.8)));
+
+	//this->ProgramSR(theMatrix);
+	theMatrix.VMINUSPix=vminus;
+	LOG(logDEBUG) << " VMinusPix ";
+	this->setVoltage("VMinusPix",vminus);
+	this->switchOn("VMinusPix");
 
 
 }
@@ -1918,6 +1933,9 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			 //volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
 
 			 *fifo_config = (*fifo_config & 0xFFFFFFFE) + (value & 0b1);
+			 if(value==1){
+				 this->resetCounters();
+			 }
 
 		}
 		else if (name == "trigger_mode") {
@@ -1937,6 +1955,23 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			 *ro = (*ro & 0xFFFCFFFF) + ((value << 16) & 0x30000);
 
 		}
+		else if (name == "edge_sel") {
+
+			 void* readout_base = _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
+
+			 //volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
+			 //volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x4);
+			 volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
+			 //volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
+			 volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
+
+			 //*fifo_config = (*fifo_config & 0xFFFFFFF7) + (0b1000);
+			 //usleep(1);
+			 *fifo_config = (*fifo_config & 0xFFFFFFFB) + ((value << 2) & 0b0100);
+
+			 //*ro = (*ro & 0xFFFCFFFF) + ((value << 16) & 0x30000);
+
+		}
 		else if (name == "armduration") {
 
 			 void* readout_base = _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
@@ -1948,6 +1983,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			 volatile uint32_t* config2 = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x14);
 
 			 *config2 = ((value) & 0xFFFFFF);
+
+		}
+		else if (name == "trigger_injection") {
+
+			 void* readout_base = _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
+
+			 //volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
+			 //volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x4);
+			 //volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
+			 //volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
+			 volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
+
+			 *ro = ((*ro) & 0xFFFFFF)+(value <<24);
 
 		}
 	else {
@@ -2100,6 +2148,37 @@ void ATLASPix::resetCounters()
 
 }
 
+int ATLASPix::readCounter(int i)
+{
+	void* counter_base = _hal->getMappedMemoryRW(ATLASPix_COUNTER_BASE_ADDRESS, ATLASPix_COUNTER_MAP_SIZE, ATLASPix_COUNTER_MASK);
+
+	int value = 0;
+	switch(i){
+					case 0 :
+						 {volatile uint32_t* cnt_value = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(counter_base) + 0x0);
+						 value = *cnt_value;}
+						 break;
+					case 1:
+						 {volatile uint32_t* cnt_value = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(counter_base) + 0x4);
+						 value = *cnt_value;}
+						 break;
+					case 2:
+						 {volatile uint32_t* cnt_value = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(counter_base) + 0x8);
+						 value = *cnt_value;
+						 break;}
+					case 3:
+						 {volatile uint32_t* cnt_value = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(counter_base) + 0xC);
+						 value = *cnt_value;
+						 break;}
+					default :
+					{ std::cout << "NON-EXISTING COUNTER, RETURN -1"<< std::endl;
+						 value = -1;}
+	}
+
+	return value;
+}
+
+
 int ATLASPix::readCounter(ATLASPixMatrix& matrix)
 {
 	void* counter_base = _hal->getMappedMemoryRW(ATLASPix_COUNTER_BASE_ADDRESS, ATLASPix_COUNTER_MAP_SIZE, ATLASPix_COUNTER_MASK);
@@ -2129,6 +2208,7 @@ int ATLASPix::readCounter(ATLASPixMatrix& matrix)
 
 	return value;
 }
+
 
 void ATLASPix::pulse(uint32_t npulse,uint32_t tup,uint32_t tdown,double amplitude){
 
@@ -2642,6 +2722,23 @@ void ATLASPix::isLocked(){
 
 }
 
+uint32_t ATLASPix::getTriggerCounter(){
+	 void* readout_base = _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
+	 volatile uint32_t* trg_cnt = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x18);
+	 return *trg_cnt;
+
+}
+
+
+
+void  ATLASPix::getTriggerCount(){
+	LOG(logINFO) << "Trigger accepted by FSM       " << this->getTriggerCounter() << std::endl;
+	LOG(logINFO) << "Trigger accepted by FSM (ext) " << this->readCounter(2) << std::endl;
+	LOG(logINFO) << "Trigger received              " << this->readCounter(3) << std::endl;
+
+}
+
+
 pearydata ATLASPix::getData(){
 
 	const unsigned int colmask = 0b11111111000000000000000000000000;
@@ -2657,64 +2754,43 @@ pearydata ATLASPix::getData(){
 	 volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
 	 volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
 
-	 uint64_t d1=0;
-	 uint64_t d2=0;
-
 	 make_directories(_output_directory);
 	 std::ofstream disk;
 	 disk.open(_output_directory + "/data.txt", std::ios::out);
 	 disk << "X:	Y:	   TS1:	   TS2:		FPGA_TS:   SyncedCNT:   TR_CNT:	ATPBinCounter:   ATPGreyCounter:	" << std::endl;
 
-	 Color::Modifier red(Color::FG_RED);
-	 Color::Modifier green(Color::FG_GREEN);
-	 Color::Modifier blue(Color::FG_BLUE);
-	 Color::Modifier cyan(Color::FG_CYAN);
-	 Color::Modifier mag(Color::FG_MAGENTA);
-	 Color::Modifier bold(Color::BOLD);
-	 Color::Modifier rev(Color::REVERSE);
-	 Color::Modifier def(Color::FG_DEFAULT);
-	 Color::Modifier reset(Color::RESET);
+	 uint64_t fpga_ts = 0;
+	 uint64_t fpga_ts_prev = 0;
+	 uint32_t hit = 0;
+	 uint32_t timestamp = 0;
+	 uint32_t ATPSyncedCNT = 0;
+	 uint32_t TrCNT = 0;
 
+	 while(true) {
 
+		 // check for stop request from another thread
+		 if (!_daqContinue.test_and_set())
+			 break;
+		 // check for new first half-word or restart loop
+		 if ((*fifo_status & 0x4) == 0)
+			 continue;
+		 uint64_t d1 = static_cast<uint64_t>(*data);
+		 // active wait for the second half-word
+		 // with an exit signal we need to also break out of the outer loop
+		 bool stopDaq = false;
+		 while ((*fifo_status & 0x1) == 0) {
+			 if (!_daqContinue.test_and_set()) {
+				 stopDaq = true;
+				 break;
+			 }
+		 }
+		 if (stopDaq)
+			 break;
+		 // combine two 32bit half-words into one 64bit fifo word
+		 uint64_t dataw = (static_cast<uint64_t>(*data) << 32) | d1;
 
-	 uint64_t dataw =0;
-
-	 uint64_t fpga_ts =0;
-	 uint64_t fpga_ts_prev =0;
-
-	 uint32_t hit =0;
-	 uint32_t timestamp =0;
-
-	 uint32_t ATPSyncedCNT,TrCNT;
-
-	 int cnt;
-	 int prev_tr=0;
-	 //to=1;
-	 cnt=0;
-
-	 //this->setSpecialRegister("trigger_mode",2);
-
-	 //*fifo_config = 0b11;
-
-	 while(this->_daqContinue.test_and_set()){
-		 while(((*fifo_status & 0x4)==0) and this->_daqContinue.test_and_set()){
-			 //usleep(1);
-			 cnt++;
-			 //if (this->_daqContinue.test_and_set()==false){break;}
-			 };
-
-		 //if(to==0){break;}
-
-		 d1 = *data;
-		 while((*fifo_status & 0x1)==0){continue;};
-		 d2 = *data;
-		 //usleep(10);
-
-		 dataw = (d2 << 32) | (d1);
+		 // depending on the fifo state machine words have different meanings
 		 uint32_t stateA = dataw>>56 & 0xFF;
-		 //std::cout  << blue << bold << rev << dataw << " " << stateA <<   std::endl;
-
-
 		 if(stateA==0) {
 			 uint32_t DO = (dataw >> 48) & 0xFF;
 			 timestamp += DO<<24;
@@ -2740,7 +2816,6 @@ pearydata ATLASPix::getData(){
 			 //std::cout <<  bold <<   "DO: " << DO << " TrTS: "  <<TrTS << " TSf: " <<  TSf << reset << std::endl;
 			 //disk << std::bitset<32>(timestamp) << " " << std::dec << (timestamp >>8) << " " << gray_decode(timestamp & 0xF) << std::endl;
 		 }
-
 		 else if(stateA==4) {
 			 uint32_t DO = (dataw >> 48) & 0xFF;
 			 hit += DO<<24;
@@ -2758,7 +2833,6 @@ pearydata ATLASPix::getData(){
 			 TrCNT = (dataw) & 0xFFFFFFFF;
 			 //std::cout  << cyan << bold << rev <<  "stateA : " << stateA << reset  << std::endl;
 			 //std::cout <<  bold << "DO: " << DO  << " TrTS: "<< TrTS << " TrCnt: " << TrCnt << reset << std::endl;
-
 		 }
 		 else if(stateA==6){
 			 uint32_t DO = (dataw >> 48) & 0xFF;
@@ -2778,15 +2852,14 @@ pearydata ATLASPix::getData(){
 					 << "	" << pix.fpga_ts << "	" << pix.SyncedTS  << " " << pix.triggercnt
 					 << " " << pix.ATPbinaryCnt << " " << pix.ATPGreyCnt << std::endl;
 
-
-			 std::cout << green << "Event : " << TrCNT << std::endl;
+			 std::cout  << "Hit : " << std::hex << hit << std::dec << std::endl;
 			 //double delay=double(fpga_ts-fpga_ts_prev)*(10.0e-9);
 			 //std::cout << red << bold << rev << "ts : " <<fpga_ts   << reset << std::endl;
 			 //std::cout <<  rev << bold << red << "FPGA TS: "<<fpga_ts << " tr CNT : " << TrCNT << " delay : " << delay <<  reset << std::endl;
 
-			 std::cout << bold  << rev<< blue << "X: " << pix.col  << " Y: " << pix.row << " TS1: " << pix.ts1 << " TS2: " << pix.ts2
+			 LOG(logINFO) << "X: " <<pix.col << " Y: " << pix.row << " TS1: " << pix.ts1 << " TS2: " << pix.ts2
 					 << " FPGATS: " << pix.fpga_ts << " SyncedTS: " << pix.SyncedTS  << " TriggerCNT: " << pix.triggercnt
-					 << " ATPBinCNT: " << pix.ATPbinaryCnt << " ATPGreyCNT: " << pix.ATPGreyCnt  << reset << std::endl;
+					 << " ATPBinCNT: " << pix.ATPbinaryCnt << " ATPGreyCNT: " << pix.ATPGreyCnt;
 			 fpga_ts_prev=fpga_ts;
 			 hit=0;
 		 }
@@ -2794,22 +2867,16 @@ pearydata ATLASPix::getData(){
 			 uint32_t DO = (dataw >> 48) & 0xFF;
 			 //std::cout  << red << "stateA : " << stateA << std::endl;
 			 //std::cout <<  bold << "DO: "<< std::bitset<8>(DO) << reset << std::endl;
-
 		 };
-
-	 }//while data
-
-//		 this->SetPixelInjection(col,row,0,0);
-//
-//		 }};
-
-
-	 //*fifo_config = 0b10;
+	 }
 	 disk.close();
-	 std::cout <<  bold << "end of Run" << std::endl;
+
+	 // write additional information
+	 std::ofstream stats(_output_directory + "/stats.txt", std::ios::out);
+	 stats << "trigger_counter " << this->getTriggerCounter() << std::endl;
+
 	 pearydata dummy;
 	 return dummy;
-
 }
 
 std::vector<int> ATLASPix::getCountingData(){
@@ -3375,6 +3442,7 @@ void ATLASPix::daqStart() {
 	  return;
   }
   // arm the stop flag and start running
+  this->resetCounters();
   _daqContinue.test_and_set();
   _daqThread = std::thread(&ATLASPix::runDaq, this);
 }
@@ -3383,24 +3451,13 @@ void ATLASPix::daqStop() {
   // signal to daq thread that we want to stop and wait until it does
   _daqContinue.clear();
   _daqThread.join();
+  LOG(logINFO) << "Trigger count at end of run : " << this->getTriggerCounter() << std::endl;
 }
 
 void ATLASPix::runDaq()
 {
   getData();
 }
-
-// Mathieu's implementation
-//void ATLASPix::daqStart() {
-//	this->daqRunning= true;
-//	this->dataTakingThread = new std::thread(&ATLASPix::datatakingthread,this);
-//}
-//
-//void ATLASPix::daqStop() {
-//  LOG(logINFO) << DEVICE_NAME << ": DAQ stopped.";
-//  this->daqRunning= false;
-//  this->dataTakingThread->join();
-//}
 
 void ATLASPix::powerStatusLog() {
   LOG(logINFO) << DEVICE_NAME << " power status:";
@@ -3419,9 +3476,10 @@ void ATLASPix::powerStatusLog() {
 
 }
 
-void ATLASPix::WriteConfig(std::string basename){
-	theMatrix.writeGlobal(basename + ".cfg");
-	theMatrix.writeTDAC(basename + "_TDAC.cfg");
+void ATLASPix::WriteConfig(std::string name) {
+	make_directories(_output_directory);
+	theMatrix.writeGlobal(_output_directory + "/" + name + ".cfg");
+	theMatrix.writeTDAC(_output_directory + "/" + name + "_TDAC.cfg");
 }
 
 void ATLASPix::LoadConfig(std::string basename){

@@ -42,6 +42,8 @@ namespace caribou {
     void lock();
     void unlock();
     void setThreshold(double threshold);
+    void setVMinus(double vminus);
+
     /** Turn on the power supply for the ATLASPix chip
      */
     void powerUp();
@@ -70,7 +72,9 @@ namespace caribou {
     void isLocked();
 
     void configureClock();
+    void getTriggerCount();
 
+    uint32_t getTriggerCounter();
     pearydata getData();
 
     std::vector<int> getCountingData();
@@ -80,7 +84,7 @@ namespace caribou {
     void setAllTDAC(uint32_t value);
     void TDACScan(std::string basefolder,int VNDAC,int step,double vmin,double vmax,uint32_t npulses,uint32_t npoints);
     void MaskPixel(uint32_t col,uint32_t row);
-    void WriteConfig(std::string filename);
+    void WriteConfig(std::string name);
     void LoadConfig(std::string filename);
 
     void doSCurve(uint32_t col,uint32_t row,double vmin,double vmax,uint32_t npulses,uint32_t npoints);
@@ -99,7 +103,9 @@ namespace caribou {
     void SetInjectionMask(uint32_t mask,uint32_t state);
     void doSCurves(std::string basefolder,double vmin,double vmax,uint32_t npulses,uint32_t npoints);
     void resetCounters();
+    int readCounter(int i);
     int readCounter(ATLASPixMatrix& matrix);
+
     void resetPulser();
     void setPulse(ATLASPixMatrix& matrix,uint32_t npulse,uint32_t n_up,uint32_t n_down,double voltage);
     void sendPulse();

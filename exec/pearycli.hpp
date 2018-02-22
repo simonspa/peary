@@ -71,6 +71,8 @@ namespace caribou {
     static int lock(const std::vector<std::string>& input);
     static int unlock(const std::vector<std::string>& input);
     static int setThreshold(const std::vector<std::string>& input);
+    static int setVMinus(const std::vector<std::string>& input);
+    static int getTriggerCount(const std::vector<std::string>& input);
     static int pulse(const std::vector<std::string>& input);
     static int SetPixelInjection(const std::vector<std::string>& input);
     static int doNoiseCurve(const std::vector<std::string>& input);

@@ -111,6 +111,9 @@ namespace caribou {
     virtual void lock();
     virtual void unlock();
     virtual void setThreshold(double threshold);
+    virtual void setVMinus(double vminus);
+    virtual void getTriggerCount();
+    
     virtual void pulse(uint32_t npulse,uint32_t tup,uint32_t tdown,double amplitude);
     virtual void SetPixelInjection(uint32_t col,uint32_t row,bool ana_state,bool hb_state);
     virtual void doSCurve(uint32_t col,uint32_t row,double vmin,double vmax,uint32_t npulses,uint32_t npoints);
