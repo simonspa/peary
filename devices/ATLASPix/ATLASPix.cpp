@@ -2852,7 +2852,7 @@ pearydata ATLASPix::getData(){
 					 << "	" << pix.fpga_ts << "	" << pix.SyncedTS  << " " << pix.triggercnt
 					 << " " << pix.ATPbinaryCnt << " " << pix.ATPGreyCnt << std::endl;
 
-//			 std::cout << green << "Event : " << TrCNT << std::endl;
+			 std::cout  << "Hit : " << std::hex << hit << std::dec << std::endl;
 			 //double delay=double(fpga_ts-fpga_ts_prev)*(10.0e-9);
 			 //std::cout << red << bold << rev << "ts : " <<fpga_ts   << reset << std::endl;
 			 //std::cout <<  rev << bold << red << "FPGA TS: "<<fpga_ts << " tr CNT : " << TrCNT << " delay : " << delay <<  reset << std::endl;
