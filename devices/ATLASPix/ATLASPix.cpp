@@ -2869,9 +2869,11 @@ pearydata ATLASPix::getData(){
 			 //std::cout <<  bold << "DO: "<< std::bitset<8>(DO) << reset << std::endl;
 		 };
 	 }
-
-	 disk << this->getTriggerCounter() << std::endl;
 	 disk.close();
+
+	 // write additional information
+	 std::ofstream stats(_output_directory + "/stats.txt", std::ios::out);
+	 stats << "trigger_counter " << this->getTriggerCounter() << std::endl;
 
 	 pearydata dummy;
 	 return dummy;
