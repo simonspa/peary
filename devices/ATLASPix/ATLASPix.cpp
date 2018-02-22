@@ -1985,6 +1985,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			 *config2 = ((value) & 0xFFFFFF);
 
 		}
+		else if (name == "trigger_injection") {
+
+			 void* readout_base = _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
+
+			 //volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
+			 //volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x4);
+			 //volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
+			 //volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
+			 volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
+
+			 *ro = ((*ro) & 0xFFFFFF)+(value <<24);
+
+		}
 	else {
 	    throw RegisterInvalid("Unknown register with \"special\" flag: " + name);
 	}
