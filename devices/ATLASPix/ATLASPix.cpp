@@ -2732,7 +2732,10 @@ uint32_t ATLASPix::getTriggerCounter(){
 
 
 void  ATLASPix::getTriggerCount(){
-	LOG(logINFO) << this->getTriggerCounter() << std::endl;
+	LOG(logINFO) << "Trigger accepted by FSM       " << this->getTriggerCounter() << std::endl;
+	LOG(logINFO) << "Trigger accepted by FSM (ext) " << this->readCounter(2) << std::endl;
+	LOG(logINFO) << "Trigger received              " << this->readCounter(3) << std::endl;
+
 }
 
 
