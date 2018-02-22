@@ -77,7 +77,6 @@ namespace caribou {
     virtual pearydata getData() = 0;
     virtual void dataTuning() = 0;
 
-
     /** Report power status
      *  Method should use logINFO as an output
      */
@@ -93,24 +92,25 @@ namespace caribou {
      *  provided via the initial configuration object
      */
     virtual void configure() = 0;
-    virtual void lock()=0;
-    virtual void unlock()=0;
-    virtual void setThreshold(double threshold)=0;
-    virtual void setVMinus(double vminus)=0;
-    virtual void getTriggerCount()=0;
-    virtual void pulse(uint32_t npulse,uint32_t tup,uint32_t tdown,double amplitude)=0;
-    virtual void SetPixelInjection(uint32_t col,uint32_t row,bool ana_state,bool hb_state)=0;
-    virtual void doSCurve(uint32_t col,uint32_t row,double vmin,double vmax,uint32_t npulses,uint32_t npoints)=0;
-    virtual void doSCurves(double vmin,double vmax,uint32_t npulses,uint32_t npoints)=0;
-    virtual void doNoiseCurve(uint32_t col,uint32_t row)=0;
-    virtual void LoadTDAC(std::string filename)=0;
-    virtual void LoadConfig(std::string basename)=0;
-    virtual void WriteConfig(std::string basename)=0;
-    virtual void TDACScan(std::string basefolder,int VNDAC,int step,double vmin,double vmax,uint32_t npulses,uint32_t npoints)=0;
-    virtual void SetMatrix(std::string matrix)=0;
-    virtual void MaskPixel(uint32_t col,uint32_t row)=0;
-    virtual void setAllTDAC(uint32_t value)=0;
-    virtual void isLocked()=0;
+    virtual void lock() = 0;
+    virtual void unlock() = 0;
+    virtual void setThreshold(double threshold) = 0;
+    virtual void setVMinus(double vminus) = 0;
+    virtual void getTriggerCount() = 0;
+    virtual void pulse(uint32_t npulse, uint32_t tup, uint32_t tdown, double amplitude) = 0;
+    virtual void SetPixelInjection(uint32_t col, uint32_t row, bool ana_state, bool hb_state) = 0;
+    virtual void doSCurve(uint32_t col, uint32_t row, double vmin, double vmax, uint32_t npulses, uint32_t npoints) = 0;
+    virtual void doSCurves(double vmin, double vmax, uint32_t npulses, uint32_t npoints) = 0;
+    virtual void doNoiseCurve(uint32_t col, uint32_t row) = 0;
+    virtual void LoadTDAC(std::string filename) = 0;
+    virtual void LoadConfig(std::string basename) = 0;
+    virtual void WriteConfig(std::string basename) = 0;
+    virtual void
+    TDACScan(std::string basefolder, int VNDAC, int step, double vmin, double vmax, uint32_t npulses, uint32_t npoints) = 0;
+    virtual void SetMatrix(std::string matrix) = 0;
+    virtual void MaskPixel(uint32_t col, uint32_t row) = 0;
+    virtual void setAllTDAC(uint32_t value) = 0;
+    virtual void isLocked() = 0;
 
     // Controlling the device
 

@@ -40,11 +40,9 @@ std::string CCPDV5::getName() {
 
 void CCPDV5::powerUp() {
   LOG(logINFO) << DEVICE_NAME << ": Powering up CCPDV5";
-
 }
 
-void CCPDV5::powerDown() {
-}
+void CCPDV5::powerDown() {}
 
 void CCPDV5::daqStart() {
   LOG(logINFO) << DEVICE_NAME << ": DAQ started.";
@@ -56,7 +54,6 @@ void CCPDV5::daqStop() {
 
 void CCPDV5::powerStatusLog() {
   LOG(logINFO) << DEVICE_NAME << " power status:";
-
 }
 
 caribouDevice* caribou::generator(const caribou::Configuration config) {

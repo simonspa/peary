@@ -14,13 +14,13 @@ ATLASPixMatrix::ATLASPixMatrix()
     : VoltageDACConfig(std::make_unique<ATLASPix_Config>()), CurrentDACConfig(std::make_unique<ATLASPix_Config>()),
       MatrixDACConfig(std::make_unique<ATLASPix_Config>()) {
 
-	// make sure we have reasonable defaults
-	for (auto& row : TDAC) {
-		row.fill(0);
-	}
-	for (auto& row : MASK) {
-		row.fill(0);
-	}
+  // make sure we have reasonable defaults
+  for(auto& row : TDAC) {
+    row.fill(0);
+  }
+  for(auto& row : MASK) {
+    row.fill(0);
+  }
 }
 
 void ATLASPixMatrix::_initializeGlobalParameters() {

@@ -156,24 +156,55 @@ pearycli::pearycli() : c("# ") {
     "NUM LONG[0/1] FILENAME DEVICE_ID_1 [REG DEVICE_ID_2]");
   c.registerCommand("flushMatrix", flushMatrix, "Retrieve data from the selected device and discard it", 1, "DEVICE_ID");
 
-  c.registerCommand("lock", lock, "lock the device", 1,"DEVICE_ID");
-  c.registerCommand("unlock", unlock, "unlock the device", 1,"DEVICE_ID");
-  c.registerCommand("setThreshold", setThreshold, "Setting threshold, usage setThreshold Threshold(V) device ID", 2,"DEVICE_ID");
-  c.registerCommand("setVMinus", setVMinus, "Setting VMinusPix, usage setVMinus VMinus(V) device ID", 2,"DEVICE_ID");
-  c.registerCommand("getTriggerCount", getTriggerCount, "return current trigger count, usage getTriggerCountdevice ID", 1,"DEVICE_ID");
-  c.registerCommand("pulse", pulse, "pulse, usage pulse npulse nup ndown amplitude device ID", 5,"DEVICE_ID");
-  c.registerCommand("setPixelInjection", SetPixelInjection, "Set pixel injection and output, usage : setPixelInjection col row analog_output state hitbus state", 5,"DEVICE_ID");
-  c.registerCommand("doSCurve", doSCurve, "Perform a s-curve measurement, usage doSCurve col row vmin vmax npulses npoints device_id", 7,"DEVICE_ID");
-  c.registerCommand("doSCurves", doSCurves, "Perform  s-curve measurement for the whole matrix, usage doSCurves vmin vmax npulses npoints device_id", 5,"DEVICE_ID");
-  c.registerCommand("doNoiseCurve", doNoiseCurve, "determine the noise floor for a given pixel, usage : doNoiseCurve col row", 3,"DEVICE_ID");
-  c.registerCommand("setAllTDAC", setAllTDAC, "Setting TDAC for the whole matrix, usage setAllTDAC value device ID", 2,"DEVICE_ID");
-  c.registerCommand("LoadTDAC", LoadTDAC, "Setting TDAC for the whole matrix, usage LoadTDAC filename device ID", 2,"DEVICE_ID");
-  c.registerCommand("LoadConfig", LoadConfig, "Load Config for the whole matrix, usage LoadConfig basename device ID", 2,"DEVICE_ID");
-  c.registerCommand("WriteConfig", WriteConfig, "Write Config for the whole matrix, usage WriteConfig basename device ID", 2,"DEVICE_ID");
-  c.registerCommand("TDACScan", TDACScan, "TDAC Scan for a given VNDAC for the whole matrix, usage TDACScan basefolder VNDAC TDACSteps vmin vmax npulses npoints device ID", 8,"DEVICE_ID");
-  c.registerCommand("SetMatrix", SetMatrix, "Set Matrix associated to this device, usage WriteConfig matrix(M1,M2,M1ISO) device ID", 2,"DEVICE_ID");
-  c.registerCommand("MaskPixel", MaskPixel, "mask a pixel in the matrix, usage MaskPixel col row device ID", 3,"DEVICE_ID");
-  c.registerCommand("isLocked", isLocked, "return the lock status of the receiver", 1,"DEVICE_ID");
+  c.registerCommand("lock", lock, "lock the device", 1, "DEVICE_ID");
+  c.registerCommand("unlock", unlock, "unlock the device", 1, "DEVICE_ID");
+  c.registerCommand(
+    "setThreshold", setThreshold, "Setting threshold, usage setThreshold Threshold(V) device ID", 2, "DEVICE_ID");
+  c.registerCommand("setVMinus", setVMinus, "Setting VMinusPix, usage setVMinus VMinus(V) device ID", 2, "DEVICE_ID");
+  c.registerCommand(
+    "getTriggerCount", getTriggerCount, "return current trigger count, usage getTriggerCountdevice ID", 1, "DEVICE_ID");
+  c.registerCommand("pulse", pulse, "pulse, usage pulse npulse nup ndown amplitude device ID", 5, "DEVICE_ID");
+  c.registerCommand("setPixelInjection",
+                    SetPixelInjection,
+                    "Set pixel injection and output, usage : setPixelInjection col row analog_output state hitbus state",
+                    5,
+                    "DEVICE_ID");
+  c.registerCommand("doSCurve",
+                    doSCurve,
+                    "Perform a s-curve measurement, usage doSCurve col row vmin vmax npulses npoints device_id",
+                    7,
+                    "DEVICE_ID");
+  c.registerCommand("doSCurves",
+                    doSCurves,
+                    "Perform  s-curve measurement for the whole matrix, usage doSCurves vmin vmax npulses npoints device_id",
+                    5,
+                    "DEVICE_ID");
+  c.registerCommand("doNoiseCurve",
+                    doNoiseCurve,
+                    "determine the noise floor for a given pixel, usage : doNoiseCurve col row",
+                    3,
+                    "DEVICE_ID");
+  c.registerCommand(
+    "setAllTDAC", setAllTDAC, "Setting TDAC for the whole matrix, usage setAllTDAC value device ID", 2, "DEVICE_ID");
+  c.registerCommand(
+    "LoadTDAC", LoadTDAC, "Setting TDAC for the whole matrix, usage LoadTDAC filename device ID", 2, "DEVICE_ID");
+  c.registerCommand(
+    "LoadConfig", LoadConfig, "Load Config for the whole matrix, usage LoadConfig basename device ID", 2, "DEVICE_ID");
+  c.registerCommand(
+    "WriteConfig", WriteConfig, "Write Config for the whole matrix, usage WriteConfig basename device ID", 2, "DEVICE_ID");
+  c.registerCommand("TDACScan",
+                    TDACScan,
+                    "TDAC Scan for a given VNDAC for the whole matrix, usage TDACScan basefolder VNDAC TDACSteps vmin vmax "
+                    "npulses npoints device ID",
+                    8,
+                    "DEVICE_ID");
+  c.registerCommand("SetMatrix",
+                    SetMatrix,
+                    "Set Matrix associated to this device, usage WriteConfig matrix(M1,M2,M1ISO) device ID",
+                    2,
+                    "DEVICE_ID");
+  c.registerCommand("MaskPixel", MaskPixel, "mask a pixel in the matrix, usage MaskPixel col row device ID", 3, "DEVICE_ID");
+  c.registerCommand("isLocked", isLocked, "return the lock status of the receiver", 1, "DEVICE_ID");
 }
 
 pearycli::~pearycli() {
@@ -833,7 +864,6 @@ int pearycli::flushMatrix(const std::vector<std::string>& input) {
   return ret::Ok;
 }
 
-
 int pearycli::lock(const std::vector<std::string>& input) {
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
@@ -856,14 +886,12 @@ int pearycli::unlock(const std::vector<std::string>& input) {
 int pearycli::pulse(const std::vector<std::string>& input) {
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(5)));
-    dev->pulse(std::stoi(input.at(1)),std::stoi(input.at(2)),std::stoi(input.at(3)),std::stof(input.at(4)));
+    dev->pulse(std::stoi(input.at(1)), std::stoi(input.at(2)), std::stoi(input.at(3)), std::stof(input.at(4)));
   } catch(caribou::caribouException& e) {
     return ret::Error;
   }
   return ret::Ok;
 }
-
-
 
 int pearycli::setThreshold(const std::vector<std::string>& input) {
   try {
@@ -885,50 +913,50 @@ int pearycli::setVMinus(const std::vector<std::string>& input) {
   return ret::Ok;
 }
 
-int  pearycli::SetPixelInjection(const std::vector<std::string>& input){
-	  try {
-	    caribouDevice* dev = manager->getDevice(std::stoi(input.at(5)));
-	    dev->SetPixelInjection(std::stoi(input.at(1)),std::stoi(input.at(2)),std::stoi(input.at(3)),std::stoi(input.at(4)));
-	  } catch(caribou::caribouException& e) {
-	    return ret::Error;
-	  }
-	  return ret::Ok;
-
+int pearycli::SetPixelInjection(const std::vector<std::string>& input) {
+  try {
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(5)));
+    dev->SetPixelInjection(std::stoi(input.at(1)), std::stoi(input.at(2)), std::stoi(input.at(3)), std::stoi(input.at(4)));
+  } catch(caribou::caribouException& e) {
+    return ret::Error;
+  }
+  return ret::Ok;
 }
 
-int  pearycli::doNoiseCurve(const std::vector<std::string>& input){
-try {
-  caribouDevice* dev = manager->getDevice(std::stoi(input.at(3)));
-  dev->doNoiseCurve(std::stoi(input.at(1)),std::stoi(input.at(2)));
-} catch(caribou::caribouException& e) {
-  return ret::Error;
-}
-return ret::Ok;
-
-}
-
-
-int  pearycli::doSCurve(const std::vector<std::string>& input){
-try {
-  caribouDevice* dev = manager->getDevice(std::stoi(input.at(7)));
-  std::cout << std::stoi(input.at(7)) << std::endl;
-  dev->doSCurve(std::stoi(input.at(1)),std::stoi(input.at(2)),std::stof(input.at(3)),std::stof(input.at(4)),std::stoi(input.at(5)),std::stoi(input.at(6)));
-} catch(caribou::caribouException& e) {
-  return ret::Error;
-}
-return ret::Ok;
-
+int pearycli::doNoiseCurve(const std::vector<std::string>& input) {
+  try {
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(3)));
+    dev->doNoiseCurve(std::stoi(input.at(1)), std::stoi(input.at(2)));
+  } catch(caribou::caribouException& e) {
+    return ret::Error;
+  }
+  return ret::Ok;
 }
 
-int  pearycli::doSCurves(const std::vector<std::string>& input){
-try {
-  caribouDevice* dev = manager->getDevice(std::stoi(input.at(5)));
-  dev->doSCurves(std::stof(input.at(1)),std::stof(input.at(2)),std::stoi(input.at(3)),std::stoi(input.at(4)));
-} catch(caribou::caribouException& e) {
-  return ret::Error;
+int pearycli::doSCurve(const std::vector<std::string>& input) {
+  try {
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(7)));
+    std::cout << std::stoi(input.at(7)) << std::endl;
+    dev->doSCurve(std::stoi(input.at(1)),
+                  std::stoi(input.at(2)),
+                  std::stof(input.at(3)),
+                  std::stof(input.at(4)),
+                  std::stoi(input.at(5)),
+                  std::stoi(input.at(6)));
+  } catch(caribou::caribouException& e) {
+    return ret::Error;
+  }
+  return ret::Ok;
 }
-return ret::Ok;
 
+int pearycli::doSCurves(const std::vector<std::string>& input) {
+  try {
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(5)));
+    dev->doSCurves(std::stof(input.at(1)), std::stof(input.at(2)), std::stoi(input.at(3)), std::stoi(input.at(4)));
+  } catch(caribou::caribouException& e) {
+    return ret::Error;
+  }
+  return ret::Ok;
 }
 
 int pearycli::setAllTDAC(const std::vector<std::string>& input) {
@@ -951,7 +979,6 @@ int pearycli::LoadTDAC(const std::vector<std::string>& input) {
   return ret::Ok;
 }
 
-
 int pearycli::LoadConfig(const std::vector<std::string>& input) {
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(2)));
@@ -961,7 +988,6 @@ int pearycli::LoadConfig(const std::vector<std::string>& input) {
   }
   return ret::Ok;
 }
-
 
 int pearycli::WriteConfig(const std::vector<std::string>& input) {
   try {
@@ -977,16 +1003,19 @@ int pearycli::TDACScan(const std::vector<std::string>& input) {
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(8)));
 
-
-    dev->TDACScan(input.at(1),std::stoi(input.at(2)),std::stoi(input.at(3)),std::stof(input.at(4)),std::stof(input.at(5)),std::stoi(input.at(6)),std::stoi(input.at(7)));
-
+    dev->TDACScan(input.at(1),
+                  std::stoi(input.at(2)),
+                  std::stoi(input.at(3)),
+                  std::stof(input.at(4)),
+                  std::stof(input.at(5)),
+                  std::stoi(input.at(6)),
+                  std::stoi(input.at(7)));
 
   } catch(caribou::caribouException& e) {
     return ret::Error;
   }
   return ret::Ok;
 }
-
 
 int pearycli::SetMatrix(const std::vector<std::string>& input) {
   try {
@@ -998,11 +1027,10 @@ int pearycli::SetMatrix(const std::vector<std::string>& input) {
   return ret::Ok;
 }
 
-
 int pearycli::MaskPixel(const std::vector<std::string>& input) {
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(3)));
-    dev->MaskPixel(std::stoi(input.at(1)),std::stoi(input.at(2)));
+    dev->MaskPixel(std::stoi(input.at(1)), std::stoi(input.at(2)));
   } catch(caribou::caribouException& e) {
     return ret::Error;
   }
@@ -1019,7 +1047,6 @@ int pearycli::isLocked(const std::vector<std::string>& input) {
   return ret::Ok;
 }
 
-
 int pearycli::getTriggerCount(const std::vector<std::string>& input) {
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
@@ -1029,11 +1056,6 @@ int pearycli::getTriggerCount(const std::vector<std::string>& input) {
   }
   return ret::Ok;
 }
-
-
-
-
-
 
 int pearycli::scanThreshold(const std::vector<std::string>& input) {
 
