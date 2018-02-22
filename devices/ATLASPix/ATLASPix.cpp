@@ -1933,6 +1933,9 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			 //volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
 
 			 *fifo_config = (*fifo_config & 0xFFFFFFFE) + (value & 0b1);
+			 if(value==1){
+				 this->resetCounters();
+			 }
 
 		}
 		else if (name == "trigger_mode") {
@@ -2115,6 +2118,37 @@ void ATLASPix::resetCounters()
 
 }
 
+int ATLASPix::readCounter(int i)
+{
+	void* counter_base = _hal->getMappedMemoryRW(ATLASPix_COUNTER_BASE_ADDRESS, ATLASPix_COUNTER_MAP_SIZE, ATLASPix_COUNTER_MASK);
+
+	int value = 0;
+	switch(i){
+					case 0 :
+						 {volatile uint32_t* cnt_value = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(counter_base) + 0x0);
+						 value = *cnt_value;}
+						 break;
+					case 1:
+						 {volatile uint32_t* cnt_value = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(counter_base) + 0x4);
+						 value = *cnt_value;}
+						 break;
+					case 2:
+						 {volatile uint32_t* cnt_value = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(counter_base) + 0x8);
+						 value = *cnt_value;
+						 break;}
+					case 3:
+						 {volatile uint32_t* cnt_value = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(counter_base) + 0xC);
+						 value = *cnt_value;
+						 break;}
+					default :
+					{ std::cout << "NON-EXISTING COUNTER, RETURN -1"<< std::endl;
+						 value = -1;}
+	}
+
+	return value;
+}
+
+
 int ATLASPix::readCounter(ATLASPixMatrix& matrix)
 {
 	void* counter_base = _hal->getMappedMemoryRW(ATLASPix_COUNTER_BASE_ADDRESS, ATLASPix_COUNTER_MAP_SIZE, ATLASPix_COUNTER_MASK);
@@ -2144,6 +2178,7 @@ int ATLASPix::readCounter(ATLASPixMatrix& matrix)
 
 	return value;
 }
+
 
 void ATLASPix::pulse(uint32_t npulse,uint32_t tup,uint32_t tdown,double amplitude){
 
@@ -3372,6 +3407,7 @@ void ATLASPix::daqStart() {
 	  return;
   }
   // arm the stop flag and start running
+  this->resetCounters();
   _daqContinue.test_and_set();
   _daqThread = std::thread(&ATLASPix::runDaq, this);
 }
