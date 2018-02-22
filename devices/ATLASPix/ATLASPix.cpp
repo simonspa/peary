@@ -1955,6 +1955,23 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 			 *ro = (*ro & 0xFFFCFFFF) + ((value << 16) & 0x30000);
 
 		}
+		else if (name == "edge_sel") {
+
+			 void* readout_base = _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
+
+			 //volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
+			 //volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x4);
+			 volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
+			 //volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
+			 volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
+
+			 //*fifo_config = (*fifo_config & 0xFFFFFFF7) + (0b1000);
+			 //usleep(1);
+			 *fifo_config = (*fifo_config & 0xFFFFFFFB) + ((value << 2) & 0b0100);
+
+			 //*ro = (*ro & 0xFFFCFFFF) + ((value << 16) & 0x30000);
+
+		}
 		else if (name == "armduration") {
 
 			 void* readout_base = _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
