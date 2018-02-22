@@ -1,9 +1,9 @@
 #ifndef DEVICE_ATLASPix_DEFAULTS_H
 #define DEVICE_ATLASPix_DEFAULTS_H
 
+#include "ATLASPix_clk_freerunning.h"
 #include "carboard.hpp"
 #include "dictionary.hpp"
-#include "ATLASPix_clk_freerunning.h" 
 
 namespace caribou {
 
@@ -27,15 +27,15 @@ namespace caribou {
 
 #define ATLASPix_GndDACPix_M2 0
 #define ATLASPix_VMinusPix_M2 0.8
-#define ATLASPix_GatePix_M2   2.0
+#define ATLASPix_GatePix_M2 2.0
 
 #define ATLASPix_GndDACPix_M1 0
 #define ATLASPix_VMinusPix_M1 0.8
-#define ATLASPix_GatePix_M1   2.0
+#define ATLASPix_GatePix_M1 2.0
 
 #define ATLASPix_GndDACPix_M1ISO 0
 #define ATLASPix_VMinusPix_M1ISO 0.8
-#define ATLASPix_GatePix_M1ISO   2.0
+#define ATLASPix_GatePix_M1ISO 2.0
 
 #define ATLASPix_BLPix_M1 0.8
 #define ATLASPix_BLPix_M1ISO 0.8
@@ -57,32 +57,28 @@ namespace caribou {
   // ATLASPix  SR FSM control
   const std::intptr_t ATLASPix_CONTROL_BASE_ADDRESS = 0x43C20000;
   const std::size_t ATLASPix_CONTROL_MAP_SIZE = 4096;
-  const std::uint32_t ATLASPix_RAM_address_MASK = ATLASPix_CONTROL_MAP_SIZE-1;
+  const std::uint32_t ATLASPix_RAM_address_MASK = ATLASPix_CONTROL_MAP_SIZE - 1;
 
   // ATLASPix Pulser Control
   const std::intptr_t ATLASPix_PULSER_BASE_ADDRESS = 0x43C10000;
   const std::size_t ATLASPix_PULSER_MAP_SIZE = 4096;
-  const std::uint32_t ATLASPix_PULSER_MASK = ATLASPix_PULSER_MAP_SIZE-1;
+  const std::uint32_t ATLASPix_PULSER_MASK = ATLASPix_PULSER_MAP_SIZE - 1;
 
   // ATLASPix Counter Control
   const std::intptr_t ATLASPix_COUNTER_BASE_ADDRESS = 0x43C00000;
   const std::size_t ATLASPix_COUNTER_MAP_SIZE = 4096;
-  const std::uint32_t ATLASPix_COUNTER_MASK = ATLASPix_COUNTER_MAP_SIZE-1;
-
+  const std::uint32_t ATLASPix_COUNTER_MASK = ATLASPix_COUNTER_MAP_SIZE - 1;
 
   // ATLASPix readout
   const std::intptr_t ATLASPix_READOUT_BASE_ADDRESS = 0x43C70000;
-  const std::size_t ATLASPix_READOUT_MAP_SIZE = 16*4096;
-  const std::uint32_t ATLASPix_READOUT_MASK = ATLASPix_READOUT_MAP_SIZE-1;
+  const std::size_t ATLASPix_READOUT_MAP_SIZE = 16 * 4096;
+  const std::uint32_t ATLASPix_READOUT_MASK = ATLASPix_READOUT_MAP_SIZE - 1;
 
-
-
-  //  const std::size_t ATLASPix_RAM_write_enable_MASK = 0xFFFFFFFF;
+//  const std::size_t ATLASPix_RAM_write_enable_MASK = 0xFFFFFFFF;
 //  const std::size_t ATLASPix_RAM_content_MASK = 0xFFFFFFFF;
 //  const std::size_t ATLASPix_Config_flag_MASK = 0xFFFFFFFF;
 //  const std::size_t ATLASPix_RAM_reg_limit_MASK = 0xFFFFFFFF;
 //  const std::size_t ATLASPix_RAM_shift_limit_MASK = 0xFFFFFFFF;
-
 
 /** Dictionary for register address/name lookup for ATLASPix
  */
@@ -151,6 +147,8 @@ namespace caribou {
     {"trigger_mode", register_t<>(0x26, 0xFF, false, true, true)},		\
     {"ro_enable", register_t<>(0x26, 0xFF, false, true, true)},		\
     {"armduration", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"trigger_injection", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"edge_sel", register_t<>(0x26, 0xFF, false, true, true)},		\
   }
   // clang-format on
 

@@ -16,8 +16,8 @@
 #include "i2c.hpp"
 #include "pearydevice.hpp"
 
-#include "ATLASPix_defaults.hpp"
 #include "ATLASPixMatrix.hpp"
+#include "ATLASPix_defaults.hpp"
 
 namespace caribou {
 
@@ -33,7 +33,7 @@ namespace caribou {
 
     std::string getName();
 
-    void printBits(size_t const size, void const * const ptr);
+    void printBits(size_t const size, void const* const ptr);
 
     /** Initializer function for ATLASPix
      */
@@ -42,6 +42,8 @@ namespace caribou {
     void lock();
     void unlock();
     void setThreshold(double threshold);
+    void setVMinus(double vminus);
+
     /** Turn on the power supply for the ATLASPix chip
      */
     void powerUp();
@@ -70,41 +72,45 @@ namespace caribou {
     void isLocked();
 
     void configureClock();
+    void getTriggerCount();
 
+    uint32_t getTriggerCounter();
     pearydata getData();
 
     std::vector<int> getCountingData();
-    void dataTuning(ATLASPixMatrix& matrix, double vmax,int nstep, int npulses);
+    void dataTuning(ATLASPixMatrix& matrix, double vmax, int nstep, int npulses);
 
     void LoadTDAC(std::string filename);
     void setAllTDAC(uint32_t value);
-    void TDACScan(std::string basefolder,int VNDAC,int step,double vmin,double vmax,uint32_t npulses,uint32_t npoints);
-    void MaskPixel(uint32_t col,uint32_t row);
-    void WriteConfig(std::string filename);
+    void TDACScan(std::string basefolder, int VNDAC, int step, double vmin, double vmax, uint32_t npulses, uint32_t npoints);
+    void MaskPixel(uint32_t col, uint32_t row);
+    void WriteConfig(std::string name);
     void LoadConfig(std::string filename);
 
-    void doSCurve(uint32_t col,uint32_t row,double vmin,double vmax,uint32_t npulses,uint32_t npoints);
-    void doSCurves(double vmin,double vmax,uint32_t npulses,uint32_t npoints);
-    void doNoiseCurve(uint32_t col,uint32_t row);
-    void pulse(uint32_t npulse,uint32_t tup,uint32_t tdown,double amplitude);
+    void doSCurve(uint32_t col, uint32_t row, double vmin, double vmax, uint32_t npulses, uint32_t npoints);
+    void doSCurves(double vmin, double vmax, uint32_t npulses, uint32_t npoints);
+    void doNoiseCurve(uint32_t col, uint32_t row);
+    void pulse(uint32_t npulse, uint32_t tup, uint32_t tdown, double amplitude);
 
-    void SetPixelInjection(uint32_t col, uint32_t row,bool ana_state,bool hb_state);
+    void SetPixelInjection(uint32_t col, uint32_t row, bool ana_state, bool hb_state);
 
   private:
     void ProgramSR(const ATLASPixMatrix& matrix);
     void setSpecialRegister(std::string name, uint32_t value);
-    void writeOneTDAC(ATLASPixMatrix& matrix, uint32_t col,uint32_t row, uint32_t value);
+    void writeOneTDAC(ATLASPixMatrix& matrix, uint32_t col, uint32_t row, uint32_t value);
     void writeUniformTDAC(ATLASPixMatrix& matrix, uint32_t value);
     void writeAllTDAC(ATLASPixMatrix& matrix);
-    void SetInjectionMask(uint32_t mask,uint32_t state);
-    void doSCurves(std::string basefolder,double vmin,double vmax,uint32_t npulses,uint32_t npoints);
+    void SetInjectionMask(uint32_t mask, uint32_t state);
+    void doSCurves(std::string basefolder, double vmin, double vmax, uint32_t npulses, uint32_t npoints);
     void resetCounters();
+    int readCounter(int i);
     int readCounter(ATLASPixMatrix& matrix);
+
     void resetPulser();
-    void setPulse(ATLASPixMatrix& matrix,uint32_t npulse,uint32_t n_up,uint32_t n_down,double voltage);
+    void setPulse(ATLASPixMatrix& matrix, uint32_t npulse, uint32_t n_up, uint32_t n_down, double voltage);
     void sendPulse();
-    void ComputeSCurves(ATLASPixMatrix& matrix,double vmax,int nstep, int npulses,int tup,int tdown);
-    void tune(ATLASPixMatrix& matrix, double vmax,int nstep, int npulses, bool tuning_verification);
+    void ComputeSCurves(ATLASPixMatrix& matrix, double vmax, int nstep, int npulses, int tup, int tdown);
+    void tune(ATLASPixMatrix& matrix, double vmax, int nstep, int npulses, bool tuning_verification);
     void LoadConfiguration(int matrix);
     void TakeData();
     void runDaq();

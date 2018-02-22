@@ -300,6 +300,16 @@ namespace caribou {
     throw caribou::DeviceImplException("setThreshold not implemented for this device");
   }
 
+  template <typename T> void pearyDevice<T>::setVMinus(double vminus) {
+    LOG(logCRITICAL) << "setThreshold not implemented for this device";
+    throw caribou::DeviceImplException("setVMinus not implemented for this device");
+  }
+
+  template <typename T> void pearyDevice<T>::getTriggerCount() {
+    LOG(logCRITICAL) << "getTriggerCount not implemented for this device";
+    throw caribou::DeviceImplException("getTriggerCount not implemented for this device");
+  }
+
   template <typename T> void pearyDevice<T>::pulse(uint32_t npulse, uint32_t tup, uint32_t tdown, double amplitude) {
     LOG(logCRITICAL) << "pulse not implemented for this device";
     throw caribou::DeviceImplException("pulse not implemented for this device");
