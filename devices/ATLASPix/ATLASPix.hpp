@@ -78,7 +78,8 @@ namespace caribou {
     pearydata getData();
 
     std::vector<int> getCountingData();
-    void dataTuning(ATLASPixMatrix& matrix, double vmax, int nstep, int npulses);
+    void dataTuning( double vmax, int nstep, int npulses);
+    void ReapplyMask();
 
     void LoadTDAC(std::string filename);
     void setAllTDAC(uint32_t value);

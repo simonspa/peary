@@ -2290,73 +2290,20 @@ void ATLASPix::SetPixelInjection(uint32_t col, uint32_t row, bool ana_state, boo
 void ATLASPix::SetInjectionMask(uint32_t mask, uint32_t state) {
 
   for(int col = 0; col < theMatrix.ncol; col++) {
-    int row = 0;
-    if((col + mask) % 5) {
+    if(((col + mask) % 5)==0) {
 
-      if((theMatrix.flavor == ATLASPix1Flavor::M1) || (theMatrix.flavor == ATLASPix1Flavor::M1Iso)) {
-        std::string s = to_string(col);
+    	LOG(logINFO) << "injecting in col " << col << std::endl;
 
-        if(row < 200) {
-          theMatrix.MatrixDACConfig->SetParameter("RamDown" + s, theMatrix.TDAC[col][row]); // 0b1011
-          theMatrix.MatrixDACConfig->SetParameter("RamUp" + s, theMatrix.TDAC[col][row]);   // 0b1011
-          theMatrix.MatrixDACConfig->SetParameter("colinjDown" + s, state);
-          theMatrix.MatrixDACConfig->SetParameter("hitbusDown" + s, 0);
-          theMatrix.MatrixDACConfig->SetParameter("unusedDown" + s, 3);
-          theMatrix.MatrixDACConfig->SetParameter("colinjUp" + s, 0);
-          theMatrix.MatrixDACConfig->SetParameter("hitbusUp" + s, 0);
-          theMatrix.MatrixDACConfig->SetParameter("unusedUp" + s, 3);
-
-        } else {
-          // std::cout << "up pixels" << std::endl;
-          theMatrix.MatrixDACConfig->SetParameter("RamUp" + s, theMatrix.TDAC[col][row]);   // 0b1011
-          theMatrix.MatrixDACConfig->SetParameter("RamDown" + s, theMatrix.TDAC[col][row]); // 0b1011
-          theMatrix.MatrixDACConfig->SetParameter("colinjDown" + s, 0);
-          theMatrix.MatrixDACConfig->SetParameter("hitbusDown" + s, 0);
-          theMatrix.MatrixDACConfig->SetParameter("unusedDown" + s, 3);
-          theMatrix.MatrixDACConfig->SetParameter("colinjUp" + s, state);
-          theMatrix.MatrixDACConfig->SetParameter("hitbusUp" + s, 0);
-          theMatrix.MatrixDACConfig->SetParameter("unusedUp" + s, 3);
-        }
-
-      } else {
-
-        int double_col = int(std::floor(double(col) / 2));
-        std::string col_s = to_string(double_col);
-        if(col % 2 == 0) {
-          theMatrix.MatrixDACConfig->SetParameter("RamL" + col_s, theMatrix.TDAC[col][row] & 0b111);
-          theMatrix.MatrixDACConfig->SetParameter("colinjL" + col_s, state);
-        } else {
-          theMatrix.MatrixDACConfig->SetParameter("RamR" + col_s, theMatrix.TDAC[col][row] & 0b111);
-          theMatrix.MatrixDACConfig->SetParameter("colinjR" + col_s, state);
-        }
-      }
-    }
-  };
+    	this->SetPixelInjection(col,0,state,state);}
+  }
 
   for(int row = 0; row < theMatrix.nrow; row++) {
-    int col = 0;
-    if((row + mask) % 25) {
+    if(((row + mask) % 25)==0) {
+    	this->SetPixelInjection(0,row,state,state);
+    	LOG(logINFO) << "injecting in row " << row << std::endl;
 
-      std::string row_s = to_string(row);
-      theMatrix.MatrixDACConfig->SetParameter("writedac" + row_s, 1);
-      theMatrix.MatrixDACConfig->SetParameter("unused" + row_s, 0);
-      theMatrix.MatrixDACConfig->SetParameter("rowinjection" + row_s, state);
-      theMatrix.MatrixDACConfig->SetParameter("analogbuffer" + row_s, 0);
     }
   };
-
-  this->ProgramSR(theMatrix);
-
-  for(int row = 0; row < theMatrix.nrow; row++) {
-    int col = 0;
-    if((row + mask) % 5) {
-
-      std::string row_s = to_string(row);
-      theMatrix.MatrixDACConfig->SetParameter("writedac" + row_s, 0);
-    };
-  };
-
-  this->ProgramSR(theMatrix);
 }
 
 // Tuning
@@ -2599,6 +2546,8 @@ pearydata ATLASPix::getData() {
   }
   disk.close();
 
+
+
   // write additional information
   std::ofstream stats(_output_directory + "/stats.txt", std::ios::out);
   stats << "trigger_counter " << this->getTriggerCounter() << std::endl;
@@ -2836,51 +2785,62 @@ void ATLASPix::TakeData() {
   disk.close();
 }
 
-void ATLASPix::dataTuning(ATLASPixMatrix& matrix, double vmax, int nstep, int npulses) {
+
+void ATLASPix::ReapplyMask(){
+
+	    for(int col = 0; col < theMatrix.ncol; col++) {
+	    	  for(int row = 0; row < theMatrix.nrow; row++) {
+	    	  if(theMatrix.MASK[col][row]==1){
+	    		  LOG(logINFO) << "masking " << col << " " << row << std::endl;
+	    		  this->MaskPixel(col,row);}
+	    };
+	    };
+
+}
+
+
+void ATLASPix::dataTuning( double vmax, int nstep, int npulses) {
+  double vstep=vmax /double(nstep-1);
+
   LOG(logINFO) << "Tuning using data" << DEVICE_NAME;
+  LOG(logINFO) << "VMAX= " << vmax << "vstep=" << vstep << std::endl;
 
-  int spacing_row = 25;
-  int spacing_col = 5;
-
-  std::vector<std::vector<int>> pixels(nstep, std::vector<int>(25 * 400));
-  int voltage_step = 0;
 
   for(int TDAC_value = 0; TDAC_value < 8; TDAC_value++) {
-    matrix.setUniformTDAC(TDAC_value);
-    writeAllTDAC(matrix);
-    for(unsigned int selrow = 0; selrow < spacing_row; ++selrow) {
-      for(unsigned int selcol = 0; selcol < spacing_col; ++selcol) {
-        for(unsigned int col = 0; col < matrix.ncol; ++col) {
-          for(unsigned int row = 0; row < matrix.nrow; ++row) {
-            if((row % spacing_row == selrow) && (col % spacing_col == selcol)) {
-              this->SetPixelInjection(col, row, 1, 1);
-            } else {
-              this->SetPixelInjection(col, row, 0, 0);
-            }
-          }
-        }
 
-        for(double v = 0; v <= vmax; v += (vmax / nstep)) {
-          setPulse(matrix, npulses, 100, 100, v);
+
+	this->writeUniformTDAC(theMatrix,TDAC_value);
+    LOG(logINFO) << "TDAC " << TDAC_value << std::endl;
+    this->ReapplyMask();
+
+    for(unsigned int maskid = 0; maskid < 125; ++maskid) {
+        LOG(logINFO) << "setting mask id  " << maskid << std::endl;
+    	this->SetInjectionMask(maskid,1);
+
+
+
+    	for(double v = (vmax /(nstep-1)); v <= vmax; v += (vmax /(nstep-1))) {
+          LOG(logINFO) << "pulsing with " << v << "V" << std::endl;
+          this->setPulse(theMatrix, npulses, 10000, 100000, v);
+          std::stringstream ss;
+          ss << "PEARYDATA/gradeA06/TDAC" << TDAC_value << "_maskid_" << maskid << "_vpulse_" << v ;
+          this->setOutputDirectory(ss.str());
+          this->reset();
+          this->daqStart();
           sendPulse();
-          // pixels[voltage_step] = this->getCountingData();
-          pixels[voltage_step] = this->getCountingData();
-          voltage_step++;
+          //sleep(1);
+          this->daqStop();
         }
+
+
+
+
+    	this->SetInjectionMask(maskid,0);
       }
     }
 
-    int col, row;
-    for(unsigned int index = 0; index < matrix.ncol * matrix.nrow; ++index) {
-      col = index % 25;
-      row = (index - col) / 25;
-      std::cout << "Index:    " << index << " X:      " << col << "   Y:      " << row << "   ";
-      for(int volt = 0; volt < nstep; volt++) {
-        std::cout << pixels[volt][index] << "   ";
-      }
-      std::cout << std::endl << std::endl;
-    }
-  }
+
+
 }
 
 void ATLASPix::doSCurves(double vmin, double vmax, uint32_t npulses, uint32_t npoints) {
