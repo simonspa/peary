@@ -75,7 +75,7 @@ namespace caribou {
     /** Get data methods. Can return raw or decoded data **/
     virtual std::vector<uint32_t> getRawData() = 0;
     virtual pearydata getData() = 0;
-    virtual void dataTuning() = 0;
+    virtual void dataTuning( double vmax, int nstep, int npulses) = 0;
 
     /** Report power status
      *  Method should use logINFO as an output

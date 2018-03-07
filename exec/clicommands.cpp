@@ -142,7 +142,7 @@ pearycli::pearycli() : c("# ") {
   c.registerCommand("daqStop", daqStop, "Stop DAQ for the selected device", 1, "DEVICE_ID");
   c.registerCommand("getRawData", getRawData, "Retrieve raw data from the selected device", 1, "DEVICE_ID");
   c.registerCommand("getData", getData, "Retrieve decoded data from the selected device.", 1, "DEVICE_ID");
-  c.registerCommand("dataTuning", dataTuning, "Tune using data from the selected device.", 1, "DEVICE_ID");
+  c.registerCommand("dataTuning", dataTuning, "Tune using data from the selected device.", 4, "DEVICE_ID");
 
   c.registerCommand(
     "acquire",
@@ -771,8 +771,8 @@ int pearycli::getData(const std::vector<std::string>& input) {
 
 int pearycli::dataTuning(const std::vector<std::string>& input) {
   try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
-    dev->dataTuning();
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(4)));
+    dev->dataTuning(std::stof(input.at(1)),std::stoi(input.at(2)),std::stoi(input.at(3)));
   } catch(caribou::DataException& e) {
     LOG(logERROR) << e.what();
   } catch(caribou::caribouException& e) {

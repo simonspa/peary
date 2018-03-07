@@ -260,7 +260,7 @@ namespace caribou {
     throw caribou::DeviceImplException("Decoded data readback not implemented for this device");
   }
 
-  template <typename T> void pearyDevice<T>::dataTuning() {
+  template <typename T> void pearyDevice<T>::dataTuning( double vmax, int nstep, int npulses) {
     LOG(logCRITICAL) << "data Tuninig not implemented for this device";
     throw caribou::DeviceImplException("Decoded data readback not implemented for this device");
   }
