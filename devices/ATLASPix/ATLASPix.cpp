@@ -2451,7 +2451,7 @@ pearydata ATLASPix::getData() {
   while(true) {
 
     // check for stop request from another thread
-    if(!_daqContinue.test_and_set())
+    if(!this->_daqContinue.test_and_set())
       break;
     // check for new first half-word or restart loop
     if((*fifo_status & 0x4) == 0)
@@ -2461,13 +2461,16 @@ pearydata ATLASPix::getData() {
     // with an exit signal we need to also break out of the outer loop
     bool stopDaq = false;
     while((*fifo_status & 0x1) == 0) {
-      if(!_daqContinue.test_and_set()) {
+      if(!this->_daqContinue.test_and_set()) {
         stopDaq = true;
         break;
       }
     }
     if(stopDaq)
       break;
+
+    //LOG(logINFO) << "thread bool : " << this->_daqContinue.test_and_set() << std::endl;
+
     // combine two 32bit half-words into one 64bit fifo word
     uint64_t dataw = (static_cast<uint64_t>(*data) << 32) | d1;
 
@@ -2527,15 +2530,15 @@ pearydata ATLASPix::getData() {
       disk << pix.col << "	" << pix.row << "	" << pix.ts1 << "	" << pix.ts2 << "	" << pix.fpga_ts << "	" << pix.SyncedTS
            << " " << pix.triggercnt << " " << pix.ATPbinaryCnt << " " << pix.ATPGreyCnt << std::endl;
 
-      std::cout << "Hit : " << std::hex << hit << std::dec << std::endl;
+      //std::cout << "Hit : " << std::hex << hit << std::dec << std::endl;
       // double delay=double(fpga_ts-fpga_ts_prev)*(10.0e-9);
       // std::cout << red << bold << rev << "ts : " <<fpga_ts   << reset << std::endl;
       // std::cout <<  rev << bold << red << "FPGA TS: "<<fpga_ts << " tr CNT : " << TrCNT << " delay : " << delay <<  reset
       // << std::endl;
 
-      LOG(logINFO) << "X: " << pix.col << " Y: " << pix.row << " TS1: " << pix.ts1 << " TS2: " << pix.ts2
-                   << " FPGATS: " << pix.fpga_ts << " SyncedTS: " << pix.SyncedTS << " TriggerCNT: " << pix.triggercnt
-                   << " ATPBinCNT: " << pix.ATPbinaryCnt << " ATPGreyCNT: " << pix.ATPGreyCnt;
+//      LOG(logINFO) << "X: " << pix.col << " Y: " << pix.row << " TS1: " << pix.ts1 << " TS2: " << pix.ts2
+//                   << " FPGATS: " << pix.fpga_ts << " SyncedTS: " << pix.SyncedTS << " TriggerCNT: " << pix.triggercnt
+//                   << " ATPBinCNT: " << pix.ATPbinaryCnt << " ATPGreyCNT: " << pix.ATPGreyCnt;
       fpga_ts_prev = fpga_ts;
       hit = 0;
     } else {
@@ -3113,13 +3116,14 @@ void ATLASPix::daqStart() {
   this->resetCounters();
   _daqContinue.test_and_set();
   _daqThread = std::thread(&ATLASPix::runDaq, this);
+  //LOG(logINFO) << "acquisition started" << std::endl;
 }
 
 void ATLASPix::daqStop() {
   // signal to daq thread that we want to stop and wait until it does
   _daqContinue.clear();
   _daqThread.join();
-  LOG(logINFO) << "Trigger count at end of run : " << this->getTriggerCounter() << std::endl;
+  //LOG(logINFO) << "Trigger count at end of run : " << this->getTriggerCounter() << std::endl;
 }
 
 void ATLASPix::runDaq() {
