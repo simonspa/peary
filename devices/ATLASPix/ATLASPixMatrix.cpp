@@ -213,8 +213,8 @@ void ATLASPixMatrix::setUniformTDAC(uint32_t value) {
 
   for(int col = 0; col < ncol; col++) {
     for(int row = 0; row < nrow; row++) {
-      MASK[col][row] = 0;
-      TDAC[col][row] = (value << 1);
+      //MASK[col][row] = 0;
+      TDAC[col][row] = (value << 1) | MASK[col][row];
     }
   }
 }
