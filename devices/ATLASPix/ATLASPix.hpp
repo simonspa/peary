@@ -21,6 +21,22 @@
 
 namespace caribou {
 
+
+
+struct pixelhit {
+
+  uint32_t col = 0;
+  uint32_t row = 0;
+  uint32_t ts1 = 0;
+  uint32_t ts2 = 0;
+  uint64_t fpga_ts = 0;
+  uint32_t tot=0;
+  uint32_t SyncedTS = 0;
+  uint32_t triggercnt;
+  uint32_t ATPbinaryCnt;
+  uint32_t ATPGreyCnt;
+};
+
   /** ATLASPix Device class definition
    */
   class ATLASPix : public pearyDevice<iface_i2c> {
@@ -76,9 +92,11 @@ namespace caribou {
 
     uint32_t getTriggerCounter();
     pearydata getData();
-
+    pearydata getDataTO(int maskx,int masky);
+    std::vector<pixelhit> getDataTOvector();
     std::vector<int> getCountingData();
     void dataTuning( double vmax, int nstep, int npulses);
+    void VerifyTuning( double vmax, int nstep, int npulses,std::string TDACFile);
     void ReapplyMask();
 
     void LoadTDAC(std::string filename);
@@ -93,7 +111,8 @@ namespace caribou {
     void doNoiseCurve(uint32_t col, uint32_t row);
     void pulse(uint32_t npulse, uint32_t tup, uint32_t tdown, double amplitude);
 
-    void SetPixelInjection(uint32_t col, uint32_t row, bool ana_state, bool hb_state);
+    void SetPixelInjection(uint32_t col, uint32_t row, bool ana_state, bool hb_state,bool inj_state);
+    void SetPixelInjectionState(uint32_t col, uint32_t row, bool ana_state, bool hb_state,bool inj);
 
   private:
     void ProgramSR(const ATLASPixMatrix& matrix);
@@ -101,7 +120,8 @@ namespace caribou {
     void writeOneTDAC(ATLASPixMatrix& matrix, uint32_t col, uint32_t row, uint32_t value);
     void writeUniformTDAC(ATLASPixMatrix& matrix, uint32_t value);
     void writeAllTDAC(ATLASPixMatrix& matrix);
-    void SetInjectionMask(uint32_t mask, uint32_t state);
+    void SetInjectionMask(uint32_t maskx,uint32_t masky, uint32_t state);
+    void ResetWriteDAC();
     void doSCurves(std::string basefolder, double vmin, double vmax, uint32_t npulses, uint32_t npoints);
     void resetCounters();
     int readCounter(int i);

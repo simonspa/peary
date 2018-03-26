@@ -76,6 +76,7 @@ namespace caribou {
     virtual std::vector<uint32_t> getRawData() = 0;
     virtual pearydata getData() = 0;
     virtual void dataTuning( double vmax, int nstep, int npulses) = 0;
+    virtual void VerifyTuning( double vmax, int nstep, int npulses,std::string TDACFile) = 0;
 
     /** Report power status
      *  Method should use logINFO as an output
@@ -98,7 +99,7 @@ namespace caribou {
     virtual void setVMinus(double vminus) = 0;
     virtual void getTriggerCount() = 0;
     virtual void pulse(uint32_t npulse, uint32_t tup, uint32_t tdown, double amplitude) = 0;
-    virtual void SetPixelInjection(uint32_t col, uint32_t row, bool ana_state, bool hb_state) = 0;
+    virtual void SetPixelInjection(uint32_t col, uint32_t row, bool ana_state, bool hb_state,bool inj_state) = 0;
     virtual void doSCurve(uint32_t col, uint32_t row, double vmin, double vmax, uint32_t npulses, uint32_t npoints) = 0;
     virtual void doSCurves(double vmin, double vmax, uint32_t npulses, uint32_t npoints) = 0;
     virtual void doNoiseCurve(uint32_t col, uint32_t row) = 0;

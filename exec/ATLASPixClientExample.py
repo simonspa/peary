@@ -16,7 +16,7 @@ def nullstrip(s):
         pass
     return s
 
-TCP_IP = '192.168.0.12'
+TCP_IP = '192.168.1.10'
 TCP_PORT = 2705
 BUFFER_SIZE = 1024
 

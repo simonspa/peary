@@ -115,7 +115,7 @@ namespace caribou {
     virtual void getTriggerCount();
 
     virtual void pulse(uint32_t npulse, uint32_t tup, uint32_t tdown, double amplitude);
-    virtual void SetPixelInjection(uint32_t col, uint32_t row, bool ana_state, bool hb_state);
+    virtual void SetPixelInjection(uint32_t col, uint32_t row, bool ana_state, bool hb_state,bool inj_state);
     virtual void doSCurve(uint32_t col, uint32_t row, double vmin, double vmax, uint32_t npulses, uint32_t npoints);
     virtual void doSCurves(double vmin, double vmax, uint32_t npulses, uint32_t npoints);
     virtual void doNoiseCurve(uint32_t col, uint32_t row);
@@ -201,6 +201,7 @@ namespace caribou {
     std::vector<uint32_t> getRawData();
     pearydata getData();
     void dataTuning( double vmax, int nstep, int npulses);
+    void VerifyTuning( double vmax, int nstep, int npulses,std::string TDACFile);
 
     // Two types:
     //  * trigger based: "events" are returned

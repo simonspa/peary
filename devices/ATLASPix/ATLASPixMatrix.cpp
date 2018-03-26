@@ -146,7 +146,8 @@ void ATLASPixMatrix::initializeM1() {
   GNDDACPix = ATLASPix_GndDACPix_M1;
   VMINUSPix = ATLASPix_VMinusPix_M1;
   GatePix = ATLASPix_GatePix_M1;
-
+  maskx=ATLASPix_mask_X;
+  masky=ATLASPix_mask_Y;
   _initializeGlobalParameters();
   _initializeM1LikeColumnParameters();
   _initializeRowParameters();
@@ -168,7 +169,8 @@ void ATLASPixMatrix::initializeM1Iso() {
   GNDDACPix = ATLASPix_GndDACPix_M1ISO;
   VMINUSPix = ATLASPix_VMinusPix_M1ISO;
   GatePix = ATLASPix_GatePix_M1ISO;
-
+  maskx=ATLASPix_mask_X;
+  masky=ATLASPix_mask_Y;
   _initializeGlobalParameters();
   _initializeM1LikeColumnParameters();
   _initializeRowParameters();
@@ -190,6 +192,8 @@ void ATLASPixMatrix::initializeM2() {
   GNDDACPix = ATLASPix_GndDACPix_M2;
   VMINUSPix = ATLASPix_VMinusPix_M2;
   GatePix = ATLASPix_GatePix_M2;
+  maskx=ATLASPix_mask_X;
+  masky=ATLASPix_mask_Y;
 
   _initializeGlobalParameters();
   _initializeM2ColumnParameters();

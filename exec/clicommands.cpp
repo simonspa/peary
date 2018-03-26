@@ -142,7 +142,8 @@ pearycli::pearycli() : c("# ") {
   c.registerCommand("daqStop", daqStop, "Stop DAQ for the selected device", 1, "DEVICE_ID");
   c.registerCommand("getRawData", getRawData, "Retrieve raw data from the selected device", 1, "DEVICE_ID");
   c.registerCommand("getData", getData, "Retrieve decoded data from the selected device.", 1, "DEVICE_ID");
-  c.registerCommand("dataTuning", dataTuning, "Tune using data from the selected device.", 4, "DEVICE_ID");
+  c.registerCommand("dataTuning", dataTuning, "Tune using data from the selected device. Usage : dataTuning vmax nsteps npulses deviceid", 4, "DEVICE_ID");
+  c.registerCommand("VerifyTuning", VerifyTuning, "Tune using data from the selected device. Usage : dataTuning vmax nsteps npulses TDACFilePath deviceid", 5, "DEVICE_ID");
 
   c.registerCommand(
     "acquire",
@@ -166,8 +167,8 @@ pearycli::pearycli() : c("# ") {
   c.registerCommand("pulse", pulse, "pulse, usage pulse npulse nup ndown amplitude device ID", 5, "DEVICE_ID");
   c.registerCommand("setPixelInjection",
                     SetPixelInjection,
-                    "Set pixel injection and output, usage : setPixelInjection col row analog_output state hitbus state",
-                    5,
+                    "Set pixel injection and output, usage : setPixelInjection col row analog_output state hitbus state injection state device id",
+                    6,
                     "DEVICE_ID");
   c.registerCommand("doSCurve",
                     doSCurve,
@@ -782,6 +783,20 @@ int pearycli::dataTuning(const std::vector<std::string>& input) {
   return ret::Ok;
 }
 
+int pearycli::VerifyTuning(const std::vector<std::string>& input) {
+  try {
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(5)));
+    dev->VerifyTuning(std::stof(input.at(1)),std::stoi(input.at(2)),std::stoi(input.at(3)),input.at(4));
+  } catch(caribou::DataException& e) {
+    LOG(logERROR) << e.what();
+  } catch(caribou::caribouException& e) {
+    LOG(logERROR) << e.what();
+    return ret::Error;
+    return ret::Ok;
+}
+}
+
+
 int pearycli::acquire(const std::vector<std::string>& input) {
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(4)));
@@ -915,8 +930,8 @@ int pearycli::setVMinus(const std::vector<std::string>& input) {
 
 int pearycli::SetPixelInjection(const std::vector<std::string>& input) {
   try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(5)));
-    dev->SetPixelInjection(std::stoi(input.at(1)), std::stoi(input.at(2)), std::stoi(input.at(3)), std::stoi(input.at(4)));
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(6)));
+    dev->SetPixelInjection(std::stoi(input.at(1)), std::stoi(input.at(2)), std::stoi(input.at(3)), std::stoi(input.at(4)),std::stoi(input.at(5)));
   } catch(caribou::caribouException& e) {
     return ret::Error;
   }

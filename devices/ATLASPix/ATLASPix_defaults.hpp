@@ -18,11 +18,11 @@ namespace caribou {
 /** Definition of default values for the different DAC settings for ATLASPix
  */
 
-#define ATLASPix_VDDD 1.82
+#define ATLASPix_VDDD 1.9
 #define ATLASPix_VDDD_CURRENT 2
-#define ATLASPix_VDDA 1.82
+#define ATLASPix_VDDA 1.9
 #define ATLASPix_VDDA_CURRENT 2
-#define ATLASPix_VSSA 1.0
+#define ATLASPix_VSSA 1.1
 #define ATLASPix_VSSA_CURRENT 2
 
 #define ATLASPix_GndDACPix_M2 0
@@ -31,7 +31,7 @@ namespace caribou {
 
 #define ATLASPix_GndDACPix_M1 0
 #define ATLASPix_VMinusPix_M1 0.8
-#define ATLASPix_GatePix_M1 2.0
+#define ATLASPix_GatePix_M1 2.2
 
 #define ATLASPix_GndDACPix_M1ISO 0
 #define ATLASPix_VMinusPix_M1ISO 0.8
@@ -53,6 +53,13 @@ namespace caribou {
 
 #define ncol_m2 56
 #define nrow_m2 320
+
+#define ATLASPix_mask_X 25
+#define ATLASPix_mask_Y 50
+
+#define TuningMaxCount 6000
+#define Tuning_timeout 100
+
 
   // ATLASPix  SR FSM control
   const std::intptr_t ATLASPix_CONTROL_BASE_ADDRESS = 0x43C20000;
