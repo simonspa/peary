@@ -3638,6 +3638,42 @@ void ATLASPix::doNoiseCurve(uint32_t col, uint32_t row) {
 void ATLASPix::reset() {
   // LOG(logINFO) << "Resetting " << DEVICE_NAME;
 
+  double thor=theMatrix.ThPix ;
+
+  this->setThreshold(1.8);
+
+
+  //RO register reset
+  theMatrix.CurrentDACConfig->SetParameter("RO_res_n",0);
+  theMatrix.CurrentDACConfig->SetParameter("Ser_res_n",0);
+  theMatrix.CurrentDACConfig->SetParameter("Aur_res_n",0);
+  theMatrix.CurrentDACConfig->SetParameter("Reset",1);
+
+  //Analog reg reset
+  int VNPixor = theMatrix.CurrentDACConfig->GetParameter("VNPix");
+  int VNCompPixor = theMatrix.CurrentDACConfig->GetParameter("VNcompPix");
+  theMatrix.CurrentDACConfig->SetParameter("VNPix",0);
+  theMatrix.CurrentDACConfig->SetParameter("VNcompPix",0);
+
+  this->ProgramSR(theMatrix);
+
+  usleep(1000);
+
+  //RO register reset
+  theMatrix.CurrentDACConfig->SetParameter("RO_res_n",1);
+  theMatrix.CurrentDACConfig->SetParameter("Ser_res_n",1);
+  theMatrix.CurrentDACConfig->SetParameter("Aur_res_n",1);
+  theMatrix.CurrentDACConfig->SetParameter("Reset",0);
+
+  //Analog reg reset
+  theMatrix.CurrentDACConfig->SetParameter("VNPix",VNPixor);
+  theMatrix.CurrentDACConfig->SetParameter("VNcompPix",VNCompPixor);
+
+  this->ProgramSR(theMatrix);
+
+  this->setThreshold(thor);
+
+
   void* readout_base =
     _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
   volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
