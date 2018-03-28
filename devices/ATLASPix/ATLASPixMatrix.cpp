@@ -39,29 +39,29 @@ void ATLASPixMatrix::_initializeGlobalParameters() {
   CurrentDACConfig->AddParameter("VNFBPix", "5,4,3,1,0,2", 20);
   CurrentDACConfig->AddParameter("VNFollPix", "5,4,3,1,0,2", 10);
   CurrentDACConfig->AddParameter("VNRegCasc", "5,4,3,1,0,2", 20); // hier : VNHitbus
-  CurrentDACConfig->AddParameter("VDel", "5,4,3,1,0,2", 10);
-  CurrentDACConfig->AddParameter("VPComp", "5,4,3,1,0,2", 20); // hier : VPHitbus
+  CurrentDACConfig->AddParameter("VDel", "5,4,3,1,0,2", 16);
+  CurrentDACConfig->AddParameter("VPComp", "5,4,3,1,0,2", 5); // hier : VPHitbus
   CurrentDACConfig->AddParameter("VPDAC", "5,4,3,1,0,2", 0);
   CurrentDACConfig->AddParameter("VNPix2", "5,4,3,1,0,2", 0);
-  CurrentDACConfig->AddParameter("BLResDig", "5,4,3,1,0,2", 5);
+  CurrentDACConfig->AddParameter("BLResDig", "5,4,3,1,0,2", 10);
   CurrentDACConfig->AddParameter("VNBiasPix", "5,4,3,1,0,2", 0);
   CurrentDACConfig->AddParameter("VPLoadPix", "5,4,3,1,0,2", 5);
   CurrentDACConfig->AddParameter("VNOutPix", "5,4,3,1,0,2", 5);
 
   // DigitalDACs
-  CurrentDACConfig->AddParameter("VPVCO", "5,4,3,1,0,2", 7);        // 5);//7);
-  CurrentDACConfig->AddParameter("VNVCO", "5,4,3,1,0,2", 15);       // 15);
-  CurrentDACConfig->AddParameter("VPDelDclMux", "5,4,3,1,0,2", 30); // 30);
-  CurrentDACConfig->AddParameter("VNDelDclMux", "5,4,3,1,0,2", 30); // 30);
-  CurrentDACConfig->AddParameter("VPDelDcl", "5,4,3,1,0,2", 30);    // 30);
-  CurrentDACConfig->AddParameter("VNDelDcl", "5,4,3,1,0,2", 30);    // 30);
-  CurrentDACConfig->AddParameter("VPDelPreEmp", "5,4,3,1,0,2", 30); // 30);
-  CurrentDACConfig->AddParameter("VNDelPreEmp", "5,4,3,1,0,2", 30); // 30);
-  CurrentDACConfig->AddParameter("VPDcl", "5,4,3,1,0,2", 30);       // 30);
-  CurrentDACConfig->AddParameter("VNDcl", "5,4,3,1,0,2", 30);       // 30);
-  CurrentDACConfig->AddParameter("VNLVDS", "5,4,3,1,0,2", 10);      // 10);
+  CurrentDACConfig->AddParameter("VPVCO", "5,4,3,1,0,2", 10);        // 5);//7);
+  CurrentDACConfig->AddParameter("VNVCO", "5,4,3,1,0,2", 10);       // 15);
+  CurrentDACConfig->AddParameter("VPDelDclMux", "5,4,3,1,0,2", 6); // 30);
+  CurrentDACConfig->AddParameter("VNDelDclMux", "5,4,3,1,0,2", 12); // 30);
+  CurrentDACConfig->AddParameter("VPDelDcl", "5,4,3,1,0,2", 6);    // 30);
+  CurrentDACConfig->AddParameter("VNDelDcl", "5,4,3,1,0,2", 12);    // 30);
+  CurrentDACConfig->AddParameter("VPDelPreEmp", "5,4,3,1,0,2", 6); // 30);
+  CurrentDACConfig->AddParameter("VNDelPreEmp", "5,4,3,1,0,2", 12); // 30);
+  CurrentDACConfig->AddParameter("VPDcl", "5,4,3,1,0,2", 24);       // 30);
+  CurrentDACConfig->AddParameter("VNDcl", "5,4,3,1,0,2", 12);       // 30);
+  CurrentDACConfig->AddParameter("VNLVDS", "5,4,3,1,0,2", 63);      // 10);
   CurrentDACConfig->AddParameter("VNLVDSDel", "5,4,3,1,0,2", 00);   // 10);
-  CurrentDACConfig->AddParameter("VPPump", "5,4,3,1,0,2", 5);       // 5);
+  CurrentDACConfig->AddParameter("VPPump", "5,4,3,1,0,2", 20);       // 5);
 
   CurrentDACConfig->AddParameter("nu", "1,0", 0);
   CurrentDACConfig->AddParameter("RO_res_n", 1, ATLASPix_Config::LSBFirst, 1);  // 1);  //for fastreadout start set 1
@@ -71,7 +71,7 @@ void ATLASPixMatrix::_initializeGlobalParameters() {
   CurrentDACConfig->AddParameter("resetckdivend", "3,2,1,0", 15);               // 2);
   CurrentDACConfig->AddParameter("maxcycend", "5,4,3,2,1,0", 5);                // 10); // probably 0 not allowed
   CurrentDACConfig->AddParameter("slowdownend", "3,2,1,0", 2);                  // 1);
-  CurrentDACConfig->AddParameter("timerend", "3,2,1,0", 1); // 8); // darf nicht 0!! sonst werden debug ausgaben verschluckt
+  CurrentDACConfig->AddParameter("timerend", "3,2,1,0", 3); // 8); // darf nicht 0!! sonst werden debug ausgaben verschluckt
   CurrentDACConfig->AddParameter("ckdivend2", "5,4,3,2,1,0", 7); // 1);
   CurrentDACConfig->AddParameter("ckdivend", "5,4,3,2,1,0", 0);  // 1);
   CurrentDACConfig->AddParameter("VPRegCasc", "5,4,3,1,0,2", 20);
@@ -82,9 +82,9 @@ void ATLASPixMatrix::_initializeGlobalParameters() {
   CurrentDACConfig->AddParameter("VPBiasRec", "5,4,3,1,0,2", 30);
   CurrentDACConfig->AddParameter("VNBiasRec", "5,4,3,1,0,2", 30);
   CurrentDACConfig->AddParameter("Invert", 1, ATLASPix_Config::LSBFirst, 0);  // 0);
-  CurrentDACConfig->AddParameter("SelEx", 1, ATLASPix_Config::LSBFirst, 1);   // 1); //activated external clock input
-  CurrentDACConfig->AddParameter("SelSlow", 1, ATLASPix_Config::LSBFirst, 1); // 1);
-  CurrentDACConfig->AddParameter("EnPLL", 1, ATLASPix_Config::LSBFirst, 0);   // 0);
+  CurrentDACConfig->AddParameter("SelEx", 1, ATLASPix_Config::LSBFirst, 0);   // 1); //activated external clock input
+  CurrentDACConfig->AddParameter("SelSlow", 1, ATLASPix_Config::LSBFirst, 0); // 1);
+  CurrentDACConfig->AddParameter("EnPLL", 1, ATLASPix_Config::LSBFirst, 1);   // 0);
   CurrentDACConfig->AddParameter("TriggerDelay", 10, ATLASPix_Config::LSBFirst, 0);
   CurrentDACConfig->AddParameter("Reset", 1, ATLASPix_Config::LSBFirst, 0);
   CurrentDACConfig->AddParameter("ConnRes", 1, ATLASPix_Config::LSBFirst, 1); // 1);   //activates termination for output
