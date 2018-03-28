@@ -65,8 +65,8 @@ pixelhit decodeHit(uint32_t hit, uint32_t TS, uint64_t fpga_ts, uint32_t SyncedT
 
   tmp.col = (24 - ((buf >> 2) & 0b00111111));
   tmp.row = 255 - (reverseBits(hit & 0xFF));
-  tmp.ts2 = hit >> 18 & 0b00111111;
-  tmp.ts1 = (hit >> 8 & 0b1111111111) + (hit >> 16 & 0b11);
+  tmp.ts2 = (hit >> 18) & 0b00111111;
+  tmp.ts1 = ((hit >> 8) & 0b1111111111); //+ (hit >> 16 & 0b11);
   tmp.col = tmp.col & 0b11111;
   tmp.row = tmp.row & 0b111111111;
 
@@ -3645,6 +3645,9 @@ void ATLASPix::reset() {
   *fifo_config = (*fifo_config & 0xFFFFFFEF) + 0b10000;
   usleep(50);
   *fifo_config = (*fifo_config & 0xFFFFFFEF) + 0b00000;
+
+
+
 }
 
 std::string ATLASPix::getName() {
