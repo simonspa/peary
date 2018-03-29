@@ -156,6 +156,10 @@ namespace caribou {
     {"armduration", register_t<>(0x26, 0xFF, false, true, true)},		\
     {"trigger_injection", register_t<>(0x26, 0xFF, false, true, true)},		\
     {"edge_sel", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"trigger_enable", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"busy_when_armed", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"trigger_always_armed", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"t0_enable", register_t<>(0x26, 0xFF, false, true, true)},		\
   }
   // clang-format on
 

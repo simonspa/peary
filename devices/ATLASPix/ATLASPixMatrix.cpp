@@ -82,9 +82,9 @@ void ATLASPixMatrix::_initializeGlobalParameters() {
   CurrentDACConfig->AddParameter("VPBiasRec", "5,4,3,1,0,2", 30);
   CurrentDACConfig->AddParameter("VNBiasRec", "5,4,3,1,0,2", 30);
   CurrentDACConfig->AddParameter("Invert", 1, ATLASPix_Config::LSBFirst, 0);  // 0);
-  CurrentDACConfig->AddParameter("SelEx", 1, ATLASPix_Config::LSBFirst, 0);   // 1); //activated external clock input
+  CurrentDACConfig->AddParameter("SelEx", 1, ATLASPix_Config::LSBFirst, 1);   // 1); //activated external clock input
   CurrentDACConfig->AddParameter("SelSlow", 1, ATLASPix_Config::LSBFirst, 0); // 1);
-  CurrentDACConfig->AddParameter("EnPLL", 1, ATLASPix_Config::LSBFirst, 1);   // 0);
+  CurrentDACConfig->AddParameter("EnPLL", 1, ATLASPix_Config::LSBFirst, 0);   // 0);
   CurrentDACConfig->AddParameter("TriggerDelay", 10, ATLASPix_Config::LSBFirst, 0);
   CurrentDACConfig->AddParameter("Reset", 1, ATLASPix_Config::LSBFirst, 0);
   CurrentDACConfig->AddParameter("ConnRes", 1, ATLASPix_Config::LSBFirst, 1); // 1);   //activates termination for output

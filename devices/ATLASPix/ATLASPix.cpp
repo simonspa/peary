@@ -225,7 +225,6 @@ void ATLASPix::configure() {
   std::cout << "sending default TDACs " << std::endl;
 
   this->writeUniformTDAC(theMatrix, 0b0000);
-  this->setSpecialRegister("trigger_mode", 2);
   this->setSpecialRegister("ro_enable", 0);
   this->setSpecialRegister("armduration", 2000);
 
@@ -1729,50 +1728,42 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
     // volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
     // volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
 
-    *fifo_config = (*fifo_config & 0xFFFFFFFE) + (value & 0b1);
-    if(value == 1) {
-      this->resetCounters();
-    }
+    *fifo_config = (*fifo_config & 0xFFFFFFFE) + ((value) & 0b1);
+//    if(value == 1) {
+//      this->resetCounters();
+//    }
 
-  } else if(name == "trigger_mode") {
+  } else if(name == "trigger_enable") {
 
     void* readout_base =
       _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
+    volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
 
-    // volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
-    // volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) +
-    // 0x4);
-    volatile uint32_t* fifo_config =
-      reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
-    // volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
-    volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
-
-    //*fifo_config = (*fifo_config & 0xFFFFFFF7) + (0b1000);
-    // usleep(1);
-    //*fifo_config = (*fifo_config & 0xFFFFFFF7) + (0b0000);
-
-    *ro = (*ro & 0xFFFCFFFF) + ((value << 16) & 0x30000);
+   *fifo_config= (*fifo_config & 0xFFFD)+((value<<1) & 0b10);
 
   } else if(name == "edge_sel") {
 
     void* readout_base =
       _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
 
-    // volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
-    // volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) +
-    // 0x4);
     volatile uint32_t* fifo_config =
       reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
-    // volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
-    volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
-
-    //*fifo_config = (*fifo_config & 0xFFFFFFF7) + (0b1000);
-    // usleep(1);
     *fifo_config = (*fifo_config & 0xFFFFFFFB) + ((value << 2) & 0b0100);
 
-    //*ro = (*ro & 0xFFFCFFFF) + ((value << 16) & 0x30000);
+  }
 
-  } else if(name == "armduration") {
+  else if(name == "busy_when_armed") {
+
+      void* readout_base =
+        _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
+
+      volatile uint32_t* fifo_config =
+        reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
+      *fifo_config = (*fifo_config & 0xFFFFFFF7) + ((value << 3) & 0b1000);
+    }
+
+
+  else if(name == "armduration") {
 
     void* readout_base =
       _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
@@ -1783,11 +1774,45 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
     // volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) +
     // 0x8);
     // volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
-    volatile uint32_t* config2 = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x14);
+    volatile uint32_t* config2 = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
 
     *config2 = ((value)&0xFFFFFF);
 
-  } else if(name == "trigger_injection") {
+  }
+  else if(name == "trigger_always_armed") {
+
+    void* readout_base =
+      _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
+
+    // volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
+    // volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) +
+    // 0x4);
+    // volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) +
+    // 0x8);
+    // volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
+    volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
+
+    *fifo_config = (*fifo_config & 0xFFFFFFBF) + ((value << 6) & 0b1000000);
+
+  }
+
+  else if(name == "t0_enable") {
+
+    void* readout_base =
+      _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
+
+    // volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
+    // volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) +
+    // 0x4);
+    // volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) +
+    // 0x8);
+    // volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
+    volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
+
+    *fifo_config = (*fifo_config & 0xFFFFFF7F) + ((value << 7) & 0b10000000);
+
+  }
+  else if(name == "trigger_injection") {
 
     void* readout_base =
       _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
@@ -2553,98 +2578,113 @@ pearydata ATLASPix::getData() {
     if(!this->_daqContinue.test_and_set())
       break;
     // check for new first half-word or restart loop
-    if((*fifo_status & 0x4) == 0)
-      continue;
-    uint64_t d1 = static_cast<uint64_t>(*data);
+    if((*fifo_status & 0x1) == 0){
+
+    	continue;}
+
+    uint32_t d1 = static_cast<uint32_t>(*data);
+    if((d1>>31)==1){
+
+
+        	int col=(d1>>25) & 0x3F;
+        	int row=(d1>>16) & 0x1FF;
+        	int ts1=(d1>>6) & 0x3FF;
+        	int ts2=(d1) & 0x3F;
+        	std::cout << col <<" " << row << " " << ts1 << ' ' << ts2 << std::endl;
+    }
+    else if(d1!=0){
+    	std::cout << std::bitset<32>(d1) << std::endl;
+    }
+        //continue;//}
+    //std::cout << d1 << std::endl;
     // active wait for the second half-word
     // with an exit signal we need to also break out of the outer loop
     bool stopDaq = false;
-    while((*fifo_status & 0x1) == 0) {
-      if(!this->_daqContinue.test_and_set()) {
-        stopDaq = true;
-        break;
-      }
-    }
+//    while((*fifo_status & 0x1) == 0) {
+//      if(!this->_daqContinue.test_and_set()) {
+//        stopDaq = true;
+//        break;
+//      }
+//    }
     if(stopDaq)
       break;
 
     //LOG(logINFO) << "thread bool : " << this->_daqContinue.test_and_set() << std::endl;
 
     // combine two 32bit half-words into one 64bit fifo word
-    uint64_t dataw = (static_cast<uint64_t>(*data) << 32) | d1;
-
-    // depending on the fifo state machine words have different meanings
-    uint32_t stateA = dataw >> 56 & 0xFF;
-    if(stateA == 0) {
-      uint32_t DO = (dataw >> 48) & 0xFF;
-      timestamp += DO << 24;
-      // std::cout  << blue << bold << rev  << "stateA : " << stateA << reset  << std::endl;
-      // std::cout <<  bold <<   "DO: " << DO << " TrTS: "  <<TrTS << " TSf: " <<  TSf << reset << std::endl;
-    } else if(stateA == 1) {
-      uint32_t DO = (dataw >> 48) & 0xFF;
-      timestamp += DO << 16;
-      // std::cout  << blue << bold << rev  << "stateA : " << stateA << reset  << std::endl;
-      // std::cout <<  bold <<   "DO: " << DO << " TrTS: "  <<TrTS << " TSf: " <<  TSf << reset << std::endl;
-    } else if(stateA == 2) {
-      uint32_t DO = (dataw >> 48) & 0xFF;
-      timestamp += DO << 8;
-      // std::cout  << blue << bold << rev  << "stateA : " << stateA << reset  << std::endl;
-      // std::cout <<  bold <<   "DO: " << DO << " TrTS: "  <<TrTS << " TSf: " <<  TSf << reset << std::endl;
-    } else if(stateA == 3) {
-      uint32_t DO = (dataw >> 48) & 0xFF;
-      timestamp += DO;
-      // std::cout  << blue << bold << rev  << "stateA : " << stateA << reset  << std::endl;
-      // std::cout <<  bold <<   "DO: " << DO << " TrTS: "  <<TrTS << " TSf: " <<  TSf << reset << std::endl;
-      // disk << std::bitset<32>(timestamp) << " " << std::dec << (timestamp >>8) << " " << gray_decode(timestamp & 0xF) <<
-      // std::endl;
-    } else if(stateA == 4) {
-      uint32_t DO = (dataw >> 48) & 0xFF;
-      hit += DO << 24;
-      // TrTS1 = (dataw>>8) & 0xFFFFFF;
-      // TSf = (dataw) & 0b111111;
-      fpga_ts = 0;
-      fpga_ts += (dataw << 32);
-
-      // std::cout  << blue << bold << rev  << "dataw : " << std::bitset<64>(dataw) << reset  << std::endl;
-      // std::cout <<  bold <<   "DO: " << DO << " TrTS: "  <<TrTS << " TSf: " <<  TSf << reset << std::endl;
-    } else if(stateA == 5) {
-      uint32_t DO = (dataw >> 48) & 0xFF;
-      hit += DO << 16;
-      TrCNT = (dataw)&0xFFFFFFFF;
-      // std::cout  << cyan << bold << rev <<  "stateA : " << stateA << reset  << std::endl;
-      // std::cout <<  bold << "DO: " << DO  << " TrTS: "<< TrTS << " TrCnt: " << TrCnt << reset << std::endl;
-    } else if(stateA == 6) {
-      uint32_t DO = (dataw >> 48) & 0xFF;
-      hit += DO << 8;
-      ATPSyncedCNT = dataw & 0xFFFFFF;
-      // std::cout << green << bold << rev << "dataw : " << std::bitset<64>(dataw)   << reset << std::endl;
-      // std::cout << bold  << "DO: " << DO << " TS: " <<  TS << " TOT: " << TOT << reset << std::endl;
-    } else if(stateA == 7) {
-      uint32_t DO = (dataw >> 48) & 0xFF;
-      hit += DO;
-      fpga_ts += (dataw & 0x00000000FFFFFFFF);
-      pixelhit pix = decodeHit(hit, timestamp, fpga_ts, ATPSyncedCNT, TrCNT);
-
-      // Write hit to disk
-      disk << pix.col << "	" << pix.row << "	" << pix.ts1 << "	" << pix.ts2 << "	"  << pix.tot << "	" << pix.fpga_ts << "	" << pix.SyncedTS
-           << " " << pix.triggercnt << " " << pix.ATPbinaryCnt << " " << pix.ATPGreyCnt << std::endl;
-
-      //std::cout << "Hit : " << std::hex << hit << std::dec << std::endl;
-      // double delay=double(fpga_ts-fpga_ts_prev)*(10.0e-9);
-      // std::cout << red << bold << rev << "ts : " <<fpga_ts   << reset << std::endl;
-      // std::cout <<  rev << bold << red << "FPGA TS: "<<fpga_ts << " tr CNT : " << TrCNT << " delay : " << delay <<  reset
-      // << std::endl;
-
-//      LOG(logINFO) << "X: " << pix.col << " Y: " << pix.row << " TS1: " << pix.ts1 << " TS2: " << pix.ts2
-//                   << " FPGATS: " << pix.fpga_ts << " SyncedTS: " << pix.SyncedTS << " TriggerCNT: " << pix.triggercnt
-//                   << " ATPBinCNT: " << pix.ATPbinaryCnt << " ATPGreyCNT: " << pix.ATPGreyCnt;
-      fpga_ts_prev = fpga_ts;
-      hit = 0;
-    } else {
-      uint32_t DO = (dataw >> 48) & 0xFF;
-      // std::cout  << red << "stateA : " << stateA << std::endl;
-      // std::cout <<  bold << "DO: "<< std::bitset<8>(DO) << reset << std::endl;
-    };
+//
+//    // depending on the fifo state machine words have different meanings
+//    uint32_t stateA = dataw >> 56 & 0xFF;
+//    if(stateA == 0) {
+//      uint32_t DO = (dataw >> 48) & 0xFF;
+//      timestamp += DO << 24;
+//      // std::cout  << blue << bold << rev  << "stateA : " << stateA << reset  << std::endl;
+//      // std::cout <<  bold <<   "DO: " << DO << " TrTS: "  <<TrTS << " TSf: " <<  TSf << reset << std::endl;
+//    } else if(stateA == 1) {
+//      uint32_t DO = (dataw >> 48) & 0xFF;
+//      timestamp += DO << 16;
+//      // std::cout  << blue << bold << rev  << "stateA : " << stateA << reset  << std::endl;
+//      // std::cout <<  bold <<   "DO: " << DO << " TrTS: "  <<TrTS << " TSf: " <<  TSf << reset << std::endl;
+//    } else if(stateA == 2) {
+//      uint32_t DO = (dataw >> 48) & 0xFF;
+//      timestamp += DO << 8;
+//      // std::cout  << blue << bold << rev  << "stateA : " << stateA << reset  << std::endl;
+//      // std::cout <<  bold <<   "DO: " << DO << " TrTS: "  <<TrTS << " TSf: " <<  TSf << reset << std::endl;
+//    } else if(stateA == 3) {
+//      uint32_t DO = (dataw >> 48) & 0xFF;
+//      timestamp += DO;
+//      // std::cout  << blue << bold << rev  << "stateA : " << stateA << reset  << std::endl;
+//      // std::cout <<  bold <<   "DO: " << DO << " TrTS: "  <<TrTS << " TSf: " <<  TSf << reset << std::endl;
+//      // disk << std::bitset<32>(timestamp) << " " << std::dec << (timestamp >>8) << " " << gray_decode(timestamp & 0xF) <<
+//      // std::endl;
+//    } else if(stateA == 4) {
+//      uint32_t DO = (dataw >> 48) & 0xFF;
+//      hit += DO << 24;
+//      // TrTS1 = (dataw>>8) & 0xFFFFFF;
+//      // TSf = (dataw) & 0b111111;
+//      fpga_ts = 0;
+//      fpga_ts += (dataw << 32);
+//
+//      // std::cout  << blue << bold << rev  << "dataw : " << std::bitset<64>(dataw) << reset  << std::endl;
+//      // std::cout <<  bold <<   "DO: " << DO << " TrTS: "  <<TrTS << " TSf: " <<  TSf << reset << std::endl;
+//    } else if(stateA == 5) {
+//      uint32_t DO = (dataw >> 48) & 0xFF;
+//      hit += DO << 16;
+//      TrCNT = (dataw)&0xFFFFFFFF;
+//      // std::cout  << cyan << bold << rev <<  "stateA : " << stateA << reset  << std::endl;
+//      // std::cout <<  bold << "DO: " << DO  << " TrTS: "<< TrTS << " TrCnt: " << TrCnt << reset << std::endl;
+//    } else if(stateA == 6) {
+//      uint32_t DO = (dataw >> 48) & 0xFF;
+//      hit += DO << 8;
+//      ATPSyncedCNT = dataw & 0xFFFFFF;
+//      // std::cout << green << bold << rev << "dataw : " << std::bitset<64>(dataw)   << reset << std::endl;
+//      // std::cout << bold  << "DO: " << DO << " TS: " <<  TS << " TOT: " << TOT << reset << std::endl;
+//    } else if(stateA == 7) {
+//      uint32_t DO = (dataw >> 48) & 0xFF;
+//      hit += DO;
+//      fpga_ts += (dataw & 0x00000000FFFFFFFF);
+//      pixelhit pix = decodeHit(hit, timestamp, fpga_ts, ATPSyncedCNT, TrCNT);
+//
+//      // Write hit to disk
+//      disk << pix.col << "	" << pix.row << "	" << pix.ts1 << "	" << pix.ts2 << "	"  << pix.tot << "	" << pix.fpga_ts << "	" << pix.SyncedTS
+//           << " " << pix.triggercnt << " " << pix.ATPbinaryCnt << " " << pix.ATPGreyCnt << std::endl;
+//
+//      //std::cout << "Hit : " << std::hex << hit << std::dec << std::endl;
+//      // double delay=double(fpga_ts-fpga_ts_prev)*(10.0e-9);
+//      // std::cout << red << bold << rev << "ts : " <<fpga_ts   << reset << std::endl;
+//      // std::cout <<  rev << bold << red << "FPGA TS: "<<fpga_ts << " tr CNT : " << TrCNT << " delay : " << delay <<  reset
+//      // << std::endl;
+//
+////      LOG(logINFO) << "X: " << pix.col << " Y: " << pix.row << " TS1: " << pix.ts1 << " TS2: " << pix.ts2
+////                   << " FPGATS: " << pix.fpga_ts << " SyncedTS: " << pix.SyncedTS << " TriggerCNT: " << pix.triggercnt
+////                   << " ATPBinCNT: " << pix.ATPbinaryCnt << " ATPGreyCNT: " << pix.ATPGreyCnt;
+//      fpga_ts_prev = fpga_ts;
+//      hit = 0;
+//    } else {
+//      uint32_t DO = (dataw >> 48) & 0xFF;
+//      // std::cout  << red << "stateA : " << stateA << std::endl;
+//      // std::cout <<  bold << "DO: "<< std::bitset<8>(DO) << reset << std::endl;
+//    };
   }
   disk.close();
 
