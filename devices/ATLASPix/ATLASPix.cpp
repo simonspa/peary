@@ -19,7 +19,7 @@
 using namespace caribou;
 
 uint32_t reverseBits(uint8_t n) {
-  uint32_t x;
+  uint32_t x=0;
   for(auto i = 7; n;) {
     x |= (n & 1) << i;
     n >>= 1;
@@ -50,45 +50,56 @@ uint32_t grey_decode(uint32_t g) {
   return g;
 }
 
-pixelhit decodeHit(uint32_t hit, uint32_t TS, uint64_t fpga_ts, uint32_t SyncedTS, uint32_t triggercnt) {
-
+pixelhit decodeHit(uint32_t hit) {
   pixelhit tmp;
-  uint8_t buf = 0;
+  tmp.col=(hit >> 25) & 0b111111;
+  tmp.row=(hit>>16)&0x1FF;
+  tmp.ts1=(hit>>6)&0x3FF;
+  tmp.ts2=hit&0x3F;
 
-  tmp.fpga_ts = fpga_ts;
-  tmp.SyncedTS = SyncedTS;
-  tmp.triggercnt = triggercnt;
-  tmp.ATPbinaryCnt = (TS & 0xFFFF00) + grey_decode((TS & 0xFF));
-  tmp.ATPGreyCnt = TS & 0xFF;
-
-  buf = ((hit >> 23) & 0xFF);
-
-  tmp.col = (24 - ((buf >> 2) & 0b00111111));
-  tmp.row = 255 - (reverseBits(hit & 0xFF));
-  tmp.ts2 = (hit >> 18) & 0b00111111;
-  tmp.ts1 = ((hit >> 8) & 0b1111111111); //+ (hit >> 16 & 0b11);
-  tmp.col = tmp.col & 0b11111;
-  tmp.row = tmp.row & 0b111111111;
-
-  //tmp.tot=tmp.ts2<<2;
-
-//  gray decoding ToT:
-  int normal = tmp.ts2 & (1 << 5);
-  for(int i=6; i>=0;--i)
-      normal |= (tmp.ts2 ^ (normal >> 1)) & (1 << i);
-  tmp.tot = normal;
-
-//  if (tmp.ts2<(tmp.ts1 & 0b111111)){
-//	  tmp.tot=64+tmp.ts2;
-//  }
-//  else{
-//	  tmp.tot=tmp.ts2;
-//  }
-
-  if((buf >> 1 & 0x1) == 0)
-    tmp.row += 200;
   return tmp;
 }
+
+
+//pixelhit decodeHit(uint32_t hit, uint32_t TS, uint64_t fpga_ts, uint32_t SyncedTS, uint32_t triggercnt) {
+//
+//  pixelhit tmp;
+//  uint8_t buf = 0;
+//
+//  tmp.fpga_ts = fpga_ts;
+//  tmp.SyncedTS = SyncedTS;
+//  tmp.triggercnt = triggercnt;
+//  tmp.ATPbinaryCnt = (TS & 0xFFFF00) + grey_decode((TS & 0xFF));
+//  tmp.ATPGreyCnt = TS & 0xFF;
+//
+//  buf = ((hit >> 23) & 0xFF);
+//
+//  tmp.col = (24 - ((buf >> 2) & 0b00111111));
+//  tmp.row = 255 - (reverseBits(hit & 0xFF));
+//  tmp.ts2 = (hit >> 18) & 0b00111111;
+//  tmp.ts1 = ((hit >> 8) & 0b1111111111); //+ (hit >> 16 & 0b11);
+//  tmp.col = tmp.col & 0b11111;
+//  tmp.row = tmp.row & 0b111111111;
+//
+//  //tmp.tot=tmp.ts2<<2;
+//
+////  gray decoding ToT:
+//  int normal = tmp.ts2 & (1 << 5);
+//  for(int i=6; i>=0;--i)
+//      normal |= (tmp.ts2 ^ (normal >> 1)) & (1 << i);
+//  tmp.tot = normal;
+//
+////  if (tmp.ts2<(tmp.ts1 & 0b111111)){
+////	  tmp.tot=64+tmp.ts2;
+////  }
+////  else{
+////	  tmp.tot=tmp.ts2;
+////  }
+//
+//  if((buf >> 1 & 0x1) == 0)
+//    tmp.row += 200;
+//  return tmp;
+//}
 
 namespace Color {
   enum Code {
@@ -2563,13 +2574,11 @@ pearydata ATLASPix::getData() {
   make_directories(_output_directory);
   std::ofstream disk;
   disk.open(_output_directory + "/data.txt", std::ios::out);
-  disk << "X:	Y:	   TS1:	   TS2:		FPGA_TS:   SyncedCNT:   TR_CNT:	ATPBinCounter:   ATPGreyCounter:	" << std::endl;
+  disk << "X:	Y:	   TS1:	   TS2:		FPGA_TS:  TR_CNT:  BinCounter :  " << std::endl;
 
   uint64_t fpga_ts = 0;
-  uint64_t fpga_ts_prev = 0;
-  uint32_t hit = 0;
+  uint64_t fpga_ts_busy = 0;
   uint32_t timestamp = 0;
-  uint32_t ATPSyncedCNT = 0;
   uint32_t TrCNT = 0;
 
   while(true) {
@@ -2583,116 +2592,65 @@ pearydata ATLASPix::getData() {
     	continue;}
 
     uint32_t d1 = static_cast<uint32_t>(*data);
+    std::cout << std::bitset<32>(d1) << std::endl;
+
     if((d1>>31)==1){
 
+        	pixelhit hit=decodeHit(d1);
+        	LOG(logINFO) << hit.col <<" " << hit.row << " " << hit.ts1 << ' ' << hit.ts2 << std::endl;
+        	disk << hit.col << "	" << hit.row << "	" << hit.ts1 << "	" << hit.ts2 <<  "	" << fpga_ts << "	" << " " << TrCNT << " " << timestamp << std::endl;
+    }
 
-        	int col=(d1>>25) & 0x3F;
-        	int row=(d1>>16) & 0x1FF;
-        	int ts1=(d1>>6) & 0x3FF;
-        	int ts2=(d1) & 0x3F;
-        	std::cout << col <<" " << row << " " << ts1 << ' ' << ts2 << std::endl;
+    else{
+
+    	uint32_t data_type= (d1 >>24) &0xFF;
+
+
+		switch(data_type) {
+
+			case 0b01000000: // BinCnt from ATLASPix, not read for now
+				timestamp=d1&0xFFFFFF;
+				break;
+			case 0b00000001: // Buffer overflow, data after this are lost
+				disk << "BUFFER_OVERFLOW" << std::endl;
+				break;
+			case 0b00010000:// Trigger cnt 24bits
+				TrCNT = d1 & 0xFFFFFF;
+				break;
+			case 0b00110000:// Trigger cnt 16b + fpga_ts 24 bits
+				TrCNT= TrCNT + ((d1 << 8) & 0xFF000000);
+				fpga_ts = fpga_ts + ((d1 <<48) & 0xFFFF000000000000);
+				break;
+			case 0b00100000: // continuation of fpga_ts
+				fpga_ts = fpga_ts + ((d1 <<24) & 0x0000FFFFFF000000);
+				break;
+			case 0b01100000:// End of fpga_ts
+				fpga_ts = fpga_ts + ((d1) & 0xFFFFFF);
+				LOG(logINFO) << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
+				disk << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
+				break;
+			case 0b00000010: // BUSY asserted with 24bit LSB of Trigger FPGA TS
+				fpga_ts_busy=d1 & 0xFFFFFF;
+				disk << "BUSY_ASSERTED " << fpga_ts_busy << std::endl;
+				break;
+
+			default: // weird stuff, should not happend
+				LOG(logWARNING) << "I AM IMPOSSIBLE!!!!!!!!!!!!!!!!!!" << std::endl;
+					break;
+		}
     }
-    else if(d1!=0){
-    	std::cout << std::bitset<32>(d1) << std::endl;
-    }
-        //continue;//}
-    //std::cout << d1 << std::endl;
-    // active wait for the second half-word
-    // with an exit signal we need to also break out of the outer loop
+
     bool stopDaq = false;
-//    while((*fifo_status & 0x1) == 0) {
-//      if(!this->_daqContinue.test_and_set()) {
-//        stopDaq = true;
-//        break;
-//      }
-//    }
+
     if(stopDaq)
       break;
-
-    //LOG(logINFO) << "thread bool : " << this->_daqContinue.test_and_set() << std::endl;
-
-    // combine two 32bit half-words into one 64bit fifo word
-//
-//    // depending on the fifo state machine words have different meanings
-//    uint32_t stateA = dataw >> 56 & 0xFF;
-//    if(stateA == 0) {
-//      uint32_t DO = (dataw >> 48) & 0xFF;
-//      timestamp += DO << 24;
-//      // std::cout  << blue << bold << rev  << "stateA : " << stateA << reset  << std::endl;
-//      // std::cout <<  bold <<   "DO: " << DO << " TrTS: "  <<TrTS << " TSf: " <<  TSf << reset << std::endl;
-//    } else if(stateA == 1) {
-//      uint32_t DO = (dataw >> 48) & 0xFF;
-//      timestamp += DO << 16;
-//      // std::cout  << blue << bold << rev  << "stateA : " << stateA << reset  << std::endl;
-//      // std::cout <<  bold <<   "DO: " << DO << " TrTS: "  <<TrTS << " TSf: " <<  TSf << reset << std::endl;
-//    } else if(stateA == 2) {
-//      uint32_t DO = (dataw >> 48) & 0xFF;
-//      timestamp += DO << 8;
-//      // std::cout  << blue << bold << rev  << "stateA : " << stateA << reset  << std::endl;
-//      // std::cout <<  bold <<   "DO: " << DO << " TrTS: "  <<TrTS << " TSf: " <<  TSf << reset << std::endl;
-//    } else if(stateA == 3) {
-//      uint32_t DO = (dataw >> 48) & 0xFF;
-//      timestamp += DO;
-//      // std::cout  << blue << bold << rev  << "stateA : " << stateA << reset  << std::endl;
-//      // std::cout <<  bold <<   "DO: " << DO << " TrTS: "  <<TrTS << " TSf: " <<  TSf << reset << std::endl;
-//      // disk << std::bitset<32>(timestamp) << " " << std::dec << (timestamp >>8) << " " << gray_decode(timestamp & 0xF) <<
-//      // std::endl;
-//    } else if(stateA == 4) {
-//      uint32_t DO = (dataw >> 48) & 0xFF;
-//      hit += DO << 24;
-//      // TrTS1 = (dataw>>8) & 0xFFFFFF;
-//      // TSf = (dataw) & 0b111111;
-//      fpga_ts = 0;
-//      fpga_ts += (dataw << 32);
-//
-//      // std::cout  << blue << bold << rev  << "dataw : " << std::bitset<64>(dataw) << reset  << std::endl;
-//      // std::cout <<  bold <<   "DO: " << DO << " TrTS: "  <<TrTS << " TSf: " <<  TSf << reset << std::endl;
-//    } else if(stateA == 5) {
-//      uint32_t DO = (dataw >> 48) & 0xFF;
-//      hit += DO << 16;
-//      TrCNT = (dataw)&0xFFFFFFFF;
-//      // std::cout  << cyan << bold << rev <<  "stateA : " << stateA << reset  << std::endl;
-//      // std::cout <<  bold << "DO: " << DO  << " TrTS: "<< TrTS << " TrCnt: " << TrCnt << reset << std::endl;
-//    } else if(stateA == 6) {
-//      uint32_t DO = (dataw >> 48) & 0xFF;
-//      hit += DO << 8;
-//      ATPSyncedCNT = dataw & 0xFFFFFF;
-//      // std::cout << green << bold << rev << "dataw : " << std::bitset<64>(dataw)   << reset << std::endl;
-//      // std::cout << bold  << "DO: " << DO << " TS: " <<  TS << " TOT: " << TOT << reset << std::endl;
-//    } else if(stateA == 7) {
-//      uint32_t DO = (dataw >> 48) & 0xFF;
-//      hit += DO;
-//      fpga_ts += (dataw & 0x00000000FFFFFFFF);
-//      pixelhit pix = decodeHit(hit, timestamp, fpga_ts, ATPSyncedCNT, TrCNT);
-//
-//      // Write hit to disk
-//      disk << pix.col << "	" << pix.row << "	" << pix.ts1 << "	" << pix.ts2 << "	"  << pix.tot << "	" << pix.fpga_ts << "	" << pix.SyncedTS
-//           << " " << pix.triggercnt << " " << pix.ATPbinaryCnt << " " << pix.ATPGreyCnt << std::endl;
-//
-//      //std::cout << "Hit : " << std::hex << hit << std::dec << std::endl;
-//      // double delay=double(fpga_ts-fpga_ts_prev)*(10.0e-9);
-//      // std::cout << red << bold << rev << "ts : " <<fpga_ts   << reset << std::endl;
-//      // std::cout <<  rev << bold << red << "FPGA TS: "<<fpga_ts << " tr CNT : " << TrCNT << " delay : " << delay <<  reset
-//      // << std::endl;
-//
-////      LOG(logINFO) << "X: " << pix.col << " Y: " << pix.row << " TS1: " << pix.ts1 << " TS2: " << pix.ts2
-////                   << " FPGATS: " << pix.fpga_ts << " SyncedTS: " << pix.SyncedTS << " TriggerCNT: " << pix.triggercnt
-////                   << " ATPBinCNT: " << pix.ATPbinaryCnt << " ATPGreyCNT: " << pix.ATPGreyCnt;
-//      fpga_ts_prev = fpga_ts;
-//      hit = 0;
-//    } else {
-//      uint32_t DO = (dataw >> 48) & 0xFF;
-//      // std::cout  << red << "stateA : " << stateA << std::endl;
-//      // std::cout <<  bold << "DO: "<< std::bitset<8>(DO) << reset << std::endl;
-//    };
   }
   disk.close();
 
 
-
   // write additional information
-  std::ofstream stats(_output_directory + "/stats.txt", std::ios::out);
-  stats << "trigger_counter " << this->getTriggerCounter() << std::endl;
+  //std::ofstream stats(_output_directory + "/stats.txt", std::ios::out);
+  //stats << "trigger_counter " << this->getTriggerCounter() << std::endl;
 
   pearydata dummy;
   return dummy;
@@ -2833,12 +2791,12 @@ pearydata ATLASPix::getDataTO(int maskx,int masky) {
       uint32_t DO = (dataw >> 48) & 0xFF;
       hit += DO;
       fpga_ts += (dataw & 0x00000000FFFFFFFF);
-      pixelhit pix = decodeHit(hit, timestamp, fpga_ts, ATPSyncedCNT, TrCNT);
+      //pixelhit pix = decodeHit(hit, timestamp, fpga_ts, ATPSyncedCNT, TrCNT);
 
       // Write hit to disk
       //if(((pix.col+maskx)%theMatrix.maskx==0) && ((pix.row+masky)%theMatrix.masky==0))
-    	  disk << pix.col << "	" << pix.row << "	" << pix.ts1 << "	" << pix.ts2 << " " << pix.tot  << "	" << pix.fpga_ts << "	" << pix.SyncedTS
-           << " " << pix.triggercnt << " " << pix.ATPbinaryCnt << " " << pix.ATPGreyCnt << std::endl;
+ //   	  disk << pix.col << "	" << pix.row << "	" << pix.ts1 << "	" << pix.ts2 << " " << pix.tot  << "	" << pix.fpga_ts << "	" << pix.SyncedTS
+ //          << " " << pix.triggercnt << " " << pix.ATPbinaryCnt << " " << pix.ATPGreyCnt << std::endl;
 
       //std::cout << "Hit : " << std::hex << hit << std::dec << std::endl;
       // double delay=double(fpga_ts-fpga_ts_prev)*(10.0e-9);
@@ -3004,8 +2962,8 @@ std::vector<pixelhit> ATLASPix::getDataTOvector() {
       uint32_t DO = (dataw >> 48) & 0xFF;
       hit += DO;
       fpga_ts += (dataw & 0x00000000FFFFFFFF);
-      pixelhit pix = decodeHit(hit, timestamp, fpga_ts, ATPSyncedCNT, TrCNT);
-      datavec.push_back(pix);
+//      pixelhit pix = decodeHit(hit, timestamp, fpga_ts, ATPSyncedCNT, TrCNT);
+      //datavec.push_back(pix);
       // Write hit to disk
       //if(((pix.col+maskx)%theMatrix.maskx==0) && ((pix.row+masky)%theMatrix.masky==0))
 //    	  disk << pix.col << "	" << pix.row << "	" << pix.ts1 << "	" << pix.ts2 << " " << pix.tot  << "	" << pix.fpga_ts << "	" << pix.SyncedTS
