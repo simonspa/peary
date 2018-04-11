@@ -2295,6 +2295,19 @@ void ATLASPix::SetPixelInjection(uint32_t col, uint32_t row, bool ana_state, boo
   int double_col = 0;
 
 
+  //set All injection in row and columns to off
+  if(col==999){
+
+
+      for(int colt = 0; colt < theMatrix.ncol; colt++) {
+    	  this->SetPixelInjection(colt,0,0,0,0);
+      }
+      for(int rowt = 0; rowt < theMatrix.nrow; rowt++) {
+    	  this->SetPixelInjection(0,rowt,0,0,0);
+      }
+
+  }
+
 
   if((theMatrix.flavor == ATLASPix1Flavor::M1) || (theMatrix.flavor == ATLASPix1Flavor::M1Iso)) {
     std::string s = to_string(col);
@@ -2577,6 +2590,7 @@ pearydata ATLASPix::getData() {
   disk << "X:	Y:	   TS1:	   TS2:		FPGA_TS:  TR_CNT:  BinCounter :  " << std::endl;
 
   uint64_t fpga_ts = 0;
+  uint64_t fpga_ts_last=0;
   uint64_t fpga_ts_busy = 0;
   uint32_t timestamp = 0;
   uint32_t TrCNT = 0;
@@ -2592,13 +2606,13 @@ pearydata ATLASPix::getData() {
     	continue;}
 
     uint32_t d1 = static_cast<uint32_t>(*data);
-    std::cout << std::bitset<32>(d1) << std::endl;
+    //std::cout << std::bitset<32>(d1) << std::endl;
 
     if((d1>>31)==1){
 
         	pixelhit hit=decodeHit(d1);
-        	LOG(logINFO) << hit.col <<" " << hit.row << " " << hit.ts1 << ' ' << hit.ts2 << std::endl;
-        	disk << hit.col << "	" << hit.row << "	" << hit.ts1 << "	" << hit.ts2 <<  "	" << fpga_ts << "	" << " " << TrCNT << " " << timestamp << std::endl;
+        	//LOG(logINFO) << hit.col <<" " << hit.row << " " << hit.ts1 << ' ' << hit.ts2 << std::endl;
+        	disk << "HIT " << hit.col << "	" << hit.row << "	" << hit.ts1 << "	" << hit.ts2 <<  "	" << fpga_ts_last << "	" << " " << TrCNT << " " << timestamp << " " << (fpga_ts_last & 0xFFFFFF) << std::endl;
     }
 
     else{
@@ -2609,7 +2623,7 @@ pearydata ATLASPix::getData() {
 		switch(data_type) {
 
 			case 0b01000000: // BinCnt from ATLASPix, not read for now
-				timestamp=d1&0xFFFFFF;
+				timestamp=d1&0xFFFFFF ;
 				break;
 			case 0b00000001: // Buffer overflow, data after this are lost
 				disk << "BUFFER_OVERFLOW" << std::endl;
@@ -2619,15 +2633,17 @@ pearydata ATLASPix::getData() {
 				break;
 			case 0b00110000:// Trigger cnt 16b + fpga_ts 24 bits
 				TrCNT= TrCNT + ((d1 << 8) & 0xFF000000);
-				fpga_ts = fpga_ts + ((d1 <<48) & 0xFFFF000000000000);
+				fpga_ts = fpga_ts + ((d1 <<8) & 0xFF00000000000000);
 				break;
 			case 0b00100000: // continuation of fpga_ts
 				fpga_ts = fpga_ts + ((d1 <<24) & 0x0000FFFFFF000000);
 				break;
 			case 0b01100000:// End of fpga_ts
 				fpga_ts = fpga_ts + ((d1) & 0xFFFFFF);
-				LOG(logINFO) << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
+				//LOG(logINFO) << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
 				disk << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
+				fpga_ts_last=fpga_ts;
+				fpga_ts=0;
 				break;
 			case 0b00000010: // BUSY asserted with 24bit LSB of Trigger FPGA TS
 				fpga_ts_busy=d1 & 0xFFFFFF;
