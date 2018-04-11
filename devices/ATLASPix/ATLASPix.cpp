@@ -2300,11 +2300,19 @@ void ATLASPix::SetPixelInjection(uint32_t col, uint32_t row, bool ana_state, boo
 
 
       for(int colt = 0; colt < theMatrix.ncol; colt++) {
-    	  this->SetPixelInjection(colt,0,0,0,0);
+    	  this->SetPixelInjectionState(colt,0,0,0,0);
       }
       for(int rowt = 0; rowt < theMatrix.nrow; rowt++) {
-    	  this->SetPixelInjection(0,rowt,0,0,0);
+    	  this->SetPixelInjectionState(0,rowt,0,0,0);
+    	  std::string row_s = to_string(rowt);
+    	  theMatrix.MatrixDACConfig->SetParameter("writedac" + row_s, 1);
       }
+      this->ProgramSR(theMatrix);
+      for(int rowt = 0; rowt < theMatrix.nrow; rowt++) {
+    	  std::string row_s = to_string(rowt);
+    	  theMatrix.MatrixDACConfig->SetParameter("writedac" + row_s, 0);
+      }
+      this->ProgramSR(theMatrix);
 
   }
 
@@ -2623,7 +2631,7 @@ pearydata ATLASPix::getData() {
 		switch(data_type) {
 
 			case 0b01000000: // BinCnt from ATLASPix, not read for now
-				timestamp=d1&0xFFFFFF ;
+				timestamp=d1&0xFFFFFF  ;
 				break;
 			case 0b00000001: // Buffer overflow, data after this are lost
 				disk << "BUFFER_OVERFLOW" << std::endl;
