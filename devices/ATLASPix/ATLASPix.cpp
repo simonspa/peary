@@ -52,7 +52,9 @@ uint32_t grey_decode(uint32_t g) {
 
 pixelhit decodeHit(uint32_t hit) {
   pixelhit tmp;
-  tmp.col=(hit >> 25) & 0b111111;
+
+  tmp.col=(hit >> 25) & 0b11111;
+
   tmp.row=(hit>>16)&0x1FF;
   tmp.ts1=(hit>>6)&0x3FF;
   tmp.ts2=hit&0x3F;
@@ -2075,7 +2077,7 @@ void ATLASPix::MaskPixel(uint32_t col, uint32_t row) {
   // std::cout << "pixel masked col:" << col << " row: " << row << " " << theMatrix.MASK[col][row] << std::endl;
   this->writeOneTDAC(theMatrix, col, row, 7);
   this->SetPixelInjection(col, row, 1, 1, 1);
-  this->SetPixelInjection(col, row, 0, 0, 1);
+  this->SetPixelInjection(col, row, 0, 0, 0);
 }
 
 void ATLASPix::setAllTDAC(uint32_t value) {
@@ -2620,7 +2622,8 @@ pearydata ATLASPix::getData() {
 
         	pixelhit hit=decodeHit(d1);
         	//LOG(logINFO) << hit.col <<" " << hit.row << " " << hit.ts1 << ' ' << hit.ts2 << std::endl;
-        	disk << "HIT " << hit.col << "	" << hit.row << "	" << hit.ts1 << "	" << hit.ts2 <<  "	" << fpga_ts_last << "	" << " " << TrCNT << " " << timestamp << " " << (fpga_ts_last & 0xFFFFFF) << std::endl;
+        	disk << "HIT " << hit.col << "	" << hit.row << "	" << hit.ts1 << "	" << hit.ts2 <<  "	" << fpga_ts_last << "	" << " " << TrCNT << " " << ((timestamp >> 8) & 0xFFFF)  << " " << (timestamp&0xFF) << " " << ((fpga_ts_last >>1) & 0xFFFF) << std::endl;
+        	//disk << std::bitset<32>(d1) << std::endl;
     }
 
     else{
