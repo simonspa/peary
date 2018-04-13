@@ -54,11 +54,11 @@ namespace caribou {
 #define ncol_m2 56
 #define nrow_m2 320
 
-#define ATLASPix_mask_X 25
-#define ATLASPix_mask_Y 50
+#define ATLASPix_mask_X 5
+#define ATLASPix_mask_Y 25
 
 #define TuningMaxCount 6000
-#define Tuning_timeout 100
+#define Tuning_timeout 1000
 
 
   // ATLASPix  SR FSM control
