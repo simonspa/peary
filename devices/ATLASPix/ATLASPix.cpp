@@ -2466,35 +2466,35 @@ void ATLASPix::SetInjectionMask(uint32_t maskx,uint32_t masky, uint32_t state) {
 
 // Tuning
 
-void ATLASPix::tune(ATLASPixMatrix& matrix, double vmax, int nstep, int npulses, bool tuning_verification) {
-  LOG(logINFO) << "Tunning " << DEVICE_NAME;
-
-  for(int TDAC_value = 0; TDAC_value < 8; TDAC_value++) {
-    matrix.setUniformTDAC(TDAC_value);
-    writeAllTDAC(matrix);
-    ComputeSCurves(matrix, vmax, nstep, npulses, 100, 100);
-    // s_curve plots
-  }
-
-  // double threshold_target = 0;
-  const int cols = matrix.ncol;
-  const int rows = matrix.nrow;
-  int TDAC_map[cols][rows]; //= {0,0};
-  // threshold_target calculation;
-  // pixel TDAC interpolation for target
-  //==> new, tuned, TDAC map
-
-  for(int col = 0; col < matrix.ncol; col++) {
-    for(int row = 0; row < matrix.nrow; row++) {
-      matrix.TDAC[col][row] = TDAC_map[col][row];
-    }
-  }
-  writeAllTDAC(matrix);
-  if(tuning_verification == true) {
-    ComputeSCurves(matrix, 0.5, 50, 128, 100, 100);
-    // S_curve plots + threshold distribution
-  }
-}
+//void ATLASPix::tune(ATLASPixMatrix& matrix, double vmax, int nstep, int npulses, bool tuning_verification) {
+//  LOG(logINFO) << "Tunning " << DEVICE_NAME;
+//
+//  for(int TDAC_value = 0; TDAC_value < 8; TDAC_value++) {
+//    matrix.setUniformTDAC(TDAC_value);
+//    writeAllTDAC(matrix);
+//    ComputeSCurves(matrix, vmax, nstep, npulses, 100, 100);
+//    // s_curve plots
+//  }
+//
+//  // double threshold_target = 0;
+//  const int cols = matrix.ncol;
+//  const int rows = matrix.nrow;
+//  int TDAC_map[cols][rows]; //= {0,0};
+//  // threshold_target calculation;
+//  // pixel TDAC interpolation for target
+//  //==> new, tuned, TDAC map
+//
+//  for(int col = 0; col < matrix.ncol; col++) {
+//    for(int row = 0; row < matrix.nrow; row++) {
+//      matrix.TDAC[col][row] = TDAC_map[col][row];
+//    }
+//  }
+//  writeAllTDAC(matrix);
+//  if(tuning_verification == true) {
+//    ComputeSCurves(matrix, 0.5, 50, 128, 100, 100);
+//    // S_curve plots + threshold distribution
+//  }
+//}
 
 void ATLASPix::ComputeSCurves(ATLASPixMatrix& matrix, double vmax, int nstep, int npulses, int tup, int tdown) {
 
@@ -2578,21 +2578,21 @@ void ATLASPix::getTriggerCount() {
   LOG(logINFO) << "Trigger received              " << this->readCounter(3) << std::endl;
 }
 
+
+
+
+
 pearydata ATLASPix::getData() {
 
-  const unsigned int colmask = 0b11111111000000000000000000000000;
-  const unsigned int ts2mask = 0b00000000111111000000000000000000;
-  const unsigned int ts1mask = 0b00000000000000111111111100000000;
-  const unsigned int rowmask = 0b00000000000000000000000011111111;
 
   void* readout_base =
     _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
 
   volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
   volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x4);
-  volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
-  volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
-  volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
+  //volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
+  //volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
+  //volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
 
   make_directories(_output_directory);
   std::ofstream disk;
@@ -2657,20 +2657,17 @@ pearydata ATLASPix::getData() {
 				fpga_ts=0;
 				break;
 			case 0b00000010: // BUSY asserted with 24bit LSB of Trigger FPGA TS
+
 				fpga_ts_busy=d1 & 0xFFFFFF;
 				disk << "BUSY_ASSERTED " << fpga_ts_busy << std::endl;
+
 				break;
 
 			default: // weird stuff, should not happend
 				LOG(logWARNING) << "I AM IMPOSSIBLE!!!!!!!!!!!!!!!!!!" << std::endl;
-					break;
+				break;
 		}
     }
-
-    bool stopDaq = false;
-
-    if(stopDaq)
-      break;
   }
   disk.close();
 
@@ -2719,14 +2716,17 @@ pearydata ATLASPix::getDataTO(int maskx,int masky) {
 
   while(to==false) {
 
-    // check for stop request from another thread
-    if(!this->_daqContinue.test_and_set())
-      break;
-    // check for new first half-word or restart loop
-    if((*fifo_status & 0x4) == 0){
+	if(!this->_daqContinue.test_and_set()){
+	  break;
+	}
+
+	//Check for new data in FIFO
+    if((*fifo_status & 0x1) == 0){
+    	//wait a microsecond and keep track of it
     	usleep(1);
     	tocnt+=1;
 
+    	//if timeout, leave loop
     	if(tocnt==Tuning_timeout){
     		to=true;
     		break;
@@ -2861,19 +2861,14 @@ pearydata ATLASPix::getDataTO(int maskx,int masky) {
 
 std::vector<pixelhit> ATLASPix::getDataTOvector() {
 
-  const unsigned int colmask = 0b11111111000000000000000000000000;
-  const unsigned int ts2mask = 0b00000000111111000000000000000000;
-  const unsigned int ts1mask = 0b00000000000000111111111100000000;
-  const unsigned int rowmask = 0b00000000000000000000000011111111;
-
   void* readout_base =
     _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
 
   volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
   volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x4);
-  volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
-  volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
-  volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
+  //volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
+  //volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
+  //volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
 
 //  make_directories(_output_directory);
 //  std::ofstream disk;
@@ -2911,351 +2906,68 @@ std::vector<pixelhit> ATLASPix::getDataTOvector() {
     	}
     }
 
-    if(datatocnt>TuningMaxCount){
-    	to=true;
-    	LOG(logWARNING) << "stopping data taking because of noise (over 1M hits), re-applying mask" << std::endl;
-    	this->ReapplyMask();
-    	this->reset();
-    	break;
-    }
 
-    uint64_t d1 = static_cast<uint64_t>(*data);
-    // active wait for the second half-word
-    // with an exit signal we need to also break out of the outer loop
-    bool stopDaq = false;
-    while((*fifo_status & 0x1) == 0) {
-      if(!this->_daqContinue.test_and_set()) {
-        stopDaq = true;
-        break;
-      }
-    }
-    if(stopDaq)
-      break;
 
-    //LOG(logINFO) << "thread bool : " << this->_daqContinue.test_and_set() << std::endl;
-    // combine two 32bit half-words into one 64bit fifo word
-    uint64_t dataw = (static_cast<uint64_t>(*data) << 32) | d1;
 
-    // depending on the fifo state machine words have different meanings
-    uint32_t stateA = dataw >> 56 & 0xFF;
-    if(stateA == 0) {
-      uint32_t DO = (dataw >> 48) & 0xFF;
-      timestamp += DO << 24;
-      // std::cout  << blue << bold << rev  << "stateA : " << stateA << reset  << std::endl;
-      // std::cout <<  bold <<   "DO: " << DO << " TrTS: "  <<TrTS << " TSf: " <<  TSf << reset << std::endl;
-    } else if(stateA == 1) {
-      uint32_t DO = (dataw >> 48) & 0xFF;
-      timestamp += DO << 16;
-      // std::cout  << blue << bold << rev  << "stateA : " << stateA << reset  << std::endl;
-      // std::cout <<  bold <<   "DO: " << DO << " TrTS: "  <<TrTS << " TSf: " <<  TSf << reset << std::endl;
-    } else if(stateA == 2) {
-      uint32_t DO = (dataw >> 48) & 0xFF;
-      timestamp += DO << 8;
-      // std::cout  << blue << bold << rev  << "stateA : " << stateA << reset  << std::endl;
-      // std::cout <<  bold <<   "DO: " << DO << " TrTS: "  <<TrTS << " TSf: " <<  TSf << reset << std::endl;
-    } else if(stateA == 3) {
-      uint32_t DO = (dataw >> 48) & 0xFF;
-      timestamp += DO;
-      // std::cout  << blue << bold << rev  << "stateA : " << stateA << reset  << std::endl;
-      // std::cout <<  bold <<   "DO: " << DO << " TrTS: "  <<TrTS << " TSf: " <<  TSf << reset << std::endl;
-      // disk << std::bitset<32>(timestamp) << " " << std::dec << (timestamp >>8) << " " << gray_decode(timestamp & 0xF) <<
-      // std::endl;
-    } else if(stateA == 4) {
-      uint32_t DO = (dataw >> 48) & 0xFF;
-      hit += DO << 24;
-      // TrTS1 = (dataw>>8) & 0xFFFFFF;
-      // TSf = (dataw) & 0b111111;
-      fpga_ts = 0;
-      fpga_ts += (dataw << 32);
+     uint32_t d1 = static_cast<uint32_t>(*data);
 
-      //counting a new data word
-      datatocnt++;
+     if((d1>>31)==1){
 
-      // std::cout  << blue << bold << rev  << "dataw : " << std::bitset<64>(dataw) << reset  << std::endl;
-      // std::cout <<  bold <<   "DO: " << DO << " TrTS: "  <<TrTS << " TSf: " <<  TSf << reset << std::endl;
-    } else if(stateA == 5) {
-      uint32_t DO = (dataw >> 48) & 0xFF;
-      hit += DO << 16;
-      TrCNT = (dataw)&0xFFFFFFFF;
-      // std::cout  << cyan << bold << rev <<  "stateA : " << stateA << reset  << std::endl;
-      // std::cout <<  bold << "DO: " << DO  << " TrTS: "<< TrTS << " TrCnt: " << TrCnt << reset << std::endl;
-    } else if(stateA == 6) {
-      uint32_t DO = (dataw >> 48) & 0xFF;
-      hit += DO << 8;
-      ATPSyncedCNT = dataw & 0xFFFFFF;
-      // std::cout << green << bold << rev << "dataw : " << std::bitset<64>(dataw)   << reset << std::endl;
-      // std::cout << bold  << "DO: " << DO << " TS: " <<  TS << " TOT: " << TOT << reset << std::endl;
-    } else if(stateA == 7) {
-      uint32_t DO = (dataw >> 48) & 0xFF;
-      hit += DO;
-      fpga_ts += (dataw & 0x00000000FFFFFFFF);
-//      pixelhit pix = decodeHit(hit, timestamp, fpga_ts, ATPSyncedCNT, TrCNT);
-      //datavec.push_back(pix);
-      // Write hit to disk
-      //if(((pix.col+maskx)%theMatrix.maskx==0) && ((pix.row+masky)%theMatrix.masky==0))
-//    	  disk << pix.col << "	" << pix.row << "	" << pix.ts1 << "	" << pix.ts2 << " " << pix.tot  << "	" << pix.fpga_ts << "	" << pix.SyncedTS
-//           << " " << pix.triggercnt << " " << pix.ATPbinaryCnt << " " << pix.ATPGreyCnt << std::endl;
+         	pixelhit hit=decodeHit(d1);
+          	datavec.push_back(hit);
+          	datacnt++;
+     }
 
-      //std::cout << "Hit : " << std::hex << hit << std::dec << std::endl;
-      // double delay=double(fpga_ts-fpga_ts_prev)*(10.0e-9);
-      // std::cout << red << bold << rev << "ts : " <<fpga_ts   << reset << std::endl;
-      // std::cout <<  rev << bold << red << "FPGA TS: "<<fpga_ts << " tr CNT : " << TrCNT << " delay : " << delay <<  reset
-      // << std::endl;
+     else{
 
-//      LOG(logINFO) << "X: " << pix.col << " Y: " << pix.row << " TS1: " << pix.ts1 << " TS2: " << pix.ts2
-//                   << " FPGATS: " << pix.fpga_ts << " SyncedTS: " << pix.SyncedTS << " TriggerCNT: " << pix.triggercnt
-//                   << " ATPBinCNT: " << pix.ATPbinaryCnt << " ATPGreyCNT: " << pix.ATPGreyCnt;
-      fpga_ts_prev = fpga_ts;
-      hit = 0;
-    } else {
-      uint32_t DO = (dataw >> 48) & 0xFF;
-      // std::cout  << red << "stateA : " << stateA << std::endl;
-      // std::cout <<  bold << "DO: "<< std::bitset<8>(DO) << reset << std::endl;
-    };
+     	uint32_t data_type= (d1 >>24) &0xFF;
+
+ 		switch(data_type) {
+
+ 			case 0b01000000: // BinCnt from ATLASPix, not read for now
+ 				timestamp=d1&0xFFFFFF  ;
+ 				break;
+ 			case 0b00000001: // Buffer overflow, data after this are lost
+ 				//disk << "BUFFER_OVERFLOW" << std::endl;
+ 				break;
+ 			case 0b00010000:// Trigger cnt 24bits
+ 				TrCNT = d1 & 0xFFFFFF;
+ 				break;
+ 			case 0b00110000:// Trigger cnt 16b + fpga_ts 24 bits
+ 				TrCNT= TrCNT + ((d1 << 8) & 0xFF000000);
+ 				fpga_ts = fpga_ts + ((d1 <<8) & 0xFF00000000000000);
+ 				break;
+ 			case 0b00100000: // continuation of fpga_ts
+ 				fpga_ts = fpga_ts + ((d1 <<24) & 0x0000FFFFFF000000);
+ 				break;
+ 			case 0b01100000:// End of fpga_ts
+ 				fpga_ts = fpga_ts + ((d1) & 0xFFFFFF);
+ 				//LOG(logINFO) << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
+ 				//disk << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
+ 				fpga_ts_last=fpga_ts;
+ 				fpga_ts=0;
+ 				break;
+ 			case 0b00000010: // BUSY asserted with 24bit LSB of Trigger FPGA TS
+ 				fpga_ts_busy=d1 & 0xFFFFFF;
+ 				//disk << "BUSY_ASSERTED " << fpga_ts_busy << std::endl;
+ 				break;
+
+ 			default: // weird stuff, should not happend
+ 				LOG(logWARNING) << "I AM IMPOSSIBLE!!!!!!!!!!!!!!!!!!" << std::endl;
+ 					break;
+ 		}
+     }
+
   }
-  //disk.close();
 
-
-
-  // write additional information
-  std::ofstream stats(_output_directory + "/stats.txt", std::ios::out);
-  stats << "trigger_counter " << this->getTriggerCounter() << std::endl;
-  //LOG(logINFO) << "data count : " << datatocnt << std::endl;
-
+  LOG(logINFO) << "data count : " << datacnt << std::endl;
 
   return datavec;
 }
 
 
 
-std::vector<int> ATLASPix::getCountingData() {
 
-  const unsigned int colmask = 0b11111111000000000000000000000000;
-  const unsigned int ts2mask = 0b00000000111111000000000000000000;
-  const unsigned int ts1mask = 0b00000000000000111111111100000000;
-  const unsigned int rowmask = 0b00000000000000000000000011111111;
-
-  void* readout_base =
-    _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
-
-  volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
-  volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x4);
-  volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
-  volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
-  volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
-
-  uint64_t d1 = 0;
-  uint64_t d2 = 0;
-  uint64_t dataw = 0;
-  uint64_t fpga_ts = 0;
-  uint64_t fpga_ts_prev = 0;
-
-  uint32_t row, col, ts1, ts2;
-
-  // std::ofstream disk;
-  // disk.open("PEARYDATA/tmp.dat",std::ios::out);
-  // disk << "X:	Y:	TS1:	TS2:	FPGA_TS:	TR_CNT:	TR_DELAY:	" << std::endl;
-
-  Color::Modifier red(Color::FG_RED);
-  Color::Modifier green(Color::FG_GREEN);
-  Color::Modifier blue(Color::FG_BLUE);
-  Color::Modifier cyan(Color::FG_CYAN);
-  Color::Modifier mag(Color::FG_MAGENTA);
-  Color::Modifier bold(Color::BOLD);
-  Color::Modifier rev(Color::REVERSE);
-  Color::Modifier def(Color::FG_DEFAULT);
-  Color::Modifier reset(Color::RESET);
-  uint32_t hit = 0;
-  uint32_t timestamp = 0;
-  uint32_t chipts = 0;
-
-  uint32_t TrTS, TrTS1, TSf, TrTS2, TrCNT;
-
-  int to, cnt;
-  int prev_tr = 0;
-  to = 1;
-  cnt = 0;
-
-  // READOUT on
-  *fifo_config = 0b0;
-  *ro = 0x00000;
-  usleep(1);
-  *fifo_config = 0b100000;
-  *ro = 0xF0000;
-  usleep(10);
-  *ro = 0x00000;
-  *fifo_config = 0b11;
-
-  std::vector<int> pixels(25 * 400, 0);
-
-  while(to) {
-    while((*fifo_status & 0x4) == 0 & to == 1) {
-      usleep(1);
-      cnt++;
-      if(cnt > 1e7) {
-        to = 0;
-      }
-    };
-
-    if(to == 0) {
-      break;
-    }
-
-    d1 = *data;
-    usleep(10);
-    d2 = *data;
-    usleep(10);
-
-    dataw = (d2 << 32) | (d1);
-    uint32_t stateA = dataw >> 56 & 0xFF;
-
-    if(stateA == 0) {
-      uint32_t DO = (dataw >> 48) & 0xFF;
-      timestamp += DO << 24;
-    } else if(stateA == 1) {
-      uint32_t DO = (dataw >> 48) & 0xFF;
-      timestamp += DO << 16;
-    } else if(stateA == 2) {
-      uint32_t DO = (dataw >> 48) & 0xFF;
-      timestamp += DO << 8;
-    } else if(stateA == 3) {
-      uint32_t DO = (dataw >> 48) & 0xFF;
-      timestamp += DO;
-    } else if(stateA == 4) {
-      uint32_t DO = (dataw >> 48) & 0xFF;
-      hit += DO << 24;
-      TrTS1 = (dataw >> 8) & 0xFFFFFF;
-      TSf = (dataw)&0b111111;
-      fpga_ts = 0;
-      fpga_ts += (dataw << 32);
-    } else if(stateA == 5) {
-      uint32_t DO = (dataw >> 48) & 0xFF;
-      hit += DO << 16;
-      TrTS2 = (dataw >> 32) & 0xFFFF;
-      TrCNT = (dataw)&0xFFFFFFFF;
-    } else if(stateA == 6) {
-      uint32_t DO = (dataw >> 48) & 0xFF;
-      hit += DO << 8;
-      chipts = ((dataw & 0xFFF00) >> 2) | (dataw & 0b111111);
-    } else if(stateA == 7) {
-      uint32_t DO = (dataw >> 48) & 0xFF;
-      hit += DO;
-      //			 pixelhit pix=decodeHit(hit);
-      fpga_ts += (dataw & 0x00000000FFFFFFFF);
-      // std::cout << rev << bold << red << "X: "<< pix.col  << " Y: " << pix.row << " " << pix.ts1 << " " << pix.ts2 <<
-      // reset << std::endl;
-      // disk << pix.col  << "	" << pix.row << "	" << pix.ts1 << "	" << pix.ts2 << "	" << fpga_ts << "	" << TrCNT <<
-      // std::endl;
-
-      double delay = double(fpga_ts - fpga_ts_prev) * (10.0e-9);
-      // std::cout << rev << bold << red << "FPGA TS: "<<fpga_ts << " tr CNT : " << TrCNT << " delay : " << delay <<  reset
-      // << std::endl;
-      fpga_ts_prev = fpga_ts;
-      hit = 0;
-
-      //			 pixels.at(pix.col + pix.row*25) = pixels.at(pix.col + pix.row*25) +1;
-      ;
-
-    } else {
-      uint32_t DO = (dataw >> 48) & 0xFF;
-    };
-  }
-  // disk.close();
-}
-
-void ATLASPix::TakeData() {
-
-  const unsigned int colmask = 0b11111111000000000000000000000000;
-  const unsigned int ts2mask = 0b00000000111111000000000000000000;
-  const unsigned int ts1mask = 0b00000000000000111111111100000000;
-  const unsigned int rowmask = 0b00000000000000000000000011111111;
-
-  void* readout_base =
-    _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
-
-  volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
-  volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x4);
-  volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
-  volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
-  volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
-
-  *fifo_config = 0b1;
-  *ro = 0xF0000;
-
-  uint64_t d1 = 0;
-  uint64_t d2 = 0;
-  uint64_t dataw = 0;
-
-  uint32_t row, col, ts1, ts2;
-
-  std::ofstream disk;
-  disk.open("PEARYDATA/tmp.dat", std::ios::out | std::ios::binary);
-
-  Color::Modifier red(Color::FG_RED);
-  Color::Modifier green(Color::FG_GREEN);
-  Color::Modifier blue(Color::FG_BLUE);
-  Color::Modifier cyan(Color::FG_CYAN);
-  Color::Modifier mag(Color::FG_MAGENTA);
-  Color::Modifier bold(Color::BOLD);
-  Color::Modifier rev(Color::REVERSE);
-  Color::Modifier def(Color::FG_DEFAULT);
-  Color::Modifier reset(Color::RESET);
-
-  for(int i = 0; i < 10000; i++) {
-    //	 while(1){
-    while((*fifo_status & 0x1) == 1) {
-      usleep(1);
-    }
-
-    //		 std::cout << "fifo_status" <<   std::bitset<32>(*fifo_status) << std::endl;
-    d1 = *data;
-    //		 std::cout << "data word 1: " <<   std::bitset<32>(d1) << std::endl;
-
-    //		 std::cout << "fifo_status: " <<   std::bitset<32>(*fifo_status) << std::endl;
-    d2 = *data;
-
-    //		 std::cout << "data word 2: " <<   std::bitset<32>(d2) << std::endl;
-    //		 //std::cout << "data word 2: " << std::hex <<   d2 << std::endl;
-    //
-    dataw = (d2 << 32) | (d1);
-    uint32_t stateA = dataw >> 56 & 0xFF;
-
-    if(stateA == 6) {
-      std::cout << green << bold << rev << "stateA : " << stateA << std::endl;
-    } else if(stateA == 4) {
-      std::cout << blue << "stateA : " << stateA << std::endl;
-    } else if(stateA == 5) {
-      std::cout << cyan << "stateA : " << stateA << std::endl;
-    } else if(stateA == 7) {
-      std::cout << mag << "stateA : " << stateA << std::endl;
-    } else {
-      std::cout << red << "stateA : " << stateA << std::endl;
-    };
-
-    std::cout << "data word: " << std::bitset<64>(dataw) << std::endl;
-
-    if(stateA == 6) {
-      ////
-      uint32_t hit = ((dataw >> 48) & 0xFF) << 24 | (dataw & 0xFFFFFF);
-      col = (hit & colmask) >> 24;
-      ts2 = (hit & ts2mask) >> 18;
-      ts1 = (hit & ts1mask) >> 8;
-      row = (hit & rowmask);
-
-      std::cout << "Hit data : " << std::bitset<8>(col) << " " << std::bitset<8>(row) << " " << std::bitset<10>(ts1) << " "
-                << std::bitset<6>(ts2) << reset << std::endl;
-      std::cout << std::dec << "col : " << col << " row : " << row << " TS1 : " << ts1 << " TS2 : " << ts2 << std::endl;
-
-      disk << hit;
-    }
-
-    // std::cout  << std::endl;
-    //
-    // usleep(1000);
-  }
-
-  disk.close();
-}
 
 
 void ATLASPix::ReapplyMask(){
@@ -3478,84 +3190,84 @@ void ATLASPix::VerifyTuning( double vmax, int nstep, int npulses,std::string TDA
 
 }
 
-void ATLASPix::doSCurves(double vmin, double vmax, uint32_t npulses, uint32_t npoints) {
-
-  std::cout << "Ok lets get started" << std::endl;
-  int cnt = 0;
-  double vinj = vmin;
-  double dv = (vmax - vmin) / (npoints - 1);
-  std::cout << "vmin : " << vmin << " vmax : " << vmax << " dV  : " << dv << std::endl;
-
-  // Setting Time Stamp in the file name
-  std::time_t t = std::time(NULL);
-  std::tm* ptm = std::localtime(&t);
-  std::stringstream ss;
-  ss << "PEARYDATA/ATLASPixGradeA_02/"
-     << "_" << ptm->tm_year + 1900 << "_" << ptm->tm_mon + 1 << "_" << ptm->tm_mday << "@" << ptm->tm_hour + 1 << "_"
-     << ptm->tm_min + 1 << "_" << ptm->tm_sec + 1 << "_VNPix";
-
-  std::string cmd;
-  cmd += "mkdir -p ";
-  cmd += " ";
-  cmd += ss.str();
-  const int dir_err = system(cmd.c_str());
-
-  std::string filename;
-  filename += ss.str();
-  filename += "/";
-  filename += "M1_VNDAC_";
-  filename += std::to_string(theMatrix.CurrentDACConfig->GetParameter("VNDACPix"));
-  filename += "_TDAC_";
-  filename += std::to_string(theMatrix.TDAC[0][0] >> 1);
-  // filename+=ss.str();
-  filename += ".txt";
-
-  std::cout << "writing to file : " << filename << std::endl;
-
-  std::ofstream myfile;
-  myfile.open(filename);
-
-  myfile << npoints << std::endl;
-
-  std::clock_t start;
-  double duration;
-
-  for(int col = 0; col < theMatrix.ncol; col++) {
-    for(int row = 0; row < theMatrix.nrow; row++) {
-
-      // start = std::clock();
-
-      if(row % 5 == 0) {
-        std::cout << "X: " << col << " Y: " << row << "\n";
-      }
-
-      vinj = vmin;
-      // this->SetPixelInjection(theMatrix,0,0,1,1);
-      // this->SetPixelInjection(theMatrix,0,0,0,0);
-
-      this->SetPixelInjection(col, row, 1, 1,1);
-      this->resetCounters();
-
-      for(int i = 0; i < npoints; i++) {
-        this->pulse(npulses, 1000, 1000, vinj);
-        // cnt=this->readCounter(theMatrixISO);
-        cnt = this->readCounter(theMatrix);
-        // this->getData();
-        myfile << vinj << " " << cnt << " ";
-        // std::cout << "V : " << vinj << " count : " << cnt << std::endl;
-        vinj += dv;
-      }
-
-      this->SetPixelInjection(col, row, 0, 0,0);
-      myfile << std::endl;
-
-      // duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
-      // std::cout << duration << " s \n" ;
-    }
-  }
-
-  myfile.close();
-}
+//void ATLASPix::doSCurves(double vmin, double vmax, uint32_t npulses, uint32_t npoints) {
+//
+//  std::cout << "Ok lets get started" << std::endl;
+//  int cnt = 0;
+//  double vinj = vmin;
+//  double dv = (vmax - vmin) / (npoints - 1);
+//  std::cout << "vmin : " << vmin << " vmax : " << vmax << " dV  : " << dv << std::endl;
+//
+//  // Setting Time Stamp in the file name
+//  std::time_t t = std::time(NULL);
+//  std::tm* ptm = std::localtime(&t);
+//  std::stringstream ss;
+//  ss << "PEARYDATA/ATLASPixGradeA_02/"
+//     << "_" << ptm->tm_year + 1900 << "_" << ptm->tm_mon + 1 << "_" << ptm->tm_mday << "@" << ptm->tm_hour + 1 << "_"
+//     << ptm->tm_min + 1 << "_" << ptm->tm_sec + 1 << "_VNPix";
+//
+//  std::string cmd;
+//  cmd += "mkdir -p ";
+//  cmd += " ";
+//  cmd += ss.str();
+//  const int dir_err = system(cmd.c_str());
+//
+//  std::string filename;
+//  filename += ss.str();
+//  filename += "/";
+//  filename += "M1_VNDAC_";
+//  filename += std::to_string(theMatrix.CurrentDACConfig->GetParameter("VNDACPix"));
+//  filename += "_TDAC_";
+//  filename += std::to_string(theMatrix.TDAC[0][0] >> 1);
+//  // filename+=ss.str();
+//  filename += ".txt";
+//
+//  std::cout << "writing to file : " << filename << std::endl;
+//
+//  std::ofstream myfile;
+//  myfile.open(filename);
+//
+//  myfile << npoints << std::endl;
+//
+//  std::clock_t start;
+//  double duration;
+//
+//  for(int col = 0; col < theMatrix.ncol; col++) {
+//    for(int row = 0; row < theMatrix.nrow; row++) {
+//
+//      // start = std::clock();
+//
+//      if(row % 5 == 0) {
+//        std::cout << "X: " << col << " Y: " << row << "\n";
+//      }
+//
+//      vinj = vmin;
+//      // this->SetPixelInjection(theMatrix,0,0,1,1);
+//      // this->SetPixelInjection(theMatrix,0,0,0,0);
+//
+//      this->SetPixelInjection(col, row, 1, 1,1);
+//      this->resetCounters();
+//
+//      for(int i = 0; i < npoints; i++) {
+//        this->pulse(npulses, 1000, 1000, vinj);
+//        // cnt=this->readCounter(theMatrixISO);
+//        cnt = this->readCounter(theMatrix);
+//        // this->getData();
+//        myfile << vinj << " " << cnt << " ";
+//        // std::cout << "V : " << vinj << " count : " << cnt << std::endl;
+//        vinj += dv;
+//      }
+//
+//      this->SetPixelInjection(col, row, 0, 0,0);
+//      myfile << std::endl;
+//
+//      // duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
+//      // std::cout << duration << " s \n" ;
+//    }
+//  }
+//
+//  myfile.close();
+//}
 
 void ATLASPix::doSCurves(std::string basefolder, double vmin, double vmax, uint32_t npulses, uint32_t npoints) {
 
@@ -3636,27 +3348,6 @@ void ATLASPix::TDACScan(
   }
 }
 
-void ATLASPix::doNoiseCurve(uint32_t col, uint32_t row) {
-
-  this->SetPixelInjection(col, row, 1, 1,1);
-  this->resetCounters();
-
-  int cnt = 0;
-
-  double threshold = 0.88;
-  this->setThreshold(threshold);
-
-  while(cnt < 1000) {
-    this->resetCounters();
-    usleep(1000);
-    this->setThreshold(threshold);
-    std::cout << "Count  : " << this->readCounter(theMatrix) << std::endl;
-    cnt = this->readCounter(theMatrix);
-    threshold -= 0.001;
-  }
-
-  std::cout << "noise floor at : " << threshold + 0.001 << std::endl;
-}
 
 // CaR Board related
 
