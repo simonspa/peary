@@ -2515,16 +2515,7 @@ void ATLASPix::ComputeSCurves(ATLASPixMatrix& matrix, double vmax, int nstep, in
     for(int col = 0; col < matrix.ncol; col++) {
       for(int row = 0; row < matrix.nrow; row++) {
         sendPulse();
-        // 2018-02-14 msmk:
-        // I'm pretty sure this is a (major) bug. before my changes readCounter took a pointer to
-        // an ATLASPixMatrix object. calling it with 0 means we are taking a nullptr that is then referenced
-        // in the function. Not sure what was returned then?
-        //				int sent = this->readCounter(0);
-        int rec = this->readCounter(matrix);
-        //				double ratio = double(rec)/sent;
-        double ratio = double(rec) / npulses;
-        resetCounters();
-        s_curves[step][col][row] = ratio;
+        s_curves[step][col][row] = 0;
       }
     }
     step++;
@@ -2533,25 +2524,73 @@ void ATLASPix::ComputeSCurves(ATLASPixMatrix& matrix, double vmax, int nstep, in
   std::cout << "duration : " << duration << "s" << std::endl;
 }
 
-void ATLASPix::doSCurve(uint32_t col, uint32_t row, double vmin, double vmax, uint32_t npulses, uint32_t npoints) {
 
-  this->SetPixelInjection(col, row, 1, 1,1);
-  this->resetCounters();
+void ATLASPix::CountHits(std::vector<pixelhit> data,uint32_t maskidx, uint32_t maskidy,CounterMap &counts){
 
-  int cnt = 0;
+
+	for (auto & hit : data) {
+	    if((((hit.col + maskidx) % theMatrix.maskx)==0) && (((hit.row + maskidy) % theMatrix.masky)==0)) {
+	    	counts[std::make_pair(hit.col,hit.row)]++;
+	    }
+	}
+}
+
+
+
+
+void ATLASPix::doSCurves(double vmin, double vmax, uint32_t npulses, uint32_t npoints) {
+
 
   double vinj = vmin;
   double dv = (vmax - vmin) / (npoints - 1);
 
-  for(int i = 0; i < npoints; i++) {
-    this->pulse(npulses, 10000, 10000, vinj);
-    cnt = this->readCounter(theMatrix);
-    std::cout << "V : " << vinj << " count : " << cnt << std::endl;
-    vinj += dv;
-  }
+  std::vector<CounterMap> SCurveData(npoints);
 
-  this->SetPixelInjection(col, row, 0, 0,0);
+  make_directories(_output_directory);
+  std::ofstream disk;
+  disk.open(_output_directory + "/SCURVE_TDAC"+ std::to_string(theMatrix.TDAC[0][0]>>1) + ".txt", std::ios::out);
+  //disk << "X:	Y:	   TS1:	   TS2:		FPGA_TS:  TR_CNT:  BinCounter :  " << std::endl;
+
+
+
+  for(int mx=0;mx<theMatrix.maskx;mx++){
+	  for(int my=0;my<theMatrix.masky;my++){
+
+
+		  this->SetInjectionMask(mx,my,1);
+		  vinj=vmin;
+		  for(int i = 0; i < npoints; i++) {
+		    LOG(logINFO) << "pulse height : " << vinj << std::endl;
+			this->pulse(npulses, 10000, 10000, vinj);
+		    this->CountHits(this->getDataTOvector(),mx,my,SCurveData[i]);
+		    vinj += dv;
+		  }
+
+
+		  for(int col = 0; col < theMatrix.ncol; col++) {
+		    for(int row = 0; row < theMatrix.nrow; row++) {
+
+			    if((((col + mx) % theMatrix.maskx)==0) && (((row + my) % theMatrix.masky)==0)) {
+					disk << col << " " << row << " ";
+					for(int i = 0; i < npoints; i++) {
+						disk << SCurveData[i][std::make_pair(col,row)] << " ";
+					  }
+					disk << std::endl;
+			    }
+		     }
+		   };
+
+
+		  this->SetInjectionMask(mx,my,0);
+	  }
+   }
+
+  disk.close();
+
 }
+
+
+
 
 void ATLASPix::isLocked() {
   void* readout_base =
@@ -2610,19 +2649,20 @@ pearydata ATLASPix::getData() {
     // check for stop request from another thread
     if(!this->_daqContinue.test_and_set())
       break;
-    // check for new first half-word or restart loop
+    // check for new data in fifo
     if((*fifo_status & 0x1) == 0){
-
-    	continue;}
+    	continue;
+    }
 
     uint32_t d1 = static_cast<uint32_t>(*data);
     //std::cout << std::bitset<32>(d1) << std::endl;
 
+    //HIT data of bit 31 is = 1
     if((d1>>31)==1){
 
         	pixelhit hit=decodeHit(d1);
         	//LOG(logINFO) << hit.col <<" " << hit.row << " " << hit.ts1 << ' ' << hit.ts2 << std::endl;
-        	disk << "HIT " << hit.col << "	" << hit.row << "	" << hit.ts1 << "	" << hit.ts2 <<  "	" << fpga_ts_last << "	" << " " << TrCNT << " " << ((timestamp >> 8) & 0xFFFF)  << " " << (timestamp&0xFF) << " " << ((fpga_ts_last >>1) & 0xFFFF) << std::endl;
+        	disk << "HIT " << hit.col << "	" << hit.row << "	" << hit.ts1 << "	" << hit.ts2 <<  "	" << fpga_ts_last << "	" << " " << TrCNT << " " << ((timestamp >> 8) & 0xFFFF) << std::endl;
         	//disk << std::bitset<32>(d1) << std::endl;
     }
 
@@ -2630,7 +2670,7 @@ pearydata ATLASPix::getData() {
 
     	uint32_t data_type= (d1 >>24) &0xFF;
 
-
+    	// Parse the different data types (BUFFEROVERFLOW,TRIGGER,BUSY_ASSERTED)
 		switch(data_type) {
 
 			case 0b01000000: // BinCnt from ATLASPix, not read for now
@@ -2684,30 +2724,24 @@ pearydata ATLASPix::getData() {
 
 pearydata ATLASPix::getDataTO(int maskx,int masky) {
 
-  const unsigned int colmask = 0b11111111000000000000000000000000;
-  const unsigned int ts2mask = 0b00000000111111000000000000000000;
-  const unsigned int ts1mask = 0b00000000000000111111111100000000;
-  const unsigned int rowmask = 0b00000000000000000000000011111111;
 
-  void* readout_base =
-    _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
+  void* readout_base = _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
 
   volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
   volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x4);
-  volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
-  volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
-  volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
+  //volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
+  //volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
+  //volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
 
   make_directories(_output_directory);
   std::ofstream disk;
   disk.open(_output_directory + "/data.txt", std::ios::out);
-  disk << "X:	Y:	   TS1:	   TS2:		FPGA_TS:   SyncedCNT:   TR_CNT:	ATPBinCounter:   ATPGreyCounter:	" << std::endl;
+  disk << "X:	Y:	   TS1:	   TS2:		FPGA_TS:  TR_CNT:  BinCounter :  " << std::endl;
 
   uint64_t fpga_ts = 0;
-  uint64_t fpga_ts_prev = 0;
-  uint32_t hit = 0;
+  uint64_t fpga_ts_last=0;
+  uint64_t fpga_ts_busy = 0;
   uint32_t timestamp = 0;
-  uint32_t ATPSyncedCNT = 0;
   uint32_t TrCNT = 0;
 
   bool to = false;
@@ -2742,113 +2776,63 @@ pearydata ATLASPix::getDataTO(int maskx,int masky) {
     	this->ReapplyMask();
     	this->reset();
     	sleep(1);
-        sendPulse();
-    	this->getDataTO(maskx,masky);
-
     	break;
     }
 
-    uint64_t d1 = static_cast<uint64_t>(*data);
-    // active wait for the second half-word
-    // with an exit signal we need to also break out of the outer loop
-    bool stopDaq = false;
-    while((*fifo_status & 0x1) == 0) {
-      if(!this->_daqContinue.test_and_set()) {
-        stopDaq = true;
-        break;
-      }
-    }
-    if(stopDaq)
-      break;
+    uint32_t d1 = static_cast<uint32_t>(*data);
 
-    //LOG(logINFO) << "thread bool : " << this->_daqContinue.test_and_set() << std::endl;
-    // combine two 32bit half-words into one 64bit fifo word
-    uint64_t dataw = (static_cast<uint64_t>(*data) << 32) | d1;
+	if((d1>>31)==1){
 
-    // depending on the fifo state machine words have different meanings
-    uint32_t stateA = dataw >> 56 & 0xFF;
-    if(stateA == 0) {
-      uint32_t DO = (dataw >> 48) & 0xFF;
-      timestamp += DO << 24;
-      // std::cout  << blue << bold << rev  << "stateA : " << stateA << reset  << std::endl;
-      // std::cout <<  bold <<   "DO: " << DO << " TrTS: "  <<TrTS << " TSf: " <<  TSf << reset << std::endl;
-    } else if(stateA == 1) {
-      uint32_t DO = (dataw >> 48) & 0xFF;
-      timestamp += DO << 16;
-      // std::cout  << blue << bold << rev  << "stateA : " << stateA << reset  << std::endl;
-      // std::cout <<  bold <<   "DO: " << DO << " TrTS: "  <<TrTS << " TSf: " <<  TSf << reset << std::endl;
-    } else if(stateA == 2) {
-      uint32_t DO = (dataw >> 48) & 0xFF;
-      timestamp += DO << 8;
-      // std::cout  << blue << bold << rev  << "stateA : " << stateA << reset  << std::endl;
-      // std::cout <<  bold <<   "DO: " << DO << " TrTS: "  <<TrTS << " TSf: " <<  TSf << reset << std::endl;
-    } else if(stateA == 3) {
-      uint32_t DO = (dataw >> 48) & 0xFF;
-      timestamp += DO;
-      // std::cout  << blue << bold << rev  << "stateA : " << stateA << reset  << std::endl;
-      // std::cout <<  bold <<   "DO: " << DO << " TrTS: "  <<TrTS << " TSf: " <<  TSf << reset << std::endl;
-      // disk << std::bitset<32>(timestamp) << " " << std::dec << (timestamp >>8) << " " << gray_decode(timestamp & 0xF) <<
-      // std::endl;
-    } else if(stateA == 4) {
-      uint32_t DO = (dataw >> 48) & 0xFF;
-      hit += DO << 24;
-      // TrTS1 = (dataw>>8) & 0xFFFFFF;
-      // TSf = (dataw) & 0b111111;
-      fpga_ts = 0;
-      fpga_ts += (dataw << 32);
+		pixelhit hit=decodeHit(d1);
+		//LOG(logINFO) << hit.col <<" " << hit.row << " " << hit.ts1 << ' ' << hit.ts2 << std::endl;
+		disk << "HIT " << hit.col << "	" << hit.row << "	" << hit.ts1 << "	" << hit.ts2 <<  "	" << fpga_ts_last << "	" << " " << TrCNT << " " << ((timestamp >> 8) & 0xFFFF)  << " " << (timestamp&0xFF) << " " << ((fpga_ts_last >>1) & 0xFFFF) << std::endl;
+		datatocnt++;
 
-      //counting a new data word
-      datatocnt++;
+	}
 
-      // std::cout  << blue << bold << rev  << "dataw : " << std::bitset<64>(dataw) << reset  << std::endl;
-      // std::cout <<  bold <<   "DO: " << DO << " TrTS: "  <<TrTS << " TSf: " <<  TSf << reset << std::endl;
-    } else if(stateA == 5) {
-      uint32_t DO = (dataw >> 48) & 0xFF;
-      hit += DO << 16;
-      TrCNT = (dataw)&0xFFFFFFFF;
-      // std::cout  << cyan << bold << rev <<  "stateA : " << stateA << reset  << std::endl;
-      // std::cout <<  bold << "DO: " << DO  << " TrTS: "<< TrTS << " TrCnt: " << TrCnt << reset << std::endl;
-    } else if(stateA == 6) {
-      uint32_t DO = (dataw >> 48) & 0xFF;
-      hit += DO << 8;
-      ATPSyncedCNT = dataw & 0xFFFFFF;
-      // std::cout << green << bold << rev << "dataw : " << std::bitset<64>(dataw)   << reset << std::endl;
-      // std::cout << bold  << "DO: " << DO << " TS: " <<  TS << " TOT: " << TOT << reset << std::endl;
-    } else if(stateA == 7) {
-      uint32_t DO = (dataw >> 48) & 0xFF;
-      hit += DO;
-      fpga_ts += (dataw & 0x00000000FFFFFFFF);
-      //pixelhit pix = decodeHit(hit, timestamp, fpga_ts, ATPSyncedCNT, TrCNT);
+	else{
 
-      // Write hit to disk
-      //if(((pix.col+maskx)%theMatrix.maskx==0) && ((pix.row+masky)%theMatrix.masky==0))
- //   	  disk << pix.col << "	" << pix.row << "	" << pix.ts1 << "	" << pix.ts2 << " " << pix.tot  << "	" << pix.fpga_ts << "	" << pix.SyncedTS
- //          << " " << pix.triggercnt << " " << pix.ATPbinaryCnt << " " << pix.ATPGreyCnt << std::endl;
+	uint32_t data_type = (d1 >>24) &0xFF;
 
-      //std::cout << "Hit : " << std::hex << hit << std::dec << std::endl;
-      // double delay=double(fpga_ts-fpga_ts_prev)*(10.0e-9);
-      // std::cout << red << bold << rev << "ts : " <<fpga_ts   << reset << std::endl;
-      // std::cout <<  rev << bold << red << "FPGA TS: "<<fpga_ts << " tr CNT : " << TrCNT << " delay : " << delay <<  reset
-      // << std::endl;
+	switch(data_type) {
 
-//      LOG(logINFO) << "X: " << pix.col << " Y: " << pix.row << " TS1: " << pix.ts1 << " TS2: " << pix.ts2
-//                   << " FPGATS: " << pix.fpga_ts << " SyncedTS: " << pix.SyncedTS << " TriggerCNT: " << pix.triggercnt
-//                   << " ATPBinCNT: " << pix.ATPbinaryCnt << " ATPGreyCNT: " << pix.ATPGreyCnt;
-      fpga_ts_prev = fpga_ts;
-      hit = 0;
-    } else {
-      uint32_t DO = (dataw >> 48) & 0xFF;
-      // std::cout  << red << "stateA : " << stateA << std::endl;
-      // std::cout <<  bold << "DO: "<< std::bitset<8>(DO) << reset << std::endl;
-    };
+		case 0b01000000: // BinCnt from ATLASPix, not read for now
+			timestamp=d1&0xFFFFFF  ;
+			break;
+		case 0b00000001: // Buffer overflow, data after this are lost
+			//disk << "BUFFER_OVERFLOW" << std::endl;
+			break;
+		case 0b00010000:// Trigger cnt 24bits
+			TrCNT = d1 & 0xFFFFFF;
+			break;
+		case 0b00110000:// Trigger cnt 16b + fpga_ts 24 bits
+			TrCNT= TrCNT + ((d1 << 8) & 0xFF000000);
+			fpga_ts = fpga_ts + ((d1 <<8) & 0xFF00000000000000);
+			break;
+		case 0b00100000: // continuation of fpga_ts
+			fpga_ts = fpga_ts + ((d1 <<24) & 0x0000FFFFFF000000);
+			break;
+		case 0b01100000:// End of fpga_ts
+			fpga_ts = fpga_ts + ((d1) & 0xFFFFFF);
+			//LOG(logINFO) << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
+			//disk << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
+			fpga_ts_last=fpga_ts;
+			fpga_ts=0;
+			break;
+		case 0b00000010: // BUSY asserted with 24bit LSB of Trigger FPGA TS
+			fpga_ts_busy=d1 & 0xFFFFFF;
+			//disk << "BUSY_ASSERTED " << fpga_ts_busy << std::endl;
+			break;
+
+		default: // weird stuff, should not happend
+			LOG(logWARNING) << "I AM IMPOSSIBLE!!!!!!!!!!!!!!!!!!" << std::endl;
+				break;
+		}
+	}
   }
+
   disk.close();
 
-
-
-  // write additional information
-  std::ofstream stats(_output_directory + "/stats.txt", std::ios::out);
-  stats << "trigger_counter " << this->getTriggerCounter() << std::endl;
   LOG(logINFO) << "data count : " << datatocnt << std::endl;
 
   pearydata dummy;
@@ -2876,16 +2860,16 @@ std::vector<pixelhit> ATLASPix::getDataTOvector() {
 //  disk << "X:	Y:	   TS1:	   TS2:		FPGA_TS:   SyncedCNT:   TR_CNT:	ATPBinCounter:   ATPGreyCounter:	" << std::endl;
 
   uint64_t fpga_ts = 0;
-  uint64_t fpga_ts_prev = 0;
-  uint32_t hit = 0;
+  uint64_t fpga_ts_last=0;
+  uint64_t fpga_ts_busy = 0;
   uint32_t timestamp = 0;
-  uint32_t ATPSyncedCNT = 0;
   uint32_t TrCNT = 0;
 
   bool to = false;
   uint32_t tocnt=0;
   uint32_t datatocnt=0;
   std::vector<pixelhit> datavec;
+  uint32_t datacnt=0;
 
   while(to==false) {
 
@@ -2893,10 +2877,10 @@ std::vector<pixelhit> ATLASPix::getDataTOvector() {
     if(!this->_daqContinue.test_and_set())
       break;
     // check for new first half-word or restart loop
-    if((*fifo_status & 0x4) == 0){
+
+    if((*fifo_status & 0x1) == 0){
     	usleep(1);
     	tocnt+=1;
-
     	if(tocnt==Tuning_timeout){
     		to=true;
     		break;
