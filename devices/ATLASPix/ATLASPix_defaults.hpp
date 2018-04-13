@@ -60,7 +60,6 @@ namespace caribou {
 #define TuningMaxCount 6000
 #define Tuning_timeout 1000
 
-
   // ATLASPix  SR FSM control
   const std::intptr_t ATLASPix_CONTROL_BASE_ADDRESS = 0x43C20000;
   const std::size_t ATLASPix_CONTROL_MAP_SIZE = 4096;

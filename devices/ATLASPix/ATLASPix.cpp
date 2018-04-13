@@ -19,7 +19,7 @@
 using namespace caribou;
 
 uint32_t reverseBits(uint8_t n) {
-  uint32_t x=0;
+  uint32_t x = 0;
   for(auto i = 7; n;) {
     x |= (n & 1) << i;
     n >>= 1;
@@ -40,8 +40,6 @@ uint32_t reverseBits64(uint64_t n) {
 
 // BASIC Configuration
 
-
-
 uint32_t grey_decode(uint32_t g) {
   for(uint32_t bit = 1U << 31; bit > 1; bit >>= 1) {
     if(g & bit)
@@ -53,17 +51,16 @@ uint32_t grey_decode(uint32_t g) {
 pixelhit decodeHit(uint32_t hit) {
   pixelhit tmp;
 
-  tmp.col=(hit >> 25) & 0b11111;
+  tmp.col = (hit >> 25) & 0b11111;
 
-  tmp.row=(hit>>16)&0x1FF;
-  tmp.ts1=(hit>>6)&0x3FF;
-  tmp.ts2=hit&0x3F;
+  tmp.row = (hit >> 16) & 0x1FF;
+  tmp.ts1 = (hit >> 6) & 0x3FF;
+  tmp.ts2 = hit & 0x3F;
 
   return tmp;
 }
 
-
-//pixelhit decodeHit(uint32_t hit, uint32_t TS, uint64_t fpga_ts, uint32_t SyncedTS, uint32_t triggercnt) {
+// pixelhit decodeHit(uint32_t hit, uint32_t TS, uint64_t fpga_ts, uint32_t SyncedTS, uint32_t triggercnt) {
 //
 //  pixelhit tmp;
 //  uint8_t buf = 0;
@@ -241,20 +238,20 @@ void ATLASPix::configure() {
   this->setSpecialRegister("ro_enable", 0);
   this->setSpecialRegister("armduration", 2000);
 
-  for(int col=0;col<theMatrix.ncol;col++){
-	  for(int row=0;row<theMatrix.nrow;row++){
-		  this->SetPixelInjectionState(col,row,0,0,1);
-	  }
+  for(int col = 0; col < theMatrix.ncol; col++) {
+    for(int row = 0; row < theMatrix.nrow; row++) {
+      this->SetPixelInjectionState(col, row, 0, 0, 1);
+    }
   }
 
   this->ProgramSR(theMatrix);
   this->ResetWriteDAC();
   this->ProgramSR(theMatrix);
 
-  for(int col=0;col<theMatrix.ncol;col++){
-	  for(int row=0;row<theMatrix.nrow;row++){
-		  this->SetPixelInjectionState(col,row,0,0,0);
-	  }
+  for(int col = 0; col < theMatrix.ncol; col++) {
+    for(int row = 0; row < theMatrix.nrow; row++) {
+      this->SetPixelInjectionState(col, row, 0, 0, 0);
+    }
   }
 
   this->ProgramSR(theMatrix);
@@ -1741,18 +1738,19 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
     // volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
     // volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
 
-    *fifo_config = (*fifo_config & 0xFFFFFFFE) + ((value) & 0b1);
-//    if(value == 1) {
-//      this->resetCounters();
-//    }
+    *fifo_config = (*fifo_config & 0xFFFFFFFE) + ((value)&0b1);
+    //    if(value == 1) {
+    //      this->resetCounters();
+    //    }
 
   } else if(name == "trigger_enable") {
 
     void* readout_base =
       _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
-    volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
+    volatile uint32_t* fifo_config =
+      reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
 
-   *fifo_config= (*fifo_config & 0xFFFD)+((value<<1) & 0b10);
+    *fifo_config = (*fifo_config & 0xFFFD) + ((value << 1) & 0b10);
 
   } else if(name == "edge_sel") {
 
@@ -1767,14 +1765,13 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 
   else if(name == "busy_when_armed") {
 
-      void* readout_base =
-        _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
+    void* readout_base =
+      _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
 
-      volatile uint32_t* fifo_config =
-        reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
-      *fifo_config = (*fifo_config & 0xFFFFFFF7) + ((value << 3) & 0b1000);
-    }
-
+    volatile uint32_t* fifo_config =
+      reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
+    *fifo_config = (*fifo_config & 0xFFFFFFF7) + ((value << 3) & 0b1000);
+  }
 
   else if(name == "armduration") {
 
@@ -1791,8 +1788,7 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 
     *config2 = ((value)&0xFFFFFF);
 
-  }
-  else if(name == "trigger_always_armed") {
+  } else if(name == "trigger_always_armed") {
 
     void* readout_base =
       _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
@@ -1803,7 +1799,8 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
     // volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) +
     // 0x8);
     // volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
-    volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
+    volatile uint32_t* fifo_config =
+      reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
 
     *fifo_config = (*fifo_config & 0xFFFFFFBF) + ((value << 6) & 0b1000000);
 
@@ -1820,12 +1817,12 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
     // volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) +
     // 0x8);
     // volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
-    volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
+    volatile uint32_t* fifo_config =
+      reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
 
     *fifo_config = (*fifo_config & 0xFFFFFF7F) + ((value << 7) & 0b10000000);
 
-  }
-  else if(name == "trigger_injection") {
+  } else if(name == "trigger_injection") {
 
     void* readout_base =
       _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
@@ -2292,32 +2289,28 @@ void ATLASPix::writeAllTDAC(ATLASPixMatrix& matrix) {
 
 // injections
 
-void ATLASPix::SetPixelInjection(uint32_t col, uint32_t row, bool ana_state, bool hb_state,bool inj_state) {
+void ATLASPix::SetPixelInjection(uint32_t col, uint32_t row, bool ana_state, bool hb_state, bool inj_state) {
   std::string col_s;
   int double_col = 0;
 
+  // set All injection in row and columns to off
+  if(col == 999) {
 
-  //set All injection in row and columns to off
-  if(col==999){
-
-
-      for(int colt = 0; colt < theMatrix.ncol; colt++) {
-    	  this->SetPixelInjectionState(colt,0,0,0,0);
-      }
-      for(int rowt = 0; rowt < theMatrix.nrow; rowt++) {
-    	  this->SetPixelInjectionState(0,rowt,0,0,0);
-    	  std::string row_s = to_string(rowt);
-    	  theMatrix.MatrixDACConfig->SetParameter("writedac" + row_s, 1);
-      }
-      this->ProgramSR(theMatrix);
-      for(int rowt = 0; rowt < theMatrix.nrow; rowt++) {
-    	  std::string row_s = to_string(rowt);
-    	  theMatrix.MatrixDACConfig->SetParameter("writedac" + row_s, 0);
-      }
-      this->ProgramSR(theMatrix);
-
+    for(int colt = 0; colt < theMatrix.ncol; colt++) {
+      this->SetPixelInjectionState(colt, 0, 0, 0, 0);
+    }
+    for(int rowt = 0; rowt < theMatrix.nrow; rowt++) {
+      this->SetPixelInjectionState(0, rowt, 0, 0, 0);
+      std::string row_s = to_string(rowt);
+      theMatrix.MatrixDACConfig->SetParameter("writedac" + row_s, 1);
+    }
+    this->ProgramSR(theMatrix);
+    for(int rowt = 0; rowt < theMatrix.nrow; rowt++) {
+      std::string row_s = to_string(rowt);
+      theMatrix.MatrixDACConfig->SetParameter("writedac" + row_s, 0);
+    }
+    this->ProgramSR(theMatrix);
   }
-
 
   if((theMatrix.flavor == ATLASPix1Flavor::M1) || (theMatrix.flavor == ATLASPix1Flavor::M1Iso)) {
     std::string s = to_string(col);
@@ -2367,11 +2360,9 @@ void ATLASPix::SetPixelInjection(uint32_t col, uint32_t row, bool ana_state, boo
   this->ProgramSR(theMatrix);
 }
 
-
 void ATLASPix::SetPixelInjectionState(uint32_t col, uint32_t row, bool ana_state, bool hb_state, bool inj) {
   std::string col_s;
   int double_col = 0;
-
 
   if((theMatrix.flavor == ATLASPix1Flavor::M1) || (theMatrix.flavor == ATLASPix1Flavor::M1Iso)) {
     std::string s = to_string(col);
@@ -2418,36 +2409,29 @@ void ATLASPix::SetPixelInjectionState(uint32_t col, uint32_t row, bool ana_state
   theMatrix.MatrixDACConfig->SetParameter("analogbuffer" + row_s, ana_state);
 }
 
-void ATLASPix::ResetWriteDAC()
-{
+void ATLASPix::ResetWriteDAC() {
 
-	for (int row=0;row<theMatrix.nrow;row++){
-		  std::string row_s = to_string(row);
-		  theMatrix.MatrixDACConfig->SetParameter("writedac" + row_s, 0);
-	}
-
-
+  for(int row = 0; row < theMatrix.nrow; row++) {
+    std::string row_s = to_string(row);
+    theMatrix.MatrixDACConfig->SetParameter("writedac" + row_s, 0);
+  }
 }
 
-
-
-
-
-void ATLASPix::SetInjectionMask(uint32_t maskx,uint32_t masky, uint32_t state) {
+void ATLASPix::SetInjectionMask(uint32_t maskx, uint32_t masky, uint32_t state) {
 
   for(int col = 0; col < theMatrix.ncol; col++) {
-    if(((col + maskx) % theMatrix.maskx)==0) {
+    if(((col + maskx) % theMatrix.maskx) == 0) {
 
-    	//LOG(logINFO) << "injecting in col " << col << std::endl;
+      // LOG(logINFO) << "injecting in col " << col << std::endl;
 
-    	this->SetPixelInjectionState(col,0,0,0,state);}
+      this->SetPixelInjectionState(col, 0, 0, 0, state);
+    }
   }
 
   for(int row = 0; row < theMatrix.nrow; row++) {
-    if(((row + masky) % theMatrix.masky)==0) {
-    	this->SetPixelInjectionState(0,row,0,0,state);
-    	//LOG(logINFO) << "injecting in row " << row << std::endl;
-
+    if(((row + masky) % theMatrix.masky) == 0) {
+      this->SetPixelInjectionState(0, row, 0, 0, state);
+      // LOG(logINFO) << "injecting in row " << row << std::endl;
     }
   };
 
@@ -2456,17 +2440,9 @@ void ATLASPix::SetInjectionMask(uint32_t maskx,uint32_t masky, uint32_t state) {
   this->ProgramSR(theMatrix);
 }
 
-
-
-
-
-
-
-
-
 // Tuning
 
-//void ATLASPix::tune(ATLASPixMatrix& matrix, double vmax, int nstep, int npulses, bool tuning_verification) {
+// void ATLASPix::tune(ATLASPixMatrix& matrix, double vmax, int nstep, int npulses, bool tuning_verification) {
 //  LOG(logINFO) << "Tunning " << DEVICE_NAME;
 //
 //  for(int TDAC_value = 0; TDAC_value < 8; TDAC_value++) {
@@ -2524,22 +2500,16 @@ void ATLASPix::ComputeSCurves(ATLASPixMatrix& matrix, double vmax, int nstep, in
   std::cout << "duration : " << duration << "s" << std::endl;
 }
 
+void ATLASPix::CountHits(std::vector<pixelhit> data, uint32_t maskidx, uint32_t maskidy, CounterMap& counts) {
 
-void ATLASPix::CountHits(std::vector<pixelhit> data,uint32_t maskidx, uint32_t maskidy,CounterMap &counts){
-
-
-	for (auto & hit : data) {
-	    if((((hit.col + maskidx) % theMatrix.maskx)==0) && (((hit.row + maskidy) % theMatrix.masky)==0)) {
-	    	counts[std::make_pair(hit.col,hit.row)]++;
-	    }
-	}
+  for(auto& hit : data) {
+    if((((hit.col + maskidx) % theMatrix.maskx) == 0) && (((hit.row + maskidy) % theMatrix.masky) == 0)) {
+      counts[std::make_pair(hit.col, hit.row)]++;
+    }
+  }
 }
 
-
-
-
 void ATLASPix::doSCurves(double vmin, double vmax, uint32_t npulses, uint32_t npoints) {
-
 
   double vinj = vmin;
   double dv = (vmax - vmin) / (npoints - 1);
@@ -2548,49 +2518,40 @@ void ATLASPix::doSCurves(double vmin, double vmax, uint32_t npulses, uint32_t np
 
   make_directories(_output_directory);
   std::ofstream disk;
-  disk.open(_output_directory + "/SCURVE_TDAC"+ std::to_string(theMatrix.TDAC[0][0]>>1) + ".txt", std::ios::out);
-  //disk << "X:	Y:	   TS1:	   TS2:		FPGA_TS:  TR_CNT:  BinCounter :  " << std::endl;
+  disk.open(_output_directory + "/SCURVE_TDAC" + std::to_string(theMatrix.TDAC[0][0] >> 1) + ".txt", std::ios::out);
+  // disk << "X:	Y:	   TS1:	   TS2:		FPGA_TS:  TR_CNT:  BinCounter :  " << std::endl;
 
+  for(int mx = 0; mx < theMatrix.maskx; mx++) {
+    for(int my = 0; my < theMatrix.masky; my++) {
 
+      this->SetInjectionMask(mx, my, 1);
+      vinj = vmin;
+      for(int i = 0; i < npoints; i++) {
+        LOG(logINFO) << "pulse height : " << vinj << std::endl;
+        this->pulse(npulses, 10000, 10000, vinj);
+        this->CountHits(this->getDataTOvector(), mx, my, SCurveData[i]);
+        vinj += dv;
+      }
 
-  for(int mx=0;mx<theMatrix.maskx;mx++){
-	  for(int my=0;my<theMatrix.masky;my++){
+      for(int col = 0; col < theMatrix.ncol; col++) {
+        for(int row = 0; row < theMatrix.nrow; row++) {
 
+          if((((col + mx) % theMatrix.maskx) == 0) && (((row + my) % theMatrix.masky) == 0)) {
+            disk << col << " " << row << " ";
+            for(int i = 0; i < npoints; i++) {
+              disk << SCurveData[i][std::make_pair(col, row)] << " ";
+            }
+            disk << std::endl;
+          }
+        }
+      };
 
-		  this->SetInjectionMask(mx,my,1);
-		  vinj=vmin;
-		  for(int i = 0; i < npoints; i++) {
-		    LOG(logINFO) << "pulse height : " << vinj << std::endl;
-			this->pulse(npulses, 10000, 10000, vinj);
-		    this->CountHits(this->getDataTOvector(),mx,my,SCurveData[i]);
-		    vinj += dv;
-		  }
-
-
-		  for(int col = 0; col < theMatrix.ncol; col++) {
-		    for(int row = 0; row < theMatrix.nrow; row++) {
-
-			    if((((col + mx) % theMatrix.maskx)==0) && (((row + my) % theMatrix.masky)==0)) {
-					disk << col << " " << row << " ";
-					for(int i = 0; i < npoints; i++) {
-						disk << SCurveData[i][std::make_pair(col,row)] << " ";
-					  }
-					disk << std::endl;
-			    }
-		     }
-		   };
-
-
-		  this->SetInjectionMask(mx,my,0);
-	  }
-   }
+      this->SetInjectionMask(mx, my, 0);
+    }
+  }
 
   disk.close();
-
 }
-
-
-
 
 void ATLASPix::isLocked() {
   void* readout_base =
@@ -2617,21 +2578,17 @@ void ATLASPix::getTriggerCount() {
   LOG(logINFO) << "Trigger received              " << this->readCounter(3) << std::endl;
 }
 
-
-
-
-
 pearydata ATLASPix::getData() {
-
 
   void* readout_base =
     _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
 
   volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
   volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x4);
-  //volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
-  //volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
-  //volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
+  // volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) +
+  // 0x8);
+  // volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
+  // volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
 
   make_directories(_output_directory);
   std::ofstream disk;
@@ -2639,7 +2596,7 @@ pearydata ATLASPix::getData() {
   disk << "X:	Y:	   TS1:	   TS2:		FPGA_TS:  TR_CNT:  BinCounter :  " << std::endl;
 
   uint64_t fpga_ts = 0;
-  uint64_t fpga_ts_last=0;
+  uint64_t fpga_ts_last = 0;
   uint64_t fpga_ts_busy = 0;
   uint32_t timestamp = 0;
   uint32_t TrCNT = 0;
@@ -2650,88 +2607,87 @@ pearydata ATLASPix::getData() {
     if(!this->_daqContinue.test_and_set())
       break;
     // check for new data in fifo
-    if((*fifo_status & 0x1) == 0){
-    	continue;
+    if((*fifo_status & 0x1) == 0) {
+      continue;
     }
 
     uint32_t d1 = static_cast<uint32_t>(*data);
-    //std::cout << std::bitset<32>(d1) << std::endl;
+    // std::cout << std::bitset<32>(d1) << std::endl;
 
-    //HIT data of bit 31 is = 1
-    if((d1>>31)==1){
+    // HIT data of bit 31 is = 1
+    if((d1 >> 31) == 1) {
 
-        	pixelhit hit=decodeHit(d1);
-        	//LOG(logINFO) << hit.col <<" " << hit.row << " " << hit.ts1 << ' ' << hit.ts2 << std::endl;
-        	disk << "HIT " << hit.col << "	" << hit.row << "	" << hit.ts1 << "	" << hit.ts2 <<  "	" << fpga_ts_last << "	" << " " << TrCNT << " " << ((timestamp >> 8) & 0xFFFF) << std::endl;
-        	//disk << std::bitset<32>(d1) << std::endl;
+      pixelhit hit = decodeHit(d1);
+      // LOG(logINFO) << hit.col <<" " << hit.row << " " << hit.ts1 << ' ' << hit.ts2 << std::endl;
+      disk << "HIT " << hit.col << "	" << hit.row << "	" << hit.ts1 << "	" << hit.ts2 << "	" << fpga_ts_last << "	"
+           << " " << TrCNT << " " << ((timestamp >> 8) & 0xFFFF) << std::endl;
+      // disk << std::bitset<32>(d1) << std::endl;
     }
 
-    else{
+    else {
 
-    	uint32_t data_type= (d1 >>24) &0xFF;
+      uint32_t data_type = (d1 >> 24) & 0xFF;
 
-    	// Parse the different data types (BUFFEROVERFLOW,TRIGGER,BUSY_ASSERTED)
-		switch(data_type) {
+      // Parse the different data types (BUFFEROVERFLOW,TRIGGER,BUSY_ASSERTED)
+      switch(data_type) {
 
-			case 0b01000000: // BinCnt from ATLASPix, not read for now
-				timestamp=d1&0xFFFFFF  ;
-				break;
-			case 0b00000001: // Buffer overflow, data after this are lost
-				disk << "BUFFER_OVERFLOW" << std::endl;
-				break;
-			case 0b00010000:// Trigger cnt 24bits
-				TrCNT = d1 & 0xFFFFFF;
-				break;
-			case 0b00110000:// Trigger cnt 16b + fpga_ts 24 bits
-				TrCNT= TrCNT + ((d1 << 8) & 0xFF000000);
-				fpga_ts = fpga_ts + ((d1 <<8) & 0xFF00000000000000);
-				break;
-			case 0b00100000: // continuation of fpga_ts
-				fpga_ts = fpga_ts + ((d1 <<24) & 0x0000FFFFFF000000);
-				break;
-			case 0b01100000:// End of fpga_ts
-				fpga_ts = fpga_ts + ((d1) & 0xFFFFFF);
-				//LOG(logINFO) << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
-				disk << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
-				fpga_ts_last=fpga_ts;
-				fpga_ts=0;
-				break;
-			case 0b00000010: // BUSY asserted with 24bit LSB of Trigger FPGA TS
+      case 0b01000000: // BinCnt from ATLASPix, not read for now
+        timestamp = d1 & 0xFFFFFF;
+        break;
+      case 0b00000001: // Buffer overflow, data after this are lost
+        disk << "BUFFER_OVERFLOW" << std::endl;
+        break;
+      case 0b00010000: // Trigger cnt 24bits
+        TrCNT = d1 & 0xFFFFFF;
+        break;
+      case 0b00110000: // Trigger cnt 16b + fpga_ts 24 bits
+        TrCNT = TrCNT + ((d1 << 8) & 0xFF000000);
+        fpga_ts = fpga_ts + ((d1 << 8) & 0xFF00000000000000);
+        break;
+      case 0b00100000: // continuation of fpga_ts
+        fpga_ts = fpga_ts + ((d1 << 24) & 0x0000FFFFFF000000);
+        break;
+      case 0b01100000: // End of fpga_ts
+        fpga_ts = fpga_ts + ((d1)&0xFFFFFF);
+        // LOG(logINFO) << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
+        disk << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
+        fpga_ts_last = fpga_ts;
+        fpga_ts = 0;
+        break;
+      case 0b00000010: // BUSY asserted with 24bit LSB of Trigger FPGA TS
 
-				fpga_ts_busy=d1 & 0xFFFFFF;
-				disk << "BUSY_ASSERTED " << fpga_ts_busy << std::endl;
+        fpga_ts_busy = d1 & 0xFFFFFF;
+        disk << "BUSY_ASSERTED " << fpga_ts_busy << std::endl;
 
-				break;
+        break;
 
-			default: // weird stuff, should not happend
-				LOG(logWARNING) << "I AM IMPOSSIBLE!!!!!!!!!!!!!!!!!!" << std::endl;
-				break;
-		}
+      default: // weird stuff, should not happend
+        LOG(logWARNING) << "I AM IMPOSSIBLE!!!!!!!!!!!!!!!!!!" << std::endl;
+        break;
+      }
     }
   }
   disk.close();
 
-
   // write additional information
-  //std::ofstream stats(_output_directory + "/stats.txt", std::ios::out);
-  //stats << "trigger_counter " << this->getTriggerCounter() << std::endl;
+  // std::ofstream stats(_output_directory + "/stats.txt", std::ios::out);
+  // stats << "trigger_counter " << this->getTriggerCounter() << std::endl;
 
   pearydata dummy;
   return dummy;
 }
 
+pearydata ATLASPix::getDataTO(int maskx, int masky) {
 
-
-pearydata ATLASPix::getDataTO(int maskx,int masky) {
-
-
-  void* readout_base = _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
+  void* readout_base =
+    _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
 
   volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
   volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x4);
-  //volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
-  //volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
-  //volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
+  // volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) +
+  // 0x8);
+  // volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
+  // volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
 
   make_directories(_output_directory);
   std::ofstream disk;
@@ -2739,96 +2695,97 @@ pearydata ATLASPix::getDataTO(int maskx,int masky) {
   disk << "X:	Y:	   TS1:	   TS2:		FPGA_TS:  TR_CNT:  BinCounter :  " << std::endl;
 
   uint64_t fpga_ts = 0;
-  uint64_t fpga_ts_last=0;
+  uint64_t fpga_ts_last = 0;
   uint64_t fpga_ts_busy = 0;
   uint32_t timestamp = 0;
   uint32_t TrCNT = 0;
 
   bool to = false;
-  uint32_t tocnt=0;
-  uint32_t datatocnt=0;
+  uint32_t tocnt = 0;
+  uint32_t datatocnt = 0;
 
-  while(to==false) {
+  while(to == false) {
 
-	if(!this->_daqContinue.test_and_set()){
-	  break;
-	}
-
-	//Check for new data in FIFO
-    if((*fifo_status & 0x1) == 0){
-    	//wait a microsecond and keep track of it
-    	usleep(1);
-    	tocnt+=1;
-
-    	//if timeout, leave loop
-    	if(tocnt==Tuning_timeout){
-    		to=true;
-    		break;
-    	}
-    	else{
-    		continue;
-    	}
+    if(!this->_daqContinue.test_and_set()) {
+      break;
     }
 
-    if(datatocnt>TuningMaxCount){
-    	to=true;
-    	LOG(logWARNING) << "stopping data taking because of noise (over 1M hits), re-applying mask" << std::endl;
-    	this->ReapplyMask();
-    	this->reset();
-    	sleep(1);
-    	break;
+    // Check for new data in FIFO
+    if((*fifo_status & 0x1) == 0) {
+      // wait a microsecond and keep track of it
+      usleep(1);
+      tocnt += 1;
+
+      // if timeout, leave loop
+      if(tocnt == Tuning_timeout) {
+        to = true;
+        break;
+      } else {
+        continue;
+      }
+    }
+
+    if(datatocnt > TuningMaxCount) {
+      to = true;
+      LOG(logWARNING) << "stopping data taking because of noise (over 1M hits), re-applying mask" << std::endl;
+      this->ReapplyMask();
+      this->reset();
+      sleep(1);
+      break;
     }
 
     uint32_t d1 = static_cast<uint32_t>(*data);
 
-	if((d1>>31)==1){
+    if((d1 >> 31) == 1) {
 
-		pixelhit hit=decodeHit(d1);
-		//LOG(logINFO) << hit.col <<" " << hit.row << " " << hit.ts1 << ' ' << hit.ts2 << std::endl;
-		disk << "HIT " << hit.col << "	" << hit.row << "	" << hit.ts1 << "	" << hit.ts2 <<  "	" << fpga_ts_last << "	" << " " << TrCNT << " " << ((timestamp >> 8) & 0xFFFF)  << " " << (timestamp&0xFF) << " " << ((fpga_ts_last >>1) & 0xFFFF) << std::endl;
-		datatocnt++;
+      pixelhit hit = decodeHit(d1);
+      // LOG(logINFO) << hit.col <<" " << hit.row << " " << hit.ts1 << ' ' << hit.ts2 << std::endl;
+      disk << "HIT " << hit.col << "	" << hit.row << "	" << hit.ts1 << "	" << hit.ts2 << "	" << fpga_ts_last << "	"
+           << " " << TrCNT << " " << ((timestamp >> 8) & 0xFFFF) << " " << (timestamp & 0xFF) << " "
+           << ((fpga_ts_last >> 1) & 0xFFFF) << std::endl;
+      datatocnt++;
 
-	}
+    }
 
-	else{
+    else {
 
-	uint32_t data_type = (d1 >>24) &0xFF;
+      uint32_t data_type = (d1 >> 24) & 0xFF;
 
-	switch(data_type) {
+      switch(data_type) {
 
-		case 0b01000000: // BinCnt from ATLASPix, not read for now
-			timestamp=d1&0xFFFFFF  ;
-			break;
-		case 0b00000001: // Buffer overflow, data after this are lost
-			//disk << "BUFFER_OVERFLOW" << std::endl;
-			break;
-		case 0b00010000:// Trigger cnt 24bits
-			TrCNT = d1 & 0xFFFFFF;
-			break;
-		case 0b00110000:// Trigger cnt 16b + fpga_ts 24 bits
-			TrCNT= TrCNT + ((d1 << 8) & 0xFF000000);
-			fpga_ts = fpga_ts + ((d1 <<8) & 0xFF00000000000000);
-			break;
-		case 0b00100000: // continuation of fpga_ts
-			fpga_ts = fpga_ts + ((d1 <<24) & 0x0000FFFFFF000000);
-			break;
-		case 0b01100000:// End of fpga_ts
-			fpga_ts = fpga_ts + ((d1) & 0xFFFFFF);
-			//LOG(logINFO) << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
-			//disk << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
-			fpga_ts_last=fpga_ts;
-			fpga_ts=0;
-			break;
-		case 0b00000010: // BUSY asserted with 24bit LSB of Trigger FPGA TS
-			fpga_ts_busy=d1 & 0xFFFFFF;
-			//disk << "BUSY_ASSERTED " << fpga_ts_busy << std::endl;
-			break;
+      case 0b01000000: // BinCnt from ATLASPix, not read for now
+        timestamp = d1 & 0xFFFFFF;
+        break;
+      case 0b00000001: // Buffer overflow, data after this are lost
+        // disk << "BUFFER_OVERFLOW" << std::endl;
+        break;
+      case 0b00010000: // Trigger cnt 24bits
+        TrCNT = d1 & 0xFFFFFF;
+        break;
+      case 0b00110000: // Trigger cnt 16b + fpga_ts 24 bits
+        TrCNT = TrCNT + ((d1 << 8) & 0xFF000000);
+        fpga_ts = fpga_ts + ((d1 << 8) & 0xFF00000000000000);
+        break;
+      case 0b00100000: // continuation of fpga_ts
+        fpga_ts = fpga_ts + ((d1 << 24) & 0x0000FFFFFF000000);
+        break;
+      case 0b01100000: // End of fpga_ts
+        fpga_ts = fpga_ts + ((d1)&0xFFFFFF);
+        // LOG(logINFO) << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
+        // disk << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
+        fpga_ts_last = fpga_ts;
+        fpga_ts = 0;
+        break;
+      case 0b00000010: // BUSY asserted with 24bit LSB of Trigger FPGA TS
+        fpga_ts_busy = d1 & 0xFFFFFF;
+        // disk << "BUSY_ASSERTED " << fpga_ts_busy << std::endl;
+        break;
 
-		default: // weird stuff, should not happend
-			LOG(logWARNING) << "I AM IMPOSSIBLE!!!!!!!!!!!!!!!!!!" << std::endl;
-				break;
-		}
-	}
+      default: // weird stuff, should not happend
+        LOG(logWARNING) << "I AM IMPOSSIBLE!!!!!!!!!!!!!!!!!!" << std::endl;
+        break;
+      }
+    }
   }
 
   disk.close();
@@ -2839,10 +2796,6 @@ pearydata ATLASPix::getDataTO(int maskx,int masky) {
   return dummy;
 }
 
-
-
-
-
 std::vector<pixelhit> ATLASPix::getDataTOvector() {
 
   void* readout_base =
@@ -2850,98 +2803,94 @@ std::vector<pixelhit> ATLASPix::getDataTOvector() {
 
   volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
   volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x4);
-  //volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
-  //volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
-  //volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
+  // volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) +
+  // 0x8);
+  // volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
+  // volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
 
-//  make_directories(_output_directory);
-//  std::ofstream disk;
-//  disk.open(_output_directory + "/data.txt", std::ios::out);
-//  disk << "X:	Y:	   TS1:	   TS2:		FPGA_TS:   SyncedCNT:   TR_CNT:	ATPBinCounter:   ATPGreyCounter:	" << std::endl;
+  //  make_directories(_output_directory);
+  //  std::ofstream disk;
+  //  disk.open(_output_directory + "/data.txt", std::ios::out);
+  //  disk << "X:	Y:	   TS1:	   TS2:		FPGA_TS:   SyncedCNT:   TR_CNT:	ATPBinCounter:   ATPGreyCounter:	" << std::endl;
 
   uint64_t fpga_ts = 0;
-  uint64_t fpga_ts_last=0;
+  uint64_t fpga_ts_last = 0;
   uint64_t fpga_ts_busy = 0;
   uint32_t timestamp = 0;
   uint32_t TrCNT = 0;
 
   bool to = false;
-  uint32_t tocnt=0;
-  uint32_t datatocnt=0;
+  uint32_t tocnt = 0;
+  uint32_t datatocnt = 0;
   std::vector<pixelhit> datavec;
-  uint32_t datacnt=0;
+  uint32_t datacnt = 0;
 
-  while(to==false) {
+  while(to == false) {
 
     // check for stop request from another thread
     if(!this->_daqContinue.test_and_set())
       break;
     // check for new first half-word or restart loop
 
-    if((*fifo_status & 0x1) == 0){
-    	usleep(1);
-    	tocnt+=1;
-    	if(tocnt==Tuning_timeout){
-    		to=true;
-    		break;
-    	}
-    	else{
-    		continue;
-    	}
+    if((*fifo_status & 0x1) == 0) {
+      usleep(1);
+      tocnt += 1;
+      if(tocnt == Tuning_timeout) {
+        to = true;
+        break;
+      } else {
+        continue;
+      }
     }
 
+    uint32_t d1 = static_cast<uint32_t>(*data);
 
+    if((d1 >> 31) == 1) {
 
+      pixelhit hit = decodeHit(d1);
+      datavec.push_back(hit);
+      datacnt++;
+    }
 
-     uint32_t d1 = static_cast<uint32_t>(*data);
+    else {
 
-     if((d1>>31)==1){
+      uint32_t data_type = (d1 >> 24) & 0xFF;
 
-         	pixelhit hit=decodeHit(d1);
-          	datavec.push_back(hit);
-          	datacnt++;
-     }
+      switch(data_type) {
 
-     else{
+      case 0b01000000: // BinCnt from ATLASPix, not read for now
+        timestamp = d1 & 0xFFFFFF;
+        break;
+      case 0b00000001: // Buffer overflow, data after this are lost
+        // disk << "BUFFER_OVERFLOW" << std::endl;
+        break;
+      case 0b00010000: // Trigger cnt 24bits
+        TrCNT = d1 & 0xFFFFFF;
+        break;
+      case 0b00110000: // Trigger cnt 16b + fpga_ts 24 bits
+        TrCNT = TrCNT + ((d1 << 8) & 0xFF000000);
+        fpga_ts = fpga_ts + ((d1 << 8) & 0xFF00000000000000);
+        break;
+      case 0b00100000: // continuation of fpga_ts
+        fpga_ts = fpga_ts + ((d1 << 24) & 0x0000FFFFFF000000);
+        break;
+      case 0b01100000: // End of fpga_ts
+        fpga_ts = fpga_ts + ((d1)&0xFFFFFF);
+        // LOG(logINFO) << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
+        // disk << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
+        fpga_ts_last = fpga_ts;
+        fpga_ts = 0;
+        break;
+      case 0b00000010: // BUSY asserted with 24bit LSB of Trigger FPGA TS
+        fpga_ts_busy = d1 & 0xFFFFFF;
+        // disk << "BUSY_ASSERTED " << fpga_ts_busy << std::endl;
+        break;
 
-     	uint32_t data_type= (d1 >>24) &0xFF;
-
- 		switch(data_type) {
-
- 			case 0b01000000: // BinCnt from ATLASPix, not read for now
- 				timestamp=d1&0xFFFFFF  ;
- 				break;
- 			case 0b00000001: // Buffer overflow, data after this are lost
- 				//disk << "BUFFER_OVERFLOW" << std::endl;
- 				break;
- 			case 0b00010000:// Trigger cnt 24bits
- 				TrCNT = d1 & 0xFFFFFF;
- 				break;
- 			case 0b00110000:// Trigger cnt 16b + fpga_ts 24 bits
- 				TrCNT= TrCNT + ((d1 << 8) & 0xFF000000);
- 				fpga_ts = fpga_ts + ((d1 <<8) & 0xFF00000000000000);
- 				break;
- 			case 0b00100000: // continuation of fpga_ts
- 				fpga_ts = fpga_ts + ((d1 <<24) & 0x0000FFFFFF000000);
- 				break;
- 			case 0b01100000:// End of fpga_ts
- 				fpga_ts = fpga_ts + ((d1) & 0xFFFFFF);
- 				//LOG(logINFO) << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
- 				//disk << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
- 				fpga_ts_last=fpga_ts;
- 				fpga_ts=0;
- 				break;
- 			case 0b00000010: // BUSY asserted with 24bit LSB of Trigger FPGA TS
- 				fpga_ts_busy=d1 & 0xFFFFFF;
- 				//disk << "BUSY_ASSERTED " << fpga_ts_busy << std::endl;
- 				break;
-
- 			default: // weird stuff, should not happend
- 				LOG(logWARNING) << "I AM IMPOSSIBLE!!!!!!!!!!!!!!!!!!" << std::endl;
- 					break;
- 		}
-     }
-
+      default: // weird stuff, should not happend
+        LOG(logWARNING) << "I AM IMPOSSIBLE!!!!!!!!!!!!!!!!!!" << std::endl;
+        break;
+      }
+    }
   }
 
   LOG(logINFO) << "data count : " << datacnt << std::endl;
@@ -2949,146 +2898,124 @@ std::vector<pixelhit> ATLASPix::getDataTOvector() {
   return datavec;
 }
 
+void ATLASPix::ReapplyMask() {
 
-
-
-
-
-void ATLASPix::ReapplyMask(){
-
-		LOG(logINFO) << "re-applying mask " << std::endl;
-	    for(int col = 0; col < theMatrix.ncol; col++) {
-	    	  for(int row = 0; row < theMatrix.nrow; row++) {
-	    	  if(theMatrix.MASK[col][row]==1){
-	    		  //LOG(logINFO) << "masking " << col << " " << row << std::endl;
-	    		  this->MaskPixel(col,row);}
-	    };
-	    };
-
+  LOG(logINFO) << "re-applying mask " << std::endl;
+  for(int col = 0; col < theMatrix.ncol; col++) {
+    for(int row = 0; row < theMatrix.nrow; row++) {
+      if(theMatrix.MASK[col][row] == 1) {
+        // LOG(logINFO) << "masking " << col << " " << row << std::endl;
+        this->MaskPixel(col, row);
+      }
+    };
+  };
 }
 
+void ATLASPix::dataTuning(double vmax, int nstep, int npulses) {
 
+  const double margin = 0.05;
 
-void  ATLASPix::dataTuning( double vmax, int nstep, int npulses) {
+  Color::Modifier red(Color::FG_RED);
+  Color::Modifier green(Color::FG_GREEN);
+  Color::Modifier blue(Color::FG_BLUE);
+  Color::Modifier cyan(Color::FG_CYAN);
+  Color::Modifier mag(Color::FG_MAGENTA);
+  Color::Modifier bold(Color::BOLD);
+  Color::Modifier rev(Color::REVERSE);
+  Color::Modifier def(Color::FG_DEFAULT);
+  Color::Modifier reset(Color::RESET);
 
+  make_directories(_output_directory);
+  std::ofstream disk;
+  disk.open(_output_directory + "/verif.txt", std::ios::out);
+  disk << "X:	Y:	   TDAC:	   COUNT:	" << std::endl;
 
-	const double margin=0.05;
+  LOG(logINFO) << "Tuning using data for target " << vmax;
+  for(int col = 0; col < theMatrix.ncol; col++) {
+    for(int row = 0; row < theMatrix.nrow; row++) {
 
-	Color::Modifier red(Color::FG_RED);
-	Color::Modifier green(Color::FG_GREEN);
-	Color::Modifier blue(Color::FG_BLUE);
-	Color::Modifier cyan(Color::FG_CYAN);
-	Color::Modifier mag(Color::FG_MAGENTA);
-	Color::Modifier bold(Color::BOLD);
-	Color::Modifier rev(Color::REVERSE);
-	Color::Modifier def(Color::FG_DEFAULT);
-	Color::Modifier reset(Color::RESET);
+      int cur_tdac = 4;
+      bool done = false;
+      if(nstep == 0)
+        done = true;
+      uint32_t cnt = 0;
+      uint32_t loop = 0;
+      bool masked = false;
 
-	make_directories(_output_directory);
-	std::ofstream disk;
-	disk.open(_output_directory + "/verif.txt", std::ios::out);
-	disk << "X:	Y:	   TDAC:	   COUNT:	" << std::endl;
+      this->setPulse(theMatrix, npulses, 10000, 10000, vmax);
+      // this->SetPixelInjection(col,row,1,1);
+      LOG(logINFO) << rev << red << "Pixel  " << col << " " << row << reset << std::endl;
 
+      while(!done && loop < 16) {
+        this->writeOneTDAC(theMatrix, col, row, cur_tdac);
+        this->SetPixelInjection(col, row, 1, 1, 1);
+        this->reset();
+        sendPulse();
+        std::vector<pixelhit> data = this->getDataTOvector();
+        cnt = 0;
+        for(auto hit : data) {
+          if(hit.col == col && hit.row == row) {
+            cnt++;
+            // LOG(logINFO) << "Pixel  " << hit.col<< " " << hit.row << std::endl;
+          }
+        }
 
-	LOG(logINFO) << "Tuning using data for target " << vmax;
-	    for(int col = 0; col < theMatrix.ncol; col++) {
-	    	  for(int row = 0; row < theMatrix.nrow; row++) {
+        LOG(logINFO) << "tdac: " << cur_tdac << " "
+                     << "cnt: " << cnt << std::endl;
 
-	    		  int cur_tdac=4;
-	    		  bool done = false;
-				  if (nstep==0)done=true;
-	    		  uint32_t cnt=0;
-				  uint32_t loop=0;
-				  bool masked=false;
+        if(cnt > 10 * npulses) {
+          this->MaskPixel(col, row);
+          masked = true;
+        }
 
-	              this->setPulse(theMatrix, npulses, 10000, 10000, vmax);
-	              //this->SetPixelInjection(col,row,1,1);
-	              LOG(logINFO) <<rev <<  red << "Pixel  " << col << " " << row << reset << std::endl;
+        if(cnt > (npulses * 0.5 - margin * npulses) && cnt < (npulses * 0.5 + margin * npulses)) {
+          done = true;
+          break;
+        }
 
-	              while(!done && loop<16){
-		    		  this->writeOneTDAC(theMatrix,col,row,cur_tdac);
-		              this->SetPixelInjection(col,row,1,1,1);
-					  this->reset();
-					  sendPulse();
-					  std::vector<pixelhit> data = this->getDataTOvector();
-					  cnt=0;
-					  for (auto hit : data){
-						  if(hit.col==col && hit.row==row){
-							  cnt++;
-							  //LOG(logINFO) << "Pixel  " << hit.col<< " " << hit.row << std::endl;
-						  }
-					  }
+        if(cur_tdac == 7) {
+          done = true;
+        } else if(cur_tdac == 0) {
+          done = true;
+        }
 
-		              LOG(logINFO) << "tdac: " << cur_tdac << " " << "cnt: " << cnt << std::endl;
+        else if(cnt < (npulses * 0.5 - margin * npulses)) {
+          cur_tdac -= 1;
+        } else if(cnt > (npulses * 0.5 + margin * npulses)) {
+          cur_tdac += 1;
+        } else {
+          done = true;
+        }
+        loop++;
+      }
 
-					  if(cnt>10*npulses){
-						  this->MaskPixel(col,row);
-						  masked=true;
-					  }
+      if(nstep == 0) {
+        this->writeOneTDAC(theMatrix, col, row, cur_tdac);
+        this->SetPixelInjection(col, row, 1, 1, 1);
+      }
+      this->reset();
+      sendPulse();
+      std::vector<pixelhit> data = this->getDataTOvector();
+      cnt = 0;
+      // LOG(logINFO) << "Pixel  " << col << " " << row << " tdac: " << cur_tdac << " " << "cnt: " << cnt << std::endl;
+      for(auto hit : data) {
+        if(hit.col == col && hit.row == row) {
+          cnt++;
+          // LOG(logINFO) << "Pixel  " << hit.col<< " " << hit.row << std::endl;
+        }
+      }
+      disk << col << " " << row << " " << cur_tdac << " " << cnt << std::endl;
+      this->SetPixelInjection(col, row, 0, 0, 0);
 
+      LOG(logINFO) << rev << green << " tdac: " << cur_tdac << " "
+                   << "mask: " << masked << " cnt: " << cnt << reset << std::endl;
+    }
+  }
 
-					  if(cnt>(npulses*0.5-margin*npulses) && cnt<(npulses*0.5+margin*npulses)){
-						  done=true;
-						  break;
-
-					  }
-
-					  if(cur_tdac==7){
-						  done=true;
-					  }
-					  else if(cur_tdac==0){
-						  done=true;
-					  }
-
-					  else if(cnt<(npulses*0.5-margin*npulses)){
-						  cur_tdac-=1;
-					  }
-					  else if (cnt>(npulses*0.5+margin*npulses)){
-						  cur_tdac+=1;
-					  }
-					  else{
-						  done=true;
-					  }
-					  loop++;
-	              }
-
-	              if(nstep==0){
-		    		  this->writeOneTDAC(theMatrix,col,row,cur_tdac);
-		              this->SetPixelInjection(col,row,1,1,1);
-	              }
-	              this->reset();
-				  sendPulse();
-				  std::vector<pixelhit> data = this->getDataTOvector();
-				  cnt=0;
-	              //LOG(logINFO) << "Pixel  " << col << " " << row << " tdac: " << cur_tdac << " " << "cnt: " << cnt << std::endl;
-				  for (auto hit : data){
-					  if(hit.col==col && hit.row==row){
-						  cnt++;
-						  //LOG(logINFO) << "Pixel  " << hit.col<< " " << hit.row << std::endl;
-					  }
-				  }
-				  disk << col << " " << row << " " << cur_tdac << " " << cnt << std::endl;
-	              this->SetPixelInjection(col,row,0,0,0);
-
-	              LOG(logINFO) << rev << green << " tdac: " << cur_tdac << " " << "mask: " << masked << " cnt: " << cnt << reset << std::endl;
-
-
-	            }
-
-
-	    	  }
-
-
-	    disk.close();
-
-
+  disk.close();
 }
 
-
-
-
-
-//void ATLASPix::dataTuning( double vmax, int nstep, int npulses) {
+// void ATLASPix::dataTuning( double vmax, int nstep, int npulses) {
 //  double vstep=vmax /double(nstep-1);
 //
 //  LOG(logINFO) << "Tuning using data with " << DEVICE_NAME;
@@ -3107,7 +3034,8 @@ void  ATLASPix::dataTuning( double vmax, int nstep, int npulses) {
 //    for(unsigned int maskidx = 0; maskidx < theMatrix.maskx; ++maskidx) {
 //        for(unsigned int maskidy = 0; maskidy < theMatrix.masky; ++maskidy) {
 //
-//        LOG(logINFO) << "setting mask id  " << maskidx << " " << maskidy << " " << (maskidx*theMatrix.masky + maskidy) << std::endl;
+//        LOG(logINFO) << "setting mask id  " << maskidx << " " << maskidy << " " << (maskidx*theMatrix.masky + maskidy) <<
+//        std::endl;
 //    	this->SetInjectionMask(maskidx,maskidy,1);
 //
 //    	//for(double v = (vmax /(nstep-1)); v <= vmax; v += (vmax /(nstep-1))) {
@@ -3117,7 +3045,8 @@ void  ATLASPix::dataTuning( double vmax, int nstep, int npulses) {
 //          //LOG(logINFO) << "pulsing with " << v << "V" << std::endl;
 //          this->setPulse(theMatrix, npulses, 10000, 10000, v);
 //          std::stringstream ss;
-//          ss << "PEARYDATA/gradeA06-test6/VNAC" << theMatrix.CurrentDACConfig->GetParameter("VNDACPix") << "_TDAC" << TDAC_value << "_maskid_" << (maskidx*theMatrix.masky + maskidy) << "_vpulse_" << v ;
+//          ss << "PEARYDATA/gradeA06-test6/VNAC" << theMatrix.CurrentDACConfig->GetParameter("VNDACPix") << "_TDAC" <<
+//          TDAC_value << "_maskid_" << (maskidx*theMatrix.masky + maskidy) << "_vpulse_" << v ;
 //          this->setOutputDirectory(ss.str());
 //          this->reset();
 //          //this->daqStart();
@@ -3134,47 +3063,43 @@ void  ATLASPix::dataTuning( double vmax, int nstep, int npulses) {
 //
 //}
 
-
-void ATLASPix::VerifyTuning( double vmax, int nstep, int npulses,std::string TDACFile) {
-  double vstep=vmax /double(nstep-1);
+void ATLASPix::VerifyTuning(double vmax, int nstep, int npulses, std::string TDACFile) {
+  double vstep = vmax / double(nstep - 1);
 
   LOG(logINFO) << "Tuning using data with " << DEVICE_NAME;
   LOG(logINFO) << "VMAX= " << vmax << " vstep=" << vstep << std::endl;
 
+  // 1this->LoadTDAC(TDACFile);
+  this->ReapplyMask();
 
-	//1this->LoadTDAC(TDACFile);
-    this->ReapplyMask();
+  for(unsigned int maskidx = 0; maskidx < theMatrix.maskx; ++maskidx) {
+    for(unsigned int maskidy = 0; maskidy < theMatrix.masky; ++maskidy) {
 
-    for(unsigned int maskidx = 0; maskidx < theMatrix.maskx; ++maskidx) {
-        for(unsigned int maskidy = 0; maskidy < theMatrix.masky; ++maskidy) {
+      LOG(logINFO) << "setting mask id  " << maskidx << " " << maskidy << " " << (maskidx * theMatrix.masky + maskidy)
+                   << std::endl;
+      this->SetInjectionMask(maskidx, maskidy, 1);
 
-        LOG(logINFO) << "setting mask id  " << maskidx << " " << maskidy << " " << (maskidx*theMatrix.masky + maskidy) << std::endl;
-    	this->SetInjectionMask(maskidx,maskidy,1);
-
-    	//for(double v = (vmax /(nstep-1)); v <= vmax; v += (vmax /(nstep-1))) {
-        for(double vi = 1; vi <=nstep; vi +=1) {
-          double v = (vi)*(vmax/(nstep));
-          //ugly hack
-          //LOG(logINFO) << "pulsing with " << v << "V" << std::endl;
-          this->setPulse(theMatrix, npulses, 10000, 10000, v);
-          std::stringstream ss;
-          ss << "PEARYDATA/gradeA06-test7/VNAC" << theMatrix.CurrentDACConfig->GetParameter("VNDACPix") << "_TDAC" << 99 << "_maskid_" << (maskidx*theMatrix.masky + maskidy) << "_vpulse_" << v ;
-          this->setOutputDirectory(ss.str());
-          this->reset();
-          //this->daqStart();
-          sendPulse();
-          this->getDataTO(maskidx,maskidy);
-        }
-    	this->SetInjectionMask(maskidx,maskidy,0);
+      // for(double v = (vmax /(nstep-1)); v <= vmax; v += (vmax /(nstep-1))) {
+      for(double vi = 1; vi <= nstep; vi += 1) {
+        double v = (vi) * (vmax / (nstep));
+        // ugly hack
+        // LOG(logINFO) << "pulsing with " << v << "V" << std::endl;
+        this->setPulse(theMatrix, npulses, 10000, 10000, v);
+        std::stringstream ss;
+        ss << "PEARYDATA/gradeA06-test7/VNAC" << theMatrix.CurrentDACConfig->GetParameter("VNDACPix") << "_TDAC" << 99
+           << "_maskid_" << (maskidx * theMatrix.masky + maskidy) << "_vpulse_" << v;
+        this->setOutputDirectory(ss.str());
+        this->reset();
+        // this->daqStart();
+        sendPulse();
+        this->getDataTO(maskidx, maskidy);
       }
+      this->SetInjectionMask(maskidx, maskidy, 0);
     }
-
-
-
-
+  }
 }
 
-//void ATLASPix::doSCurves(double vmin, double vmax, uint32_t npulses, uint32_t npoints) {
+// void ATLASPix::doSCurves(double vmin, double vmax, uint32_t npulses, uint32_t npoints) {
 //
 //  std::cout << "Ok lets get started" << std::endl;
 //  int cnt = 0;
@@ -3294,7 +3219,7 @@ void ATLASPix::doSCurves(std::string basefolder, double vmin, double vmax, uint3
       // this->SetPixelInjection(theMatrix,0,0,1,1);
       // this->SetPixelInjection(theMatrix,0,0,0,0);
 
-      this->SetPixelInjection(col, row, 1, 1,1);
+      this->SetPixelInjection(col, row, 1, 1, 1);
       this->resetCounters();
 
       for(int i = 0; i < npoints; i++) {
@@ -3307,7 +3232,7 @@ void ATLASPix::doSCurves(std::string basefolder, double vmin, double vmax, uint3
         vinj += dv;
       }
 
-      this->SetPixelInjection(col, row, 0, 0,0);
+      this->SetPixelInjection(col, row, 0, 0, 0);
       myfile << std::endl;
 
       // duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
@@ -3332,47 +3257,44 @@ void ATLASPix::TDACScan(
   }
 }
 
-
 // CaR Board related
 
 void ATLASPix::reset() {
   // LOG(logINFO) << "Resetting " << DEVICE_NAME;
 
-  double thor=theMatrix.ThPix ;
+  double thor = theMatrix.ThPix;
 
   this->setThreshold(1.8);
 
+  // RO register reset
+  theMatrix.CurrentDACConfig->SetParameter("RO_res_n", 0);
+  theMatrix.CurrentDACConfig->SetParameter("Ser_res_n", 0);
+  theMatrix.CurrentDACConfig->SetParameter("Aur_res_n", 0);
+  theMatrix.CurrentDACConfig->SetParameter("Reset", 1);
 
-  //RO register reset
-  theMatrix.CurrentDACConfig->SetParameter("RO_res_n",0);
-  theMatrix.CurrentDACConfig->SetParameter("Ser_res_n",0);
-  theMatrix.CurrentDACConfig->SetParameter("Aur_res_n",0);
-  theMatrix.CurrentDACConfig->SetParameter("Reset",1);
-
-  //Analog reg reset
+  // Analog reg reset
   int VNPixor = theMatrix.CurrentDACConfig->GetParameter("VNPix");
   int VNCompPixor = theMatrix.CurrentDACConfig->GetParameter("VNcompPix");
-  theMatrix.CurrentDACConfig->SetParameter("VNPix",0);
-  theMatrix.CurrentDACConfig->SetParameter("VNcompPix",0);
+  theMatrix.CurrentDACConfig->SetParameter("VNPix", 0);
+  theMatrix.CurrentDACConfig->SetParameter("VNcompPix", 0);
 
   this->ProgramSR(theMatrix);
 
   usleep(1000);
 
-  //RO register reset
-  theMatrix.CurrentDACConfig->SetParameter("RO_res_n",1);
-  theMatrix.CurrentDACConfig->SetParameter("Ser_res_n",1);
-  theMatrix.CurrentDACConfig->SetParameter("Aur_res_n",1);
-  theMatrix.CurrentDACConfig->SetParameter("Reset",0);
+  // RO register reset
+  theMatrix.CurrentDACConfig->SetParameter("RO_res_n", 1);
+  theMatrix.CurrentDACConfig->SetParameter("Ser_res_n", 1);
+  theMatrix.CurrentDACConfig->SetParameter("Aur_res_n", 1);
+  theMatrix.CurrentDACConfig->SetParameter("Reset", 0);
 
-  //Analog reg reset
-  theMatrix.CurrentDACConfig->SetParameter("VNPix",VNPixor);
-  theMatrix.CurrentDACConfig->SetParameter("VNcompPix",VNCompPixor);
+  // Analog reg reset
+  theMatrix.CurrentDACConfig->SetParameter("VNPix", VNPixor);
+  theMatrix.CurrentDACConfig->SetParameter("VNcompPix", VNCompPixor);
 
   this->ProgramSR(theMatrix);
 
   this->setThreshold(thor);
-
 
   void* readout_base =
     _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
@@ -3381,9 +3303,6 @@ void ATLASPix::reset() {
   *fifo_config = (*fifo_config & 0xFFFFFFEF) + 0b10000;
   usleep(50);
   *fifo_config = (*fifo_config & 0xFFFFFFEF) + 0b00000;
-
-
-
 }
 
 std::string ATLASPix::getName() {
@@ -3462,14 +3381,14 @@ void ATLASPix::daqStart() {
   this->resetCounters();
   _daqContinue.test_and_set();
   _daqThread = std::thread(&ATLASPix::runDaq, this);
-  //LOG(logINFO) << "acquisition started" << std::endl;
+  // LOG(logINFO) << "acquisition started" << std::endl;
 }
 
 void ATLASPix::daqStop() {
   // signal to daq thread that we want to stop and wait until it does
   _daqContinue.clear();
   _daqThread.join();
-  //LOG(logINFO) << "Trigger count at end of run : " << this->getTriggerCounter() << std::endl;
+  // LOG(logINFO) << "Trigger count at end of run : " << this->getTriggerCounter() << std::endl;
 }
 
 void ATLASPix::runDaq() {

@@ -260,17 +260,16 @@ namespace caribou {
     throw caribou::DeviceImplException("Decoded data readback not implemented for this device");
   }
 
-  template <typename T> void pearyDevice<T>::dataTuning( double vmax, int nstep, int npulses) {
+  template <typename T> void pearyDevice<T>::dataTuning(double vmax, int nstep, int npulses) {
     LOG(logCRITICAL) << "data Tuninig not implemented for this device";
     throw caribou::DeviceImplException("Decoded data readback not implemented for this device");
   }
 
-  template <typename T> void pearyDevice<T>::VerifyTuning( double vmax, int nstep, int npulses,std::string TDACFile) {
+  template <typename T> void pearyDevice<T>::VerifyTuning(double vmax, int nstep, int npulses, std::string TDACFile) {
     LOG(logCRITICAL) << "data Tuninig not implemented for this device";
     throw caribou::DeviceImplException("Decoded data readback not implemented for this device");
   }
-  
-  
+
   template <typename T> void pearyDevice<T>::configureMatrix(std::string) {
     LOG(logCRITICAL) << "Programming of the pixel matrix not implemented for this device";
     throw caribou::DeviceImplException("Programming of the pixel matrix not implemented for this device");
@@ -321,7 +320,8 @@ namespace caribou {
     throw caribou::DeviceImplException("pulse not implemented for this device");
   }
 
-  template <typename T> void pearyDevice<T>::SetPixelInjection(uint32_t col, uint32_t row, bool ana_state, bool hb_state,bool inj_state) {
+  template <typename T>
+  void pearyDevice<T>::SetPixelInjection(uint32_t col, uint32_t row, bool ana_state, bool hb_state, bool inj_state) {
     LOG(logCRITICAL) << "SetPixelInjection not implemented for this device";
     throw caribou::DeviceImplException("SetPixelInjection not implemented for this device");
   }

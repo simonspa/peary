@@ -49,19 +49,19 @@ void ATLASPixMatrix::_initializeGlobalParameters() {
   CurrentDACConfig->AddParameter("VNOutPix", "5,4,3,1,0,2", 5);
 
   // DigitalDACs
-  CurrentDACConfig->AddParameter("VPVCO", "5,4,3,1,0,2", 10);        // 5);//7);
+  CurrentDACConfig->AddParameter("VPVCO", "5,4,3,1,0,2", 10);       // 5);//7);
   CurrentDACConfig->AddParameter("VNVCO", "5,4,3,1,0,2", 10);       // 15);
-  CurrentDACConfig->AddParameter("VPDelDclMux", "5,4,3,1,0,2", 6); // 30);
+  CurrentDACConfig->AddParameter("VPDelDclMux", "5,4,3,1,0,2", 6);  // 30);
   CurrentDACConfig->AddParameter("VNDelDclMux", "5,4,3,1,0,2", 12); // 30);
-  CurrentDACConfig->AddParameter("VPDelDcl", "5,4,3,1,0,2", 6);    // 30);
+  CurrentDACConfig->AddParameter("VPDelDcl", "5,4,3,1,0,2", 6);     // 30);
   CurrentDACConfig->AddParameter("VNDelDcl", "5,4,3,1,0,2", 12);    // 30);
-  CurrentDACConfig->AddParameter("VPDelPreEmp", "5,4,3,1,0,2", 6); // 30);
+  CurrentDACConfig->AddParameter("VPDelPreEmp", "5,4,3,1,0,2", 6);  // 30);
   CurrentDACConfig->AddParameter("VNDelPreEmp", "5,4,3,1,0,2", 12); // 30);
   CurrentDACConfig->AddParameter("VPDcl", "5,4,3,1,0,2", 24);       // 30);
   CurrentDACConfig->AddParameter("VNDcl", "5,4,3,1,0,2", 12);       // 30);
   CurrentDACConfig->AddParameter("VNLVDS", "5,4,3,1,0,2", 63);      // 10);
   CurrentDACConfig->AddParameter("VNLVDSDel", "5,4,3,1,0,2", 00);   // 10);
-  CurrentDACConfig->AddParameter("VPPump", "5,4,3,1,0,2", 20);       // 5);
+  CurrentDACConfig->AddParameter("VPPump", "5,4,3,1,0,2", 20);      // 5);
 
   CurrentDACConfig->AddParameter("nu", "1,0", 0);
   CurrentDACConfig->AddParameter("RO_res_n", 1, ATLASPix_Config::LSBFirst, 1);  // 1);  //for fastreadout start set 1
@@ -146,8 +146,8 @@ void ATLASPixMatrix::initializeM1() {
   GNDDACPix = ATLASPix_GndDACPix_M1;
   VMINUSPix = ATLASPix_VMinusPix_M1;
   GatePix = ATLASPix_GatePix_M1;
-  maskx=ATLASPix_mask_X;
-  masky=ATLASPix_mask_Y;
+  maskx = ATLASPix_mask_X;
+  masky = ATLASPix_mask_Y;
   _initializeGlobalParameters();
   _initializeM1LikeColumnParameters();
   _initializeRowParameters();
@@ -169,8 +169,8 @@ void ATLASPixMatrix::initializeM1Iso() {
   GNDDACPix = ATLASPix_GndDACPix_M1ISO;
   VMINUSPix = ATLASPix_VMinusPix_M1ISO;
   GatePix = ATLASPix_GatePix_M1ISO;
-  maskx=ATLASPix_mask_X;
-  masky=ATLASPix_mask_Y;
+  maskx = ATLASPix_mask_X;
+  masky = ATLASPix_mask_Y;
   _initializeGlobalParameters();
   _initializeM1LikeColumnParameters();
   _initializeRowParameters();
@@ -192,8 +192,8 @@ void ATLASPixMatrix::initializeM2() {
   GNDDACPix = ATLASPix_GndDACPix_M2;
   VMINUSPix = ATLASPix_VMinusPix_M2;
   GatePix = ATLASPix_GatePix_M2;
-  maskx=ATLASPix_mask_X;
-  masky=ATLASPix_mask_Y;
+  maskx = ATLASPix_mask_X;
+  masky = ATLASPix_mask_Y;
 
   _initializeGlobalParameters();
   _initializeM2ColumnParameters();
@@ -217,7 +217,7 @@ void ATLASPixMatrix::setUniformTDAC(uint32_t value) {
 
   for(int col = 0; col < ncol; col++) {
     for(int row = 0; row < nrow; row++) {
-      //MASK[col][row] = 0;
+      // MASK[col][row] = 0;
       TDAC[col][row] = (value << 1) | MASK[col][row];
     }
   }

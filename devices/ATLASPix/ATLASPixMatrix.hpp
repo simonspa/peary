@@ -37,7 +37,7 @@ struct ATLASPixMatrix {
   int counter;
   uint32_t SRmask, extraBits, PulserMask;
   ATLASPix1Flavor flavor = ATLASPix1Flavor::Undefined;
-  int maskx,masky;
+  int maskx, masky;
 
   ATLASPixMatrix();
 
