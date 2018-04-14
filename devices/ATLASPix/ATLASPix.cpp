@@ -2640,14 +2640,14 @@ pearydata ATLASPix::getData() {
       case 0b00010000: // Trigger cnt 24bits
         TrCNT = d1 & 0xFFFFFF;
         break;
-      case 0b00110000: // Trigger cnt 16b + fpga_ts 16 bits
+      case 0b00110000: // Trigger cnt 8b + fpga_ts 16 bits
         TrCNT = TrCNT + ((d1 << 8) & 0xFF000000);
-        fpga_ts = fpga_ts + (((uint64_t)d1 << 48) & 0xFF00000000000000);
+        fpga_ts = fpga_ts + (((uint64_t)d1 << 48) & 0xFFFF000000000000);
         break;
-      case 0b00100000: // continuation of fpga_ts
+      case 0b00100000: // continuation of fpga_ts (24 bits)
         fpga_ts = fpga_ts + (((uint64_t)d1 << 24) & 0x0000FFFFFF000000);
         break;
-      case 0b01100000: // End of fpga_ts
+      case 0b01100000: // End of fpga_ts (24 bits)
         fpga_ts = fpga_ts + ((d1)&0xFFFFFF);
         // LOG(logINFO) << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
         disk << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
@@ -2762,14 +2762,14 @@ pearydata ATLASPix::getDataTO(int maskx, int masky) {
       case 0b00010000: // Trigger cnt 24bits
         TrCNT = d1 & 0xFFFFFF;
         break;
-      case 0b00110000: // Trigger cnt 16b + fpga_ts 16 bits
+      case 0b00110000: // Trigger cnt 8b + fpga_ts 16 bits
         TrCNT = TrCNT + ((d1 << 8) & 0xFF000000);
-        fpga_ts = fpga_ts + (((uint64_t)d1 << 48) & 0xFF00000000000000);
+        fpga_ts = fpga_ts + (((uint64_t)d1 << 48) & 0xFFFF000000000000);
         break;
-      case 0b00100000: // continuation of fpga_ts
+      case 0b00100000: // continuation of fpga_ts (24 bits)
         fpga_ts = fpga_ts + (((uint64_t)d1 << 24) & 0x0000FFFFFF000000);
         break;
-      case 0b01100000: // End of fpga_ts
+      case 0b01100000: // End of fpga_ts (24 bits)
         fpga_ts = fpga_ts + ((d1)&0xFFFFFF);
         // LOG(logINFO) << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
         // disk << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
@@ -2867,15 +2867,15 @@ std::vector<pixelhit> ATLASPix::getDataTOvector() {
       case 0b00010000: // Trigger cnt 24bits
         TrCNT = d1 & 0xFFFFFF;
         break;
-      case 0b00110000: // Trigger cnt 16b + fpga_ts 16 bits
+      case 0b00110000: // Trigger cnt 8b + fpga_ts 16 bits
         TrCNT = TrCNT + ((d1 << 8) & 0xFF000000);
         fpga_ts = fpga_ts + (((uint64_t)d1 << 48) & 0xFFFF000000000000);
         break;
-      case 0b00100000: // continuation of fpga_ts
+      case 0b00100000: // continuation of fpga_ts (24 bits)
         fpga_ts = fpga_ts + (((uint64_t)d1 << 24) & 0x0000FFFFFF000000);
         break;
-      case 0b01100000: // End of fpga_ts
-        fpga_ts = fpga_ts + (((uint64_t)d1)&0xFFFFFF);
+      case 0b01100000: // End of fpga_ts (24 bits)
+        fpga_ts = fpga_ts + ((d1)&0xFFFFFF);
         // LOG(logINFO) << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
         // disk << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
         fpga_ts_last = fpga_ts;
