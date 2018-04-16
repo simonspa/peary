@@ -259,6 +259,11 @@ void clicpix2_frameDecoder::decodeCounter() {
 
   for(auto r = 0; r < static_cast<int>(clicpix2_frameDecoder::CLICPIX2_ROW); ++r) {
     for(auto c = 0; c < static_cast<int>(clicpix2_frameDecoder::CLICPIX2_COL); ++c) {
+      // Only decode pixels with a flag set
+      if(!matrix[r][c].GetFlag()) {
+        continue;
+      }
+
       if(counter_config[r][c]) {
         matrix[r][c].SetCounter(lfsr13_lut[matrix[r][c].GetLatches() & 0x1fff]);
       } else {
