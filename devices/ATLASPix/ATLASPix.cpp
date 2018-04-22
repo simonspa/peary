@@ -3373,7 +3373,8 @@ namespace {
 
 void ATLASPix::daqStart() {
   // ensure only one daq thread is running
-  if(_daqThread.joinable()) {
+	this->reset();
+	if(_daqThread.joinable()) {
     LOG(logWARNING) << "Data aquisition is already running";
     return;
   }

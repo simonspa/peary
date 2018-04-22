@@ -18,28 +18,28 @@ namespace caribou {
 /** Definition of default values for the different DAC settings for ATLASPix
  */
 
-#define ATLASPix_VDDD 1.9
+#define ATLASPix_VDDD 1.97
 #define ATLASPix_VDDD_CURRENT 2
-#define ATLASPix_VDDA 1.9
+#define ATLASPix_VDDA 1.97
 #define ATLASPix_VDDA_CURRENT 2
-#define ATLASPix_VSSA 1.1
+#define ATLASPix_VSSA 1.2
 #define ATLASPix_VSSA_CURRENT 2
 
 #define ATLASPix_GndDACPix_M2 0
-#define ATLASPix_VMinusPix_M2 0.8
-#define ATLASPix_GatePix_M2 2.0
+#define ATLASPix_VMinusPix_M2 0.57
+#define ATLASPix_GatePix_M2 2.2
 
 #define ATLASPix_GndDACPix_M1 0
-#define ATLASPix_VMinusPix_M1 0.8
+#define ATLASPix_VMinusPix_M1 0.57
 #define ATLASPix_GatePix_M1 2.2
 
 #define ATLASPix_GndDACPix_M1ISO 0
-#define ATLASPix_VMinusPix_M1ISO 0.8
-#define ATLASPix_GatePix_M1ISO 2.0
+#define ATLASPix_VMinusPix_M1ISO 0.57
+#define ATLASPix_GatePix_M1ISO 2.2
 
-#define ATLASPix_BLPix_M1 0.8
-#define ATLASPix_BLPix_M1ISO 0.8
-#define ATLASPix_BLPix_M2 0.8
+#define ATLASPix_BLPix_M1 0.7
+#define ATLASPix_BLPix_M1ISO 0.7
+#define ATLASPix_BLPix_M2 0.7
 
 #define ATLASPix_ThPix_M1 0.85
 #define ATLASPix_ThPix_M1ISO 0.85
