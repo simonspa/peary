@@ -1,7 +1,7 @@
 #ifndef DEVICE_ATLASPix_DEFAULTS_H
 #define DEVICE_ATLASPix_DEFAULTS_H
 
-#include "ATLASPix_clk_freerunning.h"
+#include "ATLASPix_clk_100.h"
 #include "carboard.hpp"
 #include "dictionary.hpp"
 
@@ -55,10 +55,10 @@ namespace caribou {
 #define nrow_m2 320
 
 #define ATLASPix_mask_X 5
-#define ATLASPix_mask_Y 25
+#define ATLASPix_mask_Y 5
 
 #define TuningMaxCount 6000
-#define Tuning_timeout 1000
+#define Tuning_timeout 2000
 
   // ATLASPix  SR FSM control
   const std::intptr_t ATLASPix_CONTROL_BASE_ADDRESS = 0x43C20000;
@@ -159,6 +159,8 @@ namespace caribou {
     {"busy_when_armed", register_t<>(0x26, 0xFF, false, true, true)},		\
     {"trigger_always_armed", register_t<>(0x26, 0xFF, false, true, true)},		\
     {"t0_enable", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"gray_decode", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"ext_clk", register_t<>(0x26, 0xFF, false, true, true)},		\
   }
   // clang-format on
 

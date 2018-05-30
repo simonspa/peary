@@ -57,6 +57,14 @@ pixelhit decodeHit(uint32_t hit) {
   tmp.ts1 = (hit >> 6) & 0x3FF;
   tmp.ts2 = hit & 0x3F;
 
+  if(((tmp.ts1*2)&0x3F)>tmp.ts2){
+	  tmp.tot= 64 - ((tmp.ts1*2)&0x3F) + tmp.ts2;
+  }
+  else{
+	  tmp.tot= + tmp.ts2 - ((tmp.ts1*2)&0x3F);
+
+  }
+
   return tmp;
 }
 
@@ -139,8 +147,8 @@ namespace Color {
 ATLASPix::ATLASPix(const caribou::Configuration config)
     : pearyDevice(config, std::string(DEFAULT_DEVICEPATH), ATLASPix_DEFAULT_I2C), _daqContinue(ATOMIC_FLAG_INIT) {
 
-  // Configuring the clock to 160 MHz
-  LOG(logINFO) << "Setting clock to 160MHz " << DEVICE_NAME;
+  // Configuring the clock
+  LOG(logINFO) << "Setting clock circuit on CaR board " << DEVICE_NAME;
   configureClock();
 
   _registers.add(ATLASPix_REGISTERS);
@@ -1837,13 +1845,53 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 
     *ro = ((*ro) & 0xFFFFFF) + (value << 24);
 
-  } else {
+  }else if(name == "gray_decode") {
+
+	    void* readout_base =
+	      _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
+	    volatile uint32_t* fifo_config =
+	      reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
+	    *fifo_config = (*fifo_config & 0xFBFF) + ((value << 10) & 0b010000000000);
+  }
+
+  else if(name == "ext_clk") {
+
+		    void* readout_base =
+		      _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
+		    volatile uint32_t* fifo_config =
+		      reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
+		    *fifo_config = (*fifo_config & 0xFDFF) + ((value << 9) & 0b001000000000);
+		  }
+
+  else {
     throw RegisterInvalid("Unknown register with \"special\" flag: " + name);
   }
 }
 
 void ATLASPix::configureClock() {
-  _hal->configureSI5345((SI5345_REG_T const* const)si5345_revb_registers, SI5345_REVB_REG_CONFIG_NUM_REGS);
+/*
+  // Check of we should configure for external or internal clock, default to external:
+  if(_config.Get<bool>("clock_internal", false)) {
+    LOG(logDEBUG) << DEVICE_NAME << ": Configure internal clock source, free running, not locking";
+    _hal->configureSI5345((SI5345_REG_T const* const)si5345_revb_registers_free, SI5345_REVB_REG_CONFIG_NUM_REGS_FREE);
+    mDelay(100); // let the PLL lock
+  } else {
+*/
+    LOG(logDEBUG) << DEVICE_NAME << ": Configure external clock source, locked to TLU input clock";
+    _hal->configureSI5345((SI5345_REG_T const* const)si5345_revb_registers, SI5345_REVB_REG_CONFIG_NUM_REGS);
+    LOG(logDEBUG) << "Waiting for clock to lock...";
+
+    // Try for a limited time to lock, otherwise abort:
+    std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+    while(!_hal->isLockedSI5345()) {
+      auto dur = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - start);
+      if(dur.count() > 3)
+        //throw DeviceException("Cannot lock to external clock.");
+	break;
+    }
+    if (_hal->isLockedSI5345()) LOG(logINFO) << "PLL locked to external clock...";
+    else LOG(logINFO) << "Cannot lock to external clock, PLL will continue in freerunning mode...";
+//  }
 }
 
 void ATLASPix::ProgramSR(const ATLASPixMatrix& matrix) {
@@ -2073,8 +2121,8 @@ void ATLASPix::MaskPixel(uint32_t col, uint32_t row) {
   theMatrix.setMask(col, row, 1);
   // std::cout << "pixel masked col:" << col << " row: " << row << " " << theMatrix.MASK[col][row] << std::endl;
   this->writeOneTDAC(theMatrix, col, row, 7);
-  this->SetPixelInjection(col, row, 1, 1, 1);
-  this->SetPixelInjection(col, row, 0, 0, 0);
+  //this->SetPixelInjection(col, row, 1, 1, 1);
+  //this->SetPixelInjection(col, row, 0, 0, 0);
 }
 
 void ATLASPix::setAllTDAC(uint32_t value) {
@@ -2500,13 +2548,25 @@ void ATLASPix::ComputeSCurves(ATLASPixMatrix& matrix, double vmax, int nstep, in
   std::cout << "duration : " << duration << "s" << std::endl;
 }
 
-void ATLASPix::CountHits(std::vector<pixelhit> data, uint32_t maskidx, uint32_t maskidy, CounterMap& counts) {
+std::vector<pixelhit> ATLASPix::CountHits(std::vector<pixelhit> data, uint32_t maskidx, uint32_t maskidy, CounterMap& counts) {
 
   for(auto& hit : data) {
     if((((hit.col + maskidx) % theMatrix.maskx) == 0) && (((hit.row + maskidy) % theMatrix.masky) == 0)) {
       counts[std::make_pair(hit.col, hit.row)]++;
     }
   }
+  std::vector<pixelhit> hp;
+  for (auto& cnt : counts) {
+	  if(cnt.second>250){
+		 std::cout << "HOT PIXEL: " << cnt.first.first <<" " << cnt.first.second << std::endl;
+		 this->MaskPixel(cnt.first.first,cnt.first.second);
+		 pixelhit ahp;
+		 ahp.col=cnt.first.first;
+		 ahp.row=cnt.first.second;
+		 hp.push_back(ahp);
+	  }
+  }
+
 }
 
 void ATLASPix::doSCurves(double vmin, double vmax, uint32_t npulses, uint32_t npoints) {
@@ -2515,7 +2575,7 @@ void ATLASPix::doSCurves(double vmin, double vmax, uint32_t npulses, uint32_t np
   double dv = (vmax - vmin) / (npoints - 1);
 
   std::vector<CounterMap> SCurveData(npoints);
-
+  std::vector<pixelhit> hp;
   make_directories(_output_directory);
   std::ofstream disk;
   disk.open(_output_directory + "/SCURVE_TDAC" + std::to_string(theMatrix.TDAC[0][0] >> 1) + ".txt", std::ios::out);
@@ -2525,11 +2585,13 @@ void ATLASPix::doSCurves(double vmin, double vmax, uint32_t npulses, uint32_t np
     for(int my = 0; my < theMatrix.masky; my++) {
 
       this->SetInjectionMask(mx, my, 1);
+      for(auto& pix : hp){this->MaskPixel(pix.col,pix.row);}
+
       vinj = vmin;
       for(int i = 0; i < npoints; i++) {
         LOG(logINFO) << "pulse height : " << vinj << std::endl;
         this->pulse(npulses, 10000, 10000, vinj);
-        this->CountHits(this->getDataTOvector(), mx, my, SCurveData[i]);
+        hp=this->CountHits(this->getDataTOvector(), mx, my, SCurveData[i]);
         vinj += dv;
       }
 
@@ -2619,7 +2681,7 @@ pearydata ATLASPix::getData() {
 
       pixelhit hit = decodeHit(d1);
       // LOG(logINFO) << hit.col <<" " << hit.row << " " << hit.ts1 << ' ' << hit.ts2 << std::endl;
-      disk << "HIT " << hit.col << "	" << hit.row << "	" << hit.ts1 << "	" << hit.ts2 << "	" << fpga_ts_last << "	"
+      disk << "HIT " << hit.col << "	" << hit.row << "	" << hit.ts1 << "	" << hit.ts2 << "   " << hit.tot << "	" << fpga_ts_last << "	"
            << " " << TrCNT << " " << ((timestamp >> 8) & 0xFFFF) << std::endl;
       // disk << std::bitset<32>(d1) << std::endl;
     }
@@ -2661,6 +2723,15 @@ pearydata ATLASPix::getData() {
 
         break;
 
+      case 0b00001000: // SERDES lock lost
+        disk << "SERDES_LOCK_LOST" << std::endl;
+        break;
+      case 0b00001100: // SERDES lock established
+        disk << "SERDES_LOCK_ESTABLISHED" << std::endl;
+        break;
+      case 0b00000100: // Unexpected/weird data came
+        disk << "WEIRD_DATA" << std::endl;
+        break;
       default: // weird stuff, should not happend
         LOG(logWARNING) << "I AM IMPOSSIBLE!!!!!!!!!!!!!!!!!!" << std::endl;
         break;

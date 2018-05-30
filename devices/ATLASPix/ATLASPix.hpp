@@ -126,7 +126,7 @@ namespace caribou {
     void SetInjectionMask(uint32_t maskx, uint32_t masky, uint32_t state);
     void ResetWriteDAC();
 
-    void CountHits(std::vector<pixelhit> data, uint32_t maskidx, uint32_t maskidy, CounterMap& counts);
+    std::vector<pixelhit> CountHits(std::vector<pixelhit> data, uint32_t maskidx, uint32_t maskidy, CounterMap& counts);
 
     void resetCounters();
     int readCounter(int i);
