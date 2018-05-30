@@ -1,7 +1,7 @@
 #ifndef DEVICE_ATLASPix_DEFAULTS_H
 #define DEVICE_ATLASPix_DEFAULTS_H
 
-#include "ATLASPix_clk_freerunning.h"
+#include "ATLASPix_clk_100.h"
 #include "carboard.hpp"
 #include "dictionary.hpp"
 
