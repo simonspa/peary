@@ -1853,7 +1853,7 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 	      reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
 	    *fifo_config = (*fifo_config & 0xFBFF) + ((value << 10) & 0b010000000000);
   }
-
+/*
   else if(name == "ext_clk") {
 
 		    void* readout_base =
@@ -1862,7 +1862,15 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
 		      reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
 		    *fifo_config = (*fifo_config & 0xFDFF) + ((value << 9) & 0b001000000000);
 		  }
+*/
+  else if(name == "send_fpga_ts") {
 
+		    void* readout_base =
+		      _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
+		    volatile uint32_t* fifo_config =
+		      reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
+		    *fifo_config = (*fifo_config & 0xF7FF) + ((value << 11) & 0b100000000000);
+		  }
   else {
     throw RegisterInvalid("Unknown register with \"special\" flag: " + name);
   }
