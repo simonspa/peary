@@ -26,6 +26,12 @@ std::string clicpix2::getName() {
 clicpix2::clicpix2(const caribou::Configuration config)
     : pearyDevice(config, std::string(DEFAULT_DEVICEPATH)), pg_total_length(0) {
 
+  // Regsiter device-specific commands:
+  _dispatcher.add("configureMatrix", &clicpix2::configureMatrix, this);
+  _dispatcher.add("configurePatternGenerator", &clicpix2::configurePatternGenerator, this);
+  _dispatcher.add("exploreInterface", &clicpix2::exploreInterface, this);
+  _dispatcher.add("powerStatusLog", &clicpix2::powerStatusLog, this);
+
   // Set up periphery
   _periphery.add("vddd", PWR_OUT_1);
   _periphery.add("vdda", PWR_OUT_3);
