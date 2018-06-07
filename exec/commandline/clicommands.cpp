@@ -224,7 +224,7 @@ int pearycli::list_commands(const std::vector<std::string>& input) {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
     LOG(logINFO) << "List of commands available for device \"" << dev->getName() << "\", ID " << input.at(1);
     for(auto& cmd : dev->list_commands()) {
-      LOG(logINFO) << "  " << cmd.first << " (required arguments: " << cmd.second << ")";
+      LOG(logINFO) << "  " << cmd.first << " (arg: " << cmd.second << ")";
     }
   } catch(caribou::caribouException& e) {
     LOG(logERROR) << e.what();

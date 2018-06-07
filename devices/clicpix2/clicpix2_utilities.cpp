@@ -11,7 +11,6 @@ std::map<std::pair<uint8_t, uint8_t>, pixelConfig> clicpix2_utils::readMatrix(st
   LOG(logDEBUG) << "Reading pixel matrix file.";
   std::ifstream pxfile(filename);
   if(!pxfile.is_open()) {
-    LOG(logERROR) << "Could not open matrix file \"" << filename << "\"";
     throw ConfigInvalid("Could not open matrix file \"" + filename + "\"");
   }
 
