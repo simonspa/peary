@@ -92,16 +92,6 @@ namespace caribou {
      */
     virtual void daqStop() = 0;
 
-    /** Report power status
-     *  Method should use logINFO as an output
-     */
-    virtual void powerStatusLog() = 0;
-
-    /** Explore interface by sending data via all available functions
-     *  FIXME for debugging purposes, should be removed later
-     */
-    virtual void exploreInterface() = 0;
-
     virtual void configure();
 
     // Controlling the device
@@ -120,18 +110,9 @@ namespace caribou {
     // virtual void setClockFrequency();
 
     // Programming the pixel matrix
-
-    virtual void configurePatternGenerator(std::string filename);
     virtual void triggerPatternGenerator(bool sleep);
     virtual std::vector<uint64_t> timestampsPatternGenerator();
 
-    /** Configure the pixel matrix
-     */
-    // Provide functions both for the full matrix and single pixels?
-    // Sometimes, pixel configs will have to be cached by child classes since
-    // only programming of full matrix is supported by device...
-    virtual void configureMatrix(std::string filename);
-    // virtual void configurePixel() = 0;
 
     // Voltage regulators
 

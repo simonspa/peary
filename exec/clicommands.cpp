@@ -74,18 +74,6 @@ pearycli::pearycli() : c("# ") {
   c.registerCommand(
     "getRegister", getRegister, "Read the value of register REG_NAME on the selected device", 2, "REG_NAME DEVICE_ID");
   c.registerCommand("getRegisters", getRegisters, "Read the value of all registers on the selected device", 1, "DEVICE_ID");
-  c.registerCommand("configureMatrix",
-                    configureMatrix,
-                    "Configure the pixel matrix of the selected device with the trim/mask values for all pixels provided in "
-                    "the configuration file parameter FILE_NAME",
-                    2,
-                    "FILE_NAME DEVICE_ID");
-  c.registerCommand("configurePatternGenerator",
-                    configurePatternGenerator,
-                    "Configure the pattern generator of the FPGA for the selected device "
-                    "with the pattern provided in the configuration file FILE_NAME",
-                    2,
-                    "FILE_NAME DEVICE_ID");
   c.registerCommand("triggerPatternGenerator",
                     triggerPatternGenerator,
                     "Trigger the execution of the programmed pattern generator once for the selected device",
@@ -132,15 +120,11 @@ pearycli::pearycli() : c("# ") {
     10,
     "DAC1_NAME DAC1_MAX DAC1_MIN DEVICE_ID1 DAC2_NAME DAC2_MAX DAC2_MIN DEVICE_ID2 DELAY_PATTERN[ms] REPEAT FILE_NAME");
 
-  c.registerCommand(
-    "exploreInterface", exploreInterface, "Perform an interface communication test on the selected devce", 1, "DEVICE_ID");
   c.registerCommand("getADC",
                     getADC,
                     "Read the voltage from ADC channel CHANNEL_ID via the selected device",
                     2,
                     "CHANNEL_ID[1:8] DEVICE_ID");
-  c.registerCommand(
-    "powerStatusLog", powerStatusLog, "Perform a power and current measurement for the selected device", 1, "DEVICE_ID");
   c.registerCommand("daqStart", daqStart, "Start DAQ for the selected device", 1, "DEVICE_ID");
   c.registerCommand("daqStop", daqStop, "Stop DAQ for the selected device", 1, "DEVICE_ID");
   c.registerCommand("getRawData", getRawData, "Retrieve raw data from the selected device", 1, "DEVICE_ID");
@@ -446,28 +430,6 @@ int pearycli::getRegisters(const std::vector<std::string>& input) {
   return ret::Ok;
 }
 
-int pearycli::configureMatrix(const std::vector<std::string>& input) {
-  try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(2)));
-    dev->configureMatrix(input.at(1));
-  } catch(caribou::caribouException& e) {
-    LOG(logERROR) << e.what();
-    return ret::Error;
-  }
-  return ret::Ok;
-}
-
-int pearycli::configurePatternGenerator(const std::vector<std::string>& input) {
-  try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(2)));
-    dev->configurePatternGenerator(input.at(1));
-  } catch(caribou::caribouException& e) {
-    LOG(logERROR) << e.what();
-    return ret::Error;
-  }
-  return ret::Ok;
-}
-
 int pearycli::triggerPatternGenerator(const std::vector<std::string>& input) {
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
@@ -653,33 +615,11 @@ int pearycli::scanDAC2D(const std::vector<std::string>& input) {
   return ret::Ok;
 }
 
-int pearycli::exploreInterface(const std::vector<std::string>& input) {
-  try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
-    dev->exploreInterface();
-  } catch(caribou::caribouException& e) {
-    LOG(logCRITICAL) << e.what();
-    return ret::Error;
-  }
-  return ret::Ok;
-}
-
 int pearycli::getADC(const std::vector<std::string>& input) {
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(2)));
     LOG(logINFO) << "Voltage: " << dev->getADC(std::stoi(input.at(1))) << "V";
   } catch(caribou::ConfigInvalid&) {
-    return ret::Error;
-  }
-  return ret::Ok;
-}
-
-int pearycli::powerStatusLog(const std::vector<std::string>& input) {
-  try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
-    dev->powerStatusLog();
-  } catch(caribou::caribouException& e) {
-    LOG(logERROR) << e.what();
     return ret::Error;
   }
   return ret::Ok;

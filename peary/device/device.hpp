@@ -73,16 +73,6 @@ namespace caribou {
     virtual std::vector<uint32_t> getRawData() = 0;
     virtual pearydata getData() = 0;
 
-    /** Report power status
-     *  Method should use logINFO as an output
-     */
-    virtual void powerStatusLog() = 0;
-
-    /** Explore interface by sending data via all available functions
-     *  FIXME for debugging purposes, should be removed later
-     */
-    virtual void exploreInterface() = 0;
-
     /** Initialize the device (ex.set the required clock otuputs etc.).
      *  Function to configure the Caribou device by setting all DACs to the values
      *  provided via the initial configuration object
@@ -110,16 +100,6 @@ namespace caribou {
      */
     virtual void reset() = 0;
 
-    // Setting the acquisition clock/device clock?
-    // Could be either the supplied clock from DAQ or internal clock divider...
-    // virtual void setClockFrequency();
-
-    /** Configure the pattern generator
-     *
-     *
-     */
-    virtual void configurePatternGenerator(std::string filename) = 0;
-
     /** Execute the pattern generator
      *
      *  Trigger the execution of the pattern generator once
@@ -129,14 +109,6 @@ namespace caribou {
 
     // Return timestamps for the execeuted sequence in the pattern generator.
     virtual std::vector<uint64_t> timestampsPatternGenerator() = 0;
-
-    /** Configure the pixel matrix
-     */
-    // Provide functions both for the full matrix and single pixels?
-    // Sometimes, pixel configs will have to be cached by child classes since
-    // only programming of full matrix is supported by device...
-    virtual void configureMatrix(std::string filename) = 0;
-    // virtual void configurePixel() = 0;
 
     // Voltage regulators
 
