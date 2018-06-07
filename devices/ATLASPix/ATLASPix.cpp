@@ -2731,10 +2731,10 @@ pearydata ATLASPix::getData() {
 
         break;
 
-      case 0b00001000: // SERDES lock lost
+      case 0b00001100: // SERDES lock lost
         disk << "SERDES_LOCK_LOST" << std::endl;
         break;
-      case 0b00001100: // SERDES lock established
+      case 0b00001000: // SERDES lock established
         disk << "SERDES_LOCK_ESTABLISHED" << std::endl;
         break;
       case 0b00000100: // Unexpected/weird data came
