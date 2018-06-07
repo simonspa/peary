@@ -100,13 +100,6 @@ namespace caribou {
      */
     virtual void reset() = 0;
 
-    /** Execute the pattern generator
-     *
-     *  Trigger the execution of the pattern generator once
-     *  @param sleep wait for execution of pattern generator before returning
-     */
-    virtual void triggerPatternGenerator(bool sleep = true) = 0;
-
     // Return timestamps for the execeuted sequence in the pattern generator.
     virtual std::vector<uint64_t> timestampsPatternGenerator() = 0;
 
@@ -166,6 +159,7 @@ namespace caribou {
      *   @throws ConfigInvalid if command is not found or arguments do not match
      */
     void command(const std::string& name, const std::vector<std::string>& args = std::vector<std::string>());
+    void command(const std::string& name, const std::string& arg);
 
   protected:
     /** Command dispatcher for this device

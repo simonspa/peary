@@ -74,11 +74,6 @@ pearycli::pearycli() : c("# ") {
   c.registerCommand(
     "getRegister", getRegister, "Read the value of register REG_NAME on the selected device", 2, "REG_NAME DEVICE_ID");
   c.registerCommand("getRegisters", getRegisters, "Read the value of all registers on the selected device", 1, "DEVICE_ID");
-  c.registerCommand("triggerPatternGenerator",
-                    triggerPatternGenerator,
-                    "Trigger the execution of the programmed pattern generator once for the selected device",
-                    1,
-                    "DEVICE_ID");
 
   c.registerCommand("scanDAC",
                     scanDAC,
@@ -430,17 +425,6 @@ int pearycli::getRegisters(const std::vector<std::string>& input) {
   return ret::Ok;
 }
 
-int pearycli::triggerPatternGenerator(const std::vector<std::string>& input) {
-  try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
-    dev->triggerPatternGenerator();
-  } catch(caribou::caribouException& e) {
-    LOG(logERROR) << e.what();
-    return ret::Error;
-  }
-  return ret::Ok;
-}
-
 int pearycli::scanDAC(const std::vector<std::string>& input) {
   std::map<std::string, int> output_mux_DAC{{"bias_disc_n", 1},
                                             {"bias_disc_p", 2},
@@ -703,12 +687,12 @@ int pearycli::acquire(const std::vector<std::string>& input) {
         try {
           if(testpulses) {
             // Send pattern:
-            dev->triggerPatternGenerator(false);
+            dev->command("triggerPatternGenerator", "0");
             // Trigger DEV2, toggle to NOT(tp_status)
             dev2->setRegister(input.at(5), static_cast<int>(!tp_status));
           } else {
             // Send pattern:
-            dev->triggerPatternGenerator(true);
+            dev->command("triggerPatternGenerator", "1");
           }
           // Wait
           mDelay(100);
@@ -810,9 +794,9 @@ int pearycli::scanThreshold(const std::vector<std::string>& input) {
         try {
           // Send pattern:
           if(!testpulses)
-            dev2->triggerPatternGenerator(true);
+            dev2->command("triggerPatternGenerator", "1");
           else {
-            dev2->triggerPatternGenerator(false);
+            dev2->command("triggerPatternGenerator", "0");
             dev3->setRegister(input.at(9), 1);
             mDelay(10);
           }
@@ -909,7 +893,7 @@ int pearycli::scanThreshold2D(const std::vector<std::string>& input) {
           pearydata frame;
           try {
             // Send pattern:
-            dev2->triggerPatternGenerator();
+            dev2->command("triggerPatternGenerator", "1");
             // Read the data:
             frame = dev2->getData();
           } catch(caribou::DataException& e) {

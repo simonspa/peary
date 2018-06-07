@@ -257,11 +257,6 @@ namespace caribou {
     throw caribou::DeviceImplException("Decoded data readback not implemented for this device");
   }
 
-  template <typename T> void pearyDevice<T>::triggerPatternGenerator(bool) {
-    LOG(logCRITICAL) << "Pattern generator not implemented for this device";
-    throw caribou::DeviceImplException("Pattern generator not implemented for this device");
-  }
-
   template <typename T> std::vector<uint64_t> pearyDevice<T>::timestampsPatternGenerator() {
     LOG(logCRITICAL) << "Pattern generator not implemented for this device";
     throw caribou::DeviceImplException("Pattern generator not implemented for this device");

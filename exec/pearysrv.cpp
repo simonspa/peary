@@ -410,7 +410,7 @@ bool getFrame() {
         // pearydata data;
         std::vector<uint32_t> data;
         try {
-          dev->triggerPatternGenerator(true);
+          dev->command("triggerPatternGenerator", "1");
           // Read the data:
           data = dev->getRawData();
         } catch(caribou::DataException& e) {

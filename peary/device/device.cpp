@@ -42,3 +42,7 @@ void caribouDevice::command(const std::string& name, const std::vector<std::stri
     throw caribou::ConfigInvalid(e.what());
   }
 }
+
+void caribouDevice::command(const std::string& name, const std::string& arg) {
+  command(name, std::vector<std::string>{arg});
+}
