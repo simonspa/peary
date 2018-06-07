@@ -73,9 +73,3 @@ void example::setSpecialRegister(std::string name, uint32_t) {
 
   LOG(logDEBUG) << "Treating special register \"" << name << "\"";
 }
-
-caribouDevice* caribou::generator(const caribou::Configuration config) {
-  LOG(logDEBUG) << "Generator: " << DEVICE_NAME;
-  example* mDevice = new example(config);
-  return dynamic_cast<caribouDevice*>(mDevice);
-}

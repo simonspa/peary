@@ -24,7 +24,7 @@ TARGET_LINK_LIBRARIES(pearycli ${PROJECT_NAME} ${Readline_LIBRARY})
 
 INCLUDE_DIRECTORIES(devices/example)
 ADD_EXECUTABLE(peary_direct "direct_device.cpp")
-TARGET_LINK_LIBRARIES(peary_direct ${PROJECT_NAME} CaribouExampleDevice )
+TARGET_LINK_LIBRARIES(peary_direct ${PROJECT_NAME} example )
 
 INSTALL(TARGETS peary_app peary_direct pearycli
   RUNTIME DESTINATION bin
