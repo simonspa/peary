@@ -8,6 +8,7 @@
 #include "configuration.hpp"
 #include "constants.hpp"
 #include "datatypes.hpp"
+#include "dispatcher.hpp"
 
 #include <stdint.h>
 #include <string>
@@ -183,6 +184,24 @@ namespace caribou {
     // virtual std::vector<caribou::event> getData();
     // If no data available, throw caribou::NoDataAvailable exception instead of returning empty vector!
     // Otherwise synchronization of event-based detectors impossible
+
+    /** Retrieve vector of all available commands for this device
+     */
+    std::vector<std::pair<std::string, std::size_t>> list_commands();
+
+    /** Call command for this device for this device
+     *
+     *   @throws ConfigInvalid if command is not found or arguments do not match
+     */
+    void command(const std::string& name, const std::vector<std::string>& args);
+
+  protected:
+    /** Command dispatcher for this device
+     *
+     *  Allows to register commands and calls to be routed to child class member functions. This member is protected and
+     *  derived classes have direct access to it in order to register their own commands.
+     */
+    caribou::Dispatcher _dispatcher;
 
   private:
     /** Private static status flag if devices are managed
