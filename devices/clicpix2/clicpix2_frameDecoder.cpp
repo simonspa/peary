@@ -284,4 +284,4 @@ namespace caribou {
       }
     return out;
   }
-}
+} // namespace caribou

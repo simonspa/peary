@@ -193,6 +193,6 @@ namespace caribou {
   private:
     bool longflag;
   };
-}
+} // namespace caribou
 
 #endif
