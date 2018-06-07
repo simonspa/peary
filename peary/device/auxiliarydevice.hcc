@@ -105,12 +105,12 @@ namespace caribou {
 
   private:
     /** Device interface address
-    */
+     */
     std::string _devpath;
     uint32_t _devaddress;
 
     /** Device configuration object
-    */
+     */
     caribou::Configuration _config;
   }; // class auxiliaryDevice
 

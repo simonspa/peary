@@ -87,5 +87,5 @@ namespace caribou {
      */
     friend std::ostream& operator<<(std::ostream& out, const clicpix2_frameDecoder& decoder);
   };
-}
+} // namespace caribou
 #endif

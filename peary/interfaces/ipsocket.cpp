@@ -115,7 +115,7 @@ ipsocket_t iface_ipsocket::write(const ipsocket_port_t&, const ipsocket_t& paylo
 
   if(retval < 0) {
     LOG(logERROR) << "Command returned: " << retval << std::endl;
-    throw CommunicationError("Server returned errno " + errno);
+    throw CommunicationError("Server returned errno " + std::to_string(errno));
   }
   return std::string();
 }

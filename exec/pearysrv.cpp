@@ -166,10 +166,11 @@ int main(int argc, char* argv[]) {
       int rv = select(my_socket + 1, &set, NULL, NULL, &timeout);
       // LOG(logDEBUG) <<rv;
       /*if (rv == SOCKET_ERROR)
-	  {
-	      // select error...
+    {
+        // select error...
       }
-	  else*/ if(rv == 0) {
+    else*/
+      if(rv == 0) {
         // timeout, socket does not have anything to read
         cmd_length = 0;
       } else {
