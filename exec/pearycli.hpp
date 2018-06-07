@@ -24,6 +24,9 @@ namespace caribou {
     int readLine() { return c.readLine(); }
     int executeFile(std::string file) { return c.executeFile(file); }
 
+    static int command(const std::vector<std::string>& input);
+    static int list_commands(const std::vector<std::string>& input);
+
     static int devices(const std::vector<std::string>&);
     static int addDevice(const std::vector<std::string>& input);
     static int verbosity(const std::vector<std::string>& input);

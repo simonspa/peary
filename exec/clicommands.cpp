@@ -18,6 +18,10 @@ pearycli::pearycli() : c("# ") {
   c.registerCommand("verbosity", verbosity, "Changes the logging verbosity", 1, "LOGLEVEL");
   c.registerCommand("delay", delay, "Adds a delay in Milliseconds", 1, "DELAY_MS");
 
+  c.registerCommand(
+    "list_commands", list_commands, "list available device-specific commands for selected device", 1, "DEVICE_ID");
+  c.registerCommand("cmd", command, "execute device-specific command", 2, "COMMAND [ARGUMENTS...] DEVICE_ID");
+
   c.registerCommand("version", version, "Print software and firmware version of the selected device", 1, "DEVICE_ID");
   c.registerCommand("init", configure, "Initialize and configure the selected device", 1, "DEVICE_ID");
   c.registerCommand("configure", configure, "Initialize and configure the selected device", 1, "DEVICE_ID");
@@ -227,6 +231,34 @@ int pearycli::verbosity(const std::vector<std::string>& input) {
 
 int pearycli::delay(const std::vector<std::string>& input) {
   mDelay(std::stoi(input.at(1)));
+  return ret::Ok;
+}
+
+int pearycli::list_commands(const std::vector<std::string>& input) {
+
+  try {
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
+    LOG(logINFO) << "List of commands available for device \"" << dev->getName() << "\", ID " << input.at(1);
+    for(auto& cmd : dev->list_commands()) {
+      LOG(logINFO) << "  " << cmd.first << " (required arguments: " << cmd.second << ")";
+    }
+  } catch(caribou::caribouException& e) {
+    LOG(logERROR) << e.what();
+    return ret::Error;
+  }
+  return ret::Ok;
+}
+
+int pearycli::command(const std::vector<std::string>& input) {
+
+  try {
+    caribouDevice* dev = manager->getDevice(std::stoi(input.back()));
+    const std::vector<std::string> args(input.begin() + 2, input.end() - 1);
+    dev->command(input.at(1), args);
+  } catch(caribou::caribouException& e) {
+    LOG(logERROR) << e.what();
+    return ret::Error;
+  }
   return ret::Ok;
 }
 
