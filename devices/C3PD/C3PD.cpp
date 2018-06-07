@@ -2,7 +2,7 @@
  * Caribou implementation for the C3PD
  */
 
-#include "c3pd.hpp"
+#include "C3PD.hpp"
 #include "hal.hpp"
 #include "log.hpp"
 
@@ -163,10 +163,4 @@ void C3PD::powerStatusLog() {
   LOG(logINFO) << "\tBus voltage: " << this->getVoltage("vdda") << "V";
   LOG(logINFO) << "\tBus current: " << this->getCurrent("vdda") << "A";
   LOG(logINFO) << "\tBus power  : " << this->getPower("vdda") << "W";
-}
-
-caribouDevice* caribou::generator(const caribou::Configuration config) {
-  LOG(logDEBUG) << "Generator: " << DEVICE_NAME;
-  C3PD* mDevice = new C3PD(config);
-  return dynamic_cast<caribouDevice*>(mDevice);
 }

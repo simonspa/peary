@@ -9,6 +9,9 @@ ENDIF(COMMAND CMAKE_POLICY)
 # Project name
 PROJECT(peary)
 
+# Include peary cmake functions
+INCLUDE("cmake/peary.cmake")
+
 
 ###############################
 # Setup the build environment #
