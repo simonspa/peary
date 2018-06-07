@@ -113,7 +113,6 @@ namespace caribou {
     virtual void triggerPatternGenerator(bool sleep);
     virtual std::vector<uint64_t> timestampsPatternGenerator();
 
-
     // Voltage regulators
 
     // To set supply voltages, same question as above: how to define voltage names?
