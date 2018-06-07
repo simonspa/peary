@@ -1,19 +1,20 @@
-SET(NAME "CLICpix2")
+PEARY_ENABLE_DEFAULT(OFF)
 
-SET(SOURCEFILES
-  clicpix2.cpp
-  clicpix2_utilities.cpp
-  clicpix2_frameDecoder.cpp
-  clicpix2_frameDecoder_lfsr13.cpp
-  clicpix2_frameDecoder_lfsr8.cpp
-  clicpix2_frameDecoder_lfsr5.cpp
-  )
+# Define device and return the generated name as DEVICE_NAME
+PEARY_DEVICE(DEVICE_NAME)
 
-INCLUDE_DIRECTORIES(.)
+INCLUDE_DIRECTORIES(SYSTEM ${LCIO_INCLUDE_DIRS} )
+TARGET_LINK_LIBRARIES(${DEVICE_NAME} ${LCIO_LIBRARIES})
 
-ADD_DEFINITIONS(-DDEVICE_NAME="${NAME}")
-ADD_LIBRARY(${NAME} SHARED ${SOURCEFILES})
-TARGET_LINK_LIBRARIES(${NAME} ${PROJECT_NAME})
+# Add source files to library
+PEARY_DEVICE_SOURCES(${DEVICE_NAME}
+    clicpix2.cpp
+    clicpix2_utilities.cpp
+    clicpix2_frameDecoder.cpp
+    clicpix2_frameDecoder_lfsr13.cpp
+    clicpix2_frameDecoder_lfsr8.cpp
+    clicpix2_frameDecoder_lfsr5.cpp
+)
 
 SET(DECODERFILES
   clicpix2RawDecoder.cpp
@@ -25,10 +26,9 @@ SET(DECODERFILES
 )
 
 ADD_EXECUTABLE(clicpix2_rawdecoder ${DECODERFILES})
-TARGET_LINK_LIBRARIES(clicpix2_rawdecoder ${PROJECT_NAME} ${NAME})
+TARGET_LINK_LIBRARIES(clicpix2_rawdecoder ${PROJECT_NAME} ${DEVICE_NAME})
 
-
-INSTALL(TARGETS ${NAME} clicpix2_rawdecoder
+INSTALL(TARGETS clicpix2_rawdecoder
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib)

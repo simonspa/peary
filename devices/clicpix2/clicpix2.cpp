@@ -515,12 +515,6 @@ pearydata clicpix2::decodeFrame(const std::vector<uint32_t>& frame) {
   return decoder.getZerosuppressedFrame();
 }
 
-caribouDevice* caribou::generator(const caribou::Configuration config) {
-  LOG(logDEBUG) << "Generator: " << DEVICE_NAME;
-  clicpix2* mDevice = new clicpix2(config);
-  return dynamic_cast<caribouDevice*>(mDevice);
-}
-
 pearydata clicpix2::getData() {
   return decodeFrame(getRawData());
 }
