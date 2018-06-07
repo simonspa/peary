@@ -2,7 +2,7 @@
 #include <iostream>
 #include <signal.h>
 
-#include "../extern/cpp-readline/src/Console.hpp"
+#include "Console.hpp"
 #include "pearycli.hpp"
 
 #include "configuration.hpp"

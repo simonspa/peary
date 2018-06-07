@@ -2,7 +2,7 @@
 #include <iostream>
 
 #include "configuration.hpp"
-#include "example.hpp"
+#include "example/example.hpp"
 #include "log.hpp"
 
 using namespace caribou;

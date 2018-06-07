@@ -5,7 +5,7 @@
 #ifndef PEARY_CLI_H
 #define PEARY_CLI_H
 
-#include "../extern/cpp-readline/src/Console.hpp"
+#include "Console.hpp"
 #include "configuration.hpp"
 #include "devicemgr.hpp"
 

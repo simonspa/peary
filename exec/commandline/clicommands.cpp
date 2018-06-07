@@ -1,5 +1,5 @@
 #include <fstream>
-#include "../extern/cpp-readline/src/Console.hpp"
+#include "Console.hpp"
 #include "configuration.hpp"
 #include "log.hpp"
 #include "pearycli.hpp"
