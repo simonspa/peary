@@ -31,6 +31,7 @@ clicpix2::clicpix2(const caribou::Configuration config)
   _dispatcher.add("configurePatternGenerator", &clicpix2::configurePatternGenerator, this);
   _dispatcher.add("exploreInterface", &clicpix2::exploreInterface, this);
   _dispatcher.add("powerStatusLog", &clicpix2::powerStatusLog, this);
+  _dispatcher.add("triggerPatternGenerator", &clicpix2::triggerPatternGenerator, this);
 
   // Set up periphery
   _periphery.add("vddd", PWR_OUT_1);
@@ -60,6 +61,24 @@ void clicpix2::configure() {
   configureClock();
   reset();
   mDelay(10);
+
+  // Read pattern generator from the configuration and program it:
+  std::string pg = _config.Get("patterngenerator", "");
+  if(!pg.empty()) {
+    LOG(logINFO) << "Found pattern generator in configuration, programming...";
+    configurePatternGenerator(pg);
+  } else {
+    LOG(logINFO) << "No pattern generator found in configuration.";
+  }
+
+  // Read matrix file from the configuration and program it:
+  std::string matrix = _config.Get("matrix", "");
+  if(!matrix.empty()) {
+    LOG(logINFO) << "Found pixel matrix setup in configuration, programming...";
+    configureMatrix(matrix);
+  } else {
+    LOG(logINFO) << "No pixel matrix configuration setting found.";
+  }
 
   // FIXME set all DACs provided with config
   // Call the base class configuration function:
