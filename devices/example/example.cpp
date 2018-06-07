@@ -9,12 +9,25 @@
 
 using namespace caribou;
 
+example::example(const caribou::Configuration config)
+    : pearyDevice(config, std::string(DEFAULT_DEVICEPATH), DEFAULT_ADDRESS) {
+  _periphery.add("vd", PWR_OUT_1);
+  _registers.add(EXAMPLE_REGISTERS);
+  _dispatcher.add("do", &example::doDeviceSpecificThings, this);
+};
+
 example::~example() {
   LOG(logINFO) << DEVICE_NAME << ": Shutdown, delete device.";
 }
 
 std::string example::getName() {
   return DEVICE_NAME;
+}
+
+void example::doDeviceSpecificThings(std::string arg1, int arg2) {
+  LOG(logINFO) << DEVICE_NAME << ": Calling specific function throug dispatcher.";
+  LOG(logINFO) << "  input arg1:   " << arg1;
+  LOG(logINFO) << "  input arg2*2: " << arg2 * 2;
 }
 
 void example::powerUp() {

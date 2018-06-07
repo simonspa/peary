@@ -31,10 +31,7 @@ namespace caribou {
      *  in the device class constructor since the interface type is only known once the
      *  child object (of this class) exists.
      */
-    example(const caribou::Configuration config) : pearyDevice(config, std::string(DEFAULT_DEVICEPATH), DEFAULT_ADDRESS) {
-      _periphery.add("vd", PWR_OUT_1);
-      _registers.add(EXAMPLE_REGISTERS);
-    };
+    example(const caribou::Configuration config);
     ~example();
 
     /** Return human-readable name of this device
@@ -72,6 +69,8 @@ namespace caribou {
     void exampleCall();
 
     void setSpecialRegister(std::string name, uint32_t value);
+
+    void doDeviceSpecificThings(std::string arg1, int arg2);
   };
 
   /** Device generator
