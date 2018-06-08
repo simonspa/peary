@@ -51,6 +51,7 @@ namespace caribou {
         std::cout << "Available commands are:\n";
         for(auto& command : commands)
           std::cout << "\t" << command << "\n";
+        listUnregisteredCommands();
         return ReturnCode::Ok;
       },
       "Provide help on using this console",
@@ -172,6 +173,12 @@ namespace caribou {
         std::cout << "       " << it->second.help << std::endl;
         return ReturnCode::Error;
       }
+    }
+
+    try {
+      return unregisteredCommand(inputs);
+    } catch(std::invalid_argument& e) {
+      return ReturnCode::Error;
     }
 
     std::cout << "Command '" << inputs.at(0) << "' not found.\n";

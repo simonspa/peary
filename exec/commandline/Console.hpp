@@ -132,6 +132,12 @@ namespace caribou {
      */
     int readLine();
 
+  protected:
+    /** Possiblity for dervice console classes to add unregistered commands to be executed:
+     */
+    virtual int unregisteredCommand(const std::vector<std::string>&) { return ReturnCode::Error; }
+    virtual void listUnregisteredCommands(){};
+
   private:
     Console(const Console&) = delete;
     Console(Console&&) = delete;

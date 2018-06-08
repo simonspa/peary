@@ -73,6 +73,9 @@ namespace caribou {
 
     static std::string getFileHeader(std::string function, caribouDevice* dev);
     static std::string allDeviceParameters();
+
+    int unregisteredCommand(const std::vector<std::string>&);
+    void listUnregisteredCommands();
   };
 
 } // namespace caribou

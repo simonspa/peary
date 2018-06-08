@@ -131,6 +131,49 @@ pearycli::~pearycli() {
   delete manager;
 }
 
+void pearycli::listUnregisteredCommands() {
+  std::cout << "Additional commands registered by individual devices:\n";
+  try {
+    size_t i = 0;
+    std::vector<caribouDevice*> devs = manager->getDevices();
+    for(auto d : devs) {
+      std::cout << "ID " << i << " - " << d->getName() << ":" << std::endl;
+      for(auto& cmd : d->list_commands()) {
+        std::cout << "\t" << cmd.first << std::endl;
+      }
+      i++;
+    }
+  } catch(caribou::caribouException& e) {
+  }
+}
+
+int pearycli::unregisteredCommand(const std::vector<std::string>& input) {
+
+  try {
+    caribouDevice* dev = manager->getDevice(std::stoi(input.back()));
+
+    auto commands = dev->list_commands();
+
+    auto value = input.front();
+    auto cmd = std::find_if(commands.begin(), commands.end(), [&value](std::pair<std::string, std::size_t> const& elem) {
+      return elem.first == value;
+    });
+
+    // Command not found
+    if(cmd == commands.end()) {
+      std::cout << "Command '" << input.front() << "' for device " << dev->getName() << " not found.\n";
+      throw std::invalid_argument("command not found");
+    }
+
+    const std::vector<std::string> args(input.begin() + 1, input.end() - 1);
+    dev->command(input.front(), args);
+  } catch(caribou::caribouException& e) {
+    LOG(ERROR) << e.what();
+    return ReturnCode::Error;
+  }
+  return ReturnCode::Ok;
+}
+
 std::string pearycli::allDeviceParameters() {
 
   std::stringstream responses;
