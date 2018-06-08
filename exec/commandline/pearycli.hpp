@@ -19,7 +19,6 @@ namespace caribou {
     pearycli();
     ~pearycli();
 
-    static int command(const std::vector<std::string>& input);
     static int list_commands(const std::vector<std::string>& input);
 
     static int devices(const std::vector<std::string>&);

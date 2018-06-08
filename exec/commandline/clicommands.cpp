@@ -19,7 +19,6 @@ pearycli::pearycli() : Console("# ") {
 
   registerCommand(
     "list_commands", list_commands, "list available device-specific commands for selected device", 1, "DEVICE_ID");
-  registerCommand("cmd", command, "execute device-specific command", 2, "COMMAND [ARGUMENTS...] DEVICE_ID");
 
   registerCommand("version", version, "Print software and firmware version of the selected device", 1, "DEVICE_ID");
   registerCommand("init", configure, "Initialize and configure the selected device", 1, "DEVICE_ID");
@@ -92,7 +91,7 @@ pearycli::pearycli() : Console("# ") {
     scanThreshold,
     "Scan Threshold DAC DAC_NAME from value MAX down to MIN on DEVICE_ID1, open the shutter via the pattern generator after "
     "DELAY_PATTERN milliseconds and read back the data from the pixel matrix of DEVICE_ID2. The sequence is repeated REPEAT "
-    "times for every threshold. Data are saved in the FILE_NAME.csv file. OPTIONAL: If the two additional arguments are "
+    "times for every threshold. Data are saved in the FILE_NAME.csv file.\nOPTIONAL: If the two additional arguments are "
     "provided, always write to register REG on DEVICE_ID_3 after starting the pattern generator.",
     8,
     "DAC_NAME MAX MIN DEVICE_ID1 DELAY_PATTERN[ms] REPEAT FILE_NAME DEVICE_ID2 [REG DEVICE_ID_3]");
@@ -115,14 +114,15 @@ pearycli::pearycli() : Console("# ") {
   registerCommand("daqStop", daqStop, "Stop DAQ for the selected device", 1, "DEVICE_ID");
   registerCommand("getRawData", getRawData, "Retrieve raw data from the selected device", 1, "DEVICE_ID");
   registerCommand("getData", getData, "Retrieve decoded data from the selected device.", 1, "DEVICE_ID");
-  registerCommand("acquire",
-                  acquire,
-                  "Acquire NUM events/frames from the selected device (1). For every event/frame, the pattern generator is "
-                  "triggered once and a readout of the device is attempted. Prints all pixel hits if LONG is set to 1, else "
-                  "just the number of pixel responses. OPTIONAL: If the two additional arguments are provided, always write "
-                  "to register REG on DEVICE_ID_2 after starting the pattern generator.",
-                  4,
-                  "NUM LONG[0/1] FILENAME DEVICE_ID_1 [REG DEVICE_ID_2]");
+  registerCommand(
+    "acquire",
+    acquire,
+    "Acquire NUM events/frames from the selected device (1). For every event/frame, the pattern generator is "
+    "triggered once and a readout of the device is attempted. Prints all pixel hits if LONG is set to 1, else "
+    "just the number of pixel responses.\nOPTIONAL: If the two additional arguments are provided, always write "
+    "to register REG on DEVICE_ID_2 after starting the pattern generator.",
+    4,
+    "NUM LONG[0/1] FILENAME DEVICE_ID_1 [REG DEVICE_ID_2]");
   registerCommand("flushMatrix", flushMatrix, "Retrieve data from the selected device and discard it", 1, "DEVICE_ID");
 }
 
@@ -249,23 +249,10 @@ int pearycli::list_commands(const std::vector<std::string>& input) {
 
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
-    LOG(INFO) << "List of commands available for device \"" << dev->getName() << "\", ID " << input.at(1);
+    std::cout << "List of commands available for device ID " << input.at(1) << " - " << dev->getName() << ":" << std::endl;
     for(auto& cmd : dev->list_commands()) {
-      LOG(INFO) << "  " << cmd.first << " (arg: " << cmd.second << ")";
+      std::cout << "\t" << cmd.first << " (args: " << cmd.second << ")" << std::endl;
     }
-  } catch(caribou::caribouException& e) {
-    LOG(ERROR) << e.what();
-    return ReturnCode::Error;
-  }
-  return ReturnCode::Ok;
-}
-
-int pearycli::command(const std::vector<std::string>& input) {
-
-  try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.back()));
-    const std::vector<std::string> args(input.begin() + 2, input.end() - 1);
-    dev->command(input.at(1), args);
   } catch(caribou::caribouException& e) {
     LOG(ERROR) << e.what();
     return ReturnCode::Error;
