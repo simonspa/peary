@@ -13,8 +13,17 @@ using namespace caribou;
 
 int my_socket, new_socket;
 
+/**
+ * @brief Clean the environment when closing application
+ */
+void clean() {
+  Log::finish();
+}
+
 // Main thread
 int main(int argc, char* argv[]) {
+  // Add cout as the default logging stream
+  Log::addStream(std::cout);
 
   int run_nr;
 
@@ -32,13 +41,19 @@ int main(int argc, char* argv[]) {
       std::cout << "Help:" << std::endl;
       std::cout << "-v verbosity   verbosity level, default INFO" << std::endl;
       std::cout << "-r portnumber  start TCP/IP server listening on given port" << std::endl;
+      clean();
       return 0;
     } else if(!strcmp(argv[i], "-v")) {
-      Log::ReportingLevel() = Log::FromString(std::string(argv[++i]));
+      try {
+        LogLevel log_level = Log::getLevelFromString(std::string(argv[++i]));
+        Log::setReportingLevel(log_level);
+      } catch(std::invalid_argument& e) {
+        LOG(ERROR) << "Invalid verbosity level \"" << std::string(argv[i]) << "\", ignoring overwrite";
+      }
       continue;
     } else if(!strcmp(argv[i], "-r")) {
       portnumber = std::stoi(argv[++i]);
-      LOG(logINFO) << "Starting dummy control server, listening on port " << portnumber;
+      LOG(INFO) << "Starting dummy control server, listening on port " << portnumber;
       continue;
     } else {
       std::cout << "Unrecognized option: " << argv[i] << std::endl;
@@ -47,7 +62,7 @@ int main(int argc, char* argv[]) {
 
   // Create a socket and start listening for commands from run control
   if((my_socket = socket(AF_INET, SOCK_STREAM, 0)) > 0) {
-    LOG(logINFO) << "Socket created";
+    LOG(INFO) << "Socket created";
   }
 
   // Set up which port to listen to
@@ -56,10 +71,10 @@ int main(int argc, char* argv[]) {
   address.sin_port = htons(portnumber);
 
   // Bind the socket
-  if(bind(my_socket, (struct sockaddr*)&address, sizeof(address)) == 0)
-    LOG(logINFO) << "Binding Socket";
-  else {
-    LOG(logCRITICAL) << "Socket binding failed";
+  if(bind(my_socket, (struct sockaddr*)&address, sizeof(address)) == 0) {
+    LOG(INFO) << "Binding Socket";
+  } else {
+    LOG(FATAL) << "Socket binding failed";
     throw CommunicationError("Socket binding failed");
   }
 
@@ -70,7 +85,7 @@ int main(int argc, char* argv[]) {
   // Wait for client to connect (will block until client connects)
   new_socket = accept(my_socket, (struct sockaddr*)&address, &addrlen);
   if(new_socket > 0) {
-    LOG(logINFO) << "Client " << inet_ntoa(address.sin_addr) << " is connected";
+    LOG(INFO) << "Client " << inet_ntoa(address.sin_addr) << " is connected";
   }
 
   //--------------- Run control ---------------//
@@ -84,7 +99,7 @@ int main(int argc, char* argv[]) {
 
     // Wait for new command
     while(buffer[cmd_length - 1] != '\n') {
-      LOG(logINTERFACE) << "Receiving buffer from socket...";
+      LOG(DEBUG) << "Receiving buffer from socket...";
       // retrieve response:
       cmd_length = recv(new_socket, buffer, bufsize, 0);
     }
@@ -92,7 +107,7 @@ int main(int argc, char* argv[]) {
     // Display the command and load it into the command string
     if(cmd_length > 0) {
       buffer[cmd_length] = '\0';
-      LOG(logINFO) << "Message received: " << buffer;
+      LOG(INFO) << "Message received: " << buffer;
       sscanf(buffer, "%s", cmd);
     } else
       sprintf(cmd, "no_cmd");
@@ -100,7 +115,7 @@ int main(int argc, char* argv[]) {
     // Finally, send a reply to the client
     if(cmd_length > 0) {
       send(new_socket, buffer, strlen(buffer), 0);
-      LOG(logINFO) << "Sending reply to client: " << buffer;
+      LOG(INFO) << "Sending reply to client: " << buffer;
     }
 
     // Don't finish until /q received
@@ -110,5 +125,6 @@ int main(int argc, char* argv[]) {
   close(new_socket);
   close(my_socket);
 
+  clean();
   return 0;
 }

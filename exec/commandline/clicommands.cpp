@@ -173,12 +173,12 @@ int pearycli::devices(const std::vector<std::string>&) {
     size_t i = 0;
     std::vector<caribouDevice*> devs = manager->getDevices();
     for(auto d : devs) {
-      LOG(logINFO) << "ID " << i << ": " << d->getName();
+      LOG(INFO) << "ID " << i << ": " << d->getName();
       i++;
     }
   } catch(caribou::DeviceException& e) {
   } catch(caribou::caribouException& e) {
-    LOG(logERROR) << e.what();
+    LOG(ERROR) << e.what();
     return ret::Error;
   }
   return ret::Ok;
@@ -191,20 +191,20 @@ int pearycli::addDevice(const std::vector<std::string>& input) {
       // ...if we have a configuration for them
       if(config.SetSection(*d)) {
         size_t device_id = manager->addDevice(*d, config);
-        LOG(logINFO) << "Manager returned device ID " << device_id << ".";
+        LOG(INFO) << "Manager returned device ID " << device_id << ".";
       } else {
-        LOG(logERROR) << "No configuration found for device " << *d;
+        LOG(ERROR) << "No configuration found for device " << *d;
       }
     }
   } catch(caribou::caribouException& e) {
-    LOG(logCRITICAL) << "This went wrong: " << e.what();
+    LOG(FATAL) << "This went wrong: " << e.what();
     return ret::Error;
   }
   return ret::Ok;
 }
 
 int pearycli::verbosity(const std::vector<std::string>& input) {
-  Log::ReportingLevel() = Log::FromString(input.at(1));
+  Log::setReportingLevel(Log::getLevelFromString(input.at(1)));
   return ret::Ok;
 }
 
@@ -217,12 +217,12 @@ int pearycli::list_commands(const std::vector<std::string>& input) {
 
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
-    LOG(logINFO) << "List of commands available for device \"" << dev->getName() << "\", ID " << input.at(1);
+    LOG(INFO) << "List of commands available for device \"" << dev->getName() << "\", ID " << input.at(1);
     for(auto& cmd : dev->list_commands()) {
-      LOG(logINFO) << "  " << cmd.first << " (arg: " << cmd.second << ")";
+      LOG(INFO) << "  " << cmd.first << " (arg: " << cmd.second << ")";
     }
   } catch(caribou::caribouException& e) {
-    LOG(logERROR) << e.what();
+    LOG(ERROR) << e.what();
     return ret::Error;
   }
   return ret::Ok;
@@ -235,7 +235,7 @@ int pearycli::command(const std::vector<std::string>& input) {
     const std::vector<std::string> args(input.begin() + 2, input.end() - 1);
     dev->command(input.at(1), args);
   } catch(caribou::caribouException& e) {
-    LOG(logERROR) << e.what();
+    LOG(ERROR) << e.what();
     return ret::Error;
   }
   return ret::Ok;
@@ -244,10 +244,10 @@ int pearycli::command(const std::vector<std::string>& input) {
 int pearycli::version(const std::vector<std::string>& input) {
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
-    LOG(logQUIET) << dev->getVersion();
-    LOG(logQUIET) << dev->getFirmwareVersion();
+    LOG(STATUS) << dev->getVersion();
+    LOG(STATUS) << dev->getFirmwareVersion();
   } catch(caribou::caribouException& e) {
-    LOG(logERROR) << e.what();
+    LOG(ERROR) << e.what();
     return ret::Error;
   }
   return ret::Ok;
@@ -258,7 +258,7 @@ int pearycli::configure(const std::vector<std::string>& input) {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
     dev->configure();
   } catch(caribou::caribouException& e) {
-    LOG(logERROR) << e.what();
+    LOG(ERROR) << e.what();
     return ret::Error;
   }
   return ret::Ok;
@@ -269,7 +269,7 @@ int pearycli::reset(const std::vector<std::string>& input) {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
     dev->reset();
   } catch(caribou::caribouException& e) {
-    LOG(logERROR) << e.what();
+    LOG(ERROR) << e.what();
     return ret::Error;
   }
   return ret::Ok;
@@ -280,7 +280,7 @@ int pearycli::powerOn(const std::vector<std::string>& input) {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
     dev->powerOn();
   } catch(caribou::caribouException& e) {
-    LOG(logERROR) << e.what();
+    LOG(ERROR) << e.what();
     return ret::Error;
   }
   return ret::Ok;
@@ -291,7 +291,7 @@ int pearycli::powerOff(const std::vector<std::string>& input) {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
     dev->powerOff();
   } catch(caribou::caribouException& e) {
-    LOG(logERROR) << e.what();
+    LOG(ERROR) << e.what();
     return ret::Error;
   }
   return ret::Ok;
@@ -302,7 +302,7 @@ int pearycli::setVoltage(const std::vector<std::string>& input) {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(3)));
     dev->setVoltage(input.at(1), std::stod(input.at(2)));
   } catch(caribou::caribouException& e) {
-    LOG(logERROR) << e.what();
+    LOG(ERROR) << e.what();
     return ret::Error;
   }
   return ret::Ok;
@@ -313,7 +313,7 @@ int pearycli::setBias(const std::vector<std::string>& input) {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(3)));
     dev->setBias(input.at(1), std::stod(input.at(2)));
   } catch(caribou::caribouException& e) {
-    LOG(logERROR) << e.what();
+    LOG(ERROR) << e.what();
     return ret::Error;
   }
   return ret::Ok;
@@ -324,7 +324,7 @@ int pearycli::setCurrent(const std::vector<std::string>& input) {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(4)));
     dev->setCurrent(input.at(1), std::stoi(input.at(2)), static_cast<bool>(std::stoi(input.at(3))));
   } catch(caribou::caribouException& e) {
-    LOG(logERROR) << e.what();
+    LOG(ERROR) << e.what();
     return ret::Error;
   }
   return ret::Ok;
@@ -333,9 +333,9 @@ int pearycli::setCurrent(const std::vector<std::string>& input) {
 int pearycli::getVoltage(const std::vector<std::string>& input) {
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(2)));
-    LOG(logINFO) << "Voltage " << input.at(1) << "=" << dev->getVoltage(input.at(1)) << "V";
+    LOG(INFO) << "Voltage " << input.at(1) << "=" << dev->getVoltage(input.at(1)) << "V";
   } catch(caribou::caribouException& e) {
-    LOG(logERROR) << e.what();
+    LOG(ERROR) << e.what();
     return ret::Error;
   }
   return ret::Ok;
@@ -344,9 +344,9 @@ int pearycli::getVoltage(const std::vector<std::string>& input) {
 int pearycli::getCurrent(const std::vector<std::string>& input) {
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(2)));
-    LOG(logINFO) << "Current " << input.at(1) << "=" << dev->getCurrent(input.at(1)) << "A";
+    LOG(INFO) << "Current " << input.at(1) << "=" << dev->getCurrent(input.at(1)) << "A";
   } catch(caribou::caribouException& e) {
-    LOG(logERROR) << e.what();
+    LOG(ERROR) << e.what();
     return ret::Error;
   }
   return ret::Ok;
@@ -355,9 +355,9 @@ int pearycli::getCurrent(const std::vector<std::string>& input) {
 int pearycli::getPower(const std::vector<std::string>& input) {
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(2)));
-    LOG(logINFO) << "Power " << input.at(1) << "=" << dev->getVoltage(input.at(1)) << "W";
+    LOG(INFO) << "Power " << input.at(1) << "=" << dev->getVoltage(input.at(1)) << "W";
   } catch(caribou::caribouException& e) {
-    LOG(logERROR) << e.what();
+    LOG(ERROR) << e.what();
     return ret::Error;
   }
   return ret::Ok;
@@ -368,7 +368,7 @@ int pearycli::switchOn(const std::vector<std::string>& input) {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(2)));
     dev->switchOn(input.at(1));
   } catch(caribou::caribouException& e) {
-    LOG(logERROR) << e.what();
+    LOG(ERROR) << e.what();
     return ret::Error;
   }
   return ret::Ok;
@@ -379,7 +379,7 @@ int pearycli::switchOff(const std::vector<std::string>& input) {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(2)));
     dev->switchOff(input.at(1));
   } catch(caribou::caribouException& e) {
-    LOG(logERROR) << e.what();
+    LOG(ERROR) << e.what();
     return ret::Error;
   }
   return ret::Ok;
@@ -390,7 +390,7 @@ int pearycli::setRegister(const std::vector<std::string>& input) {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(3)));
     dev->setRegister(input.at(1), std::stoi(input.at(2)));
   } catch(caribou::caribouException& e) {
-    LOG(logERROR) << e.what();
+    LOG(ERROR) << e.what();
     return ret::Error;
   }
   return ret::Ok;
@@ -400,12 +400,12 @@ int pearycli::getRegister(const std::vector<std::string>& input) {
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(2)));
     uint32_t value = dev->getRegister(input.at(1));
-    LOG(logINFO) << input.at(1) << " = " << value;
+    LOG(INFO) << input.at(1) << " = " << value;
   } catch(caribou::NoDataAvailable& e) {
-    LOG(logWARNING) << e.what();
+    LOG(WARNING) << e.what();
     return ret::Ok;
   } catch(caribou::caribouException& e) {
-    LOG(logERROR) << e.what();
+    LOG(ERROR) << e.what();
     return ret::Error;
   }
   return ret::Ok;
@@ -416,10 +416,10 @@ int pearycli::getRegisters(const std::vector<std::string>& input) {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
     std::vector<std::pair<std::string, uint32_t>> regvalues = dev->getRegisters();
     for(auto& i : regvalues) {
-      LOG(logINFO) << i.first << " = " << i.second;
+      LOG(INFO) << i.first << " = " << i.second;
     }
   } catch(caribou::caribouException& e) {
-    LOG(logERROR) << e.what();
+    LOG(ERROR) << e.what();
     return ret::Error;
   }
   return ret::Ok;
@@ -455,7 +455,7 @@ int pearycli::scanDAC(const std::vector<std::string>& input) {
     dev->setRegister("output_mux_DAC", output_mux_DAC[dacname]);
 
     if(std::stoi(input.at(2)) > std::stoi(input.at(3))) {
-      LOG(logERROR) << "Range invalid";
+      LOG(ERROR) << "Range invalid";
       return ret::Error;
     }
 
@@ -480,7 +480,7 @@ int pearycli::scanDAC(const std::vector<std::string>& input) {
         responses << adc << "V ";
         data.push_back(std::make_pair(i, adc));
       }
-      LOG(logINFO) << responses.str();
+      LOG(INFO) << responses.str();
     }
 
     // Restore the old setting of the DAC:
@@ -498,9 +498,9 @@ int pearycli::scanDAC(const std::vector<std::string>& input) {
       myfile << i.first << "," << i.second << "\n";
     }
     myfile.close();
-    LOG(logINFO) << "Data writte to file: \"" << filename << "\"";
+    LOG(INFO) << "Data writte to file: \"" << filename << "\"";
   } catch(caribou::caribouException& e) {
-    LOG(logERROR) << e.what();
+    LOG(ERROR) << e.what();
     return ret::Error;
   }
   return ret::Ok;
@@ -536,7 +536,7 @@ int pearycli::scanDAC2D(const std::vector<std::string>& input) {
     dev->setRegister("output_mux_DAC", output_mux_DAC[dacname]);
 
     if(std::stoi(input.at(2)) > std::stoi(input.at(3)) || std::stoi(input.at(5)) > std::stoi(input.at(6))) {
-      LOG(logERROR) << "Range invalid";
+      LOG(ERROR) << "Range invalid";
       return ret::Error;
     }
 
@@ -554,7 +554,7 @@ int pearycli::scanDAC2D(const std::vector<std::string>& input) {
 
     // Sample through DAC1
     for(int j = std::stoi(input.at(5)); j <= std::stoi(input.at(6)); j++) {
-      LOG(logINFO) << input.at(4) << ": " << j;
+      LOG(INFO) << input.at(4) << ": " << j;
       dev->setRegister(input.at(4), j);
 
       // Now sample through the DAC2 range and read the ADC at the "DAC_OUT" pin (VOL_IN_1)
@@ -571,7 +571,7 @@ int pearycli::scanDAC2D(const std::vector<std::string>& input) {
           responses << adc << "V ";
           data.push_back(std::make_pair(std::make_pair(j, i), adc));
         }
-        LOG(logINFO) << responses.str();
+        LOG(INFO) << responses.str();
       }
     }
 
@@ -591,9 +591,9 @@ int pearycli::scanDAC2D(const std::vector<std::string>& input) {
       myfile << i.first.first << "," << i.first.second << "," << i.second << "\n";
     }
     myfile.close();
-    LOG(logINFO) << "Data writte to file: \"" << filename << "\"";
+    LOG(INFO) << "Data writte to file: \"" << filename << "\"";
   } catch(caribou::caribouException& e) {
-    LOG(logERROR) << e.what();
+    LOG(ERROR) << e.what();
     return ret::Error;
   }
   return ret::Ok;
@@ -602,7 +602,7 @@ int pearycli::scanDAC2D(const std::vector<std::string>& input) {
 int pearycli::getADC(const std::vector<std::string>& input) {
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(2)));
-    LOG(logINFO) << "Voltage: " << dev->getADC(std::stoi(input.at(1))) << "V";
+    LOG(INFO) << "Voltage: " << dev->getADC(std::stoi(input.at(1))) << "V";
   } catch(caribou::ConfigInvalid&) {
     return ret::Error;
   }
@@ -614,7 +614,7 @@ int pearycli::daqStart(const std::vector<std::string>& input) {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
     dev->daqStart();
   } catch(caribou::caribouException& e) {
-    LOG(logERROR) << e.what();
+    LOG(ERROR) << e.what();
     return ret::Error;
   }
   return ret::Ok;
@@ -625,7 +625,7 @@ int pearycli::daqStop(const std::vector<std::string>& input) {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
     dev->daqStop();
   } catch(caribou::caribouException& e) {
-    LOG(logERROR) << e.what();
+    LOG(ERROR) << e.what();
     return ret::Error;
   }
   return ret::Ok;
@@ -635,11 +635,11 @@ int pearycli::getRawData(const std::vector<std::string>& input) {
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
     std::vector<uint32_t> rawdata = dev->getRawData();
-    LOG(logINFO) << listVector(rawdata, ", ", true);
+    LOG(INFO) << listVector(rawdata, ", ", true);
   } catch(caribou::DataException& e) {
-    LOG(logERROR) << e.what();
+    LOG(ERROR) << e.what();
   } catch(caribou::caribouException& e) {
-    LOG(logERROR) << e.what();
+    LOG(ERROR) << e.what();
     return ret::Error;
   }
   return ret::Ok;
@@ -650,12 +650,12 @@ int pearycli::getData(const std::vector<std::string>& input) {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
     pearydata data = dev->getData();
     for(auto& px : data) {
-      LOG(logINFO) << px.first.first << "|" << px.first.second << " : " << *px.second;
+      LOG(INFO) << px.first.first << "|" << px.first.second << " : " << *px.second;
     }
   } catch(caribou::DataException& e) {
-    LOG(logERROR) << e.what();
+    LOG(ERROR) << e.what();
   } catch(caribou::caribouException& e) {
-    LOG(logERROR) << e.what();
+    LOG(ERROR) << e.what();
     return ret::Error;
   }
   return ret::Ok;
@@ -704,18 +704,18 @@ int pearycli::acquire(const std::vector<std::string>& input) {
           }
         } catch(caribou::DataException& e) {
           // Retrieval failed, retry once more before aborting:
-          LOG(logWARNING) << e.what() << ", retyring once.";
+          LOG(WARNING) << e.what() << ", retyring once.";
           mDelay(10);
           data = dev->getData();
         }
 
         if(std::stoi(input.at(2))) {
-          LOG(logINFO) << "===== " << n << " =====";
+          LOG(INFO) << "===== " << n << " =====";
           for(auto& px : data) {
-            LOG(logINFO) << px.first.first << "|" << px.first.second << " : " << *px.second;
+            LOG(INFO) << px.first.first << "|" << px.first.second << " : " << *px.second;
           }
         } else {
-          LOG(logINFO) << n << " | " << data.size() << " pixel responses";
+          LOG(INFO) << n << " | " << data.size() << " pixel responses";
         }
         myfile << "===== " << n << " =====\n";
         for(auto& px : data) {
@@ -727,7 +727,7 @@ int pearycli::acquire(const std::vector<std::string>& input) {
       }
     }
   } catch(caribou::caribouException& e) {
-    LOG(logCRITICAL) << e.what();
+    LOG(FATAL) << e.what();
     return ret::Error;
   }
   return ret::Ok;
@@ -766,7 +766,7 @@ int pearycli::scanThreshold(const std::vector<std::string>& input) {
     myfile << "# with " << input.at(5) << "ms delay between setting register and reading matrix.\n";
 
     if(std::stoi(input.at(2)) < std::stoi(input.at(3))) {
-      LOG(logERROR) << "Range invalid";
+      LOG(ERROR) << "Range invalid";
       return ret::Error;
     }
 
@@ -781,7 +781,7 @@ int pearycli::scanThreshold(const std::vector<std::string>& input) {
 
     // Sample through the DAC range, trigger the PG and read back the data
     for(int i = std::stoi(input.at(2)); i >= std::stoi(input.at(3)); i--) {
-      LOG(logINFO) << input.at(1) << " = " << i;
+      LOG(INFO) << input.at(1) << " = " << i;
       dev1->setRegister(input.at(1), i);
 
       std::stringstream responses;
@@ -807,7 +807,7 @@ int pearycli::scanThreshold(const std::vector<std::string>& input) {
             dev3->setRegister(input.at(9), 0);
         } catch(caribou::DataException& e) {
           // Retrieval failed, retry once more before aborting:
-          LOG(logWARNING) << e.what() << ", retyring once.";
+          LOG(WARNING) << e.what() << ", retyring once.";
           mDelay(10);
           frame = dev2->getData();
         }
@@ -818,7 +818,7 @@ int pearycli::scanThreshold(const std::vector<std::string>& input) {
         responses << frame.size() << " ";
         mDelay(std::stoi(input.at(5)));
       }
-      LOG(logINFO) << responses.str();
+      LOG(INFO) << responses.str();
     }
 
     // Restore the old setting of the DAC:
@@ -826,9 +826,9 @@ int pearycli::scanThreshold(const std::vector<std::string>& input) {
       dev1->setRegister(input.at(1), dac);
     }
 
-    LOG(logINFO) << "Data writte to file: \"" << filename << "\"";
+    LOG(INFO) << "Data writte to file: \"" << filename << "\"";
   } catch(caribou::caribouException& e) {
-    LOG(logERROR) << e.what();
+    LOG(ERROR) << e.what();
     return ret::Error;
   }
   return ret::Ok;
@@ -850,11 +850,11 @@ int pearycli::scanThreshold2D(const std::vector<std::string>& input) {
     myfile << "# with " << input.at(9) << "ms delay between setting register and reading matrix.\n";
 
     if(std::stoi(input.at(2)) < std::stoi(input.at(3))) {
-      LOG(logERROR) << "Range invalid";
+      LOG(ERROR) << "Range invalid";
       return ret::Error;
     }
     if(std::stoi(input.at(6)) < std::stoi(input.at(7))) {
-      LOG(logERROR) << "Range invalid";
+      LOG(ERROR) << "Range invalid";
       return ret::Error;
     }
 
@@ -876,12 +876,12 @@ int pearycli::scanThreshold2D(const std::vector<std::string>& input) {
 
     // Sample through the DAC1 range
     for(int i = std::stoi(input.at(2)); i >= std::stoi(input.at(3)); i--) {
-      LOG(logINFO) << input.at(1) << " = " << i;
+      LOG(INFO) << input.at(1) << " = " << i;
       dev1->setRegister(input.at(1), i);
 
       // Sample through the DAC2 range, trigger the PG and read back the data
       for(int j = std::stoi(input.at(6)); j >= std::stoi(input.at(7)); j--) {
-        LOG(logINFO) << input.at(5) << " = " << j;
+        LOG(INFO) << input.at(5) << " = " << j;
         dev2->setRegister(input.at(5), j);
 
         std::stringstream responses;
@@ -898,7 +898,7 @@ int pearycli::scanThreshold2D(const std::vector<std::string>& input) {
             frame = dev2->getData();
           } catch(caribou::DataException& e) {
             // Retrieval failed, retry once more before aborting:
-            LOG(logWARNING) << e.what() << ", retyring once.";
+            LOG(WARNING) << e.what() << ", retyring once.";
             mDelay(10);
             frame = dev2->getData();
           }
@@ -909,7 +909,7 @@ int pearycli::scanThreshold2D(const std::vector<std::string>& input) {
           responses << frame.size() << " ";
           mDelay(std::stoi(input.at(9)));
         }
-        LOG(logINFO) << responses.str();
+        LOG(INFO) << responses.str();
       }
     }
     // Restore the old setting of the DACs:
@@ -920,9 +920,9 @@ int pearycli::scanThreshold2D(const std::vector<std::string>& input) {
       dev2->setRegister(input.at(4), dac2);
     }
 
-    LOG(logINFO) << "Data writte to file: \"" << filename << "\"";
+    LOG(INFO) << "Data writte to file: \"" << filename << "\"";
   } catch(caribou::caribouException& e) {
-    LOG(logERROR) << e.what();
+    LOG(ERROR) << e.what();
     return ret::Error;
   }
   return ret::Ok;

@@ -20,7 +20,12 @@ int main(int argc, char* argv[]) {
       std::cout << "-c configfile  configuration file to be used" << std::endl;
       return 0;
     } else if(!strcmp(argv[i], "-v")) {
-      Log::ReportingLevel() = Log::FromString(std::string(argv[++i]));
+      try {
+        LogLevel log_level = Log::getLevelFromString(std::string(argv[++i]));
+        Log::setReportingLevel(log_level);
+      } catch(std::invalid_argument& e) {
+        LOG(ERROR) << "Invalid verbosity level \"" << std::string(argv[i]) << "\", ignoring overwrite";
+      }
       continue;
     } else if(!strcmp(argv[i], "-c")) {
       configfile = std::string(argv[++i]);
@@ -34,7 +39,7 @@ int main(int argc, char* argv[]) {
     // Open configuration file and create (const) object:
     std::ifstream file(configfile.c_str());
     if(!file.is_open()) {
-      LOG(logCRITICAL) << "No configuration file provided.";
+      LOG(FATAL) << "No configuration file provided.";
       throw std::runtime_error("configuration file not found");
     }
     const caribou::Configuration config(file);
@@ -48,12 +53,12 @@ int main(int argc, char* argv[]) {
     dev->exampleCall();
 
     delete dev;
-    LOG(logINFO) << "Done. And thanks for all the fish.";
+    LOG(INFO) << "Done. And thanks for all the fish.";
   } catch(caribouException& e) {
-    LOG(logCRITICAL) << "This went wrong: " << e.what();
+    LOG(FATAL) << "This went wrong: " << e.what();
     return -1;
   } catch(...) {
-    LOG(logCRITICAL) << "Something went terribly wrong.";
+    LOG(FATAL) << "Something went terribly wrong.";
     return -1;
   }
 

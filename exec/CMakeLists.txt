@@ -4,7 +4,7 @@ IF(BUILD_server)
   # add target
   ADD_EXECUTABLE(pearysrv "pearysrv.cpp")
   ADD_EXECUTABLE(dummyclient "dummyclient.cpp")
-  ADD_EXECUTABLE(dummysrv "dummysrv.cpp")
+  ADD_EXECUTABLE(dummysrv "dummysrv.cpp" "../peary/utils/log.cpp")
   TARGET_LINK_LIBRARIES(pearysrv ${PROJECT_NAME})
   INSTALL(TARGETS pearysrv dummyclient dummysrv
     RUNTIME DESTINATION bin
