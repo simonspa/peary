@@ -30,7 +30,7 @@ MACRO(peary_device name)
     SET(PEARY_DEVICE_LIBRARIES ${PEARY_DEVICE_LIBRARIES} ${${name}} CACHE INTERNAL "Device libraries")
 
     # Set default device class name
-    SET(_peary_device_class "${_peary_device_dir}")
+    SET(_peary_device_class "${_peary_device_dir}Device")
 
     # Find if alternative device class name is passed or we can use the default
     SET (extra_macro_args ${ARGN})

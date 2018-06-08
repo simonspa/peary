@@ -2,36 +2,36 @@
  * Caribou Example Device implementation
  */
 
-#include "Example.hpp"
+#include "ExampleDevice.hpp"
 #include "hal.hpp"
 #include "log.hpp"
 #include "loopback.hpp"
 
 using namespace caribou;
 
-Example::Example(const caribou::Configuration config)
+ExampleDevice::ExampleDevice(const caribou::Configuration config)
     : pearyDevice(config, std::string(DEFAULT_DEVICEPATH), DEFAULT_ADDRESS) {
   _periphery.add("vd", PWR_OUT_1);
   _registers.add(EXAMPLE_REGISTERS);
-  _dispatcher.add("do", &Example::doDeviceSpecificThings, this);
-  _dispatcher.add("exampleCall", &Example::exampleCall, this);
+  _dispatcher.add("do", &ExampleDevice::doDeviceSpecificThings, this);
+  _dispatcher.add("exampleCall", &ExampleDevice::exampleCall, this);
 };
 
-Example::~Example() {
+ExampleDevice::~ExampleDevice() {
   LOG(logINFO) << DEVICE_NAME << ": Shutdown, delete device.";
 }
 
-std::string Example::getName() {
+std::string ExampleDevice::getName() {
   return DEVICE_NAME;
 }
 
-void Example::doDeviceSpecificThings(std::string arg1, int arg2) {
+void ExampleDevice::doDeviceSpecificThings(std::string arg1, int arg2) {
   LOG(logINFO) << DEVICE_NAME << ": Calling specific function throug dispatcher.";
   LOG(logINFO) << "  input arg1:   " << arg1;
   LOG(logINFO) << "  input arg2*2: " << arg2 * 2;
 }
 
-void Example::powerUp() {
+void ExampleDevice::powerUp() {
   LOG(logINFO) << DEVICE_NAME << ": Power on.";
 
   // Read a DAC value from the config if it exists, otherwise take default
@@ -52,25 +52,25 @@ void Example::powerUp() {
   }
 }
 
-void Example::powerDown() {
+void ExampleDevice::powerDown() {
   LOG(logINFO) << DEVICE_NAME << ": Power off.";
 }
 
-void Example::daqStart() {
+void ExampleDevice::daqStart() {
   LOG(logINFO) << DEVICE_NAME << ": DAQ started.";
 }
 
-void Example::daqStop() {
+void ExampleDevice::daqStop() {
   LOG(logINFO) << DEVICE_NAME << ": DAQ stopped.";
 }
 
-void Example::exampleCall() {
+void ExampleDevice::exampleCall() {
   LOG(logINFO) << DEVICE_NAME << ": ExampleCall";
   // Vectors can be read directly from the config and passed to an interface
   _hal->send(_config.Get("sample-registers", std::vector<uint8_t>{EXAMPLE_DAC_VEC}));
 }
 
-void Example::setSpecialRegister(std::string name, uint32_t) {
+void ExampleDevice::setSpecialRegister(std::string name, uint32_t) {
 
   LOG(logDEBUG) << "Treating special register \"" << name << "\"";
 }

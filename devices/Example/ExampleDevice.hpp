@@ -21,7 +21,7 @@ namespace caribou {
    *  Applications can then control this device via the Caribou device class interface
    *  by using the device manager to instanciate the device object.
    */
-  class Example : public pearyDevice<iface_loopback> {
+  class ExampleDevice : public pearyDevice<iface_loopback> {
 
   public:
     /** Device constructor
@@ -31,8 +31,8 @@ namespace caribou {
      *  in the device class constructor since the interface type is only known once the
      *  child object (of this class) exists.
      */
-    Example(const caribou::Configuration config);
-    ~Example();
+    ExampleDevice(const caribou::Configuration config);
+    ~ExampleDevice();
 
     /** Return human-readable name of this device
      */

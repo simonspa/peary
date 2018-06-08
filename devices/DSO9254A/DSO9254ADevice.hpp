@@ -23,13 +23,13 @@ namespace caribou {
    *  Applications can then control this device via the Caribou device class interface
    *  by using the device manager to instanciate the device object.
    */
-  class DSO9254A : public auxiliaryDevice<iface_ipsocket> {
+  class DSO9254ADevice : public auxiliaryDevice<iface_ipsocket> {
 
   public:
     /** Device constructor
      */
-    DSO9254A(const caribou::Configuration config);
-    ~DSO9254A();
+    DSO9254ADevice(const caribou::Configuration config);
+    ~DSO9254ADevice();
 
     /** Return human-readable name of this device
      */

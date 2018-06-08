@@ -2,7 +2,7 @@
  * Caribou implementation for the C3PD
  */
 
-#include "C3PD.hpp"
+#include "C3PDDevice.hpp"
 #include "hal.hpp"
 #include "log.hpp"
 
@@ -10,7 +10,8 @@
 
 using namespace caribou;
 
-C3PD::C3PD(const caribou::Configuration config) : pearyDevice(config, std::string(DEFAULT_DEVICEPATH), C3PD_DEFAULT_I2C) {
+C3PDDevice::C3PDDevice(const caribou::Configuration config)
+    : pearyDevice(config, std::string(DEFAULT_DEVICEPATH), C3PD_DEFAULT_I2C) {
 
   // Set up periphery
   _periphery.add("vddd", PWR_OUT_2);
@@ -33,7 +34,7 @@ C3PD::C3PD(const caribou::Configuration config) : pearyDevice(config, std::strin
   *control_reg = 0; // keep C3PD in reset state
 }
 
-void C3PD::configure() {
+void C3PDDevice::configure() {
   LOG(logINFO) << "Configuring " << DEVICE_NAME;
   reset();
 
@@ -41,7 +42,7 @@ void C3PD::configure() {
   pearyDevice<iface_i2c>::configure();
 }
 
-void C3PD::configureMatrix(std::string filename) {
+void C3PDDevice::configureMatrix(std::string filename) {
 
   // Testpulses can only be enabled in full rows and columns:
   std::map<int, uint8_t> test_columns;
@@ -85,7 +86,7 @@ void C3PD::configureMatrix(std::string filename) {
   }
 }
 
-void C3PD::reset() {
+void C3PDDevice::reset() {
   LOG(logDEBUG) << "Resetting " << DEVICE_NAME;
 
   void* control_base = _hal->getMappedMemoryRW(C3PD_CONTROL_BASE_ADDRESS, C3PD_CONTROL_MAP_SIZE, C3PD_CONTROL_MAP_MASK);
@@ -96,16 +97,16 @@ void C3PD::reset() {
   *control_reg |= C3PD_CONTROL_RESET_MASK; // deny reset
 }
 
-C3PD::~C3PD() {
+C3PDDevice::~C3PDDevice() {
   LOG(logINFO) << DEVICE_NAME << ": Shutdown, delete device.";
   powerOff();
 }
 
-std::string C3PD::getName() {
+std::string C3PDDevice::getName() {
   return DEVICE_NAME;
 }
 
-void C3PD::powerUp() {
+void C3PDDevice::powerUp() {
   LOG(logINFO) << DEVICE_NAME << ": Powering up C3PD";
 
   // Power rails:
@@ -127,7 +128,7 @@ void C3PD::powerUp() {
   this->switchOn("ain");
 }
 
-void C3PD::powerDown() {
+void C3PDDevice::powerDown() {
   LOG(logINFO) << DEVICE_NAME << ": Power off C3PD";
 
   LOG(logDEBUG) << "Power off VDDA";
@@ -143,15 +144,15 @@ void C3PD::powerDown() {
   this->switchOff("ref");
 }
 
-void C3PD::daqStart() {
+void C3PDDevice::daqStart() {
   LOG(logINFO) << DEVICE_NAME << ": DAQ started.";
 }
 
-void C3PD::daqStop() {
+void C3PDDevice::daqStop() {
   LOG(logINFO) << DEVICE_NAME << ": DAQ stopped.";
 }
 
-void C3PD::powerStatusLog() {
+void C3PDDevice::powerStatusLog() {
   LOG(logINFO) << DEVICE_NAME << " power status:";
 
   LOG(logINFO) << "VDDD:";

@@ -1,7 +1,7 @@
 #include <fstream>
 #include <iostream>
 
-#include "Example/Example.hpp"
+#include "Example/ExampleDevice.hpp"
 #include "configuration.hpp"
 #include "log.hpp"
 
@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
     }
     const caribou::Configuration config(file);
 
-    Example* dev = new Example(config);
+    ExampleDevice* dev = new ExampleDevice(config);
 
     // It's possible to call base class functions
     dev->powerOn();

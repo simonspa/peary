@@ -5,7 +5,7 @@ PEARY_DEVICE(DEVICE_NAME)
 
 # Add source files to library
 PEARY_DEVICE_SOURCES(${DEVICE_NAME}
-    CLICpix2.cpp
+    CLICpix2Device.cpp
     clicpix2_utilities.cpp
     clicpix2_frameDecoder.cpp
     clicpix2_frameDecoder_lfsr13.cpp

@@ -5,7 +5,7 @@ PEARY_DEVICE(DEVICE_NAME)
 
 # Add source files to library
 PEARY_DEVICE_SOURCES(${DEVICE_NAME}
-	DSO9254A.cpp
+	DSO9254ADevice.cpp
 )
 
 # Provide standard install target

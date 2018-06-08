@@ -5,7 +5,7 @@ PEARY_DEVICE(DEVICE_NAME)
 
 # Add source files to library
 PEARY_DEVICE_SOURCES(${DEVICE_NAME}
-	C3PD.cpp
+	C3PDDevice.cpp
 )
 
 # Provide standard install target
