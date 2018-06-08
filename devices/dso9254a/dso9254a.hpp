@@ -47,10 +47,6 @@ namespace caribou {
     std::string _devpath;
   };
 
-  extern "C" {
-  caribouDevice* generator(const caribou::Configuration);
-  }
-
 } // namespace caribou
 
 #endif /* DEVICE_DSO9254A_H */

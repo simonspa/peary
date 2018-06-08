@@ -102,10 +102,6 @@ namespace caribou {
     uint32_t pg_total_length;
   };
 
-  extern "C" {
-  caribouDevice* generator(const caribou::Configuration);
-  }
-
 } // namespace caribou
 
 #endif /* DEVICE_CLICPIX2_H */

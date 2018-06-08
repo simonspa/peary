@@ -73,16 +73,6 @@ namespace caribou {
     void doDeviceSpecificThings(std::string arg1, int arg2);
   };
 
-  /** Device generator
-   *
-   *  This generator function is used by the device manager to create instances of
-   *  this device using the abstract caribouDevice class interface. It has to be implemented
-   *  for every class deriving from caribouDevice.
-   */
-  extern "C" {
-  caribouDevice* generator(const caribou::Configuration);
-  }
-
 } // namespace caribou
 
 #endif /* DEVICE_EXAMPLE_H */

@@ -14,6 +14,7 @@ Example::Example(const caribou::Configuration config)
   _periphery.add("vd", PWR_OUT_1);
   _registers.add(EXAMPLE_REGISTERS);
   _dispatcher.add("do", &Example::doDeviceSpecificThings, this);
+  _dispatcher.add("exampleCall", &Example::exampleCall, this);
 };
 
 Example::~Example() {
