@@ -31,8 +31,8 @@ namespace caribou {
    * Internal method for the dynamic loading in the ModuleManager. Forwards the supplied arguments to the constructor and
    * returns an instantiation
    */
-  caribouDevice* generator(const Configuration config);
-  caribouDevice* generator(const Configuration config) {
+  caribouDevice* peary_device_generator(const Configuration config);
+  caribouDevice* peary_device_generator(const Configuration config) {
     auto device = new PEARY_DEVICE_NAME(config); // NOLINT
     return static_cast<caribouDevice*>(device);
   }

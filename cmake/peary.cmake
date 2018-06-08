@@ -24,7 +24,7 @@ MACRO(peary_device name)
     MESSAGE( STATUS "Building device: " ${_peary_device_dir} )
 
     # Prepend with the peary device prefix to create the name of the device
-    SET(${name} "${_peary_device_dir}")
+    SET(${name} "PearyDevice${_peary_device_dir}")
 
     # Save the device library for prelinking in the executable (NOTE: see exec folder)
     SET(PEARY_DEVICE_LIBRARIES ${PEARY_DEVICE_LIBRARIES} ${${name}} CACHE INTERNAL "Device libraries")

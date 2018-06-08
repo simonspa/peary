@@ -14,6 +14,13 @@
 #include <string>
 #include <vector>
 
+// Common prefix for all devices
+// TODO [doc] Should be provided by the build system
+#define PEARY_DEVICE_PREFIX "libPearyDevice"
+
+// These should point to the function defined in dynamic_module_impl.cpp
+#define PEARY_GENERATOR_FUNCTION "peary_device_generator"
+
 using namespace caribou;
 
 caribouDeviceMgr::caribouDeviceMgr() : _deviceList() {
@@ -63,8 +70,8 @@ size_t caribouDeviceMgr::addDevice(std::string name, const caribou::Configuratio
   caribouDevice* deviceptr = nullptr;
   size_t device_id = 0;
 
-  // CMake prepends "lib" to the shared library name: "lib"+LibraryName+".so"
-  std::string libName = std::string("lib").append(name).append(SHARED_LIBRARY_SUFFIX);
+  // Load library for each device. Libraries are named (by convention + CMAKE) libPearyDevice Name.suffix
+  std::string libName = std::string(PEARY_DEVICE_PREFIX).append(name).append(SHARED_LIBRARY_SUFFIX);
 
   // Load shared library, be sure to export the path of the lib to LD_LIBRARY_PATH!
   void* hndl = nullptr;
@@ -90,7 +97,7 @@ size_t caribouDeviceMgr::addDevice(std::string name, const caribou::Configuratio
   try {
     // Use generator() to create the instance of the description
     LOG(logDEBUG) << "Calling device generator...";
-    void* gen = dlsym(hndl, "generator");
+    void* gen = dlsym(hndl, PEARY_GENERATOR_FUNCTION);
     char* err;
     if((err = dlerror()) != NULL) {
       // handle error, the symbol wasn't found
