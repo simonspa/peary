@@ -38,20 +38,16 @@ namespace caribou {
 
     virtual void powerOn(){};
     virtual void powerOff(){};
-    virtual void powerStatusLog(){};
 
     virtual void daqStart(){};
     virtual void daqStop(){};
-    virtual void exploreInterface(){};
     virtual void setRegister(std::string, uint32_t){};
     virtual uint32_t getRegister(std::string) { return uint32_t(); };
     virtual std::vector<std::pair<std::string, uint32_t>> getRegisters() {
       return std::vector<std::pair<std::string, uint32_t>>();
     };
-    virtual void configurePatternGenerator(std::string){};
-    virtual void triggerPatternGenerator(bool){};
+
     virtual std::vector<uint64_t> timestampsPatternGenerator() { return std::vector<uint64_t>(); };
-    virtual void configureMatrix(std::string){};
     virtual void setVoltage(std::string, double, double){};
     virtual void setBias(std::string, double){};
     virtual void setInjectionBias(std::string, double){};

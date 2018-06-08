@@ -5,24 +5,21 @@
 #ifndef PEARY_CLI_H
 #define PEARY_CLI_H
 
-#include "../extern/cpp-readline/src/Console.hpp"
+#include "Console.hpp"
 #include "configuration.hpp"
 #include "devicemgr.hpp"
 
 #include <vector>
 
-using ret = CppReadline::ReturnCode;
-
 namespace caribou {
 
-  class pearycli {
+  class pearycli : public Console {
 
   public:
     pearycli();
     ~pearycli();
 
-    int readLine() { return c.readLine(); }
-    int executeFile(std::string file) { return c.executeFile(file); }
+    static int list_commands(const std::vector<std::string>& input);
 
     static int devices(const std::vector<std::string>&);
     static int addDevice(const std::vector<std::string>& input);
@@ -76,9 +73,8 @@ namespace caribou {
     static std::string getFileHeader(std::string function, caribouDevice* dev);
     static std::string allDeviceParameters();
 
-  private:
-    // Readline console object
-    CppReadline::Console c;
+    int unregisteredCommand(const std::vector<std::string>&);
+    void listUnregisteredCommands();
   };
 
 } // namespace caribou

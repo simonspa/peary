@@ -21,7 +21,7 @@ namespace caribou {
    *  Applications can then control this device via the Caribou device class interface
    *  by using the device manager to instanciate the device object.
    */
-  class example : public pearyDevice<iface_loopback> {
+  class ExampleDevice : public pearyDevice<iface_loopback> {
 
   public:
     /** Device constructor
@@ -31,11 +31,8 @@ namespace caribou {
      *  in the device class constructor since the interface type is only known once the
      *  child object (of this class) exists.
      */
-    example(const caribou::Configuration config) : pearyDevice(config, std::string(DEFAULT_DEVICEPATH), DEFAULT_ADDRESS) {
-      _periphery.add("vd", PWR_OUT_1);
-      _registers.add(EXAMPLE_REGISTERS);
-    };
-    ~example();
+    ExampleDevice(const caribou::Configuration config);
+    ~ExampleDevice();
 
     /** Return human-readable name of this device
      */
@@ -72,17 +69,9 @@ namespace caribou {
     void exampleCall();
 
     void setSpecialRegister(std::string name, uint32_t value);
-  };
 
-  /** Device generator
-   *
-   *  This generator function is used by the device manager to create instances of
-   *  this device using the abstract caribouDevice class interface. It has to be implemented
-   *  for every class deriving from caribouDevice.
-   */
-  extern "C" {
-  caribouDevice* generator(const caribou::Configuration);
-  }
+    void doDeviceSpecificThings(std::string arg1, int arg2);
+  };
 
 } // namespace caribou
 

@@ -3,8 +3,8 @@
 #include <string>
 #include <vector>
 
-#include "clicpix2_frameDecoder.hpp"
 #include "clicpix2_utilities.hpp"
+#include "framedecoder/clicpix2_frameDecoder.hpp"
 
 #include "exceptions.hpp"
 #include "log.hpp"
@@ -16,7 +16,7 @@ int main(int argc, char* argv[]) {
 
   std::string datafile, matrixfile;
 
-  Log::ReportingLevel() = TLogLevel::logINFO;
+  Log::setReportingLevel(LogLevel::INFO);
 
   for(int i = 1; i < argc; i++) {
     if(!strcmp(argv[i], "-h")) {
@@ -26,7 +26,12 @@ int main(int argc, char* argv[]) {
       std::cout << "-m matrixfile  matrix configuration to read pixel states from" << std::endl;
       return 0;
     } else if(!strcmp(argv[i], "-v")) {
-      Log::ReportingLevel() = Log::FromString(std::string(argv[++i]));
+      try {
+        LogLevel log_level = Log::getLevelFromString(std::string(argv[++i]));
+        Log::setReportingLevel(log_level);
+      } catch(std::invalid_argument& e) {
+        LOG(ERROR) << "Invalid verbosity level \"" << std::string(argv[i]) << "\", ignoring overwrite";
+      }
       continue;
     } else if(!strcmp(argv[i], "-d")) {
       datafile = std::string(argv[++i]);
@@ -52,7 +57,7 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  LOG(logQUIET) << "Reading Clicpix2 rawdata from: " << datafile;
+  LOG(STATUS) << "Reading Clicpix2 rawdata from: " << datafile;
   std::ifstream f;
   std::ofstream outfile;
   f.open(datafile);
@@ -77,27 +82,27 @@ int main(int argc, char* argv[]) {
     }
 
     // Replicate header to new file:
-    LOG(logDEBUG) << "Detected file header: " << line;
+    LOG(DEBUG) << "Detected file header: " << line;
     outfile << line << "\n";
     oldpos = f.tellg();
 
     // Search for compression settings:
     std::string::size_type n = line.find(" sp_comp:");
     if(n != std::string::npos) {
-      LOG(logDEBUG) << "Value read for sp_comp: " << line.substr(n + 9, 1);
+      LOG(DEBUG) << "Value read for sp_comp: " << line.substr(n + 9, 1);
       sp_comp = static_cast<bool>(std::stoi(line.substr(n + 9, 1)));
-      LOG(logINFO) << "Superpixel Compression: " << (sp_comp ? "ON" : "OFF");
+      LOG(INFO) << "Superpixel Compression: " << (sp_comp ? "ON" : "OFF");
     }
     n = line.find(" comp:");
     if(n != std::string::npos) {
-      LOG(logDEBUG) << "Value read for comp: " << line.substr(n + 6, 1);
+      LOG(DEBUG) << "Value read for comp: " << line.substr(n + 6, 1);
       comp = static_cast<bool>(std::stoi(line.substr(n + 6, 1)));
-      LOG(logINFO) << "     Pixel Compression: " << (comp ? "ON" : "OFF");
+      LOG(INFO) << "     Pixel Compression: " << (comp ? "ON" : "OFF");
     }
   }
 
   clicpix2_frameDecoder decoder(comp, sp_comp, conf);
-  LOG(logINFO) << "Finished reading file header, now decoding data...";
+  LOG(INFO) << "Finished reading file header, now decoding data...";
 
   std::vector<std::string> header;
   std::vector<uint32_t> rawData;
@@ -113,35 +118,35 @@ int main(int argc, char* argv[]) {
 
     // New frame, write old one
     if(line.find("====") != std::string::npos) {
-      LOG(logDEBUG) << "Found new frame header: " << line;
+      LOG(DEBUG) << "Found new frame header: " << line;
 
       // decode and write old frame
       if(!rawData.empty() && !header.empty()) {
-        LOG(logDEBUG) << "Raw data of previous frame available, length: " << rawData.size();
-        LOG(logDEBUG) << "Writing header:";
+        LOG(DEBUG) << "Raw data of previous frame available, length: " << rawData.size();
+        LOG(DEBUG) << "Writing header:";
         for(const auto& h : header) {
-          LOG(logDEBUG) << h;
+          LOG(DEBUG) << h;
           outfile << h << "\n";
         }
 
-        LOG(logDEBUG) << "Writing decoded data:";
+        LOG(DEBUG) << "Writing decoded data:";
         try {
           decoder.decode(rawData);
           pearydata data = decoder.getZerosuppressedFrame();
           for(const auto& px : data) {
             outfile << px.first.first << "," << px.first.second << "," << (*px.second) << "\n";
-            LOG(logDEBUG) << px.first.first << "," << px.first.second << "," << (*px.second);
+            LOG(DEBUG) << px.first.first << "," << px.first.second << "," << (*px.second);
           }
-          LOG(logINFO) << header.front() << ": " << data.size() << " pixel responses";
+          LOG(INFO) << header.front() << ": " << data.size() << " pixel responses";
           frames++;
         } catch(caribou::DataException& e) {
-          LOG(logERROR) << "Caugth DataException: " << e.what() << ", clearing event data.";
+          LOG(ERROR) << "Caugth DataException: " << e.what() << ", clearing event data.";
         }
 
         header.clear();
         rawData.clear();
       } else {
-        LOG(logDEBUG) << "No frame data available, collecting...";
+        LOG(DEBUG) << "No frame data available, collecting...";
       }
 
       // Add newly found header:
@@ -159,7 +164,7 @@ int main(int argc, char* argv[]) {
 
   f.close();
   outfile.close();
-  LOG(logQUIET) << "...all written: " << frames << " frames.";
+  LOG(STATUS) << "...all written: " << frames << " frames.";
 
   return 0;
 }

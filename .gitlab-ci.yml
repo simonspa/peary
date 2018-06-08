@@ -8,6 +8,7 @@ stages:
   - unittest
   - documentation
   - deployment
+  - rebuild_meta-caribou
 
 #######################
 # Compilation targets #
@@ -22,7 +23,7 @@ cmp:ubuntu-gcc:
     - export COMPILER_TYPE="gcc"
     - mkdir build
     - cd build
-    - cmake -DBUILD_example=ON -DBUILD_server=ON ..
+    - cmake -DBUILD_ALL_DEVICES=ON -DBUILD_server=ON ..
     - make
     - make install
   artifacts:
@@ -44,7 +45,7 @@ cmp:centos7-gcc:
     - source .gitlab-ci.d/init_x86_64.sh
     - mkdir build
     - cd build
-    - cmake -GNinja -DBUILD_example=ON -DBUILD_server=ON -DINTERFACE_I2C=OFF -DINTERFACE_SPI=OFF -DINTERFACE_SPI_CLICpix2=OFF ..
+    - cmake -GNinja -DBUILD_ALL_DEVICES=ON -DBUILD_server=ON -DINTERFACE_I2C=OFF -DINTERFACE_SPI=OFF -DINTERFACE_SPI_CLICpix2=OFF ..
     - ninja
     - ninja install
   artifacts:
@@ -66,7 +67,7 @@ cmp:centos7-llvm:
     - source .gitlab-ci.d/init_x86_64.sh
     - mkdir build
     - cd build
-    - cmake -GNinja -DBUILD_example=ON -DBUILD_server=ON -DINTERFACE_I2C=OFF -DINTERFACE_SPI=OFF -DINTERFACE_SPI_CLICpix2=OFF ..
+    - cmake -GNinja -DBUILD_ALL_DEVICES=ON -DBUILD_server=ON -DINTERFACE_I2C=OFF -DINTERFACE_SPI=OFF -DINTERFACE_SPI_CLICpix2=OFF ..
     - ninja
     - ninja install
   artifacts:
@@ -76,6 +77,14 @@ cmp:centos7-llvm:
       - lib
     expire_in: 3 hour
 
+rebuild_meta-caribou:
+    stage: rebuild_meta-caribou
+    variables:
+      META_CARIBOU_REF_NAME: master
+    only:
+      - master
+    script:
+      - "curl -X POST -F token=${META_CARIBOU_TOKEN} -F ref=${META_CARIBOU_REF_NAME} https://gitlab.cern.ch/api/v4/projects/13971/trigger/pipeline"
 
 ############################
 # Format and Lint Checking #

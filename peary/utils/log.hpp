@@ -1,250 +1,281 @@
 /**
- * Caribou logging class
+ * @file
+ * @brief Provides a logger and macros for convenient access
  */
 
 #ifndef CARIBOU_LOG_H
 #define CARIBOU_LOG_H
 
-/** Cannot use stdint.h when running rootcint on WIN32 */
-#if((defined WIN32) && (defined __CINT__))
-typedef unsigned int uint32_t;
-typedef unsigned int DWORD;
-#include <Windows4Root.h>
-#else
-#if(defined WIN32)
-typedef unsigned int uint32_t;
-#include <Windows.h>
-#else
-#include <stdint.h>
-#include <sys/time.h>
-#endif // WIN32
-#endif // WIN32 && CINT
-
 #ifdef WIN32
 #define __func__ __FUNCTION__
-#endif // WIN32
+#endif
 
-#include <cstdio>
-#include <iomanip>
+#include <cstring>
+#include <mutex>
+#include <ostream>
 #include <sstream>
-#include <string.h>
+#include <string>
+#include <vector>
 
 namespace caribou {
+  /**
+   * @brief Logging detail level
+   */
+  enum class LogLevel {
+    FATAL = 0, ///< Fatal problems that terminate the framework (typically exceptions)
+    STATUS,    ///< Only critical progress information
+    ERROR,     ///< Critical problems that usually lead to fatal errors
+    WARNING,   ///< Possible issue that could lead to unexpected results
+    INFO,      ///< General information about processes (should not be called in run function)
+    DEBUG,     ///< Detailed information about physics process
+    NONE,      ///< Indicates the log level has not been set (cannot be selected by the user)
+    TRACE,     ///< Software debugging information about what part is currently running
+  };
+  /**
+   * @brief Format of the logger
+   */
+  enum class LogFormat {
+    SHORT = 0, ///< Only include a single character for the log level, the section header and the message
+    DEFAULT,   ///< Also include the time and a full logging level description
+    LONG       ///< All of the above and also information about the file and line where the message was defined
+  };
 
-  namespace color {
-    enum ColorCode {
-      GRAY = 90,
-      RED = 31,
-      GREEN = 32,
-      YELLOW = 33,
-      BLUE = 34,
-      CYAN = 36,
-      DEFAULT = 39,
-    };
-
-    static std::ostream& operator<<(std::ostream& os, ColorCode code) {
-      return os << "\033[" << static_cast<int>(code) << "m";
-    }
-  } // namespace color
-
-  enum TLogLevel { logQUIET, logCRITICAL, logERROR, logWARNING, logINFO, logDEBUG, logDEBUGAPI, logDEBUGHAL, logINTERFACE };
-
-  template <typename T> class caribouLog {
+  /**
+   * @brief Logger of the framework to inform the user of process
+   *
+   * Should almost never be instantiated directly. The \ref LOG macro should be used instead to pass all the information.
+   * This leads to a cleaner interface for sending log messages.
+   */
+  // TODO [DOC] This just be renamed to Log?
+  class DefaultLogger {
   public:
-    caribouLog();
-    virtual ~caribouLog();
-    std::ostringstream& Get(TLogLevel level = logINFO, std::string file = "", std::string function = "", uint32_t line = 0);
-    static std::string& logName(std::string setLogName = "") {
-      static std::string logName("");
-      static bool is_initialized = false;
-      if(!is_initialized && setLogName.size() > 0) {
-        is_initialized = true;
-        logName = setLogName;
-      }
-      return logName;
-    };
+    /**
+     * @brief Construct a logger
+     */
+    DefaultLogger();
+    /**
+     * @brief Write the output to the streams and destruct the logger
+     */
+    ~DefaultLogger();
 
-  public:
-    static TLogLevel& ReportingLevel();
-    static std::string ToString(TLogLevel level);
-    static TLogLevel FromString(const std::string& level);
-    std::string NowTime();
+    ///@{
+    /**
+     * @brief Disable copying
+     */
+    DefaultLogger(const DefaultLogger&) = delete;
+    DefaultLogger& operator=(const DefaultLogger&) = delete;
+    ///@}
 
-  protected:
-    std::ostringstream os;
+    ///@{
+    /**
+     * @brief Use default move behaviour
+     */
+    DefaultLogger(DefaultLogger&&) noexcept(false) = default;
+    DefaultLogger& operator=(DefaultLogger&&) noexcept(false) = default;
+    ///@}
+
+    /**
+     * @brief Gives a stream to write to using the C++ stream syntax
+     * @param level Logging level
+     * @param file The file name of the file containing the log message
+     * @param function The function containing the log message
+     * @param line The line number of the log message
+     * @return A C++ stream to write to
+     */
+    std::ostringstream& getStream(LogLevel level = LogLevel::INFO,
+                                  const std::string& file = "",
+                                  const std::string& function = "",
+                                  uint32_t line = 0);
+
+    /**
+     * @brief Gives a process stream which updates the same line as long as it is the same
+     * @param identifier Name to indicate the line, used to distinguish when to update or write new line
+     * @param level Logging level
+     * @param file The file name of the file containing the log message
+     * @param function The function containing the log message
+     * @param line The line number of the log message
+     * @return A C++ stream to write to
+     */
+    std::ostringstream& getProcessStream(std::string identifier,
+                                         LogLevel level = LogLevel::INFO,
+                                         const std::string& file = "",
+                                         const std::string& function = "",
+                                         uint32_t line = 0);
+
+    /**
+     * @brief Finish the logging ensuring proper termination of all streams
+     */
+    static void finish();
+
+    /**
+     * @brief Get the reporting level for logging
+     * @return The current log level
+     */
+    static LogLevel getReportingLevel();
+    /**
+     * @brief Set a new reporting level to use for logging
+     * @param level The new log level
+     */
+    static void setReportingLevel(LogLevel level);
+
+    /**
+     * @brief Convert a string to a LogLevel
+     * @param level Name of the level
+     * @return Log level corresponding to the name
+     */
+    static LogLevel getLevelFromString(const std::string& level);
+    /**
+     * @brief Convert a LogLevel to a string
+     * @param level Log level
+     * @return Name corresponding to the log level
+     */
+    static std::string getStringFromLevel(LogLevel level);
+
+    /**
+     * @brief Get the logging format
+     * @return Current log format
+     */
+    static LogFormat getFormat();
+    /**
+     * @brief Set a new logging format
+     * @param format New log log format
+     */
+    static void setFormat(LogFormat format);
+
+    /**
+     * @brief Convert a string to a LogFormat
+     * @param format Name of the format
+     * @return Log format corresponding to the name
+     */
+    static LogFormat getFormatFromString(const std::string& format);
+    /**
+     * @brief Convert a LogFormat to a string
+     * @param format Log format
+     * @return Name corresponding to the log format
+     */
+    static std::string getStringFromFormat(LogFormat format);
+
+    /**
+     * @brief Add a stream to write the log message
+     * @param stream Stream to write to
+     */
+    static void addStream(std::ostream& stream);
+    /**
+     * @brief Clear and delete all streams that the logger writes to
+     */
+    static void clearStreams();
+    /**
+     * @brief Return all the streams the logger writes to
+     * @return List of all the streams used
+     */
+    static const std::vector<std::ostream*>& getStreams();
+
+    /**
+     * @brief Set the section header to use from now on
+     * @param header Header to use
+     */
+    static void setSection(std::string header);
+    /**
+     * @brief Get the current section header
+     * @return Header used
+     */
+    static std::string getSection();
+
+    /**
+     * @brief Get the current timestamp
+     * @return Timestamp
+     */
+    static std::string getTimestamp();
 
   private:
-    caribouLog(const caribouLog&);
-    caribouLog& operator=(const caribouLog&);
+    /**
+     * @brief The number of exceptions that are uncaught
+     * @param cons If true: always return zero if amount of exceptions cannot be properly determined
+     * @return Number of uncaught exceptions
+     */
+    int get_uncaught_exceptions(bool cons);
+    /**
+     * @brief Get the current date as a printable string
+     * @return Current date as a string
+     */
+    static std::string get_current_date();
+
+    /**
+     * @brief Return if a stream is likely a terminal screen (supporting colors etc.)
+     * @return True if the stream is terminal, false otherwise
+     */
+    static bool is_terminal(std::ostream& stream);
+
+    // Output stream
+    std::ostringstream os;
+
+    // Number of exceptions to prevent abort
+    int exception_count_{};
+    // Saved value of the length of the header indent
+    unsigned int indent_count_{};
+
+    // Internal methods to store static values
+    static std::string& get_section();
+    static LogLevel& get_reporting_level();
+    static LogFormat& get_format();
+    static std::vector<std::ostream*>& get_streams();
+
+    // Name of the process to log or empty if a normal log message
+    std::string identifier_{};
+    static std::string last_message_;
+    static std::string last_identifier_;
+
+    static std::mutex write_mutex_;
   };
 
-  template <typename T> caribouLog<T>::caribouLog() {}
+  using Log = DefaultLogger;
 
-#ifdef WIN32
-
-  template <typename T> std::string caribouLog<T>::NowTime() {
-    const int MAX_LEN = 200;
-    char buffer[MAX_LEN];
-    if(GetTimeFormatA(LOCALE_USER_DEFAULT, 0, 0, "HH':'mm':'ss", buffer, MAX_LEN) == 0)
-      return "Error in NowTime()";
-
-    char result[100] = {0};
-    static DWORD first = GetTickCount();
-    std::sprintf(result, "%s.%03ld", buffer, static_cast<long>(GetTickCount() - first) % 1000);
-    return result;
-  }
-
-#else
-
-  template <typename T> std::string caribouLog<T>::NowTime() {
-    char buffer[11];
-    time_t t;
-    time(&t);
-    tm r = *localtime(&t);
-    strftime(buffer, sizeof(buffer), "%X", localtime_r(&t, &r));
-    struct timeval tv;
-    gettimeofday(&tv, 0);
-    char result[100] = {0};
-    std::sprintf(result, "%s.%03ld", buffer, static_cast<long>(tv.tv_usec) / 1000);
-    return result;
-  }
-
-#endif // WIN32
-
-  template <typename T>
-  std::ostringstream& caribouLog<T>::Get(TLogLevel level, std::string file, std::string function, uint32_t line) {
-    // Reset colors:
-    os << color::DEFAULT;
-
-    os << "[" << NowTime() << "] ";
-    if(logName().size() > 0) {
-      os << "<" << logName() << "> ";
-    }
-
-    // Add colors:
-    if(level == logERROR || level == logCRITICAL)
-      os << color::RED;
-    if(level == logWARNING)
-      os << color::YELLOW;
-    if(level == logINTERFACE)
-      os << color::GRAY;
-    if(level == logQUIET)
-      os << color::CYAN;
-
-    os << std::setw(8) << ToString(level) << ": ";
-
-    // For debug levels we want also function name and line number printed:
-    if(level != logINFO && level != logQUIET && level != logWARNING)
-      os << "<" << file << "/" << function << ":L" << line << "> ";
-
-    return os;
-  }
-
-  template <typename T> caribouLog<T>::~caribouLog() {
-    os << color::DEFAULT << std::endl;
-    T::Output(os.str());
-  }
-
-  template <typename T> TLogLevel& caribouLog<T>::ReportingLevel() {
-    static TLogLevel reportingLevel = logINFO;
-    return reportingLevel;
-  }
-
-  template <typename T> std::string caribouLog<T>::ToString(TLogLevel level) {
-    static const char* const buffer[] = {
-      "QUIET", "CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "DEBUGAPI", "DEBUGHAL", "INTERFACE"};
-    return buffer[level];
-  }
-
-  template <typename T> TLogLevel caribouLog<T>::FromString(const std::string& level) {
-    if(level == "INTERFACE")
-      return logINTERFACE;
-    if(level == "DEBUGHAL")
-      return logDEBUGHAL;
-    if(level == "DEBUGAPI")
-      return logDEBUGAPI;
-    if(level == "DEBUG")
-      return logDEBUG;
-    if(level == "INFO")
-      return logINFO;
-    if(level == "WARNING")
-      return logWARNING;
-    if(level == "ERROR")
-      return logERROR;
-    if(level == "CRITICAL")
-      return logCRITICAL;
-    if(level == "QUIET")
-      return logQUIET;
-    caribouLog<T>().Get(logWARNING) << "Unknown logging level '" << level << "'. Using WARNING level as default.";
-    return logWARNING;
-  }
-
-  class SetLogOutput {
-  public:
-    static FILE*& Stream();
-    static bool& Duplicate();
-    static void Output(const std::string& msg);
-  };
-
-  inline bool& SetLogOutput::Duplicate() {
-    static bool duplic = false;
-    return duplic;
-  }
-
-  inline FILE*& SetLogOutput::Stream() {
-    static FILE* pStream = stderr;
-    return pStream;
-  }
-
-  inline void SetLogOutput::Output(const std::string& msg) {
-    FILE* pStream = Stream();
-    if(!pStream)
-      return;
-
-    // Check if we are printing to stderr
-    if(pStream != stderr) {
-      // Create a version without any special terminal characters
-      std::string out_no_special;
-      size_t prev = 0, pos = 0;
-      while((pos = msg.find("\033[", prev)) != std::string::npos) {
-        out_no_special += msg.substr(prev, pos - prev);
-        prev = msg.find('m', pos) + 1;
-        if(prev == std::string::npos) {
-          break;
-        }
-      }
-      out_no_special += msg.substr(prev);
-
-      // if not, remove special characters
-      fprintf(pStream, "%s", out_no_special.c_str());
-      // Check if duplication to stderr is needed:
-      if(Duplicate()) {
-        fprintf(stderr, "%s", msg.c_str());
-      }
-    } else {
-      // Otherwise print normal message to stream:
-      fprintf(pStream, "%s", msg.c_str());
-    }
-    fflush(pStream);
-  }
-
-  typedef caribouLog<SetLogOutput> Log;
-
+/**
+ *  @brief Base name of the file without the directory
+ */
 #define __FILE_NAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 
-#define IFLOG(level)                                                                                                        \
-  if(level > caribou::Log::ReportingLevel() || !caribou::SetLogOutput::Stream())                                            \
-    ;                                                                                                                       \
-  else
+/**
+ * @brief Execute a block only if the reporting level is high enough
+ * @param level The minimum log level
+ */
+#define IFLOG(level) if(caribou::LogLevel::level <= caribou::Log::getReportingLevel() && !caribou::Log::getStreams().empty())
 
+/**
+ * @brief Create a logging stream if the reporting level is high enough
+ * @param level The log level of the stream
+ */
 #define LOG(level)                                                                                                          \
-  if(level > caribou::Log::ReportingLevel() || !caribou::SetLogOutput::Stream())                                            \
-    ;                                                                                                                       \
-  else                                                                                                                      \
-    caribou::Log().Get(level, __FILE_NAME__, __func__, __LINE__)
+  if(caribou::LogLevel::level <= caribou::Log::getReportingLevel() && !caribou::Log::getStreams().empty())                  \
+  caribou::Log().getStream(                                                                                                 \
+    caribou::LogLevel::level, __FILE_NAME__, std::string(static_cast<const char*>(__func__)), __LINE__)
 
-#define LOGTIME caribou::Log().NowTime()
+/**
+ * @brief Create a logging stream that overwrites the line if the previous message has the same identifier
+ * @param level The log level of the stream
+ * @param identifier Identifier for this stream to determine overwrites
+ */
+#define LOG_PROGRESS(level, identifier)                                                                                     \
+  if(caribou::LogLevel::level <= caribou::Log::getReportingLevel() && !caribou::Log::getStreams().empty())                  \
+  caribou::Log().getProcessStream(                                                                                          \
+    identifier, caribou::LogLevel::level, __FILE_NAME__, std::string(static_cast<const char*>(__func__)), __LINE__)
 
+#define LOGTIME caribou::Log::getTimestamp()
+
+  /**
+   * @brief Suppress an stream from writing any output
+   * @param stream The stream to suppress
+   */
+  // suppress a (logging) stream
+  // TODO [doc] rewrite as a lowercase function in a namespace?
+  inline void SUPPRESS_STREAM(std::ostream& stream) { stream.setstate(std::ios::failbit); }
+
+  /**
+   * @brief Release an suppressed stream so it can write again
+   * @param stream The stream to release
+   */
+  // TODO [doc] rewrite as a lowercase function in a namespace?
+  inline void RELEASE_STREAM(std::ostream& stream) { stream.clear(); }
 } // namespace caribou
 
 #endif /* CARIBOU_LOG_H */
