@@ -35,7 +35,7 @@ C3PDDevice::C3PDDevice(const caribou::Configuration config)
 }
 
 void C3PDDevice::configure() {
-  LOG(logINFO) << "Configuring " << DEVICE_NAME;
+  LOG(INFO) << "Configuring " << DEVICE_NAME;
   reset();
 
   // Call the base class configuration function:
@@ -48,10 +48,10 @@ void C3PDDevice::configureMatrix(std::string filename) {
   std::map<int, uint8_t> test_columns;
   std::map<int, uint8_t> test_rows;
 
-  LOG(logDEBUG) << "Reading pixel matrix file.";
+  LOG(DEBUG) << "Reading pixel matrix file.";
   std::ifstream pxfile(filename);
   if(!pxfile.is_open()) {
-    LOG(logERROR) << "Could not open matrix file \"" << filename << "\"";
+    LOG(ERROR) << "Could not open matrix file \"" << filename << "\"";
     throw ConfigInvalid("Could not open matrix file \"" + filename + "\"");
   }
 
@@ -72,14 +72,14 @@ void C3PDDevice::configureMatrix(std::string filename) {
 
   std::string alphabet("abcdefghijklmnop");
   for(const auto& c : test_columns) {
-    LOG(logDEBUG) << "Column reg " << c.first << " bits " << to_bit_string(c.second);
+    LOG(DEBUG) << "Column reg " << c.first << " bits " << to_bit_string(c.second);
     std::string reg("tpce");
     reg += alphabet.at(c.first);
     this->setRegister(reg, c.second);
   }
 
   for(const auto& r : test_rows) {
-    LOG(logDEBUG) << "Row reg " << r.first << " bits " << to_bit_string(r.second);
+    LOG(DEBUG) << "Row reg " << r.first << " bits " << to_bit_string(r.second);
     std::string reg("tpre");
     reg += alphabet.at(r.first);
     this->setRegister(reg, r.second);
@@ -87,7 +87,7 @@ void C3PDDevice::configureMatrix(std::string filename) {
 }
 
 void C3PDDevice::reset() {
-  LOG(logDEBUG) << "Resetting " << DEVICE_NAME;
+  LOG(DEBUG) << "Resetting " << DEVICE_NAME;
 
   void* control_base = _hal->getMappedMemoryRW(C3PD_CONTROL_BASE_ADDRESS, C3PD_CONTROL_MAP_SIZE, C3PD_CONTROL_MAP_MASK);
   volatile uint32_t* control_reg =
@@ -98,7 +98,7 @@ void C3PDDevice::reset() {
 }
 
 C3PDDevice::~C3PDDevice() {
-  LOG(logINFO) << DEVICE_NAME << ": Shutdown, delete device.";
+  LOG(INFO) << DEVICE_NAME << ": Shutdown, delete device.";
   powerOff();
 }
 
@@ -107,61 +107,61 @@ std::string C3PDDevice::getName() {
 }
 
 void C3PDDevice::powerUp() {
-  LOG(logINFO) << DEVICE_NAME << ": Powering up C3PD";
+  LOG(INFO) << DEVICE_NAME << ": Powering up C3PD";
 
   // Power rails:
-  LOG(logDEBUG) << " VDDD: " << _config.Get("vddd", C3PD_VDDD) << "V";
+  LOG(DEBUG) << " VDDD: " << _config.Get("vddd", C3PD_VDDD) << "V";
   this->setVoltage("vddd", _config.Get("vddd", C3PD_VDDD), _config.Get("vddd_current", C3PD_VDDD_CURRENT));
   this->switchOn("vddd");
 
-  LOG(logDEBUG) << " VDDA: " << _config.Get("vdda", C3PD_VDDA) << "V";
+  LOG(DEBUG) << " VDDA: " << _config.Get("vdda", C3PD_VDDA) << "V";
   this->setVoltage("vdda", _config.Get("vdda", C3PD_VDDA), _config.Get("vdda_current", C3PD_VDDA_CURRENT));
   this->switchOn("vdda");
 
   // Bias voltages:
-  LOG(logDEBUG) << " Reference voltage: " << _config.Get("ref", C3PD_REF) << "V";
+  LOG(DEBUG) << " Reference voltage: " << _config.Get("ref", C3PD_REF) << "V";
   this->setVoltage("ref", _config.Get("ref", C3PD_REF));
   this->switchOn("ref");
 
-  LOG(logDEBUG) << " Analog-In: " << _config.Get("ain", C3PD_AIN) << "V";
+  LOG(DEBUG) << " Analog-In: " << _config.Get("ain", C3PD_AIN) << "V";
   this->setVoltage("ain", _config.Get("ain", C3PD_AIN));
   this->switchOn("ain");
 }
 
 void C3PDDevice::powerDown() {
-  LOG(logINFO) << DEVICE_NAME << ": Power off C3PD";
+  LOG(INFO) << DEVICE_NAME << ": Power off C3PD";
 
-  LOG(logDEBUG) << "Power off VDDA";
+  LOG(DEBUG) << "Power off VDDA";
   this->switchOff("vdda");
 
-  LOG(logDEBUG) << "Power off VDDD";
+  LOG(DEBUG) << "Power off VDDD";
   this->switchOff("vddd");
 
-  LOG(logDEBUG) << "Turn off AIN";
+  LOG(DEBUG) << "Turn off AIN";
   this->switchOff("ain");
 
-  LOG(logDEBUG) << "Turn off REF";
+  LOG(DEBUG) << "Turn off REF";
   this->switchOff("ref");
 }
 
 void C3PDDevice::daqStart() {
-  LOG(logINFO) << DEVICE_NAME << ": DAQ started.";
+  LOG(INFO) << DEVICE_NAME << ": DAQ started.";
 }
 
 void C3PDDevice::daqStop() {
-  LOG(logINFO) << DEVICE_NAME << ": DAQ stopped.";
+  LOG(INFO) << DEVICE_NAME << ": DAQ stopped.";
 }
 
 void C3PDDevice::powerStatusLog() {
-  LOG(logINFO) << DEVICE_NAME << " power status:";
+  LOG(INFO) << DEVICE_NAME << " power status:";
 
-  LOG(logINFO) << "VDDD:";
-  LOG(logINFO) << "\tBus voltage: " << this->getVoltage("vddd") << "V";
-  LOG(logINFO) << "\tBus current: " << this->getCurrent("vddd") << "A";
-  LOG(logINFO) << "\tBus power  : " << this->getPower("vddd") << "W";
+  LOG(INFO) << "VDDD:";
+  LOG(INFO) << "\tBus voltage: " << this->getVoltage("vddd") << "V";
+  LOG(INFO) << "\tBus current: " << this->getCurrent("vddd") << "A";
+  LOG(INFO) << "\tBus power  : " << this->getPower("vddd") << "W";
 
-  LOG(logINFO) << "VDDA:";
-  LOG(logINFO) << "\tBus voltage: " << this->getVoltage("vdda") << "V";
-  LOG(logINFO) << "\tBus current: " << this->getCurrent("vdda") << "A";
-  LOG(logINFO) << "\tBus power  : " << this->getPower("vdda") << "W";
+  LOG(INFO) << "VDDA:";
+  LOG(INFO) << "\tBus voltage: " << this->getVoltage("vdda") << "V";
+  LOG(INFO) << "\tBus current: " << this->getCurrent("vdda") << "A";
+  LOG(INFO) << "\tBus power  : " << this->getPower("vdda") << "W";
 }

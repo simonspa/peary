@@ -17,16 +17,16 @@ DSO9254ADevice::DSO9254ADevice(const caribou::Configuration config)
   _dispatcher.add("send", &DSO9254ADevice::send, this);
   _dispatcher.add("waitForTrigger", &DSO9254ADevice::waitForTrigger, this);
 
-  LOG(logDEBUG) << "New scope interface, trying to connect...";
+  LOG(DEBUG) << "New scope interface, trying to connect...";
   std::string query = "*IDN?";
   std::string data = this->receive(query).front();
 
-  LOG(logDEBUG) << "Connected successfully to " << _devpath;
-  LOG(logDEBUG) << "Scope identifier: " << data;
+  LOG(DEBUG) << "Connected successfully to " << _devpath;
+  LOG(DEBUG) << "Scope identifier: " << data;
 }
 
 DSO9254ADevice::~DSO9254ADevice() {
-  LOG(logINFO) << DEVICE_NAME << ": Shutdown, delete device.";
+  LOG(INFO) << DEVICE_NAME << ": Shutdown, delete device.";
 }
 
 void DSO9254ADevice::send(std::string command) {
@@ -54,11 +54,11 @@ pearydata DSO9254ADevice::getData() {
 
   std::vector<double> values;
 
-  LOG(logINFO) << "Retrieving data from scope...";
+  LOG(INFO) << "Retrieving data from scope...";
   std::string cmd = "wav:data?";
   std::vector<std::string> data = this->receive(cmd);
 
-  LOG(logINFO) << "Crunching numbers...";
+  LOG(INFO) << "Crunching numbers...";
 
   if(data.empty()) {
     return pearydata();
