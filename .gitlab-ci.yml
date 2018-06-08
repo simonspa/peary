@@ -20,7 +20,7 @@ cmp:ubuntu-gcc:
     - export COMPILER_TYPE="gcc"
     - mkdir build
     - cd build
-    - cmake -DBUILD_example=ON -DBUILD_server=ON ..
+    - cmake -DBUILD_ALL_DEVICES=ON -DBUILD_server=ON ..
     - make
     - make install
   artifacts:
@@ -42,7 +42,7 @@ cmp:centos7-gcc:
     - source .gitlab-ci.d/init_x86_64.sh
     - mkdir build
     - cd build
-    - cmake -GNinja -DBUILD_example=ON -DBUILD_server=ON -DINTERFACE_I2C=OFF -DINTERFACE_SPI=OFF -DINTERFACE_SPI_CLICpix2=OFF ..
+    - cmake -GNinja -DBUILD_ALL_DEVICES=ON -DBUILD_server=ON -DINTERFACE_I2C=OFF -DINTERFACE_SPI=OFF -DINTERFACE_SPI_CLICpix2=OFF ..
     - ninja
     - ninja install
   artifacts:
@@ -64,7 +64,7 @@ cmp:centos7-llvm:
     - source .gitlab-ci.d/init_x86_64.sh
     - mkdir build
     - cd build
-    - cmake -GNinja -DBUILD_example=ON -DBUILD_server=ON -DINTERFACE_I2C=OFF -DINTERFACE_SPI=OFF -DINTERFACE_SPI_CLICpix2=OFF ..
+    - cmake -GNinja -DBUILD_ALL_DEVICES=ON -DBUILD_server=ON -DINTERFACE_I2C=OFF -DINTERFACE_SPI=OFF -DINTERFACE_SPI_CLICpix2=OFF ..
     - ninja
     - ninja install
   artifacts:
@@ -76,7 +76,7 @@ cmp:centos7-llvm:
 
 rebuild_meta-caribou:
     stage: rebuild_meta-caribou
-    variables: 
+    variables:
       META_CARIBOU_REF_NAME: master
     only:
       - master
