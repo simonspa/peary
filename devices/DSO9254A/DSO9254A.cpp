@@ -2,19 +2,19 @@
  * Caribou Dso9254a Device implementation
  */
 
-#include "dso9254a.hpp"
+#include "DSO9254A.hpp"
 #include <string>
 #include "log.hpp"
 
 using namespace caribou;
 
-dso9254a::dso9254a(const caribou::Configuration config) : auxiliaryDevice(config, std::string(DEFAULT_DEVICEPATH)) {
+DSO9254A::DSO9254A(const caribou::Configuration config) : auxiliaryDevice(config, std::string(DEFAULT_DEVICEPATH)) {
   _config = config;
 
   // FIXME dispatcher functions
-  _dispatcher.add("query", &dso9254a::query, this);
-  _dispatcher.add("send", &dso9254a::send, this);
-  _dispatcher.add("waitForTrigger", &dso9254a::waitForTrigger, this);
+  _dispatcher.add("query", &DSO9254A::query, this);
+  _dispatcher.add("send", &DSO9254A::send, this);
+  _dispatcher.add("waitForTrigger", &DSO9254A::waitForTrigger, this);
 
   LOG(logDEBUG) << "New scope interface, trying to connect...";
   std::string query = "*IDN?";
@@ -24,19 +24,19 @@ dso9254a::dso9254a(const caribou::Configuration config) : auxiliaryDevice(config
   LOG(logDEBUG) << "Scope identifier: " << data;
 }
 
-dso9254a::~dso9254a() {
+DSO9254A::~DSO9254A() {
   LOG(logINFO) << DEVICE_NAME << ": Shutdown, delete device.";
 }
 
-void dso9254a::send(std::string command) {
+void DSO9254A::send(std::string command) {
   this->send(command);
 }
 
-std::string dso9254a::query(const std::string query) {
+std::string DSO9254A::query(const std::string query) {
   return this->receive(query).front();
 }
 
-int dso9254a::waitForTrigger() {
+int DSO9254A::waitForTrigger() {
 
   std::string query = ":ter?";
 
@@ -49,7 +49,7 @@ int dso9254a::waitForTrigger() {
   return trigger;
 }
 
-pearydata dso9254a::getData() {
+pearydata DSO9254A::getData() {
 
   std::vector<double> values;
 
@@ -74,6 +74,6 @@ pearydata dso9254a::getData() {
   return pearydata();
 }
 
-std::string dso9254a::getName() {
+std::string DSO9254A::getName() {
   return DEVICE_NAME;
 }
