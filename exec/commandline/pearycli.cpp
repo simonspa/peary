@@ -29,6 +29,7 @@ void clean() {
 int main(int argc, char* argv[]) {
   // Add cout as the default logging stream
   Log::addStream(std::cout);
+  Log::setReportingLevel(LogLevel::INFO);
 
   struct sigaction sigIntHandler;
 
