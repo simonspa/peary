@@ -9,7 +9,7 @@
 #include <ostream>
 #include <vector>
 
-#include "clicpix2_pixels.hpp"
+#include "CLICpix2/clicpix2_pixels.hpp"
 
 namespace caribou {
 

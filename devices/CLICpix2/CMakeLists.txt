@@ -7,10 +7,10 @@ PEARY_DEVICE(DEVICE_NAME)
 PEARY_DEVICE_SOURCES(${DEVICE_NAME}
     CLICpix2Device.cpp
     clicpix2_utilities.cpp
-    clicpix2_frameDecoder.cpp
-    clicpix2_frameDecoder_lfsr13.cpp
-    clicpix2_frameDecoder_lfsr8.cpp
-    clicpix2_frameDecoder_lfsr5.cpp
+    framedecoder/clicpix2_frameDecoder.cpp
+    framedecoder/clicpix2_frameDecoder_lfsr13.cpp
+    framedecoder/clicpix2_frameDecoder_lfsr8.cpp
+    framedecoder/clicpix2_frameDecoder_lfsr5.cpp
 )
 
 # Provide standard install target
@@ -19,10 +19,10 @@ PEARY_DEVICE_INSTALL(${DEVICE_NAME})
 SET(DECODERFILES
   clicpix2RawDecoder.cpp
   clicpix2_utilities.cpp
-  clicpix2_frameDecoder.cpp
-  clicpix2_frameDecoder_lfsr13.cpp
-  clicpix2_frameDecoder_lfsr8.cpp
-  clicpix2_frameDecoder_lfsr5.cpp
+  framedecoder/clicpix2_frameDecoder.cpp
+  framedecoder/clicpix2_frameDecoder_lfsr13.cpp
+  framedecoder/clicpix2_frameDecoder_lfsr8.cpp
+  framedecoder/clicpix2_frameDecoder_lfsr5.cpp
 )
 
 ADD_EXECUTABLE(clicpix2_rawdecoder ${DECODERFILES})

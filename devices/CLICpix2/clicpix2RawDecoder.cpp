@@ -3,8 +3,8 @@
 #include <string>
 #include <vector>
 
-#include "clicpix2_frameDecoder.hpp"
 #include "clicpix2_utilities.hpp"
+#include "framedecoder/clicpix2_frameDecoder.hpp"
 
 #include "exceptions.hpp"
 #include "log.hpp"

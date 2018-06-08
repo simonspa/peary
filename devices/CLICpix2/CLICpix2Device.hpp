@@ -10,10 +10,10 @@
 #include "Si5345-RevB-CLICpix2-Registers.h"
 #include "Si5345-RevB-CLICpix2-Registers_freeRunningMode.h"
 #include "clicpix2_defaults.hpp"
-#include "clicpix2_frameDecoder.hpp"
 #include "clicpix2_pixels.hpp"
 #include "configuration.hpp"
 #include "device.hpp"
+#include "framedecoder/clicpix2_frameDecoder.hpp"
 #include "pearydevice.hpp"
 #include "spi_CLICpix2.hpp"
 
