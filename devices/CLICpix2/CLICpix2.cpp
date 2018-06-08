@@ -2,7 +2,7 @@
  * Caribou Device implementation for CLICpix2
  */
 
-#include "clicpix2.hpp"
+#include "CLICpix2.hpp"
 #include "clicpix2_utilities.hpp"
 
 #include <chrono>
@@ -19,19 +19,19 @@
 using namespace caribou;
 using namespace clicpix2_utils;
 
-std::string clicpix2::getName() {
+std::string CLICpix2::getName() {
   return DEVICE_NAME;
 }
 
-clicpix2::clicpix2(const caribou::Configuration config)
+CLICpix2::CLICpix2(const caribou::Configuration config)
     : pearyDevice(config, std::string(DEFAULT_DEVICEPATH)), pg_total_length(0) {
 
   // Regsiter device-specific commands:
-  _dispatcher.add("configureMatrix", &clicpix2::configureMatrix, this);
-  _dispatcher.add("configurePatternGenerator", &clicpix2::configurePatternGenerator, this);
-  _dispatcher.add("exploreInterface", &clicpix2::exploreInterface, this);
-  _dispatcher.add("powerStatusLog", &clicpix2::powerStatusLog, this);
-  _dispatcher.add("triggerPatternGenerator", &clicpix2::triggerPatternGenerator, this);
+  _dispatcher.add("configureMatrix", &CLICpix2::configureMatrix, this);
+  _dispatcher.add("configurePatternGenerator", &CLICpix2::configurePatternGenerator, this);
+  _dispatcher.add("exploreInterface", &CLICpix2::exploreInterface, this);
+  _dispatcher.add("powerStatusLog", &CLICpix2::powerStatusLog, this);
+  _dispatcher.add("triggerPatternGenerator", &CLICpix2::triggerPatternGenerator, this);
 
   // Set up periphery
   _periphery.add("vddd", PWR_OUT_1);
@@ -56,7 +56,7 @@ clicpix2::clicpix2(const caribou::Configuration config)
   *control_reg = 0; // keep CLICpix2 in reset state
 }
 
-void clicpix2::configure() {
+void CLICpix2::configure() {
   LOG(logINFO) << "Configuring " << DEVICE_NAME;
   configureClock();
   reset();
@@ -90,7 +90,7 @@ void clicpix2::configure() {
   }
 }
 
-void clicpix2::reset() {
+void CLICpix2::reset() {
   LOG(logDEBUG) << "Resetting " << DEVICE_NAME;
   volatile uint32_t* control_reg = reinterpret_cast<volatile uint32_t*>(
     reinterpret_cast<std::intptr_t>(
@@ -101,13 +101,13 @@ void clicpix2::reset() {
   *control_reg |= CLICPIX2_CONTROL_RESET_MASK; // deny reset
 }
 
-clicpix2::~clicpix2() {
+CLICpix2::~CLICpix2() {
 
   LOG(logINFO) << DEVICE_NAME << ": Shutdown, delete device.";
   powerOff();
 }
 
-void clicpix2::setSpecialRegister(std::string name, uint32_t value) {
+void CLICpix2::setSpecialRegister(std::string name, uint32_t value) {
 
   if(name == "threshold") {
     // Get threshold LSB and MSB
@@ -150,7 +150,7 @@ void clicpix2::setSpecialRegister(std::string name, uint32_t value) {
   }
 }
 
-void clicpix2::powerUp() {
+void CLICpix2::powerUp() {
   LOG(logINFO) << DEVICE_NAME << ": Powering up CLICpix2";
 
   LOG(logDEBUG) << " CMLBUFFERS_VDD";
@@ -189,7 +189,7 @@ void clicpix2::powerUp() {
   }
 }
 
-void clicpix2::powerDown() {
+void CLICpix2::powerDown() {
   LOG(logINFO) << DEVICE_NAME << ": Power off CLICpix2";
 
   LOG(logDEBUG) << "Power off CML_IREF";
@@ -214,7 +214,7 @@ void clicpix2::powerDown() {
   this->switchOff("cmlbuffers_vdd");
 }
 
-void clicpix2::configureMatrix(std::string filename) {
+void CLICpix2::configureMatrix(std::string filename) {
 
   // Temporarily switch off any compression algorithm:
   uint32_t comp = this->getRegister("comp");
@@ -272,7 +272,7 @@ void clicpix2::configureMatrix(std::string filename) {
   this->setRegister("sp_comp", sp_comp);
 }
 
-void clicpix2::triggerPatternGenerator(bool sleep) {
+void CLICpix2::triggerPatternGenerator(bool sleep) {
 
   LOG(logDEBUG) << "Triggering pattern generator once.";
 
@@ -291,7 +291,7 @@ void clicpix2::triggerPatternGenerator(bool sleep) {
     usleep(pg_total_length / 100);
 }
 
-void clicpix2::configurePatternGenerator(std::string filename) {
+void CLICpix2::configurePatternGenerator(std::string filename) {
 
   LOG(logDEBUG) << "Programming pattern generator.";
   std::vector<uint32_t> patterns;
@@ -359,7 +359,7 @@ void clicpix2::configurePatternGenerator(std::string filename) {
   LOG(logDEBUG) << "Done configuring pattern generator.";
 }
 
-void clicpix2::programMatrix() {
+void CLICpix2::programMatrix() {
 
   // Use a boolean vector to construct full matrix data array:
   std::vector<bool> matrix;
@@ -417,7 +417,7 @@ void clicpix2::programMatrix() {
   _hal->send(spi_data);
 }
 
-void clicpix2::configureClock() {
+void CLICpix2::configureClock() {
 
   // Check of we should configure for external or internal clock, default to external:
   if(_config.Get<bool>("clock_internal", false)) {
@@ -439,7 +439,7 @@ void clicpix2::configureClock() {
   }
 }
 
-void clicpix2::powerStatusLog() {
+void CLICpix2::powerStatusLog() {
   LOG(logINFO) << DEVICE_NAME << " power status:";
 
   LOG(logINFO) << "VDDA:";
@@ -468,7 +468,7 @@ void clicpix2::powerStatusLog() {
   LOG(logINFO) << "\tBus power  : " << this->getPower("cmlbuffers_vdd") << "W";
 }
 
-void clicpix2::exploreInterface() {
+void CLICpix2::exploreInterface() {
   LOG(logINFO) << DEVICE_NAME << " - Exploring interface capabilities ...";
 
   std::vector<std::pair<uint8_t, uint8_t>> pairvec;
@@ -500,11 +500,11 @@ void clicpix2::exploreInterface() {
   LOG(logINFO) << DEVICE_NAME << " - Exploring interface capabilities ... Done";
 }
 
-void clicpix2::daqStart() {
+void CLICpix2::daqStart() {
   // Prepare chip for data acquisition
 }
 
-pearydata clicpix2::decodeFrame(const std::vector<uint32_t>& frame) {
+pearydata CLICpix2::decodeFrame(const std::vector<uint32_t>& frame) {
 
   uint32_t comp = _register_cache["comp"];
   uint32_t sp_comp = _register_cache["sp_comp"];
@@ -515,11 +515,11 @@ pearydata clicpix2::decodeFrame(const std::vector<uint32_t>& frame) {
   return decoder.getZerosuppressedFrame();
 }
 
-pearydata clicpix2::getData() {
+pearydata CLICpix2::getData() {
   return decodeFrame(getRawData());
 }
 
-std::vector<uint32_t> clicpix2::getRawData() {
+std::vector<uint32_t> CLICpix2::getRawData() {
 
   LOG(logDEBUG) << DEVICE_NAME << " readout requested";
   this->setRegister("readout", 0);
@@ -550,7 +550,7 @@ std::vector<uint32_t> clicpix2::getRawData() {
   return frame;
 }
 
-std::vector<uint64_t> clicpix2::timestampsPatternGenerator() {
+std::vector<uint64_t> CLICpix2::timestampsPatternGenerator() {
 
   std::vector<uint64_t> timestamps;
   LOG(logDEBUG) << DEVICE_NAME << " Requesting timestamps";
