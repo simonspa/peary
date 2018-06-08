@@ -2,7 +2,6 @@
 #include <iostream>
 #include <signal.h>
 
-#include "Console.hpp"
 #include "pearycli.hpp"
 
 #include "configuration.hpp"

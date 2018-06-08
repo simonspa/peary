@@ -9,131 +9,121 @@ using namespace caribou;
 
 caribou::Configuration pearycli::config = caribou::Configuration();
 
-pearycli::pearycli() : c("# ") {
+pearycli::pearycli() : Console("# ") {
 
   // Register console commands
-  c.registerCommand("list_devices", devices, "Lists all registered devices", 0);
-  c.registerCommand("add_device", addDevice, "Registers new device(s)", 1, "DEVICE [DEVICE...]");
-  c.registerCommand("verbosity", verbosity, "Changes the logging verbosity", 1, "LOGLEVEL");
-  c.registerCommand("delay", delay, "Adds a delay in Milliseconds", 1, "DELAY_MS");
+  registerCommand("list_devices", devices, "Lists all registered devices", 0);
+  registerCommand("add_device", addDevice, "Registers new device(s)", 1, "DEVICE [DEVICE...]");
+  registerCommand("verbosity", verbosity, "Changes the logging verbosity", 1, "LOGLEVEL");
+  registerCommand("delay", delay, "Adds a delay in Milliseconds", 1, "DELAY_MS");
 
-  c.registerCommand(
+  registerCommand(
     "list_commands", list_commands, "list available device-specific commands for selected device", 1, "DEVICE_ID");
-  c.registerCommand("cmd", command, "execute device-specific command", 2, "COMMAND [ARGUMENTS...] DEVICE_ID");
+  registerCommand("cmd", command, "execute device-specific command", 2, "COMMAND [ARGUMENTS...] DEVICE_ID");
 
-  c.registerCommand("version", version, "Print software and firmware version of the selected device", 1, "DEVICE_ID");
-  c.registerCommand("init", configure, "Initialize and configure the selected device", 1, "DEVICE_ID");
-  c.registerCommand("configure", configure, "Initialize and configure the selected device", 1, "DEVICE_ID");
-  c.registerCommand("reset", reset, "Send reset signal to the selected device", 1, "DEVICE_ID");
+  registerCommand("version", version, "Print software and firmware version of the selected device", 1, "DEVICE_ID");
+  registerCommand("init", configure, "Initialize and configure the selected device", 1, "DEVICE_ID");
+  registerCommand("configure", configure, "Initialize and configure the selected device", 1, "DEVICE_ID");
+  registerCommand("reset", reset, "Send reset signal to the selected device", 1, "DEVICE_ID");
 
-  c.registerCommand("powerOn", powerOn, "Power up the selected device", 1, "DEVICE_ID");
-  c.registerCommand("powerOff", powerOff, "Power down the selected device", 1, "DEVICE_ID");
-  c.registerCommand("setVoltage",
-                    setVoltage,
-                    "Set the output voltage NAME to VALUE (in V) on the selected device",
-                    3,
-                    "NAME VALUE DEVICE_ID");
-  c.registerCommand("setBias",
-                    setBias,
-                    "Set the output bias voltage NAME to VALUE (in V) on the selected device",
-                    3,
-                    "NAME VALUE DEVICE_ID");
-  c.registerCommand(
+  registerCommand("powerOn", powerOn, "Power up the selected device", 1, "DEVICE_ID");
+  registerCommand("powerOff", powerOff, "Power down the selected device", 1, "DEVICE_ID");
+  registerCommand("setVoltage",
+                  setVoltage,
+                  "Set the output voltage NAME to VALUE (in V) on the selected device",
+                  3,
+                  "NAME VALUE DEVICE_ID");
+  registerCommand("setBias",
+                  setBias,
+                  "Set the output bias voltage NAME to VALUE (in V) on the selected device",
+                  3,
+                  "NAME VALUE DEVICE_ID");
+  registerCommand(
     "setCurrent",
     setCurrent,
     "Set the current for current source NAME to VALUE (in uA) with polarity POL (0 = PULL, 1 = PUSH) on the selected device",
     4,
     "NAME VALUE POL DEVICE_ID");
-  c.registerCommand(
+  registerCommand(
     "getVoltage", getVoltage, "Get the output voltage NAME (in V) on the selected device", 2, "NAME DEVICE_ID");
-  c.registerCommand(
+  registerCommand(
     "getCurrent", getCurrent, "Get the output current NAME (in A) on the selected device", 2, "NAME DEVICE_ID");
-  c.registerCommand("getPower", getPower, "Get the output power NAME (in W) on the selected device", 2, "NAME DEVICE_ID");
+  registerCommand("getPower", getPower, "Get the output power NAME (in W) on the selected device", 2, "NAME DEVICE_ID");
 
-  c.registerCommand("voltageOff", switchOff, "Turn off output voltage NAME on the selected device", 2, "NAME DEVICE_ID");
-  c.registerCommand("voltageOn", switchOn, "Turn on output voltage NAME on the selected device", 2, "NAME DEVICE_ID");
-  c.registerCommand("switchOn",
-                    switchOn,
-                    "Switch on the periphery component identified by NAME and controlled by the selected device",
-                    2,
-                    "NAME DEVICE_ID");
-  c.registerCommand("switchOff",
-                    switchOff,
-                    "Switch off the periphery component identified by NAME and controlled by the selected device",
-                    2,
-                    "NAME DEVICE_ID");
-  c.registerCommand("biasOff", switchOff, "Turn off bias voltage NAME on the selected device", 2, "NAME DEVICE_ID");
-  c.registerCommand("biasOn", switchOn, "Turn on bias voltage NAME on the selected device", 2, "NAME DEVICE_ID");
+  registerCommand("voltageOff", switchOff, "Turn off output voltage NAME on the selected device", 2, "NAME DEVICE_ID");
+  registerCommand("voltageOn", switchOn, "Turn on output voltage NAME on the selected device", 2, "NAME DEVICE_ID");
+  registerCommand("switchOn",
+                  switchOn,
+                  "Switch on the periphery component identified by NAME and controlled by the selected device",
+                  2,
+                  "NAME DEVICE_ID");
+  registerCommand("switchOff",
+                  switchOff,
+                  "Switch off the periphery component identified by NAME and controlled by the selected device",
+                  2,
+                  "NAME DEVICE_ID");
+  registerCommand("biasOff", switchOff, "Turn off bias voltage NAME on the selected device", 2, "NAME DEVICE_ID");
+  registerCommand("biasOn", switchOn, "Turn on bias voltage NAME on the selected device", 2, "NAME DEVICE_ID");
 
-  c.registerCommand("setRegister",
-                    setRegister,
-                    "Set register REG_NAME to value REG_VALUE for the selected device",
-                    3,
-                    "REG_NAME REG_VALUE DEVICE_ID");
-  c.registerCommand(
+  registerCommand("setRegister",
+                  setRegister,
+                  "Set register REG_NAME to value REG_VALUE for the selected device",
+                  3,
+                  "REG_NAME REG_VALUE DEVICE_ID");
+  registerCommand(
     "getRegister", getRegister, "Read the value of register REG_NAME on the selected device", 2, "REG_NAME DEVICE_ID");
-  c.registerCommand("getRegisters", getRegisters, "Read the value of all registers on the selected device", 1, "DEVICE_ID");
+  registerCommand("getRegisters", getRegisters, "Read the value of all registers on the selected device", 1, "DEVICE_ID");
 
-  c.registerCommand("scanDAC",
-                    scanDAC,
-                    "Scan DAC DAC_NAME from value MIN to MAX and read the voltage from the ADC after DELAY milliseconds. "
-                    "The sequence is repeated REPEAT times for every DAC setting. "
-                    "Data are saved in the FILE_NAME.csv file",
-                    7,
-                    "DAC_NAME MIN MAX DELAY[ms] REPEAT FILE_NAME DEVICE_ID");
-  c.registerCommand("scanDAC2D",
-                    scanDAC2D,
-                    "For each value of DAC1_NAME between DAC1_MIN and DAC1_MAX, scan DAC DAC2_NAME from value DAC2_MIN to "
-                    "DAC2_MAX and read the voltage from the ADC after DELAY milliseconds. "
-                    "The sequence is repeated REPEAT times for every DAC setting. "
-                    "Data are saved in the FILE_NAME.csv file",
-                    10,
-                    "DAC1_NAME DAC1_MIN DAC1_MAX DAC2_NAME DAC2_MIN DAC2_MAX DELAY[ms] REPEAT FILE_NAME DEVICE_ID");
-  c.registerCommand(
+  registerCommand("scanDAC",
+                  scanDAC,
+                  "Scan DAC DAC_NAME from value MIN to MAX and read the voltage from the ADC after DELAY milliseconds. The "
+                  "sequence is repeated REPEAT times for every DAC setting. Data are saved in the FILE_NAME.csv file",
+                  7,
+                  "DAC_NAME MIN MAX DELAY[ms] REPEAT FILE_NAME DEVICE_ID");
+  registerCommand("scanDAC2D",
+                  scanDAC2D,
+                  "For each value of DAC1_NAME between DAC1_MIN and DAC1_MAX, scan DAC DAC2_NAME from value DAC2_MIN to "
+                  "DAC2_MAX and read the voltage from the ADC after DELAY milliseconds. The sequence is repeated REPEAT "
+                  "times for every DAC setting. Data are saved in the FILE_NAME.csv file",
+                  10,
+                  "DAC1_NAME DAC1_MIN DAC1_MAX DAC2_NAME DAC2_MIN DAC2_MAX DELAY[ms] REPEAT FILE_NAME DEVICE_ID");
+  registerCommand(
     "scanThreshold",
     scanThreshold,
     "Scan Threshold DAC DAC_NAME from value MAX down to MIN on DEVICE_ID1, open the shutter via the pattern generator after "
-    "DELAY_PATTERN milliseconds and read back the data from the pixel "
-    "matrix of DEVICE_ID2."
-    "The sequence is repeated REPEAT times for every threshold. "
-    "Data are saved in the FILE_NAME.csv file"
-    "OPTIONAL: If the two additional arguments are provided, always write to "
-    "register REG on DEVICE_ID_3 after starting the "
-    "pattern generator.",
+    "DELAY_PATTERN milliseconds and read back the data from the pixel matrix of DEVICE_ID2. The sequence is repeated REPEAT "
+    "times for every threshold. Data are saved in the FILE_NAME.csv file. OPTIONAL: If the two additional arguments are "
+    "provided, always write to register REG on DEVICE_ID_3 after starting the pattern generator.",
     8,
     "DAC_NAME MAX MIN DEVICE_ID1 DELAY_PATTERN[ms] REPEAT FILE_NAME DEVICE_ID2 [REG DEVICE_ID_3]");
-  c.registerCommand(
+  registerCommand(
     "scanThreshold2D",
     scanThreshold2D,
     "For each value of DAC1_NAME between DAC1_MIN and DAC1_MAX on DEVICE_ID1, scan DAC2_NAME from value DAC2_MAX down to "
     "DAC2_MIN on DEVICE_ID2, open the shutter on DEVICE_ID2 via the pattern generator after DELAY_PATTERN milliseconds and "
-    "read "
-    "back "
-    "the data from the pixel matrix. The sequence is repeated REPEAT times for every setting. Data are "
-    "saved in the FILE_NAME.csv file",
+    "read back the data from the pixel matrix. The sequence is repeated REPEAT times for every setting. Data are saved in "
+    "the FILE_NAME.csv file",
     10,
     "DAC1_NAME DAC1_MAX DAC1_MIN DEVICE_ID1 DAC2_NAME DAC2_MAX DAC2_MIN DEVICE_ID2 DELAY_PATTERN[ms] REPEAT FILE_NAME");
 
-  c.registerCommand("getADC",
-                    getADC,
-                    "Read the voltage from ADC channel CHANNEL_ID via the selected device",
-                    2,
-                    "CHANNEL_ID[1:8] DEVICE_ID");
-  c.registerCommand("daqStart", daqStart, "Start DAQ for the selected device", 1, "DEVICE_ID");
-  c.registerCommand("daqStop", daqStop, "Stop DAQ for the selected device", 1, "DEVICE_ID");
-  c.registerCommand("getRawData", getRawData, "Retrieve raw data from the selected device", 1, "DEVICE_ID");
-  c.registerCommand("getData", getData, "Retrieve decoded data from the selected device.", 1, "DEVICE_ID");
-  c.registerCommand(
-    "acquire",
-    acquire,
-    "Acquire NUM events/frames from the selected device (1). For every event/frame, the pattern generator is "
-    "triggered once and a readout of the device is attempted. Prints all pixel hits if LONG is set to 1, "
-    "else just the number of pixel responses. OPTIONAL: If the two additional arguments are provided, always write to "
-    "register REG on DEVICE_ID_2 after starting the "
-    "pattern generator.",
-    4,
-    "NUM LONG[0/1] FILENAME DEVICE_ID_1 [REG DEVICE_ID_2]");
-  c.registerCommand("flushMatrix", flushMatrix, "Retrieve data from the selected device and discard it", 1, "DEVICE_ID");
+  registerCommand("getADC",
+                  getADC,
+                  "Read the voltage from ADC channel CHANNEL_ID via the selected device",
+                  2,
+                  "CHANNEL_ID[1:8] DEVICE_ID");
+  registerCommand("daqStart", daqStart, "Start DAQ for the selected device", 1, "DEVICE_ID");
+  registerCommand("daqStop", daqStop, "Stop DAQ for the selected device", 1, "DEVICE_ID");
+  registerCommand("getRawData", getRawData, "Retrieve raw data from the selected device", 1, "DEVICE_ID");
+  registerCommand("getData", getData, "Retrieve decoded data from the selected device.", 1, "DEVICE_ID");
+  registerCommand("acquire",
+                  acquire,
+                  "Acquire NUM events/frames from the selected device (1). For every event/frame, the pattern generator is "
+                  "triggered once and a readout of the device is attempted. Prints all pixel hits if LONG is set to 1, else "
+                  "just the number of pixel responses. OPTIONAL: If the two additional arguments are provided, always write "
+                  "to register REG on DEVICE_ID_2 after starting the pattern generator.",
+                  4,
+                  "NUM LONG[0/1] FILENAME DEVICE_ID_1 [REG DEVICE_ID_2]");
+  registerCommand("flushMatrix", flushMatrix, "Retrieve data from the selected device and discard it", 1, "DEVICE_ID");
 }
 
 pearycli::~pearycli() {

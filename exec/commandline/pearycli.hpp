@@ -13,14 +13,11 @@
 
 namespace caribou {
 
-  class pearycli {
+  class pearycli : public Console {
 
   public:
     pearycli();
     ~pearycli();
-
-    int readLine() { return c.readLine(); }
-    int executeFile(std::string file) { return c.executeFile(file); }
 
     static int command(const std::vector<std::string>& input);
     static int list_commands(const std::vector<std::string>& input);
@@ -76,10 +73,6 @@ namespace caribou {
 
     static std::string getFileHeader(std::string function, caribouDevice* dev);
     static std::string allDeviceParameters();
-
-  private:
-    // Readline console object
-    Console c;
   };
 
 } // namespace caribou
