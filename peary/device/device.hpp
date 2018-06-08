@@ -8,6 +8,7 @@
 #include "configuration.hpp"
 #include "constants.hpp"
 #include "datatypes.hpp"
+#include "dispatcher.hpp"
 
 #include <stdint.h>
 #include <string>
@@ -72,16 +73,6 @@ namespace caribou {
     virtual std::vector<uint32_t> getRawData() = 0;
     virtual pearydata getData() = 0;
 
-    /** Report power status
-     *  Method should use logINFO as an output
-     */
-    virtual void powerStatusLog() = 0;
-
-    /** Explore interface by sending data via all available functions
-     *  FIXME for debugging purposes, should be removed later
-     */
-    virtual void exploreInterface() = 0;
-
     /** Initialize the device (ex.set the required clock otuputs etc.).
      *  Function to configure the Caribou device by setting all DACs to the values
      *  provided via the initial configuration object
@@ -109,33 +100,8 @@ namespace caribou {
      */
     virtual void reset() = 0;
 
-    // Setting the acquisition clock/device clock?
-    // Could be either the supplied clock from DAQ or internal clock divider...
-    // virtual void setClockFrequency();
-
-    /** Configure the pattern generator
-     *
-     *
-     */
-    virtual void configurePatternGenerator(std::string filename) = 0;
-
-    /** Execute the pattern generator
-     *
-     *  Trigger the execution of the pattern generator once
-     *  @param sleep wait for execution of pattern generator before returning
-     */
-    virtual void triggerPatternGenerator(bool sleep = true) = 0;
-
     // Return timestamps for the execeuted sequence in the pattern generator.
     virtual std::vector<uint64_t> timestampsPatternGenerator() = 0;
-
-    /** Configure the pixel matrix
-     */
-    // Provide functions both for the full matrix and single pixels?
-    // Sometimes, pixel configs will have to be cached by child classes since
-    // only programming of full matrix is supported by device...
-    virtual void configureMatrix(std::string filename) = 0;
-    // virtual void configurePixel() = 0;
 
     // Voltage regulators
 
@@ -183,6 +149,25 @@ namespace caribou {
     // virtual std::vector<caribou::event> getData();
     // If no data available, throw caribou::NoDataAvailable exception instead of returning empty vector!
     // Otherwise synchronization of event-based detectors impossible
+
+    /** Retrieve vector of all available commands for this device
+     */
+    std::vector<std::pair<std::string, std::size_t>> list_commands();
+
+    /** Call command for this device for this device
+     *
+     *   @throws ConfigInvalid if command is not found or arguments do not match
+     */
+    void command(const std::string& name, const std::vector<std::string>& args = std::vector<std::string>());
+    void command(const std::string& name, const std::string& arg);
+
+  protected:
+    /** Command dispatcher for this device
+     *
+     *  Allows to register commands and calls to be routed to child class member functions. This member is protected and
+     *  derived classes have direct access to it in order to register their own commands.
+     */
+    caribou::Dispatcher _dispatcher;
 
   private:
     /** Private static status flag if devices are managed

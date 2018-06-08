@@ -7,13 +7,13 @@
 
 #include <string>
 #include <vector>
-#include "Si5345-RevB-CLICpix2-Registers.h"
-#include "Si5345-RevB-CLICpix2-Registers_freeRunningMode.h"
 #include "clicpix2_defaults.hpp"
-#include "clicpix2_frameDecoder.hpp"
 #include "clicpix2_pixels.hpp"
+#include "clockgenerator/Si5345-RevB-CLICpix2-Registers.h"
+#include "clockgenerator/Si5345-RevB-CLICpix2-Registers_freeRunningMode.h"
 #include "configuration.hpp"
 #include "device.hpp"
+#include "framedecoder/clicpix2_frameDecoder.hpp"
 #include "pearydevice.hpp"
 #include "spi_CLICpix2.hpp"
 
@@ -26,11 +26,11 @@ namespace caribou {
    *  this class implements the required functionality to operate CLICpix2 chips via the
    *  Caribou device class interface.
    */
-  class clicpix2 : public pearyDevice<iface_spi_CLICpix2> {
+  class CLICpix2Device : public pearyDevice<iface_spi_CLICpix2> {
 
   public:
-    clicpix2(const caribou::Configuration config);
-    ~clicpix2();
+    CLICpix2Device(const caribou::Configuration config);
+    ~CLICpix2Device();
 
     std::string getName();
 
@@ -101,10 +101,6 @@ namespace caribou {
     // Total pattern generator length
     uint32_t pg_total_length;
   };
-
-  extern "C" {
-  caribouDevice* generator(const caribou::Configuration);
-  }
 
 } // namespace caribou
 

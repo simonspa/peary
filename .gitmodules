@@ -1,3 +1,0 @@
-[submodule "extern/cpp-readline"]
-	path = extern/cpp-readline
-	url = ../../simonspa/cpp-readline.git

@@ -9,6 +9,9 @@ ENDIF(COMMAND CMAKE_POLICY)
 # Project name
 PROJECT(peary)
 
+# Include peary cmake functions
+INCLUDE("cmake/peary.cmake")
+
 
 ###############################
 # Setup the build environment #
@@ -113,6 +116,9 @@ INCLUDE_DIRECTORIES(peary/utils
   peary/carboard
   peary/interfaces)
 
+# Make devices available:
+INCLUDE_DIRECTORIES(devices)
+
 # Always build main peary library;
 ADD_SUBDIRECTORY(peary)
 
@@ -127,32 +133,4 @@ ADD_SUBDIRECTORY(doc)
 # Define build targets for sample applications #
 ################################################
 
-# Build flag for the Timepix3 telescope DAQ server
-OPTION(BUILD_server "Build server for receiving commands from Run Control?" OFF)
-IF(BUILD_server)
-  # add target
-  ADD_EXECUTABLE(pearysrv "exec/pearysrv.cpp")
-  ADD_EXECUTABLE(dummyclient "exec/dummyclient.cpp")
-  ADD_EXECUTABLE(dummysrv "exec/dummysrv.cpp")
-  TARGET_LINK_LIBRARIES(pearysrv ${PROJECT_NAME})
-  INSTALL(TARGETS pearysrv dummyclient dummysrv
-    RUNTIME DESTINATION bin
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib)
-ENDIF(BUILD_server)
-
-ADD_EXECUTABLE(peary_app "exec/sample_application.cpp")
-TARGET_LINK_LIBRARIES(peary_app ${PROJECT_NAME})
-
-ADD_SUBDIRECTORY(extern/cpp-readline)
-ADD_EXECUTABLE(pearycli "exec/pearycli.cpp" "exec/clicommands.cpp")
-TARGET_LINK_LIBRARIES(pearycli ${PROJECT_NAME} ${CPP-READLINE_LIB})
-
-INCLUDE_DIRECTORIES(devices/example)
-ADD_EXECUTABLE(peary_direct "exec/direct_device.cpp")
-TARGET_LINK_LIBRARIES(peary_direct ${PROJECT_NAME} CaribouExampleDevice )
-
-INSTALL(TARGETS peary_app peary_direct pearycli
-  RUNTIME DESTINATION bin
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib)
+ADD_SUBDIRECTORY(exec)

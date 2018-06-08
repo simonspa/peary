@@ -2,7 +2,7 @@
  * Caribou implementation for the C3PD
  */
 
-#include "c3pd.hpp"
+#include "C3PDDevice.hpp"
 #include "hal.hpp"
 #include "log.hpp"
 
@@ -10,7 +10,8 @@
 
 using namespace caribou;
 
-C3PD::C3PD(const caribou::Configuration config) : pearyDevice(config, std::string(DEFAULT_DEVICEPATH), C3PD_DEFAULT_I2C) {
+C3PDDevice::C3PDDevice(const caribou::Configuration config)
+    : pearyDevice(config, std::string(DEFAULT_DEVICEPATH), C3PD_DEFAULT_I2C) {
 
   // Set up periphery
   _periphery.add("vddd", PWR_OUT_2);
@@ -33,24 +34,24 @@ C3PD::C3PD(const caribou::Configuration config) : pearyDevice(config, std::strin
   *control_reg = 0; // keep C3PD in reset state
 }
 
-void C3PD::configure() {
-  LOG(logINFO) << "Configuring " << DEVICE_NAME;
+void C3PDDevice::configure() {
+  LOG(INFO) << "Configuring " << DEVICE_NAME;
   reset();
 
   // Call the base class configuration function:
   pearyDevice<iface_i2c>::configure();
 }
 
-void C3PD::configureMatrix(std::string filename) {
+void C3PDDevice::configureMatrix(std::string filename) {
 
   // Testpulses can only be enabled in full rows and columns:
   std::map<int, uint8_t> test_columns;
   std::map<int, uint8_t> test_rows;
 
-  LOG(logDEBUG) << "Reading pixel matrix file.";
+  LOG(DEBUG) << "Reading pixel matrix file.";
   std::ifstream pxfile(filename);
   if(!pxfile.is_open()) {
-    LOG(logERROR) << "Could not open matrix file \"" << filename << "\"";
+    LOG(ERROR) << "Could not open matrix file \"" << filename << "\"";
     throw ConfigInvalid("Could not open matrix file \"" + filename + "\"");
   }
 
@@ -71,22 +72,22 @@ void C3PD::configureMatrix(std::string filename) {
 
   std::string alphabet("abcdefghijklmnop");
   for(const auto& c : test_columns) {
-    LOG(logDEBUG) << "Column reg " << c.first << " bits " << to_bit_string(c.second);
+    LOG(DEBUG) << "Column reg " << c.first << " bits " << to_bit_string(c.second);
     std::string reg("tpce");
     reg += alphabet.at(c.first);
     this->setRegister(reg, c.second);
   }
 
   for(const auto& r : test_rows) {
-    LOG(logDEBUG) << "Row reg " << r.first << " bits " << to_bit_string(r.second);
+    LOG(DEBUG) << "Row reg " << r.first << " bits " << to_bit_string(r.second);
     std::string reg("tpre");
     reg += alphabet.at(r.first);
     this->setRegister(reg, r.second);
   }
 }
 
-void C3PD::reset() {
-  LOG(logDEBUG) << "Resetting " << DEVICE_NAME;
+void C3PDDevice::reset() {
+  LOG(DEBUG) << "Resetting " << DEVICE_NAME;
 
   void* control_base = _hal->getMappedMemoryRW(C3PD_CONTROL_BASE_ADDRESS, C3PD_CONTROL_MAP_SIZE, C3PD_CONTROL_MAP_MASK);
   volatile uint32_t* control_reg =
@@ -96,77 +97,71 @@ void C3PD::reset() {
   *control_reg |= C3PD_CONTROL_RESET_MASK; // deny reset
 }
 
-C3PD::~C3PD() {
-  LOG(logINFO) << DEVICE_NAME << ": Shutdown, delete device.";
+C3PDDevice::~C3PDDevice() {
+  LOG(INFO) << DEVICE_NAME << ": Shutdown, delete device.";
   powerOff();
 }
 
-std::string C3PD::getName() {
+std::string C3PDDevice::getName() {
   return DEVICE_NAME;
 }
 
-void C3PD::powerUp() {
-  LOG(logINFO) << DEVICE_NAME << ": Powering up C3PD";
+void C3PDDevice::powerUp() {
+  LOG(INFO) << DEVICE_NAME << ": Powering up C3PD";
 
   // Power rails:
-  LOG(logDEBUG) << " VDDD: " << _config.Get("vddd", C3PD_VDDD) << "V";
+  LOG(DEBUG) << " VDDD: " << _config.Get("vddd", C3PD_VDDD) << "V";
   this->setVoltage("vddd", _config.Get("vddd", C3PD_VDDD), _config.Get("vddd_current", C3PD_VDDD_CURRENT));
   this->switchOn("vddd");
 
-  LOG(logDEBUG) << " VDDA: " << _config.Get("vdda", C3PD_VDDA) << "V";
+  LOG(DEBUG) << " VDDA: " << _config.Get("vdda", C3PD_VDDA) << "V";
   this->setVoltage("vdda", _config.Get("vdda", C3PD_VDDA), _config.Get("vdda_current", C3PD_VDDA_CURRENT));
   this->switchOn("vdda");
 
   // Bias voltages:
-  LOG(logDEBUG) << " Reference voltage: " << _config.Get("ref", C3PD_REF) << "V";
+  LOG(DEBUG) << " Reference voltage: " << _config.Get("ref", C3PD_REF) << "V";
   this->setVoltage("ref", _config.Get("ref", C3PD_REF));
   this->switchOn("ref");
 
-  LOG(logDEBUG) << " Analog-In: " << _config.Get("ain", C3PD_AIN) << "V";
+  LOG(DEBUG) << " Analog-In: " << _config.Get("ain", C3PD_AIN) << "V";
   this->setVoltage("ain", _config.Get("ain", C3PD_AIN));
   this->switchOn("ain");
 }
 
-void C3PD::powerDown() {
-  LOG(logINFO) << DEVICE_NAME << ": Power off C3PD";
+void C3PDDevice::powerDown() {
+  LOG(INFO) << DEVICE_NAME << ": Power off C3PD";
 
-  LOG(logDEBUG) << "Power off VDDA";
+  LOG(DEBUG) << "Power off VDDA";
   this->switchOff("vdda");
 
-  LOG(logDEBUG) << "Power off VDDD";
+  LOG(DEBUG) << "Power off VDDD";
   this->switchOff("vddd");
 
-  LOG(logDEBUG) << "Turn off AIN";
+  LOG(DEBUG) << "Turn off AIN";
   this->switchOff("ain");
 
-  LOG(logDEBUG) << "Turn off REF";
+  LOG(DEBUG) << "Turn off REF";
   this->switchOff("ref");
 }
 
-void C3PD::daqStart() {
-  LOG(logINFO) << DEVICE_NAME << ": DAQ started.";
+void C3PDDevice::daqStart() {
+  LOG(INFO) << DEVICE_NAME << ": DAQ started.";
 }
 
-void C3PD::daqStop() {
-  LOG(logINFO) << DEVICE_NAME << ": DAQ stopped.";
+void C3PDDevice::daqStop() {
+  LOG(INFO) << DEVICE_NAME << ": DAQ stopped.";
 }
 
-void C3PD::powerStatusLog() {
-  LOG(logINFO) << DEVICE_NAME << " power status:";
+void C3PDDevice::powerStatusLog() {
+  LOG(INFO) << DEVICE_NAME << " power status:";
 
-  LOG(logINFO) << "VDDD:";
-  LOG(logINFO) << "\tBus voltage: " << this->getVoltage("vddd") << "V";
-  LOG(logINFO) << "\tBus current: " << this->getCurrent("vddd") << "A";
-  LOG(logINFO) << "\tBus power  : " << this->getPower("vddd") << "W";
+  LOG(INFO) << "VDDD:";
+  LOG(INFO) << "\tBus voltage: " << this->getVoltage("vddd") << "V";
+  LOG(INFO) << "\tBus current: " << this->getCurrent("vddd") << "A";
+  LOG(INFO) << "\tBus power  : " << this->getPower("vddd") << "W";
 
-  LOG(logINFO) << "VDDA:";
-  LOG(logINFO) << "\tBus voltage: " << this->getVoltage("vdda") << "V";
-  LOG(logINFO) << "\tBus current: " << this->getCurrent("vdda") << "A";
-  LOG(logINFO) << "\tBus power  : " << this->getPower("vdda") << "W";
-}
-
-caribouDevice* caribou::generator(const caribou::Configuration config) {
-  LOG(logDEBUG) << "Generator: " << DEVICE_NAME;
-  C3PD* mDevice = new C3PD(config);
-  return dynamic_cast<caribouDevice*>(mDevice);
+  LOG(INFO) << "VDDA:";
+  LOG(INFO) << "\tBus voltage: " << this->getVoltage("vdda") << "V";
+  LOG(INFO) << "\tBus current: " << this->getCurrent("vdda") << "A";
+  LOG(INFO) << "\tBus power  : " << this->getPower("vdda") << "W";
 }

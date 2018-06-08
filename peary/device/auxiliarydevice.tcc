@@ -20,7 +20,7 @@ namespace caribou {
 
     _devpath = config.Get<std::string>("devicepath", devpath);
     T& dev_iface = interface_manager::getInterface<T>(_devpath);
-    LOG(logDEBUGHAL) << "Auxiliary device initialized at " << dev_iface.devicePath();
+    LOG(DEBUG) << "Auxiliary device initialized at " << dev_iface.devicePath();
   }
 
   template <typename T> auxiliaryDevice<T>::~auxiliaryDevice() {}

@@ -22,6 +22,7 @@ SET(LIB_SOURCE_FILES
   # interface manager
   "interfaces/interface_manager.cpp"
   # utilities
+  "utils/log.cpp"
   "utils/utils.cpp"
   "utils/configuration.cpp"
   )

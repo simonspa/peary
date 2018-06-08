@@ -1,5 +1,5 @@
 /**
- * Caribou implementation for the C3PDF chip
+ * Caribou implementation for the C3PD chip
  */
 
 #ifndef DEVICE_C3PD_H
@@ -14,11 +14,11 @@ namespace caribou {
 
   /** C3PD Device class definition
    */
-  class C3PD : public pearyDevice<iface_i2c> {
+  class C3PDDevice : public pearyDevice<iface_i2c> {
 
   public:
-    C3PD(const caribou::Configuration config);
-    ~C3PD();
+    C3PDDevice(const caribou::Configuration config);
+    ~C3PDDevice();
 
     std::string getName();
 
@@ -64,16 +64,6 @@ namespace caribou {
     // reset signal pin
     // power enable pin
   };
-
-  /** Device generator
-   *
-   *  This generator function is used by the device manager to create instances of
-   *  this device using the abstract caribouDevice class interface. It has to be implemented
-   *  for every class deriving from caribouDevice.
-   */
-  extern "C" {
-  caribouDevice* generator(const caribou::Configuration);
-  }
 
 } // namespace caribou
 

@@ -22,10 +22,10 @@ using namespace caribou;
 
 iface_ipsocket::iface_ipsocket(std::string const& device_path) : Interface(device_path) {
 
-  LOG(logINTERFACE) << "New IP sockets interface requested.";
+  LOG(TRACE) << "New IP sockets interface requested.";
   auto ip_address = split_ip_address(device_path);
-  LOG(logINTERFACE) << "IP address: " << ip_address.first;
-  LOG(logINTERFACE) << "      port: " << ip_address.second;
+  LOG(TRACE) << "IP address: " << ip_address.first;
+  LOG(TRACE) << "      port: " << ip_address.second;
 
   // Configure Socket and address
   struct sockaddr_in address;
@@ -38,13 +38,13 @@ iface_ipsocket::iface_ipsocket(std::string const& device_path) : Interface(devic
   std::stringstream ss;
   ss << inet_ntoa(address.sin_addr);
 
-  LOG(logINTERFACE) << "Connecting to " << ss.str();
+  LOG(TRACE) << "Connecting to " << ss.str();
   int retval = ::connect(mysocket_, (struct sockaddr*)&address, sizeof(address));
 
   if(retval == 0) {
-    LOG(logINTERFACE) << "Connection to server at " << ss.str() << " established";
+    LOG(TRACE) << "Connection to server at " << ss.str() << " established";
   } else {
-    LOG(logCRITICAL) << "Connection to server at " << ss.str() << " failed, errno " << errno;
+    LOG(FATAL) << "Connection to server at " << ss.str() << " failed, errno " << errno;
     throw CommunicationError("Connection to server at " + ss.str() + " failed, errno " + std::to_string(errno));
   }
 }
@@ -82,7 +82,7 @@ std::string iface_ipsocket::trim(const std::string& str, const std::string& deli
 std::string iface_ipsocket::cleanCommandString(std::string& str) {
 
   // str = trim(str);
-  LOG(logINTERFACE) << "Trimmed command: " << str;
+  LOG(TRACE) << "Trimmed command: " << str;
   // If there are "" then we should take the whole string
   if(!str.empty() && str[0] == '\"') {
     if(str.find('\"', 1) != str.size() - 1) {
@@ -106,15 +106,15 @@ ipsocket_t iface_ipsocket::write(const ipsocket_port_t&, const ipsocket_t& paylo
   data = cleanCommandString(data);
 
   if(data.back() != '\n') {
-    LOG(logINTERFACE) << "Add carriage return to command.";
+    LOG(TRACE) << "Add carriage return to command.";
     data += '\n';
   }
 
-  LOG(logINTERFACE) << "Sending command \"" << data << "\"";
+  LOG(TRACE) << "Sending command \"" << data << "\"";
   int retval = send(mysocket_, data.c_str(), strlen(data.c_str()), 0);
 
   if(retval < 0) {
-    LOG(logERROR) << "Command returned: " << retval << std::endl;
+    LOG(ERROR) << "Command returned: " << retval << std::endl;
     throw CommunicationError("Server returned errno " + std::to_string(errno));
   }
   return std::string();
@@ -132,10 +132,10 @@ std::vector<ipsocket_t> iface_ipsocket::read(const ipsocket_port_t&, const ipsoc
   char buffer[BUFFERSIZE];
   int msgs = 0;
   while(buffer[msglen - 1] != '\n') {
-    LOG(logINTERFACE) << "Receiving buffer from socket...";
+    LOG(TRACE) << "Receiving buffer from socket...";
     // retrieve response:
     msglen = recv(mysocket_, buffer, BUFFERSIZE, 0);
-    LOG(logINTERFACE) << "Received: \"" << std::string(buffer) << "\"";
+    LOG(TRACE) << "Received: \"" << std::string(buffer) << "\"";
     // Terminate the string:
     buffer[msglen] = '\0';
     dataword += std::string(buffer);
@@ -145,6 +145,6 @@ std::vector<ipsocket_t> iface_ipsocket::read(const ipsocket_port_t&, const ipsoc
   }
 
   data.push_back(dataword);
-  LOG(logINTERFACE) << "Received " << msgs << " buffers.";
+  LOG(TRACE) << "Received " << msgs << " buffers.";
   return data;
 }

@@ -27,7 +27,7 @@ iface_i2c::iface_i2c(std::string const& device_path) : Interface(device_path), i
   if((i2cDesc = open(devicePath().c_str(), O_RDWR)) < 0) {
     throw DeviceException("Open " + device_path + " device failed. " + std::strerror(i2cDesc));
   }
-  LOG(logINTERFACE) << "Opened I2C device at " << device_path;
+  LOG(TRACE) << "Opened I2C device at " << device_path;
 }
 
 iface_i2c::~iface_i2c() {
@@ -39,7 +39,7 @@ void iface_i2c::setAddress(i2c_address_t const address) {
     throw CommunicationError("Failed to acquire bus access and/or talk to slave (" + to_hex_string(address) + ") on " +
                              devicePath() + ": " + std::strerror(errno));
 
-  LOG(logINTERFACE) << "Talking to I2C slave at address " << to_hex_string(address);
+  LOG(TRACE) << "Talking to I2C slave at address " << to_hex_string(address);
 }
 
 i2c_t iface_i2c::write(const i2c_address_t& address, const i2c_t& data) {
@@ -47,8 +47,8 @@ i2c_t iface_i2c::write(const i2c_address_t& address, const i2c_t& data) {
 
   setAddress(address);
 
-  LOG(logINTERFACE) << "I2C (" << devicePath() << ") address " << to_hex_string(address) << ": Writing data \""
-                    << to_hex_string(data) << "\"";
+  LOG(TRACE) << "I2C (" << devicePath() << ") address " << to_hex_string(address) << ": Writing data \""
+             << to_hex_string(data) << "\"";
 
   if(i2c_smbus_write_byte(i2cDesc, data))
     throw CommunicationError("Failed to write slave (" + to_hex_string(address) + ") on " + devicePath() + ": " +
@@ -63,8 +63,8 @@ std::pair<i2c_reg_t, i2c_t> iface_i2c::write(const i2c_address_t& address, const
 
   setAddress(address);
 
-  LOG(logINTERFACE) << "I2C (" << devicePath() << ") address " << to_hex_string(address) << ": Register "
-                    << to_hex_string(data.first) << " Writing data \"" << to_hex_string(data.second) << "\"";
+  LOG(TRACE) << "I2C (" << devicePath() << ") address " << to_hex_string(address) << ": Register "
+             << to_hex_string(data.first) << " Writing data \"" << to_hex_string(data.second) << "\"";
 
   if(i2c_smbus_write_byte_data(i2cDesc, data.first, data.second))
     throw CommunicationError("Failed to write slave (" + to_hex_string(address) + ") on " + devicePath() + ": " +
@@ -79,8 +79,8 @@ std::vector<i2c_t> iface_i2c::write(const i2c_address_t& address, const i2c_t& r
 
   setAddress(address);
 
-  LOG(logINTERFACE) << "I2C (" << devicePath() << ") address " << to_hex_string(address) << ": Register "
-                    << to_hex_string(reg) << "\n\t Writing block data: \"" << listVector(data, ", ", true) << "\"";
+  LOG(TRACE) << "I2C (" << devicePath() << ") address " << to_hex_string(address) << ": Register " << to_hex_string(reg)
+             << "\n\t Writing block data: \"" << listVector(data, ", ", true) << "\"";
 
   if(i2c_smbus_write_i2c_block_data(i2cDesc, reg, data.size(), data.data()))
     throw CommunicationError("Failed to block write slave (" + to_hex_string(address) + ") on " + devicePath() + ": " +
@@ -106,8 +106,8 @@ std::vector<i2c_t> iface_i2c::read(const i2c_address_t& address, const unsigned 
 
   data.push_back(temp);
 
-  LOG(logINTERFACE) << "I2C (" << devicePath() << ") address " << to_hex_string(address) << ": Read data \""
-                    << to_hex_string(data.front()) << "\"";
+  LOG(TRACE) << "I2C (" << devicePath() << ") address " << to_hex_string(address) << ": Read data \""
+             << to_hex_string(data.front()) << "\"";
   return data;
 }
 
@@ -123,8 +123,8 @@ std::vector<i2c_t> iface_i2c::read(const i2c_address_t& address, const i2c_reg_t
     throw CommunicationError("Failed to read slave (" + to_hex_string(address) + ") on " + devicePath() + ": " +
                              std::strerror(errno));
 
-  LOG(logINTERFACE) << "I2C (" << devicePath() << ") address " << to_hex_string(address) << ": Register "
-                    << to_hex_string(reg) << "\n\t Read block data \"" << listVector(data, ", ", true) << "\"";
+  LOG(TRACE) << "I2C (" << devicePath() << ") address " << to_hex_string(address) << ": Register " << to_hex_string(reg)
+             << "\n\t Read block data \"" << listVector(data, ", ", true) << "\"";
   return data;
 }
 
