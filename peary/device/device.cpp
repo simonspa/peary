@@ -8,12 +8,12 @@ using namespace caribou;
 
 caribouDevice::caribouDevice(const caribou::Configuration) {
 
-  LOG(logQUIET) << "New Caribou device instance, version " << getVersion();
+  LOG(STATUS) << "New Caribou device instance, version " << getVersion();
 
   if(caribouDevice::isManaged()) {
-    LOG(logQUIET) << "This device is managed through the device manager.";
+    LOG(STATUS) << "This device is managed through the device manager.";
   } else {
-    LOG(logQUIET) << "Unmanaged device.";
+    LOG(STATUS) << "Unmanaged device.";
 
     // Check for running device manager:
     if(check_flock("pearydevmgr.lock")) {

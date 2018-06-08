@@ -11,10 +11,10 @@ namespace caribou {
       : _memfd(-1), _devpath(device_path), _devaddress(device_address) {
 
     // Log the firmware
-    LOG(logQUIET) << getFirmwareVersion();
+    LOG(STATUS) << getFirmwareVersion();
 
     T& dev_iface = interface_manager::getInterface<T>(_devpath);
-    LOG(logDEBUGHAL) << "Prepared HAL for accessing device with interface at " << dev_iface.devicePath();
+    LOG(DEBUG) << "Prepared HAL for accessing device with interface at " << dev_iface.devicePath();
 
     if(!caribou::caribouHALbase::generalResetDone) { // CaR board needs to be reset
       generalReset();
@@ -46,13 +46,13 @@ namespace caribou {
 
     // Check if this memory page is already mapped and return the pointer:
     mappedMem page = mappedMem(base_address, size, mask, flags);
-    LOG(logDEBUGHAL) << "Returning mapped memory at " << base_address;
+    LOG(DEBUG) << "Returning mapped memory at " << base_address;
     try {
       return _mappedMemory.at(page);
     }
     // Otherwise newly map it and return the reference:
     catch(const std::out_of_range& oor) {
-      LOG(logDEBUGHAL) << "Memory was not yet mapped, mapping...";
+      LOG(DEBUG) << "Memory was not yet mapped, mapping...";
       // Map one page of memory into user space such that the device is in that page, but it may not
       // be at the start of the page.
       void* map_base = mmap(0, size, flags, MAP_SHARED, _memfd, base_address & ~mask);
@@ -96,12 +96,12 @@ namespace caribou {
 
   template <typename T> void caribouHAL<T>::generalReset() {
     // Disable all Voltage Regulators
-    LOG(logDEBUGHAL) << "Disabling all Voltage regulators";
+    LOG(DEBUG) << "Disabling all Voltage regulators";
     iface_i2c& i2c0 = interface_manager::getInterface<iface_i2c>(BUS_I2C0);
     i2c0.write(ADDR_IOEXP, 0x2, {0x00, 0x00}); // disable all bits of Port 1-2 (internal register)
     i2c0.write(ADDR_IOEXP, 0x6, {0x00, 0x00}); // set all bits of Port 1-2 in output mode
 
-    LOG(logDEBUGHAL) << "Disabling all current sources";
+    LOG(DEBUG) << "Disabling all current sources";
     powerDAC(false, CUR_1.dacaddress(), CUR_1.dacoutput());
     powerDAC(false, CUR_2.dacaddress(), CUR_2.dacoutput());
     powerDAC(false, CUR_3.dacaddress(), CUR_3.dacoutput());
@@ -122,9 +122,9 @@ namespace caribou {
   template <typename T> caribouHAL<T>::~caribouHAL() {
     // Unmap all mapped memory pages:
     for(auto& mem : _mappedMemory) {
-      LOG(logDEBUGHAL) << "Unmapping memory at " << mem.first.base_address;
+      LOG(DEBUG) << "Unmapping memory at " << mem.first.base_address;
       if(munmap(mem.second, mem.first.size) == -1) {
-        LOG(logCRITICAL) << "Can't unmap memory from user space.";
+        LOG(FATAL) << "Can't unmap memory from user space.";
       }
     }
 
@@ -173,7 +173,7 @@ namespace caribou {
 
   template <typename T> uint8_t caribouHAL<T>::getCaRBoardID() {
 
-    LOG(logDEBUGHAL) << "Reading board ID from CaR EEPROM";
+    LOG(DEBUG) << "Reading board ID from CaR EEPROM";
     iface_i2c& myi2c = interface_manager::getInterface<iface_i2c>(BUS_I2C0);
 
     // Read one word from memory address on the EEPROM:
@@ -190,7 +190,7 @@ namespace caribou {
     // Two bytes must be read, containing 12bit of temperature information plus 4bit 0.
     // Negative numbers are represented in binary twos complement format.
 
-    LOG(logDEBUGHAL) << "Reading temperature from TMP101";
+    LOG(DEBUG) << "Reading temperature from TMP101";
     iface_i2c& myi2c = interface_manager::getInterface<iface_i2c>(BUS_I2C0);
 
     // Read the two temperature bytes from the TMP101:
@@ -204,7 +204,7 @@ namespace caribou {
   }
 
   template <typename T> void caribouHAL<T>::setDCDCConverter(const DCDC_CONVERTER_T converter, const double voltage) {
-    LOG(logDEBUGHAL) << "Setting " << voltage << "V "
+    LOG(DEBUG) << "Setting " << voltage << "V "
                      << "on " << converter.name();
 
     if(voltage > 5 || voltage < 0)
@@ -216,7 +216,7 @@ namespace caribou {
   }
 
   template <typename T> void caribouHAL<T>::setBiasRegulator(const BIAS_REGULATOR_T regulator, const double voltage) {
-    LOG(logDEBUGHAL) << "Setting bias " << voltage << "V "
+    LOG(DEBUG) << "Setting bias " << voltage << "V "
                      << "on " << regulator.name();
 
     if(voltage > 3.2 || voltage < 0)
@@ -228,10 +228,10 @@ namespace caribou {
   template <typename T> void caribouHAL<T>::powerBiasRegulator(const BIAS_REGULATOR_T regulator, const bool enable) {
 
     if(enable) {
-      LOG(logDEBUGHAL) << "Powering up " << regulator.name();
+      LOG(DEBUG) << "Powering up " << regulator.name();
       powerDAC(true, regulator.dacaddress(), regulator.dacoutput());
     } else {
-      LOG(logDEBUGHAL) << "Powering down " << regulator.name();
+      LOG(DEBUG) << "Powering down " << regulator.name();
       powerDAC(false, regulator.dacaddress(), regulator.dacoutput());
     }
   }
@@ -240,7 +240,7 @@ namespace caribou {
   void caribouHAL<T>::setVoltageRegulator(const VOLTAGE_REGULATOR_T regulator,
                                           const double voltage,
                                           const double maxExpectedCurrent) {
-    LOG(logDEBUGHAL) << "Setting " << voltage << "V "
+    LOG(DEBUG) << "Setting " << voltage << "V "
                      << "on " << regulator.name();
 
     if(voltage > 3.2 || voltage < 0)
@@ -257,7 +257,7 @@ namespace caribou {
     iface_i2c& i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C0);
 
     if(enable) {
-      LOG(logDEBUGHAL) << "Powering up " << regulator.name();
+      LOG(DEBUG) << "Powering up " << regulator.name();
 
       // First power on DAC
       powerDAC(true, regulator.dacaddress(), regulator.dacoutput());
@@ -266,7 +266,7 @@ namespace caribou {
       mask |= 1 << regulator.pwrswitch();
       i2c.write(ADDR_IOEXP, std::make_pair(0x03, mask));
     } else {
-      LOG(logDEBUGHAL) << "Powering down " << regulator.name();
+      LOG(DEBUG) << "Powering down " << regulator.name();
 
       // Disable the Volage regulator
       auto mask = i2c.read(ADDR_IOEXP, 0x03, 1)[0];
@@ -283,7 +283,7 @@ namespace caribou {
                                        const unsigned int current,
                                        const CURRENT_SOURCE_POLARITY_T polarity) {
 
-    LOG(logDEBUGHAL) << "Setting " << current << "uA "
+    LOG(DEBUG) << "Setting " << current << "uA "
                      << "on " << source.name();
 
     if(current > 1000)
@@ -297,10 +297,10 @@ namespace caribou {
     auto mask = i2c.read(ADDR_IOEXP, 0x02, 1)[0];
 
     if(polarity == CURRENT_SOURCE_POLARITY_T::PULL) {
-      LOG(logDEBUGHAL) << "Polarity switch (" << to_hex_string(source.polswitch()) << ") set to PULL";
+      LOG(DEBUG) << "Polarity switch (" << to_hex_string(source.polswitch()) << ") set to PULL";
       mask &= ~(1 << source.polswitch());
     } else if(polarity == CURRENT_SOURCE_POLARITY_T::PUSH) {
-      LOG(logDEBUGHAL) << "Polarity switch (" << to_hex_string(source.polswitch()) << ") set to PUSH";
+      LOG(DEBUG) << "Polarity switch (" << to_hex_string(source.polswitch()) << ") set to PUSH";
       mask |= 1 << source.polswitch();
     } else {
       throw ConfigInvalid("Invalid polarity setting provided");
@@ -311,10 +311,10 @@ namespace caribou {
 
   template <typename T> void caribouHAL<T>::powerCurrentSource(const CURRENT_SOURCE_T source, const bool enable) {
     if(enable) {
-      LOG(logDEBUGHAL) << "Powering up " << source.name();
+      LOG(DEBUG) << "Powering up " << source.name();
       powerDAC(true, source.dacaddress(), source.dacoutput());
     } else {
-      LOG(logDEBUGHAL) << "Powering down " << source.name();
+      LOG(DEBUG) << "Powering down " << source.name();
       powerDAC(false, source.dacaddress(), source.dacoutput());
     }
   }
@@ -326,7 +326,7 @@ namespace caribou {
     // All DAc7678 use straight binary encoding since the TWOC pins are pulled low
 
     // All DAC voltage regulators on the CaR board are on the BUS_I2C3:
-    LOG(logDEBUGHAL) << "Setting voltage " << voltage << "V "
+    LOG(DEBUG) << "Setting voltage " << voltage << "V "
                      << "on DAC7678 at " << to_hex_string(device) << " channel " << to_hex_string(address);
     iface_i2c& myi2c = interface_manager::getInterface<iface_i2c>(BUS_I2C3);
 
@@ -356,7 +356,7 @@ namespace caribou {
     // All DAc7678 use straight binary encoding since the TWOC pins are pulled low
 
     // All DAC voltage regulators on the CaR board are on the BUS_I2C3:
-    LOG(logDEBUGHAL) << "Powering " << (enable ? "up" : "down") << " channel " << to_hex_string(address) << " on DAC7678 at "
+    LOG(DEBUG) << "Powering " << (enable ? "up" : "down") << " channel " << to_hex_string(address) << " on DAC7678 at "
                      << to_hex_string(device);
     iface_i2c& myi2c = interface_manager::getInterface<iface_i2c>(BUS_I2C3);
 
@@ -372,7 +372,7 @@ namespace caribou {
   }
 
   template <typename T> void caribouHAL<T>::configureSI5345(SI5345_REG_T const* const regs, const size_t length) {
-    LOG(logDEBUGHAL) << "Configuring SI5345";
+    LOG(DEBUG) << "Configuring SI5345";
 
     iface_i2c& i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C0);
     uint8_t page = regs[0].address >> 8; // first page to be used
@@ -389,22 +389,22 @@ namespace caribou {
   }
 
   template <typename T> bool caribouHAL<T>::isLockedSI5345() {
-    LOG(logDEBUGHAL) << "Checking lock status of SI5345";
+    LOG(DEBUG) << "Checking lock status of SI5345";
 
     iface_i2c& i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C0);
     i2c.write(ADDR_CLKGEN, std::make_pair(0x01, 0x00)); // set first page
     std::vector<i2c_t> rx = i2c.read(ADDR_CLKGEN, static_cast<uint8_t>(0x0E));
     if(rx[0] & 0x2) {
-      LOG(logDEBUGHAL) << "SI5345 is not locked";
+      LOG(DEBUG) << "SI5345 is not locked";
       return false;
     } else {
-      LOG(logDEBUGHAL) << "SI5345 is locked";
+      LOG(DEBUG) << "SI5345 is locked";
       return true;
     }
   }
 
   template <typename T> void caribouHAL<T>::setCurrentMonitor(const uint8_t device, const double maxExpectedCurrent) {
-    LOG(logDEBUGHAL) << "Setting maxExpectedCurrent " << maxExpectedCurrent << "A "
+    LOG(DEBUG) << "Setting maxExpectedCurrent " << maxExpectedCurrent << "A "
                      << "on INA226 at " << to_hex_string(device);
     iface_i2c& i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C1);
 
@@ -424,10 +424,10 @@ namespace caribou {
 
     // Calculate current LSB from expected current:
     double current_lsb = maxExpectedCurrent / (0x1 << 15);
-    LOG(logDEBUGHAL) << "  current_lsb  = " << static_cast<double>(current_lsb * 1e6) << " uA/bit";
+    LOG(DEBUG) << "  current_lsb  = " << static_cast<double>(current_lsb * 1e6) << " uA/bit";
 
     unsigned int cal = static_cast<unsigned int>(0.00512 / (CAR_INA226_R_SHUNT * current_lsb));
-    LOG(logDEBUGHAL) << "  cal_register = " << static_cast<double>(cal) << " (" << to_hex_string(cal) << ")";
+    LOG(DEBUG) << "  cal_register = " << static_cast<double>(cal) << " (" << to_hex_string(cal) << ")";
 
     i2c.write(device, REG_ADC_CALIBRATION, {static_cast<i2c_t>(cal >> 8), static_cast<i2c_t>(cal & 0xFF)});
   }
@@ -437,7 +437,7 @@ namespace caribou {
     iface_i2c& i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C1);
     const i2c_address_t device = regulator.pwrmonitor();
 
-    LOG(logDEBUGHAL) << "Reading bus voltage from INA226 at " << to_hex_string(device);
+    LOG(DEBUG) << "Reading bus voltage from INA226 at " << to_hex_string(device);
     std::vector<i2c_t> voltage = i2c.read(device, REG_ADC_BUS_VOLTAGE, 2);
 
     // INA226: fixed LSB for voltage measurement: 1.25mV
@@ -448,13 +448,13 @@ namespace caribou {
   template <typename T> double caribouHAL<T>::measureCurrent(const VOLTAGE_REGULATOR_T regulator) {
     iface_i2c& i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C1);
     const i2c_address_t device = regulator.pwrmonitor();
-    LOG(logDEBUGHAL) << "Reading current from INA226 at " << to_hex_string(device);
+    LOG(DEBUG) << "Reading current from INA226 at " << to_hex_string(device);
 
     // Reading back the calibration register:
     std::vector<i2c_t> cal_v = i2c.read(device, REG_ADC_CALIBRATION, 2);
     double current_lsb =
       static_cast<double>(0.00512) / ((static_cast<uint16_t>(cal_v.at(0) << 8) | cal_v.at(1)) * CAR_INA226_R_SHUNT);
-    LOG(logDEBUGHAL) << "  current_lsb  = " << static_cast<double>(current_lsb * 1e6) << " uA/bit";
+    LOG(DEBUG) << "  current_lsb  = " << static_cast<double>(current_lsb * 1e6) << " uA/bit";
 
     // Reading the current register:
     std::vector<i2c_t> current_raw = i2c.read(device, REG_ADC_CURRENT, 2);
@@ -465,13 +465,13 @@ namespace caribou {
   template <typename T> double caribouHAL<T>::measurePower(const VOLTAGE_REGULATOR_T regulator) {
     iface_i2c& i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C1);
     const i2c_address_t device = regulator.pwrmonitor();
-    LOG(logDEBUGHAL) << "Reading power from INA226 at " << to_hex_string(device);
+    LOG(DEBUG) << "Reading power from INA226 at " << to_hex_string(device);
 
     // Reading back the calibration register:
     std::vector<i2c_t> cal_v = i2c.read(device, REG_ADC_CALIBRATION, 2);
     double power_lsb =
       static_cast<double>(0.00512) / ((static_cast<uint16_t>(cal_v.at(0) << 8) | cal_v.at(1)) * CAR_INA226_R_SHUNT);
-    LOG(logDEBUGHAL) << "  power_lsb  = " << static_cast<double>(power_lsb * 1e6) << " uA/bit";
+    LOG(DEBUG) << "  power_lsb  = " << static_cast<double>(power_lsb * 1e6) << " uA/bit";
 
     // Reading the power register:
     std::vector<i2c_t> power_raw = i2c.read(device, REG_ADC_POWER, 2);
@@ -481,7 +481,7 @@ namespace caribou {
   template <typename T> double caribouHAL<T>::readSlowADC(const SLOW_ADC_CHANNEL_T channel) {
     iface_i2c& i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C3);
 
-    LOG(logDEBUGHAL) << "Sampling channel " << channel.name() << " on pin " << static_cast<int>(channel.channel())
+    LOG(DEBUG) << "Sampling channel " << channel.name() << " on pin " << static_cast<int>(channel.channel())
                      << " of ADS7828 at " << to_hex_string(ADDR_ADC);
 
     uint8_t command = channel.address();

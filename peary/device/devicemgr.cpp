@@ -24,7 +24,7 @@
 using namespace caribou;
 
 caribouDeviceMgr::caribouDeviceMgr() : _deviceList() {
-  LOG(logDEBUG) << "New Caribou device manager";
+  LOG(DEBUG) << "New Caribou device manager";
 
   if(check_flock("pearydev.lock")) {
     throw caribou::caribouException("Found running device instance, cannot start manager.");
@@ -39,7 +39,7 @@ caribouDeviceMgr::caribouDeviceMgr() : _deviceList() {
 }
 
 caribouDeviceMgr::~caribouDeviceMgr() {
-  LOG(logDEBUG) << "Deleting all Caribou devices.";
+  LOG(DEBUG) << "Deleting all Caribou devices.";
 
   // Call the destructor of the device instances
   for(auto it : _deviceList) {
@@ -55,7 +55,7 @@ caribouDeviceMgr::~caribouDeviceMgr() {
 caribouDevice* caribouDeviceMgr::getDevice(size_t id) {
 
   if(_deviceList.size() < (id + 1)) {
-    LOG(logCRITICAL) << "Device ID " << id << " not known!";
+    LOG(FATAL) << "Device ID " << id << " not known!";
     throw caribou::DeviceException("Unknown device id");
   } else
     return _deviceList.at(id);
@@ -79,29 +79,29 @@ size_t caribouDeviceMgr::addDevice(std::string name, const caribou::Configuratio
   // Check if the library is loaded already
   auto it = _deviceLibraries.find(name);
   if(it != _deviceLibraries.end()) {
-    LOG(logDEBUG) << "Shared library \"" << libName << "\" already loaded";
+    LOG(DEBUG) << "Shared library \"" << libName << "\" already loaded";
     hndl = (*it).second;
   } else {
-    LOG(logDEBUG) << "Loading shared library \"" << libName << "\"...";
+    LOG(DEBUG) << "Loading shared library \"" << libName << "\"...";
     hndl = dlopen(libName.c_str(), RTLD_NOW);
     if(!hndl) {
-      LOG(logCRITICAL) << "Loading of " << libName << " failed:";
-      LOG(logCRITICAL) << dlerror();
+      LOG(FATAL) << "Loading of " << libName << " failed:";
+      LOG(FATAL) << dlerror();
       throw caribou::DeviceLibException("dlopen could not open shared library");
     }
     _deviceLibraries.insert(std::make_pair(name, hndl));
-    LOG(logDEBUG) << "Shared library successfully loaded.";
+    LOG(DEBUG) << "Shared library successfully loaded.";
   }
 
-  LOG(logINFO) << "Creating new instance of device \"" << name << "\".";
+  LOG(INFO) << "Creating new instance of device \"" << name << "\".";
   try {
     // Use generator() to create the instance of the description
-    LOG(logDEBUG) << "Calling device generator...";
+    LOG(DEBUG) << "Calling device generator...";
     void* gen = dlsym(hndl, PEARY_GENERATOR_FUNCTION);
     char* err;
     if((err = dlerror()) != NULL) {
       // handle error, the symbol wasn't found
-      LOG(logCRITICAL) << err;
+      LOG(FATAL) << err;
       throw caribou::DeviceLibException("Symbol lookup for caribouDevice* failed");
     } else {
       // symbol found, its value is in "gen"
@@ -109,11 +109,11 @@ size_t caribouDeviceMgr::addDevice(std::string name, const caribou::Configuratio
     }
 
     device_id = _deviceList.size();
-    LOG(logINFO) << "Appending instance to device list, device ID " << device_id;
+    LOG(INFO) << "Appending instance to device list, device ID " << device_id;
     _deviceList.push_back(deviceptr);
   } catch(caribou::DeviceLibException& e) {
-    LOG(logCRITICAL) << "Could not retrieve pointer to caribouDevice object";
-    LOG(logCRITICAL) << "Is the generator() function included w/o C++ name mangling?";
+    LOG(FATAL) << "Could not retrieve pointer to caribouDevice object";
+    LOG(FATAL) << "Is the generator() function included w/o C++ name mangling?";
     throw caribou::DeviceException(e.what());
   }
 

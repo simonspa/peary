@@ -13,14 +13,14 @@ bool caribou::check_flock(std::string filename) {
 
   if(flock(fd, LOCK_EX | LOCK_NB) == -1) {
     if(errno == EWOULDBLOCK) {
-      LOG(logDEBUG) << "File " << file << "is locked.";
+      LOG(DEBUG) << "File " << file << "is locked.";
       return true;
     } else {
       throw caribouException("Error in checking file lock of " + file);
     }
   } else {
     flock(fd, LOCK_UN);
-    LOG(logDEBUG) << "File " << file << "is unlocked.";
+    LOG(DEBUG) << "File " << file << "is unlocked.";
     return false;
   }
 }
@@ -31,10 +31,10 @@ bool caribou::acquire_flock(std::string filename) {
   int fd = open(file.c_str(), O_RDWR | O_CREAT, 0666); // open or create lockfile
 
   if(flock(fd, LOCK_EX | LOCK_NB) == -1) {
-    LOG(logCRITICAL) << "Cannot get lock on " << file;
+    LOG(FATAL) << "Cannot get lock on " << file;
     return false;
   }
-  LOG(logDEBUG) << "Acquired lock on " << file;
+  LOG(DEBUG) << "Acquired lock on " << file;
   return true;
 }
 
