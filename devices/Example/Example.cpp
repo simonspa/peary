@@ -2,35 +2,35 @@
  * Caribou Example Device implementation
  */
 
-#include "example.hpp"
+#include "Example.hpp"
 #include "hal.hpp"
 #include "log.hpp"
 #include "loopback.hpp"
 
 using namespace caribou;
 
-example::example(const caribou::Configuration config)
+Example::Example(const caribou::Configuration config)
     : pearyDevice(config, std::string(DEFAULT_DEVICEPATH), DEFAULT_ADDRESS) {
   _periphery.add("vd", PWR_OUT_1);
   _registers.add(EXAMPLE_REGISTERS);
-  _dispatcher.add("do", &example::doDeviceSpecificThings, this);
+  _dispatcher.add("do", &Example::doDeviceSpecificThings, this);
 };
 
-example::~example() {
+Example::~Example() {
   LOG(logINFO) << DEVICE_NAME << ": Shutdown, delete device.";
 }
 
-std::string example::getName() {
+std::string Example::getName() {
   return DEVICE_NAME;
 }
 
-void example::doDeviceSpecificThings(std::string arg1, int arg2) {
+void Example::doDeviceSpecificThings(std::string arg1, int arg2) {
   LOG(logINFO) << DEVICE_NAME << ": Calling specific function throug dispatcher.";
   LOG(logINFO) << "  input arg1:   " << arg1;
   LOG(logINFO) << "  input arg2*2: " << arg2 * 2;
 }
 
-void example::powerUp() {
+void Example::powerUp() {
   LOG(logINFO) << DEVICE_NAME << ": Power on.";
 
   // Read a DAC value from the config if it exists, otherwise take default
@@ -51,25 +51,25 @@ void example::powerUp() {
   }
 }
 
-void example::powerDown() {
+void Example::powerDown() {
   LOG(logINFO) << DEVICE_NAME << ": Power off.";
 }
 
-void example::daqStart() {
+void Example::daqStart() {
   LOG(logINFO) << DEVICE_NAME << ": DAQ started.";
 }
 
-void example::daqStop() {
+void Example::daqStop() {
   LOG(logINFO) << DEVICE_NAME << ": DAQ stopped.";
 }
 
-void example::exampleCall() {
-  LOG(logINFO) << DEVICE_NAME << ": exampleCall";
+void Example::exampleCall() {
+  LOG(logINFO) << DEVICE_NAME << ": ExampleCall";
   // Vectors can be read directly from the config and passed to an interface
   _hal->send(_config.Get("sample-registers", std::vector<uint8_t>{EXAMPLE_DAC_VEC}));
 }
 
-void example::setSpecialRegister(std::string name, uint32_t) {
+void Example::setSpecialRegister(std::string name, uint32_t) {
 
   LOG(logDEBUG) << "Treating special register \"" << name << "\"";
 }
