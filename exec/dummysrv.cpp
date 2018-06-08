@@ -25,8 +25,6 @@ int main(int argc, char* argv[]) {
   // Add cout as the default logging stream
   Log::addStream(std::cout);
 
-  int run_nr;
-
   // TCP/IP server variables
   int portnumber = 4000;
   struct sockaddr_in address;
@@ -89,10 +87,8 @@ int main(int argc, char* argv[]) {
   }
 
   //--------------- Run control ---------------//
-  bool cmd_recognised = false;
   int cmd_length = 0;
   char cmd[32];
-  run_nr = -1;
 
   // Loop listening for commands from the run control
   do {

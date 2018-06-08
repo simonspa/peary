@@ -15,7 +15,7 @@ ExampleDevice::ExampleDevice(const caribou::Configuration config)
   _registers.add(EXAMPLE_REGISTERS);
   _dispatcher.add("do", &ExampleDevice::doDeviceSpecificThings, this);
   _dispatcher.add("exampleCall", &ExampleDevice::exampleCall, this);
-};
+}
 
 ExampleDevice::~ExampleDevice() {
   LOG(INFO) << DEVICE_NAME << ": Shutdown, delete device.";
