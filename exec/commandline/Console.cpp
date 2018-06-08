@@ -46,12 +46,23 @@ namespace caribou {
     // These are default hardcoded commands.
     // Help command lists available commands.
     pimpl_->commands_["help"] = ConsoleCommand(
-      [this](const Arguments&) {
+      [this](const Arguments& arg) {
         auto commands = getRegisteredCommands();
-        std::cout << "Available commands are:\n";
-        for(auto& command : commands)
-          std::cout << "\t" << command << "\n";
-        listUnregisteredCommands();
+
+        // If a command is provided, just print its help text
+        // Disregards any additional arguments after the command
+        if(arg.size() >= 2) {
+          Impl::RegisteredCommands::iterator it;
+          if((it = pimpl_->commands_.find(arg.at(1))) != end(pimpl_->commands_)) {
+            printUsage(arg.at(1), it->second);
+          }
+        } else {
+          std::cout << "See 'help <command>' to read about a specific command.\n";
+          std::cout << "Available commands are:\n";
+          for(auto& command : commands)
+            std::cout << "\t" << command << "\n";
+          listUnregisteredCommands();
+        }
         return ReturnCode::Ok;
       },
       "Provide help on using this console",
@@ -156,6 +167,11 @@ namespace caribou {
     return elems;
   }
 
+  void Console::printUsage(const std::string& name, const caribou::ConsoleCommand& cmd) {
+    std::cout << "Usage: " << name << " " << cmd.arglist << std::endl;
+    std::cout << "       " << cmd.help << std::endl;
+  }
+
   int Console::executeCommand(const std::string& command) {
     // Convert input to vector
     std::vector<std::string> inputs = split(command);
@@ -169,8 +185,7 @@ namespace caribou {
       if(inputs.size() > it->second.args) {
         return static_cast<int>((it->second.func)(inputs));
       } else {
-        std::cout << "Usage: " << inputs.at(0) << " " << it->second.arglist << std::endl;
-        std::cout << "       " << it->second.help << std::endl;
+        printUsage(inputs.at(0), it->second);
         return ReturnCode::Error;
       }
     }

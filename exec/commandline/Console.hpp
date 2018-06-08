@@ -159,6 +159,8 @@ namespace caribou {
 
     std::vector<std::string> split(std::string str, std::string delims = " ,");
 
+    void printUsage(const std::string& name, const caribou::ConsoleCommand& cmd);
+
     // GNU newline interface to our commands.
     using commandCompleterFunction = char**(const char* text, int start, int end);
     using commandIteratorFunction = char*(const char* text, int state);
