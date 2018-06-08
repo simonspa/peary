@@ -205,7 +205,7 @@ namespace caribou {
 
   template <typename T> void caribouHAL<T>::setDCDCConverter(const DCDC_CONVERTER_T converter, const double voltage) {
     LOG(DEBUG) << "Setting " << voltage << "V "
-                     << "on " << converter.name();
+               << "on " << converter.name();
 
     if(voltage > 5 || voltage < 0)
       throw ConfigInvalid("Trying to set DC/DC converter to " + std::to_string(voltage) + " V (range is 0-5 V)");
@@ -217,7 +217,7 @@ namespace caribou {
 
   template <typename T> void caribouHAL<T>::setBiasRegulator(const BIAS_REGULATOR_T regulator, const double voltage) {
     LOG(DEBUG) << "Setting bias " << voltage << "V "
-                     << "on " << regulator.name();
+               << "on " << regulator.name();
 
     if(voltage > 3.2 || voltage < 0)
       throw ConfigInvalid("Trying to set bias regulator to " + std::to_string(voltage) + " V (range is 0-3.2 V)");
@@ -241,7 +241,7 @@ namespace caribou {
                                           const double voltage,
                                           const double maxExpectedCurrent) {
     LOG(DEBUG) << "Setting " << voltage << "V "
-                     << "on " << regulator.name();
+               << "on " << regulator.name();
 
     if(voltage > 3.2 || voltage < 0)
       throw ConfigInvalid("Trying to set Voltage regulator to " + std::to_string(voltage) + " V (range is 0-3.2 V)");
@@ -284,7 +284,7 @@ namespace caribou {
                                        const CURRENT_SOURCE_POLARITY_T polarity) {
 
     LOG(DEBUG) << "Setting " << current << "uA "
-                     << "on " << source.name();
+               << "on " << source.name();
 
     if(current > 1000)
       throw ConfigInvalid("Trying to set current source to " + std::to_string(current) + " uA (max is 1000uA)");
@@ -327,7 +327,7 @@ namespace caribou {
 
     // All DAC voltage regulators on the CaR board are on the BUS_I2C3:
     LOG(DEBUG) << "Setting voltage " << voltage << "V "
-                     << "on DAC7678 at " << to_hex_string(device) << " channel " << to_hex_string(address);
+               << "on DAC7678 at " << to_hex_string(device) << " channel " << to_hex_string(address);
     iface_i2c& myi2c = interface_manager::getInterface<iface_i2c>(BUS_I2C3);
 
     // Per default, the internal reference is switched off,
@@ -357,7 +357,7 @@ namespace caribou {
 
     // All DAC voltage regulators on the CaR board are on the BUS_I2C3:
     LOG(DEBUG) << "Powering " << (enable ? "up" : "down") << " channel " << to_hex_string(address) << " on DAC7678 at "
-                     << to_hex_string(device);
+               << to_hex_string(device);
     iface_i2c& myi2c = interface_manager::getInterface<iface_i2c>(BUS_I2C3);
 
     // Set the correct channel bit to be powered up/down:
@@ -405,7 +405,7 @@ namespace caribou {
 
   template <typename T> void caribouHAL<T>::setCurrentMonitor(const uint8_t device, const double maxExpectedCurrent) {
     LOG(DEBUG) << "Setting maxExpectedCurrent " << maxExpectedCurrent << "A "
-                     << "on INA226 at " << to_hex_string(device);
+               << "on INA226 at " << to_hex_string(device);
     iface_i2c& i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C1);
 
     // Set configuration register:
@@ -482,7 +482,7 @@ namespace caribou {
     iface_i2c& i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C3);
 
     LOG(DEBUG) << "Sampling channel " << channel.name() << " on pin " << static_cast<int>(channel.channel())
-                     << " of ADS7828 at " << to_hex_string(ADDR_ADC);
+               << " of ADS7828 at " << to_hex_string(ADDR_ADC);
 
     uint8_t command = channel.address();
 

@@ -204,7 +204,7 @@ namespace caribou {
       try {
         regvalues.push_back(std::make_pair(r, this->getRegister(r)));
         LOG(DEBUG) << "Retrieved register \"" << r << "\" = " << static_cast<int>(regvalues.back().second) << " ("
-                      << to_hex_string(regvalues.back().second) << ")";
+                   << to_hex_string(regvalues.back().second) << ")";
       } catch(RegisterTypeMismatch& e) {
         LOG(DEBUG) << "Omitting writeonly register \"" << r << "\"";
       } catch(CommunicationError& e) {
