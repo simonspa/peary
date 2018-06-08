@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-namespace CppReadline {
+namespace caribou {
   /**
    * @brief This is the function type that is used to interface with the Console class.
    *
@@ -160,6 +160,6 @@ namespace CppReadline {
     static commandCompleterFunction getCommandCompletions;
     static commandIteratorFunction commandIterator;
   };
-} // namespace CppReadline
+} // namespace caribou
 
 #endif

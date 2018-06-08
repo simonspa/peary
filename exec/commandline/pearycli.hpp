@@ -11,8 +11,6 @@
 
 #include <vector>
 
-using ret = CppReadline::ReturnCode;
-
 namespace caribou {
 
   class pearycli {
@@ -81,7 +79,7 @@ namespace caribou {
 
   private:
     // Readline console object
-    CppReadline::Console c;
+    Console c;
   };
 
 } // namespace caribou

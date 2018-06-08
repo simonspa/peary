@@ -10,8 +10,6 @@
 #include "log.hpp"
 
 using namespace caribou;
-namespace cr = CppReadline;
-using ret = cr::ReturnCode;
 
 caribou::caribouDeviceMgr* pearycli::manager = new caribouDeviceMgr();
 
@@ -116,7 +114,7 @@ int main(int argc, char* argv[]) {
       }
     }
 
-    int retvalue = ret::Ok;
+    int retvalue = ReturnCode::Ok;
 
     // Execute provided command file if existent:
     if(!execfile.empty()) {
@@ -124,7 +122,7 @@ int main(int argc, char* argv[]) {
     }
 
     // Only start if everything went fine:
-    if(retvalue != ret::Quit) {
+    if(retvalue != ReturnCode::Quit) {
       LOG(INFO) << "Welcome to pearyCLI.";
       size_t ndev = c.manager->getDevices().size();
       LOG(INFO) << "Currently " << ndev << " devices configured.";
@@ -133,7 +131,7 @@ int main(int argc, char* argv[]) {
       }
 
       // Loop in the console until exit.
-      while(c.readLine() != ret::Quit)
+      while(c.readLine() != ReturnCode::Quit)
         ;
     }
 

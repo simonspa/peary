@@ -12,7 +12,7 @@
 #include <readline/history.h>
 #include <readline/readline.h>
 
-namespace CppReadline {
+namespace caribou {
   namespace {
 
     Console* currentConsole = nullptr;
@@ -21,7 +21,7 @@ namespace CppReadline {
   } /* namespace  */
 
   struct Console::Impl {
-    using RegisteredCommands = std::unordered_map<std::string, CppReadline::ConsoleCommand>;
+    using RegisteredCommands = std::unordered_map<std::string, caribou::ConsoleCommand>;
 
     ::std::string greeting_;
     // These are hardcoded commands. They do not do anything and are catched manually in the executeCommand function.
@@ -249,4 +249,4 @@ namespace CppReadline {
     }
     return nullptr;
   }
-} // namespace CppReadline
+} // namespace caribou
