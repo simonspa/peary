@@ -1,5 +1,6 @@
 /**
- * Caribou Device Manager class implementation
+ * @file
+ * @brief Caribou Device Manager class implementation
  */
 
 #include "devicemgr.hpp"

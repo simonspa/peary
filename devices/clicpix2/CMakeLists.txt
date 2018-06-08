@@ -3,9 +3,6 @@ PEARY_ENABLE_DEFAULT(OFF)
 # Define device and return the generated name as DEVICE_NAME
 PEARY_DEVICE(DEVICE_NAME)
 
-INCLUDE_DIRECTORIES(SYSTEM ${LCIO_INCLUDE_DIRS} )
-TARGET_LINK_LIBRARIES(${DEVICE_NAME} ${LCIO_LIBRARIES})
-
 # Add source files to library
 PEARY_DEVICE_SOURCES(${DEVICE_NAME}
     clicpix2.cpp
@@ -15,6 +12,9 @@ PEARY_DEVICE_SOURCES(${DEVICE_NAME}
     clicpix2_frameDecoder_lfsr8.cpp
     clicpix2_frameDecoder_lfsr5.cpp
 )
+
+# Provide standard install target
+PEARY_DEVICE_INSTALL(${DEVICE_NAME})
 
 SET(DECODERFILES
   clicpix2RawDecoder.cpp

@@ -77,9 +77,3 @@ pearydata dso9254a::getData() {
 std::string dso9254a::getName() {
   return DEVICE_NAME;
 }
-
-caribouDevice* caribou::generator(const caribou::Configuration config) {
-  LOG(logDEBUG) << "Generator: " << DEVICE_NAME;
-  dso9254a* mDevice = new dso9254a(config);
-  return dynamic_cast<caribouDevice*>(mDevice);
-}
