@@ -5,8 +5,8 @@
 #include <functional>
 #include <iostream>
 #include <iterator>
+#include <map>
 #include <sstream>
-#include <unordered_map>
 
 #include <cstdlib>
 #include <readline/history.h>
@@ -21,7 +21,7 @@ namespace caribou {
   } /* namespace  */
 
   struct Console::Impl {
-    using RegisteredCommands = std::unordered_map<std::string, caribou::ConsoleCommand>;
+    using RegisteredCommands = std::map<std::string, caribou::ConsoleCommand>;
 
     ::std::string greeting_;
     // These are hardcoded commands. They do not do anything and are catched manually in the executeCommand function.
