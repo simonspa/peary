@@ -193,11 +193,9 @@ namespace caribou {
     try {
       return unregisteredCommand(inputs);
     } catch(std::invalid_argument& e) {
+      std::cout << e.what();
       return ReturnCode::Error;
     }
-
-    std::cout << "Command '" << inputs.at(0) << "' not found.\n";
-    return ReturnCode::Error;
   }
 
   int Console::executeFile(const std::string& filename) {
