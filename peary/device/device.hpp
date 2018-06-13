@@ -76,33 +76,12 @@ namespace caribou {
     /** Get data methods. Can return raw or decoded data **/
     virtual std::vector<uint32_t> getRawData() = 0;
     virtual pearydata getData() = 0;
-    virtual void dataTuning(double vmax, int nstep, int npulses) = 0;
-    virtual void VerifyTuning(double vmax, int nstep, int npulses, std::string TDACFile) = 0;
 
     /** Initialize the device (ex.set the required clock otuputs etc.).
      *  Function to configure the Caribou device by setting all DACs to the values
      *  provided via the initial configuration object
      */
     virtual void configure() = 0;
-    virtual void lock() = 0;
-    virtual void unlock() = 0;
-    virtual void setThreshold(double threshold) = 0;
-    virtual void setVMinus(double vminus) = 0;
-    virtual void getTriggerCount() = 0;
-    virtual void pulse(uint32_t npulse, uint32_t tup, uint32_t tdown, double amplitude) = 0;
-    virtual void SetPixelInjection(uint32_t col, uint32_t row, bool ana_state, bool hb_state, bool inj_state) = 0;
-    virtual void doSCurve(uint32_t col, uint32_t row, double vmin, double vmax, uint32_t npulses, uint32_t npoints) = 0;
-    virtual void doSCurves(double vmin, double vmax, uint32_t npulses, uint32_t npoints) = 0;
-    virtual void doNoiseCurve(uint32_t col, uint32_t row) = 0;
-    virtual void LoadTDAC(std::string filename) = 0;
-    virtual void LoadConfig(std::string basename) = 0;
-    virtual void WriteConfig(std::string basename) = 0;
-    virtual void
-    TDACScan(std::string basefolder, int VNDAC, int step, double vmin, double vmax, uint32_t npulses, uint32_t npoints) = 0;
-    virtual void SetMatrix(std::string matrix) = 0;
-    virtual void MaskPixel(uint32_t col, uint32_t row) = 0;
-    virtual void setAllTDAC(uint32_t value) = 0;
-    virtual void isLocked() = 0;
 
     // Controlling the device
 

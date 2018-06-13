@@ -98,27 +98,6 @@ namespace caribou {
 
     virtual void configure();
 
-    virtual void lock();
-    virtual void unlock();
-    virtual void setThreshold(double threshold);
-    virtual void setVMinus(double vminus);
-    virtual void getTriggerCount();
-
-    virtual void pulse(uint32_t npulse, uint32_t tup, uint32_t tdown, double amplitude);
-    virtual void SetPixelInjection(uint32_t col, uint32_t row, bool ana_state, bool hb_state, bool inj_state);
-    virtual void doSCurve(uint32_t col, uint32_t row, double vmin, double vmax, uint32_t npulses, uint32_t npoints);
-    virtual void doSCurves(double vmin, double vmax, uint32_t npulses, uint32_t npoints);
-    virtual void doNoiseCurve(uint32_t col, uint32_t row);
-    virtual void setAllTDAC(uint32_t value);
-    virtual void LoadTDAC(std::string filename);
-    virtual void LoadConfig(std::string basename);
-    virtual void WriteConfig(std::string basename);
-    virtual void
-    TDACScan(std::string basefolder, int VNDAC, int step, double vmin, double vmax, uint32_t npulses, uint32_t npoints);
-    virtual void SetMatrix(std::string matrix);
-    virtual void MaskPixel(uint32_t col, uint32_t row);
-    virtual void isLocked();
-
     // Controlling the device
     void setRegister(std::string name, uint32_t value);
     virtual void setSpecialRegister(std::string, uint32_t){};
@@ -178,8 +157,6 @@ namespace caribou {
     // Raw and decoded data readback
     std::vector<uint32_t> getRawData();
     pearydata getData();
-    void dataTuning(double vmax, int nstep, int npulses);
-    void VerifyTuning(double vmax, int nstep, int npulses, std::string TDACFile);
 
     // Two types:
     //  * trigger based: "events" are returned
