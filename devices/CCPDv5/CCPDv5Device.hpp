@@ -13,11 +13,11 @@ namespace caribou {
 
   /** CCPDV5 Device class definition
    */
-  class CCPDV5 : public pearyDevice<iface_i2c> {
+  class CCPDv5Device : public pearyDevice<iface_i2c> {
 
   public:
-    CCPDV5(const caribou::Configuration config);
-    ~CCPDV5();
+    CCPDv5Device(const caribou::Configuration config);
+    ~CCPDv5Device();
 
     std::string getName();
 
