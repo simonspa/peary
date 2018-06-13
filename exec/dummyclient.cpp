@@ -32,6 +32,7 @@ int main(int argc, char* argv[]) {
 
   // Configure Socket and address
   struct sockaddr_in address;
+
   address.sin_family = AF_INET;
   address.sin_port = htons(portnumber);
   inet_aton(ipaddress.c_str(), &(address.sin_addr));
@@ -61,7 +62,7 @@ int main(int argc, char* argv[]) {
     std::cout << "Awaiting reply from server at " << ss.str() << " to command: " << command << std::endl;
 
     int buffersize = 1024;
-    char buffer[buffersize];
+    char buffer[1024];
     int msglen = recv(mysocket, buffer, buffersize, 0);
     buffer[msglen] = '\0';
     std::cout << "Message received from server at " << ss.str() << ": " << std::string(buffer) << std::endl;

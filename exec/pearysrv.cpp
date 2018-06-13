@@ -27,19 +27,25 @@ bool getFrame();
 std::vector<std::string> split(std::string str, char delimiter);
 void copyFile(std::string src, std::string dst);
 
-FILE* lfile;
-
 void termination_handler(int s) {
   std::cout << "\n";
-  LOG(logINFO) << "Caught user signal \"" << s << "\", ending processes.";
+  LOG(INFO) << "Caught user signal \"" << s << "\", ending processes.";
   delete manager;
   close(my_socket);
-  fclose(lfile);
   exit(1);
+}
+
+/**
+ * @brief Clean the environment when closing application
+ */
+void clean() {
+  Log::finish();
 }
 
 // Main thread
 int main(int argc, char* argv[]) {
+  // Add cout as the default logging stream
+  Log::addStream(std::cout);
 
   struct sigaction sigIntHandler;
 
@@ -67,16 +73,22 @@ int main(int argc, char* argv[]) {
       std::cout << "-c configfile  configuration file to be used" << std::endl;
       std::cout << "-i ip          connect to runcontrol on that ip" << std::endl;
       std::cout << "-d dirname     sets output directy path to given folder, folder has to exist" << std::endl;
+      clean();
       return 0;
     } else if(!strcmp(argv[i], "-v")) {
-      Log::ReportingLevel() = Log::FromString(std::string(argv[++i]));
+      try {
+        LogLevel log_level = Log::getLevelFromString(std::string(argv[++i]));
+        Log::setReportingLevel(log_level);
+      } catch(std::invalid_argument& e) {
+        LOG(ERROR) << "Invalid verbosity level \"" << std::string(argv[i]) << "\", ignoring overwrite";
+      }
       continue;
     } else if(!strcmp(argv[i], "-c")) {
       configfile = std::string(argv[++i]);
       continue;
     } else if(!strcmp(argv[i], "-i")) {
       ipaddress = argv[++i];
-      LOG(logINFO) << "Connecting to runcontrol at " << ipaddress;
+      LOG(INFO) << "Connecting to runcontrol at " << ipaddress;
       continue;
     } else if(!strcmp(argv[i], "-d")) {
       rundir = std::string(argv[++i]);
@@ -86,9 +98,15 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  lfile = fopen((rundir + "/log.txt").c_str(), "a");
-  SetLogOutput::Stream() = lfile;
-  SetLogOutput::Duplicate() = true;
+  // Add an extra file to log too if possible
+  // NOTE: this stream should be available for the duration of the logging
+  std::ofstream log_file;
+  log_file.open(rundir + "/log.txt", std::ios_base::out | std::ios_base::trunc);
+  if(!log_file.good()) {
+    LOG(FATAL) << "Cannot write to provided log file! Check if permissions are sufficient.";
+    clean();
+  }
+  Log::addStream(log_file);
 
   // Create new Peary device manager
   manager = new caribouDeviceMgr();
@@ -99,7 +117,7 @@ int main(int argc, char* argv[]) {
     // Open configuration file and create object:
     std::ifstream file(configfile.c_str());
     if(!file.is_open()) {
-      LOG(logERROR) << "No configuration file provided.";
+      LOG(ERROR) << "No configuration file provided.";
       throw caribou::ConfigInvalid("No configuration file provided.");
     } else
       config = caribou::Configuration(file);
@@ -110,7 +128,7 @@ int main(int argc, char* argv[]) {
         throw caribou::ConfigInvalid("Could not set configuration section for device.");
       }
       size_t device_id = manager->addDevice(d, config);
-      LOG(logINFO) << "Manager returned device ID " << device_id << ", fetching device...";
+      LOG(INFO) << "Manager returned device ID " << device_id << ", fetching device...";
 
       // Get the device from the manager:
       caribouDevice* dev = manager->getDevice(device_id);
@@ -164,12 +182,13 @@ int main(int argc, char* argv[]) {
       FD_SET(my_socket, &set); /* add our file descriptor to the set */
 
       int rv = select(my_socket + 1, &set, NULL, NULL, &timeout);
-      // LOG(logDEBUG) <<rv;
+      // LOG(DEBUG) <<rv;
       /*if (rv == SOCKET_ERROR)
-	  {
-	      // select error...
+    {
+        // select error...
       }
-	  else*/ if(rv == 0) {
+    else*/
+      if(rv == 0) {
         // timeout, socket does not have anything to read
         cmd_length = 0;
       } else {
@@ -177,21 +196,21 @@ int main(int argc, char* argv[]) {
       }
       // socket has something to read
       cmd_recognised = false;
-      // LOG(logDEBUG) << "cmd_length: " << cmd_length;
+      // LOG(DEBUG) << "cmd_length: " << cmd_length;
       // Display the command and load it into the command string
       // if(cmd_length > 0) {
       if(commands.size() > 0 || cmd_length > 0) {
         buffer[cmd_length] = '\0';
-        LOG(logINFO) << "Message received: " << buffer;
+        LOG(INFO) << "Message received: " << buffer;
         std::vector<std::string> spl;
         spl = split(std::string(buffer), '\n');
         for(unsigned int k = 0; k < spl.size(); k++) {
           commands.push_back(spl[k]);
-          LOG(logINFO) << "commands[" << k << "]: " << commands[k];
+          LOG(INFO) << "commands[" << k << "]: " << commands[k];
         }
         sscanf(commands[0].c_str(), "%s", cmd);
         sprintf(buffer, "%s", commands[0].c_str());
-        LOG(logINFO) << buffer;
+        LOG(INFO) << buffer;
         commands.erase(commands.begin());
       } else
         sprintf(cmd, "no_cmd");
@@ -207,15 +226,15 @@ int main(int argc, char* argv[]) {
         // Already running!
         if(running) {
           sprintf(buffer, "FAILED configuring - already running");
-          LOG(logERROR) << buffer;
+          LOG(ERROR) << buffer;
         } else if(configure(value, 5)) {
           configured = true;
           sprintf(buffer, "OK configured");
-          LOG(logINFO) << buffer;
+          LOG(INFO) << buffer;
         } else {
           configured = false;
           sprintf(buffer, "FAILED configuring");
-          LOG(logERROR) << buffer;
+          LOG(ERROR) << buffer;
         }
       }
 
@@ -225,19 +244,19 @@ int main(int argc, char* argv[]) {
         // Not configured yet!
         if(!configured) {
           sprintf(buffer, "FAILED start run - not configured");
-          LOG(logERROR) << buffer;
+          LOG(ERROR) << buffer;
         }
         // Already running!
         else if(running) {
           sprintf(buffer, "FAILED start run - already running");
-          LOG(logERROR) << buffer;
+          LOG(ERROR) << buffer;
         } else {
           // Get the run number and comment (placed in output file header)
-          LOG(logINFO) << "Buffer: " << buffer;
+          LOG(INFO) << "Buffer: " << buffer;
           std::istringstream runInfo(buffer);
           std::string description, dummy;
           runInfo >> dummy >> run_nr >> description;
-          LOG(logINFO) << "Starting run " << run_nr;
+          LOG(INFO) << "Starting run " << run_nr;
 
           // Define the run directory
           std::string dir = rundir + "/Run" + to_string(run_nr);
@@ -246,11 +265,11 @@ int main(int argc, char* argv[]) {
           if(start_run(dir, run_nr, description)) {
             running = true;
             sprintf(buffer, "OK run %d started", run_nr);
-            LOG(logINFO) << buffer;
+            LOG(INFO) << buffer;
           } else {
             running = false;
             sprintf(buffer, "FAILED start run %d", run_nr);
-            LOG(logERROR) << buffer;
+            LOG(ERROR) << buffer;
           }
         }
       }
@@ -261,16 +280,16 @@ int main(int argc, char* argv[]) {
         // Not running yet!
         if(!running) {
           sprintf(buffer, "FAILED stop run - not running");
-          LOG(logERROR) << buffer;
+          LOG(ERROR) << buffer;
         } else {
           if(stop_run(rundir)) {
             running = false;
             framecounter = 0;
             sprintf(buffer, "OK run %d stopped", run_nr);
-            LOG(logINFO) << buffer;
+            LOG(INFO) << buffer;
           } else {
             sprintf(buffer, "FAILED stop run %d", run_nr);
-            LOG(logERROR) << buffer;
+            LOG(ERROR) << buffer;
           }
         }
       }
@@ -278,7 +297,7 @@ int main(int argc, char* argv[]) {
       // If we don't recognise the command
       if(!cmd_recognised && (cmd_length > 0)) {
         sprintf(buffer, "FAILED unknown command");
-        LOG(logERROR) << "Unknown command: " << buffer;
+        LOG(ERROR) << "Unknown command: " << buffer;
       }
 
       if(running)
@@ -292,15 +311,18 @@ int main(int argc, char* argv[]) {
 
     // And end that whole thing correcly:
     delete manager;
-    LOG(logINFO) << "Done. And thanks for all the fish.";
+    LOG(INFO) << "Done. And thanks for all the fish.";
   } catch(caribouException& e) {
-    LOG(logCRITICAL) << "This went wrong: " << e.what();
+    LOG(FATAL) << "This went wrong: " << e.what();
+    clean();
     return -1;
   } catch(...) {
-    LOG(logCRITICAL) << "Something went terribly wrong.";
+    LOG(FATAL) << "Something went terribly wrong.";
+    clean();
     return -1;
   }
 
+  clean();
   return 0;
 }
 
@@ -311,28 +333,28 @@ bool configure(int value, unsigned int configureAttempts) {
     size_t i = 0;
     std::vector<caribouDevice*> devs = manager->getDevices();
     for(auto d : devs) {
-      LOG(logINFO) << "Configuring device ID " << i << ": " << d->getName();
+      LOG(INFO) << "Configuring device ID " << i << ": " << d->getName();
       // try to configure the chip ~configureAttempts~ times
       for(unsigned int i = 0; i < configureAttempts; ++i) {
         try {
           d->configure();
           break;
         } catch(const CommunicationError& e) {
-          LOG(logERROR) << e.what();
+          LOG(ERROR) << e.what();
           if(i == configureAttempts - 1)
             return false;
         }
       }
-      d->powerStatusLog();
+      d->command("powerStatusLog");
       if(d->getName() == "CLICpix2") {
         d->setRegister("threshold", value);
-        LOG(logINFO) << "Setting threshold to " << value << ": " << d->getRegister("threshold_msb") << "-"
-                     << d->getRegister("threshold_lsb");
+        LOG(INFO) << "Setting threshold to " << value << ": " << d->getRegister("threshold_msb") << "-"
+                  << d->getRegister("threshold_lsb");
       }
       i++;
     }
   } catch(caribou::caribouException& e) {
-    LOG(logERROR) << e.what();
+    LOG(ERROR) << e.what();
     return false;
   }
   return true;
@@ -345,13 +367,13 @@ bool start_run(std::string rundir, int run_nr, std::string) {
     size_t i = 0;
     std::vector<caribouDevice*> devs = manager->getDevices();
     for(auto dev : devs) {
-      LOG(logINFO) << "Starting run for device ID " << i << ": " << dev->getName();
+      LOG(INFO) << "Starting run for device ID " << i << ": " << dev->getName();
       // Start the DAQ
       // dev->daqStart();
       if(dev->getName() == "CLICpix2") {
         mkdir(rundir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
         std::string filename = rundir + "/run" + to_string(run_nr) + ".raw";
-        LOG(logINFO) << "Writing data to " << rundir;
+        LOG(INFO) << "Writing data to " << rundir;
         myfile.open(filename);
         // myfile << "# pearycli > acquire\n";
         myfile << "# Software version: " << dev->getVersion() << "\n";
@@ -363,18 +385,18 @@ bool start_run(std::string rundir, int run_nr, std::string) {
     }
 
     // copy config file to run folder
-    LOG(logINFO) << "Copy config file: " << configfile;
+    LOG(INFO) << "Copy config file: " << configfile;
     copyFile(configfile, rundir + "/" + configfile);
 
     // Copy matrix and pattern generator
-    LOG(logINFO) << "Copy matrix file: " << config.Get("matrix", "");
+    LOG(INFO) << "Copy matrix file: " << config.Get("matrix", "");
     copyFile(config.Get("matrix", ""), rundir + "/" + config.Get("matrix", ""));
 
-    LOG(logINFO) << "Copy patterngenerator: " << config.Get("patterngenerator", "");
+    LOG(INFO) << "Copy patterngenerator: " << config.Get("patterngenerator", "");
     copyFile(config.Get("patterngenerator", ""), rundir + "/" + config.Get("patterngenerator", ""));
 
   } catch(caribou::caribouException& e) {
-    LOG(logERROR) << e.what();
+    LOG(ERROR) << e.what();
     return false;
   }
   return true;
@@ -387,21 +409,21 @@ bool stop_run(std::string) {
     size_t i = 0;
     std::vector<caribouDevice*> devs = manager->getDevices();
     for(auto d : devs) {
-      LOG(logINFO) << "Stopping run for device ID " << i << ": " << d->getName();
+      LOG(INFO) << "Stopping run for device ID " << i << ": " << d->getName();
       // Stop the DAQ
       d->daqStop();
       myfile.close();
       i++;
     }
   } catch(caribou::caribouException& e) {
-    LOG(logERROR) << e.what();
+    LOG(ERROR) << e.what();
     return false;
   }
   return true;
 }
 
 bool getFrame() {
-  LOG(logDEBUG) << "getFrame()";
+  LOG(DEBUG) << "getFrame()";
   std::vector<caribouDevice*> devs = manager->getDevices();
   for(auto dev : devs) {
     if(dev->getName() == "CLICpix2") {
@@ -409,12 +431,12 @@ bool getFrame() {
         // pearydata data;
         std::vector<uint32_t> data;
         try {
-          dev->triggerPatternGenerator(true);
+          dev->command("triggerPatternGenerator", "1");
           // Read the data:
           data = dev->getRawData();
         } catch(caribou::DataException& e) {
           // Retrieval failed, retry once more before aborting:
-          LOG(logWARNING) << e.what() << ", skipping frame.";
+          LOG(WARNING) << e.what() << ", skipping frame.";
           // mDelay(10);
           // data = dev->getData();
           dev->timestampsPatternGenerator(); // in case of readout error, clear timestamp fifo before going to next event
@@ -429,13 +451,13 @@ bool getFrame() {
           // myfile << px.first.first << "," << px.first.second << "," << (*px.second) << "\n";
           myfile << px << "\n";
         }
-        LOG(logINFO) << framecounter << " | " << data.size() << " pixel responses";
+        LOG(INFO) << framecounter << " | " << data.size() << " pixel responses";
         framecounter++;
       } catch(caribou::DataException& e) {
         dev->timestampsPatternGenerator(); // in case of readout error, clear timestamp fifo before going to next event
         continue;
       } catch(caribou::caribouException& e) {
-        LOG(logERROR) << e.what();
+        LOG(ERROR) << e.what();
         return false;
       }
     }

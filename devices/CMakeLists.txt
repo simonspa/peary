@@ -1,24 +1,14 @@
-macro(optional_add_subdirectory dir)
-  if(${dir} MATCHES "example|c3pd|clicpix2|ATLASPix")
-    option(BUILD_${dir} "Build device in directory ${dir}?" ON)
-  ELSE()
-    option(BUILD_${dir} "Build device in directory ${dir}?" OFF)
-  ENDIF()
-  if(BUILD_${dir} OR BUILD_alldevices)
-    add_subdirectory(${dir})
-    MESSAGE( STATUS "Building device: " ${dir} )
-  endif()
-endmacro()
+# Option to build all devices
+OPTION(BUILD_ALL_DEVICES "Build all devices?" OFF)
 
-# set to build all devices -- mostly useful for tests
-option(BUILD_alldevices "Build all devices?" OFF)
+# reset the saved libraries
+SET(PEARY_DEVICE_LIBRARIES "" CACHE INTERNAL "Device libraries")
 
-# Example device implementation - check this directory as a starting point
-# for your own device implementation
-optional_add_subdirectory(example)
-optional_add_subdirectory(clicpix2)
-optional_add_subdirectory(c3pd)
-optional_add_subdirectory(timepix3)
-# optional_add_subdirectory(ccpdv5)
-optional_add_subdirectory(ATLASPix)
-
+# Build all the modules
+FILE(GLOB subdirs RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/*)
+FOREACH(subdir ${subdirs})
+    IF(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${subdir})
+        # Internal macros check if the device is actually enabled
+        ADD_SUBDIRECTORY(${subdir})
+    ENDIF()
+ENDFOREACH()

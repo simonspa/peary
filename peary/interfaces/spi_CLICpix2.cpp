@@ -41,8 +41,8 @@ std::pair<spi_reg_t, spi_t> iface_spi_CLICpix2::write(const spi_address_t&, cons
   std::pair<spi_reg_t, spi_t> rx(static_cast<spi_reg_t>(rx_raw[0] >> 5),
                                  static_cast<spi_t>(((rx_raw[0] & (0x1F)) << 3) | ((rx_raw[1] & 0xE000) >> 13)));
 
-  LOG(logINTERFACE) << "SPI device " << devicePath() << ": Register " << to_hex_string(data.first) << " Wrote data \""
-                    << to_hex_string(data.second) << "\" Read data \"" << to_hex_string(rx.second) << "\"";
+  LOG(TRACE) << "SPI device " << devicePath() << ": Register " << to_hex_string(data.first) << " Wrote data \""
+             << to_hex_string(data.second) << "\" Read data \"" << to_hex_string(rx.second) << "\"";
 
   return rx;
 }
@@ -106,9 +106,8 @@ std::vector<std::pair<spi_reg_t, spi_t>> iface_spi_CLICpix2::write(const spi_add
     loop.pos += 2 * (sizeof(spi_t) + sizeof(spi_reg_t));
   }
 
-  LOG(logINTERFACE) << "SPI device " << devicePath() << ": \n\t Wrote block data (Reg: data): \""
-                    << listVector(data, ", ", true) << "\"\n\t Read  block data (Reg: data): \""
-                    << listVector(rx, ", ", true) << "\"";
+  LOG(TRACE) << "SPI device " << devicePath() << ": \n\t Wrote block data (Reg: data): \"" << listVector(data, ", ", true)
+             << "\"\n\t Read  block data (Reg: data): \"" << listVector(rx, ", ", true) << "\"";
 
   return rx;
 }

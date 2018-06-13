@@ -22,7 +22,12 @@ int main(int argc, char* argv[]) {
       std::cout << "All other arguments are interpreted as devices to be instanciated." << std::endl;
       return 0;
     } else if(!strcmp(argv[i], "-v")) {
-      Log::ReportingLevel() = Log::FromString(std::string(argv[++i]));
+      try {
+        LogLevel log_level = Log::getLevelFromString(std::string(argv[++i]));
+        Log::setReportingLevel(log_level);
+      } catch(std::invalid_argument& e) {
+        LOG(ERROR) << "Invalid verbosity level \"" << std::string(argv[i]) << "\", ignoring overwrite";
+      }
       continue;
     } else if(!strcmp(argv[i], "-c")) {
       configfile = std::string(argv[++i]);
@@ -43,7 +48,7 @@ int main(int argc, char* argv[]) {
     caribou::Configuration config;
     std::ifstream file(configfile.c_str());
     if(!file.is_open()) {
-      LOG(logWARNING) << "No configuration file provided.";
+      LOG(WARNING) << "No configuration file provided.";
       config = caribou::Configuration();
     } else
       config = caribou::Configuration(file);
@@ -51,7 +56,7 @@ int main(int argc, char* argv[]) {
     // Demonstrate how to fetch a vector from the config file:
     std::vector<int64_t> a = config.Get("myintvec", std::vector<int64_t>());
     for(auto i : a) {
-      LOG(logINFO) << i;
+      LOG(INFO) << i;
     }
 
     // Spawn all devices
@@ -59,7 +64,7 @@ int main(int argc, char* argv[]) {
       // ...if we have a configuration for them
       if(config.SetSection(d)) {
         size_t device_id = manager->addDevice(d, config);
-        LOG(logINFO) << "Manager returned device ID " << device_id << ", fetching device...";
+        LOG(INFO) << "Manager returned device ID " << device_id << ", fetching device...";
 
         // Get the device from the manager:
         caribouDevice* dev = manager->getDevice(device_id);
@@ -68,18 +73,18 @@ int main(int argc, char* argv[]) {
         dev->daqStart();
         dev->daqStop();
       } else {
-        LOG(logERROR) << "No configuration found for device " << d;
+        LOG(ERROR) << "No configuration found for device " << d;
       }
     }
 
     // And end that whole thing correcly:
     delete manager;
-    LOG(logINFO) << "Done. And thanks for all the fish.";
+    LOG(INFO) << "Done. And thanks for all the fish.";
   } catch(caribouException& e) {
-    LOG(logCRITICAL) << "This went wrong: " << e.what();
+    LOG(FATAL) << "This went wrong: " << e.what();
     return -1;
   } catch(...) {
-    LOG(logCRITICAL) << "Something went terribly wrong.";
+    LOG(FATAL) << "Something went terribly wrong.";
     return -1;
   }
 
