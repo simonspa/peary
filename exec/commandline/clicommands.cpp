@@ -161,8 +161,7 @@ int pearycli::unregisteredCommand(const std::vector<std::string>& input) {
 
     // Command not found
     if(cmd == commands.end()) {
-      std::cout << "Command '" << input.front() << "' for device " << dev->getName() << " not found.\n";
-      throw std::invalid_argument("command not found");
+      throw std::invalid_argument("Command '" + input.front() + "' for device " + dev->getName() + " not found.\n");
     }
 
     const std::vector<std::string> args(input.begin() + 1, input.end() - 1);
