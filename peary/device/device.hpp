@@ -63,7 +63,7 @@ namespace caribou {
 
     /** Set output base directory for all files.
      */
-    virtual void setOutputDirectory(std::string path){};
+    virtual void setOutputDirectory(std::string){};
 
     /** Start the data acquisition
      */
