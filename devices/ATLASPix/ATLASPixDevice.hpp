@@ -102,7 +102,7 @@ namespace caribou {
 
     // void doSCurve(uint32_t col, uint32_t row, double vmin, double vmax, uint32_t npulses, uint32_t npoints);
     void doSCurves(double vmin, double vmax, uint32_t npulses, uint32_t npoints);
-    void doSCurves(std::string basefolder, double vmin, double vmax, uint32_t npulses, uint32_t npoints);
+    void doSCurvesAndWrite(std::string basefolder, double vmin, double vmax, uint32_t npulses, uint32_t npoints);
     void ComputeSCurves(ATLASPixMatrix& matrix, double vmax, int nstep, int npulses, int tup, int tdown);
 
     void ReapplyMask();

@@ -157,6 +157,7 @@ ATLASPixDevice::ATLASPixDevice(const caribou::Configuration config)
   _dispatcher.add("SetPixelInjection", &ATLASPixDevice::SetPixelInjection, this);
   //_dispatcher.add("doSCurve", &ATLASPixDevice::doSCurve, this);
   _dispatcher.add("doSCurves", &ATLASPixDevice::doSCurves, this);
+  _dispatcher.add("doSCurvesAndWrite", &ATLASPixDevice::doSCurvesAndWrite, this);
   _dispatcher.add("setAllTDAC", &ATLASPixDevice::setAllTDAC, this);
   //_dispatcher.add("doNoiseCurve", &ATLASPixDevice::doNoiseCurve, this);
   _dispatcher.add("LoadTDAC", &ATLASPixDevice::LoadTDAC, this);
@@ -3281,7 +3282,8 @@ void ATLASPixDevice::VerifyTuning(double vmax, int nstep, int npulses, std::stri
 //  myfile.close();
 //}
 
-void ATLASPixDevice::doSCurves(std::string basefolder, double vmin, double vmax, uint32_t npulses, uint32_t npoints) {
+void ATLASPixDevice::doSCurvesAndWrite(
+  std::string basefolder, double vmin, double vmax, uint32_t npulses, uint32_t npoints) {
 
   std::cout << "Ok lets get started" << std::endl;
   int cnt = 0;
@@ -3356,7 +3358,7 @@ void ATLASPixDevice::TDACScan(
   for(int tdac = 0; tdac <= 7; tdac += step) {
 
     this->setAllTDAC(tdac);
-    this->doSCurves(basefolder, vmin, vmax, npulses, npoints);
+    this->doSCurvesAndWrite(basefolder, vmin, vmax, npulses, npoints);
   }
 }
 
