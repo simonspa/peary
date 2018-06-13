@@ -15,8 +15,8 @@ namespace caribou {
  */
 #define ATLASPix_DEFAULT_I2C 0x50
 
-/** Definition of default values for the different DAC settings for ATLASPix
- */
+  /** Definition of default values for the different DAC settings for ATLASPix
+   */
 
 #define ATLASPix_VDDD 1.97
 #define ATLASPix_VDDD_CURRENT 2
@@ -163,7 +163,7 @@ namespace caribou {
     {"send_fpga_ts", register_t<>(0x26, 0xFF, false, true, true)},		\
   }
   // clang-format on
-  
+
   //{"ext_clk", register_t<>(0x26, 0xFF, false, true, true)},		\
 
 } // namespace caribou

@@ -49,13 +49,13 @@ void ATLASPixMatrix::_initializeGlobalParameters() {
   CurrentDACConfig->AddParameter("VNOutPix", "5,4,3,1,0,2", 5);
 
   // DigitalDACs
-  CurrentDACConfig->AddParameter("VPVCO", "5,4,3,1,0,2", 7);       // 5);//7);
+  CurrentDACConfig->AddParameter("VPVCO", "5,4,3,1,0,2", 7);        // 5);//7);
   CurrentDACConfig->AddParameter("VNVCO", "5,4,3,1,0,2", 15);       // 15);
-  CurrentDACConfig->AddParameter("VPDelDclMux", "5,4,3,1,0,2", 20);  // 30);
+  CurrentDACConfig->AddParameter("VPDelDclMux", "5,4,3,1,0,2", 20); // 30);
   CurrentDACConfig->AddParameter("VNDelDclMux", "5,4,3,1,0,2", 20); // 30);
-  CurrentDACConfig->AddParameter("VPDelDcl", "5,4,3,1,0,2", 20);     // 30);
+  CurrentDACConfig->AddParameter("VPDelDcl", "5,4,3,1,0,2", 20);    // 30);
   CurrentDACConfig->AddParameter("VNDelDcl", "5,4,3,1,0,2", 20);    // 30);
-  CurrentDACConfig->AddParameter("VPDelPreEmp", "5,4,3,1,0,2", 20);  // 30);
+  CurrentDACConfig->AddParameter("VPDelPreEmp", "5,4,3,1,0,2", 20); // 30);
   CurrentDACConfig->AddParameter("VNDelPreEmp", "5,4,3,1,0,2", 20); // 30);
   CurrentDACConfig->AddParameter("VPDcl", "5,4,3,1,0,2", 20);       // 30);
   CurrentDACConfig->AddParameter("VNDcl", "5,4,3,1,0,2", 20);       // 30);
@@ -68,14 +68,14 @@ void ATLASPixMatrix::_initializeGlobalParameters() {
   CurrentDACConfig->AddParameter("Ser_res_n", 1, ATLASPix_Config::LSBFirst, 1); // 1);  //for fastreadout start set 1
   CurrentDACConfig->AddParameter("Aur_res_n", 1, ATLASPix_Config::LSBFirst, 1); // 1);  //for fastreadout start set 1
   CurrentDACConfig->AddParameter("sendcnt", 1, ATLASPix_Config::LSBFirst, 0);   // 0);
-  CurrentDACConfig->AddParameter("resetckdivend", "3,2,1,0", 0);               // 2);
-  CurrentDACConfig->AddParameter("maxcycend", "5,4,3,2,1,0", 63);                // 10); // probably 0 not allowed
+  CurrentDACConfig->AddParameter("resetckdivend", "3,2,1,0", 0);                // 2);
+  CurrentDACConfig->AddParameter("maxcycend", "5,4,3,2,1,0", 63);               // 10); // probably 0 not allowed
   CurrentDACConfig->AddParameter("slowdownend", "3,2,1,0", 0);                  // 1);
   CurrentDACConfig->AddParameter("timerend", "3,2,1,0", 1); // 8); // darf nicht 0!! sonst werden debug ausgaben verschluckt
   CurrentDACConfig->AddParameter("ckdivend2", "5,4,3,2,1,0", 0); // 1);
   CurrentDACConfig->AddParameter("ckdivend", "5,4,3,2,1,0", 0);  // 1);
   CurrentDACConfig->AddParameter("VPRegCasc", "5,4,3,1,0,2", 20);
-  CurrentDACConfig->AddParameter("VPRamp", "5,4,3,1,0,2", 0);     // was 4, off for HB/Thlow usage and fastreadout
+  CurrentDACConfig->AddParameter("VPRamp", "5,4,3,1,0,2", 0);    // was 4, off for HB/Thlow usage and fastreadout
   CurrentDACConfig->AddParameter("VNcompPix", "5,4,3,1,0,2", 3); // VNComparator
   CurrentDACConfig->AddParameter("VPFoll", "5,4,3,1,0,2", 10);
   CurrentDACConfig->AddParameter("VNDACPix", "5,4,3,1,0,2", 0);
@@ -202,7 +202,7 @@ void ATLASPixMatrix::initializeM2() {
 
 void ATLASPixMatrix::setTDAC(uint32_t col, uint32_t row, uint32_t value) {
   if(7 < value) {
-    LOG(logWARNING) << "TDAC value out of range, setting to 7";
+    LOG(WARNING) << "TDAC value out of range, setting to 7";
     value = 7;
   }
 
@@ -211,7 +211,7 @@ void ATLASPixMatrix::setTDAC(uint32_t col, uint32_t row, uint32_t value) {
 
 void ATLASPixMatrix::setUniformTDAC(uint32_t value) {
   if(7 < value) {
-    LOG(logWARNING) << "TDAC value out of range, setting to 7";
+    LOG(WARNING) << "TDAC value out of range, setting to 7";
     value = 7;
   }
 
@@ -267,7 +267,7 @@ void ATLASPixMatrix::loadGlobal(std::string filename) {
     std::string reg;
     cfg >> reg;
 
-    LOG(logINFO) << "processing : " << reg;
+    LOG(INFO) << "processing : " << reg;
 
     if(std::find(ExternalBias.begin(), ExternalBias.end(), reg) != ExternalBias.end()) {
       double bias = 0;
@@ -283,7 +283,7 @@ void ATLASPixMatrix::loadGlobal(std::string filename) {
       } else if(reg == "ThPix_ext") {
         ThPix = bias;
       } else {
-        LOG(logERROR) << "unsupported external bias register: " << reg;
+        LOG(ERROR) << "unsupported external bias register: " << reg;
       }
     } else if(std::find(CurrentDACs.begin(), CurrentDACs.end(), reg) != CurrentDACs.end()) {
       int value;
@@ -294,7 +294,7 @@ void ATLASPixMatrix::loadGlobal(std::string filename) {
       cfg >> value;
       VoltageDACConfig->SetParameter(reg, value);
     } else {
-      LOG(logERROR) << "unknown register : " << reg;
+      LOG(ERROR) << "unknown register : " << reg;
     }
   }
 }
@@ -354,12 +354,12 @@ std::vector<uint32_t> ATLASPixMatrix::encodeShiftRegister() const {
 
   // verify with configuration values
   if((cnt % 32) != extraBits) {
-    LOG(logERROR) << "Encoded shift register extra bits " << cnt << " inconsistent with expected bits " << extraBits;
+    LOG(ERROR) << "Encoded shift register extra bits " << cnt << " inconsistent with expected bits " << extraBits;
   }
   // nSRbuffer counts the number of full buffer words
   size_t expectedWords = (cnt == 32) ? nSRbuffer : (nSRbuffer + 1);
   if(words.size() != expectedWords) {
-    LOG(logERROR) << "Encoded shift register size " << words.size() << " inconsistent with expected size " << expectedWords;
+    LOG(ERROR) << "Encoded shift register size " << words.size() << " inconsistent with expected size " << expectedWords;
   }
 
   return words;

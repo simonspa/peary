@@ -42,13 +42,13 @@ public:
    */
   bool AddParameter(std::string name, unsigned int bits = 6, int shiftdirection = MSBFirst, unsigned int initial = 0);
   /**
-    * @brief adds a parameter to the configuration at the end
-    *
-    * @param name     - the name of the parameter (will be saved in the maps)
-    * @param bitorder - the comma separated ordering of the bits (limits: {1,...,30} (32bit signed int))
-    * @param initial  - the initial value for the parameter
-    * @return         - true if the parameter was accepted, false if not
-    */
+   * @brief adds a parameter to the configuration at the end
+   *
+   * @param name     - the name of the parameter (will be saved in the maps)
+   * @param bitorder - the comma separated ordering of the bits (limits: {1,...,30} (32bit signed int))
+   * @param initial  - the initial value for the parameter
+   * @return         - true if the parameter was accepted, false if not
+   */
   bool AddParameter(std::string name, std::string bitorder = "5,4,3,2,1,0", unsigned int initial = 0);
   /**
    * @brief ClearParameters removes all parameters from the object
