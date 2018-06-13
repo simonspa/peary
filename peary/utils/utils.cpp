@@ -48,7 +48,7 @@ void caribou::make_directories(std::string path) {
   // and at some point i'll take it back.
   int err = system(("mkdir -p " + path).c_str());
   if(err) {
-    LOG(logCRITICAL) << "Could not create directory '" << path << "'. error " << err;
+    LOG(ERROR) << "Could not create directory '" << path << "'. error " << err;
   }
 }
 
