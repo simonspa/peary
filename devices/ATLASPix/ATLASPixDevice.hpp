@@ -1,5 +1,5 @@
 /**
- * Caribou implementation for the ATLASPixF chip
+ * Caribou implementation for the ATLASPix chip
  */
 
 #ifndef DEVICE_ATLASPix_H
@@ -40,11 +40,11 @@ namespace caribou {
 
   /** ATLASPix Device class definition
    */
-  class ATLASPix : public pearyDevice<iface_i2c> {
+  class ATLASPixDevice : public pearyDevice<iface_i2c> {
 
   public:
-    ATLASPix(const caribou::Configuration config);
-    ~ATLASPix();
+    ATLASPixDevice(const caribou::Configuration config);
+    ~ATLASPixDevice();
 
     void SetMatrix(std::string matrix);
 

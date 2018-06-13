@@ -2,7 +2,7 @@
  * Caribou implementation for the ATLASPix
  */
 
-#include "ATLASPix.hpp"
+#include "ATLASPixDevice.hpp"
 
 #include <chrono>
 #include <cmath>
@@ -144,7 +144,7 @@ namespace Color {
   };
 }
 
-ATLASPix::ATLASPix(const caribou::Configuration config)
+ATLASPixDevice::ATLASPixDevice(const caribou::Configuration config)
     : pearyDevice(config, std::string(DEFAULT_DEVICEPATH), ATLASPix_DEFAULT_I2C), _daqContinue(ATOMIC_FLAG_INIT) {
 
   // Configuring the clock
@@ -173,13 +173,13 @@ ATLASPix::ATLASPix(const caribou::Configuration config)
   _daqContinue.test_and_set();
 }
 
-ATLASPix::~ATLASPix() {
+ATLASPixDevice::~ATLASPixDevice() {
   LOG(logINFO) << DEVICE_NAME << ": Shutdown, delete device.";
   daqStop(); // does nothing if no daq thread is running
   powerOff();
 }
 
-void ATLASPix::SetMatrix(std::string matrix) {
+void ATLASPixDevice::SetMatrix(std::string matrix) {
 
   // avoid stupid case mistakes
   std::string name = matrix;
@@ -225,7 +225,7 @@ void ATLASPix::SetMatrix(std::string matrix) {
   }
 }
 
-void ATLASPix::configure() {
+void ATLASPixDevice::configure() {
 
   LOG(logINFO) << "Configuring " << DEVICE_NAME;
 
@@ -270,19 +270,19 @@ void ATLASPix::configure() {
   pearyDevice<iface_i2c>::configure();
 }
 
-void ATLASPix::lock() {
+void ATLASPixDevice::lock() {
 
   this->theMatrix.CurrentDACConfig->SetParameter("unlock", 0x0);
   this->ProgramSR(theMatrix);
 }
 
-void ATLASPix::unlock() {
+void ATLASPixDevice::unlock() {
 
   this->theMatrix.CurrentDACConfig->SetParameter("unlock", 0b1010);
   this->ProgramSR(theMatrix);
 }
 
-void ATLASPix::setThreshold(double threshold) {
+void ATLASPixDevice::setThreshold(double threshold) {
 
   theMatrix.VoltageDACConfig->SetParameter("ThPix", static_cast<int>(floor(255 * threshold / 1.8)));
 
@@ -294,7 +294,7 @@ void ATLASPix::setThreshold(double threshold) {
   theMatrix.ThPix = threshold;
 }
 
-void ATLASPix::setVMinus(double vminus) {
+void ATLASPixDevice::setVMinus(double vminus) {
 
   // theMatrix.VoltageDACConfig->SetParameter("ThPix",static_cast<int>(floor(255 * threshold/1.8)));
 
@@ -305,7 +305,7 @@ void ATLASPix::setVMinus(double vminus) {
   this->switchOn("VMinusPix");
 }
 
-void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
+void ATLASPixDevice::setSpecialRegister(std::string name, uint32_t value) {
 
   char Choice;
 
@@ -1876,7 +1876,7 @@ void ATLASPix::setSpecialRegister(std::string name, uint32_t value) {
   }
 }
 
-void ATLASPix::configureClock() {
+void ATLASPixDevice::configureClock() {
 /*
   // Check of we should configure for external or internal clock, default to external:
   if(_config.Get<bool>("clock_internal", false)) {
@@ -1902,7 +1902,7 @@ void ATLASPix::configureClock() {
 //  }
 }
 
-void ATLASPix::ProgramSR(const ATLASPixMatrix& matrix) {
+void ATLASPixDevice::ProgramSR(const ATLASPixMatrix& matrix) {
 
   auto words = matrix.encodeShiftRegister();
 
@@ -1953,7 +1953,7 @@ void ATLASPix::ProgramSR(const ATLASPixMatrix& matrix) {
 
 // Injection and pulser
 
-void ATLASPix::resetPulser() {
+void ATLASPixDevice::resetPulser() {
 
   void* pulser_base = _hal->getMappedMemoryRW(ATLASPix_PULSER_BASE_ADDRESS, ATLASPix_PULSER_MAP_SIZE, ATLASPix_PULSER_MASK);
   volatile uint32_t* rst = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x14);
@@ -1965,7 +1965,7 @@ void ATLASPix::resetPulser() {
   *rst = 0x0;
 }
 
-void ATLASPix::setPulse(ATLASPixMatrix& matrix, uint32_t npulse, uint32_t n_up, uint32_t n_down, double voltage) {
+void ATLASPixDevice::setPulse(ATLASPixMatrix& matrix, uint32_t npulse, uint32_t n_up, uint32_t n_down, double voltage) {
 
   LOG(logDEBUG) << " Set injection voltages ";
   _hal->setBiasRegulator(INJ_1, voltage);
@@ -1995,7 +1995,7 @@ void ATLASPix::setPulse(ATLASPixMatrix& matrix, uint32_t npulse, uint32_t n_up, 
   this->pulse_width = std::ceil(((npulse * n_up + npulse * n_down) * (1.0 / 160.0e6)) / 1e-6) + 10;
 }
 
-void ATLASPix::sendPulse() {
+void ATLASPixDevice::sendPulse() {
 
   void* pulser_base = _hal->getMappedMemoryRW(ATLASPix_PULSER_BASE_ADDRESS, ATLASPix_PULSER_MAP_SIZE, ATLASPix_PULSER_MASK);
   volatile uint32_t* inj_flag = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x0);
@@ -2024,7 +2024,7 @@ void ATLASPix::sendPulse() {
   //	 *fifo_config = 0b10;
 }
 
-void ATLASPix::resetCounters() {
+void ATLASPixDevice::resetCounters() {
 
   void* counter_base =
     _hal->getMappedMemoryRW(ATLASPix_COUNTER_BASE_ADDRESS, ATLASPix_COUNTER_MAP_SIZE, ATLASPix_COUNTER_MASK);
@@ -2047,7 +2047,7 @@ void ATLASPix::resetCounters() {
   *cnt_rst = 0x0;
 }
 
-int ATLASPix::readCounter(int i) {
+int ATLASPixDevice::readCounter(int i) {
   void* counter_base =
     _hal->getMappedMemoryRW(ATLASPix_COUNTER_BASE_ADDRESS, ATLASPix_COUNTER_MAP_SIZE, ATLASPix_COUNTER_MASK);
 
@@ -2080,7 +2080,7 @@ int ATLASPix::readCounter(int i) {
   return value;
 }
 
-int ATLASPix::readCounter(ATLASPixMatrix& matrix) {
+int ATLASPixDevice::readCounter(ATLASPixMatrix& matrix) {
   void* counter_base =
     _hal->getMappedMemoryRW(ATLASPix_COUNTER_BASE_ADDRESS, ATLASPix_COUNTER_MAP_SIZE, ATLASPix_COUNTER_MASK);
 
@@ -2113,7 +2113,7 @@ int ATLASPix::readCounter(ATLASPixMatrix& matrix) {
   return value;
 }
 
-void ATLASPix::pulse(uint32_t npulse, uint32_t tup, uint32_t tdown, double amplitude) {
+void ATLASPixDevice::pulse(uint32_t npulse, uint32_t tup, uint32_t tdown, double amplitude) {
 
   this->resetCounters();
   this->setPulse(theMatrix, npulse, tup, tdown, amplitude);
@@ -2124,7 +2124,7 @@ void ATLASPix::pulse(uint32_t npulse, uint32_t tup, uint32_t tdown, double ampli
 
 // TDAC Manipulation
 
-void ATLASPix::MaskPixel(uint32_t col, uint32_t row) {
+void ATLASPixDevice::MaskPixel(uint32_t col, uint32_t row) {
 
   theMatrix.setMask(col, row, 1);
   // std::cout << "pixel masked col:" << col << " row: " << row << " " << theMatrix.MASK[col][row] << std::endl;
@@ -2133,16 +2133,16 @@ void ATLASPix::MaskPixel(uint32_t col, uint32_t row) {
   //this->SetPixelInjection(col, row, 0, 0, 0);
 }
 
-void ATLASPix::setAllTDAC(uint32_t value) {
+void ATLASPixDevice::setAllTDAC(uint32_t value) {
   this->writeUniformTDAC(theMatrix, value);
 }
 
-void ATLASPix::LoadTDAC(std::string filename) {
+void ATLASPixDevice::LoadTDAC(std::string filename) {
   theMatrix.loadTDAC(filename);
   writeAllTDAC(theMatrix);
 }
 
-void ATLASPix::writeOneTDAC(ATLASPixMatrix& matrix, uint32_t col, uint32_t row, uint32_t value) {
+void ATLASPixDevice::writeOneTDAC(ATLASPixMatrix& matrix, uint32_t col, uint32_t row, uint32_t value) {
 
   matrix.setTDAC(col, row, value);
 
@@ -2200,7 +2200,7 @@ void ATLASPix::writeOneTDAC(ATLASPixMatrix& matrix, uint32_t col, uint32_t row, 
   this->ProgramSR(matrix);
 }
 
-void ATLASPix::writeUniformTDAC(ATLASPixMatrix& matrix, uint32_t value) {
+void ATLASPixDevice::writeUniformTDAC(ATLASPixMatrix& matrix, uint32_t value) {
 
   std::string col_s;
   int double_col = 0;
@@ -2277,7 +2277,7 @@ void ATLASPix::writeUniformTDAC(ATLASPixMatrix& matrix, uint32_t value) {
   this->ProgramSR(matrix);
 }
 
-void ATLASPix::writeAllTDAC(ATLASPixMatrix& matrix) {
+void ATLASPixDevice::writeAllTDAC(ATLASPixMatrix& matrix) {
 
   std::string col_s;
   int double_col = 0;
@@ -2345,7 +2345,7 @@ void ATLASPix::writeAllTDAC(ATLASPixMatrix& matrix) {
 
 // injections
 
-void ATLASPix::SetPixelInjection(uint32_t col, uint32_t row, bool ana_state, bool hb_state, bool inj_state) {
+void ATLASPixDevice::SetPixelInjection(uint32_t col, uint32_t row, bool ana_state, bool hb_state, bool inj_state) {
   std::string col_s;
   int double_col = 0;
 
@@ -2416,7 +2416,7 @@ void ATLASPix::SetPixelInjection(uint32_t col, uint32_t row, bool ana_state, boo
   this->ProgramSR(theMatrix);
 }
 
-void ATLASPix::SetPixelInjectionState(uint32_t col, uint32_t row, bool ana_state, bool hb_state, bool inj) {
+void ATLASPixDevice::SetPixelInjectionState(uint32_t col, uint32_t row, bool ana_state, bool hb_state, bool inj) {
   std::string col_s;
   int double_col = 0;
 
@@ -2465,7 +2465,7 @@ void ATLASPix::SetPixelInjectionState(uint32_t col, uint32_t row, bool ana_state
   theMatrix.MatrixDACConfig->SetParameter("analogbuffer" + row_s, ana_state);
 }
 
-void ATLASPix::ResetWriteDAC() {
+void ATLASPixDevice::ResetWriteDAC() {
 
   for(int row = 0; row < theMatrix.nrow; row++) {
     std::string row_s = to_string(row);
@@ -2473,7 +2473,7 @@ void ATLASPix::ResetWriteDAC() {
   }
 }
 
-void ATLASPix::SetInjectionMask(uint32_t maskx, uint32_t masky, uint32_t state) {
+void ATLASPixDevice::SetInjectionMask(uint32_t maskx, uint32_t masky, uint32_t state) {
 
   for(int col = 0; col < theMatrix.ncol; col++) {
     if(((col + maskx) % theMatrix.maskx) == 0) {
@@ -2498,7 +2498,7 @@ void ATLASPix::SetInjectionMask(uint32_t maskx, uint32_t masky, uint32_t state) 
 
 // Tuning
 
-// void ATLASPix::tune(ATLASPixMatrix& matrix, double vmax, int nstep, int npulses, bool tuning_verification) {
+// void ATLASPixDevice::tune(ATLASPixMatrix& matrix, double vmax, int nstep, int npulses, bool tuning_verification) {
 //  LOG(logINFO) << "Tunning " << DEVICE_NAME;
 //
 //  for(int TDAC_value = 0; TDAC_value < 8; TDAC_value++) {
@@ -2528,7 +2528,7 @@ void ATLASPix::SetInjectionMask(uint32_t maskx, uint32_t masky, uint32_t state) 
 //  }
 //}
 
-void ATLASPix::ComputeSCurves(ATLASPixMatrix& matrix, double vmax, int nstep, int npulses, int tup, int tdown) {
+void ATLASPixDevice::ComputeSCurves(ATLASPixMatrix& matrix, double vmax, int nstep, int npulses, int tup, int tdown) {
 
   std::clock_t start;
   double duration;
@@ -2556,7 +2556,7 @@ void ATLASPix::ComputeSCurves(ATLASPixMatrix& matrix, double vmax, int nstep, in
   std::cout << "duration : " << duration << "s" << std::endl;
 }
 
-std::vector<pixelhit> ATLASPix::CountHits(std::vector<pixelhit> data, uint32_t maskidx, uint32_t maskidy, CounterMap& counts) {
+std::vector<pixelhit> ATLASPixDevice::CountHits(std::vector<pixelhit> data, uint32_t maskidx, uint32_t maskidy, CounterMap& counts) {
 
   for(auto& hit : data) {
     if((((hit.col + maskidx) % theMatrix.maskx) == 0) && (((hit.row + maskidy) % theMatrix.masky) == 0)) {
@@ -2577,7 +2577,7 @@ std::vector<pixelhit> ATLASPix::CountHits(std::vector<pixelhit> data, uint32_t m
 
 }
 
-void ATLASPix::doSCurves(double vmin, double vmax, uint32_t npulses, uint32_t npoints) {
+void ATLASPixDevice::doSCurves(double vmin, double vmax, uint32_t npulses, uint32_t npoints) {
 
   double vinj = vmin;
   double dv = (vmax - vmin) / (npoints - 1);
@@ -2623,7 +2623,7 @@ void ATLASPix::doSCurves(double vmin, double vmax, uint32_t npulses, uint32_t np
   disk.close();
 }
 
-void ATLASPix::isLocked() {
+void ATLASPixDevice::isLocked() {
   void* readout_base =
     _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
   volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x4);
@@ -2635,20 +2635,20 @@ void ATLASPix::isLocked() {
   }
 }
 
-uint32_t ATLASPix::getTriggerCounter() {
+uint32_t ATLASPixDevice::getTriggerCounter() {
   void* readout_base =
     _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
   volatile uint32_t* trg_cnt = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x18);
   return *trg_cnt;
 }
 
-void ATLASPix::getTriggerCount() {
+void ATLASPixDevice::getTriggerCount() {
   LOG(logINFO) << "Trigger accepted by FSM       " << this->getTriggerCounter() << std::endl;
   LOG(logINFO) << "Trigger accepted by FSM (ext) " << this->readCounter(2) << std::endl;
   LOG(logINFO) << "Trigger received              " << this->readCounter(3) << std::endl;
 }
 
-pearydata ATLASPix::getData() {
+pearydata ATLASPixDevice::getData() {
 
   void* readout_base =
     _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
@@ -2756,7 +2756,7 @@ pearydata ATLASPix::getData() {
   return dummy;
 }
 
-pearydata ATLASPix::getDataTO(int maskx, int masky) {
+pearydata ATLASPixDevice::getDataTO(int maskx, int masky) {
 
   void* readout_base =
     _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
@@ -2875,7 +2875,7 @@ pearydata ATLASPix::getDataTO(int maskx, int masky) {
   return dummy;
 }
 
-std::vector<pixelhit> ATLASPix::getDataTOvector() {
+std::vector<pixelhit> ATLASPixDevice::getDataTOvector() {
 
   void* readout_base =
     _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
@@ -2977,7 +2977,7 @@ std::vector<pixelhit> ATLASPix::getDataTOvector() {
   return datavec;
 }
 
-void ATLASPix::ReapplyMask() {
+void ATLASPixDevice::ReapplyMask() {
 
   LOG(logINFO) << "re-applying mask " << std::endl;
   for(int col = 0; col < theMatrix.ncol; col++) {
@@ -2990,7 +2990,7 @@ void ATLASPix::ReapplyMask() {
   };
 }
 
-void ATLASPix::dataTuning(double vmax, int nstep, int npulses) {
+void ATLASPixDevice::dataTuning(double vmax, int nstep, int npulses) {
 
   const double margin = 0.05;
 
@@ -3094,7 +3094,7 @@ void ATLASPix::dataTuning(double vmax, int nstep, int npulses) {
   disk.close();
 }
 
-// void ATLASPix::dataTuning( double vmax, int nstep, int npulses) {
+// void ATLASPixDevice::dataTuning( double vmax, int nstep, int npulses) {
 //  double vstep=vmax /double(nstep-1);
 //
 //  LOG(logINFO) << "Tuning using data with " << DEVICE_NAME;
@@ -3142,7 +3142,7 @@ void ATLASPix::dataTuning(double vmax, int nstep, int npulses) {
 //
 //}
 
-void ATLASPix::VerifyTuning(double vmax, int nstep, int npulses, std::string TDACFile) {
+void ATLASPixDevice::VerifyTuning(double vmax, int nstep, int npulses, std::string TDACFile) {
   double vstep = vmax / double(nstep - 1);
 
   LOG(logINFO) << "Tuning using data with " << DEVICE_NAME;
@@ -3178,7 +3178,7 @@ void ATLASPix::VerifyTuning(double vmax, int nstep, int npulses, std::string TDA
   }
 }
 
-// void ATLASPix::doSCurves(double vmin, double vmax, uint32_t npulses, uint32_t npoints) {
+// void ATLASPixDevice::doSCurves(double vmin, double vmax, uint32_t npulses, uint32_t npoints) {
 //
 //  std::cout << "Ok lets get started" << std::endl;
 //  int cnt = 0;
@@ -3257,7 +3257,7 @@ void ATLASPix::VerifyTuning(double vmax, int nstep, int npulses, std::string TDA
 //  myfile.close();
 //}
 
-void ATLASPix::doSCurves(std::string basefolder, double vmin, double vmax, uint32_t npulses, uint32_t npoints) {
+void ATLASPixDevice::doSCurves(std::string basefolder, double vmin, double vmax, uint32_t npulses, uint32_t npoints) {
 
   std::cout << "Ok lets get started" << std::endl;
   int cnt = 0;
@@ -3322,7 +3322,7 @@ void ATLASPix::doSCurves(std::string basefolder, double vmin, double vmax, uint3
   myfile.close();
 }
 
-void ATLASPix::TDACScan(
+void ATLASPixDevice::TDACScan(
   std::string basefolder, int VNDAC, int step, double vmin, double vmax, uint32_t npulses, uint32_t npoints) {
 
   this->WriteConfig(basefolder + "/config");
@@ -3338,7 +3338,7 @@ void ATLASPix::TDACScan(
 
 // CaR Board related
 
-void ATLASPix::reset() {
+void ATLASPixDevice::reset() {
   // LOG(logINFO) << "Resetting " << DEVICE_NAME;
 
   double thor = theMatrix.ThPix;
@@ -3384,11 +3384,11 @@ void ATLASPix::reset() {
   *fifo_config = (*fifo_config & 0xFFFFFFEF) + 0b00000;
 }
 
-std::string ATLASPix::getName() {
+std::string ATLASPixDevice::getName() {
   return DEVICE_NAME;
 }
 
-void ATLASPix::powerUp() {
+void ATLASPixDevice::powerUp() {
   LOG(logINFO) << DEVICE_NAME << ": Powering up ATLASPix";
   std::cout << '\n';
 
@@ -3421,7 +3421,7 @@ void ATLASPix::powerUp() {
   this->switchOn("BLPix");
 }
 
-void ATLASPix::powerDown() {
+void ATLASPixDevice::powerDown() {
   LOG(logINFO) << DEVICE_NAME << ": Power off ATLASPix";
 
   LOG(logDEBUG) << "Powering off VDDA";
@@ -3450,7 +3450,7 @@ namespace {
   using TimeoutTimepoint = std::chrono::steady_clock::time_point;
 } // unnamed namespace
 
-void ATLASPix::daqStart() {
+void ATLASPixDevice::daqStart() {
   // ensure only one daq thread is running
 	this->reset();
 	if(_daqThread.joinable()) {
@@ -3460,22 +3460,22 @@ void ATLASPix::daqStart() {
   // arm the stop flag and start running
   this->resetCounters();
   _daqContinue.test_and_set();
-  _daqThread = std::thread(&ATLASPix::runDaq, this);
+  _daqThread = std::thread(&ATLASPixDevice::runDaq, this);
   // LOG(logINFO) << "acquisition started" << std::endl;
 }
 
-void ATLASPix::daqStop() {
+void ATLASPixDevice::daqStop() {
   // signal to daq thread that we want to stop and wait until it does
   _daqContinue.clear();
   _daqThread.join();
   // LOG(logINFO) << "Trigger count at end of run : " << this->getTriggerCounter() << std::endl;
 }
 
-void ATLASPix::runDaq() {
+void ATLASPixDevice::runDaq() {
   getData();
 }
 
-void ATLASPix::powerStatusLog() {
+void ATLASPixDevice::powerStatusLog() {
   LOG(logINFO) << DEVICE_NAME << " power status:";
 
   LOG(logINFO) << "VDDD:";
@@ -3491,13 +3491,13 @@ void ATLASPix::powerStatusLog() {
   LOG(logINFO) << "\tBus current: " << _hal->measureCurrent(PWR_OUT_2) << "A";
 }
 
-void ATLASPix::WriteConfig(std::string name) {
+void ATLASPixDevice::WriteConfig(std::string name) {
   make_directories(_output_directory);
   theMatrix.writeGlobal(_output_directory + "/" + name + ".cfg");
   theMatrix.writeTDAC(_output_directory + "/" + name + "_TDAC.cfg");
 }
 
-void ATLASPix::LoadConfig(std::string basename) {
+void ATLASPixDevice::LoadConfig(std::string basename) {
   theMatrix.loadGlobal(basename + ".cfg");
   this->ProgramSR(theMatrix);
   // 2018-02-14 msmk:
