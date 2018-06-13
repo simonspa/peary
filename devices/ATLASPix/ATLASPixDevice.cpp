@@ -145,6 +145,28 @@ namespace Color {
 ATLASPixDevice::ATLASPixDevice(const caribou::Configuration config)
     : pearyDevice(config, std::string(DEFAULT_DEVICEPATH), ATLASPix_DEFAULT_I2C), _daqContinue(ATOMIC_FLAG_INIT) {
 
+  // Register custom commands with the dispatcher:
+  _dispatcher.add("dataTuning", &ATLASPixDevice::dataTuning, this);
+  _dispatcher.add("VerifyTuning", &ATLASPixDevice::VerifyTuning, this);
+  _dispatcher.add("lock", &ATLASPixDevice::lock, this);
+  _dispatcher.add("unlock", &ATLASPixDevice::unlock, this);
+  _dispatcher.add("setThreshold", &ATLASPixDevice::setThreshold, this);
+  _dispatcher.add("setVMinus", &ATLASPixDevice::setVMinus, this);
+  _dispatcher.add("getTriggerCount", &ATLASPixDevice::getTriggerCount, this);
+  _dispatcher.add("pulse", &ATLASPixDevice::pulse, this);
+  _dispatcher.add("SetPixelInjection", &ATLASPixDevice::SetPixelInjection, this);
+  //_dispatcher.add("doSCurve", &ATLASPixDevice::doSCurve, this);
+  _dispatcher.add("doSCurves", &ATLASPixDevice::doSCurves, this);
+  _dispatcher.add("setAllTDAC", &ATLASPixDevice::setAllTDAC, this);
+  //_dispatcher.add("doNoiseCurve", &ATLASPixDevice::doNoiseCurve, this);
+  _dispatcher.add("LoadTDAC", &ATLASPixDevice::LoadTDAC, this);
+  _dispatcher.add("LoadConfig", &ATLASPixDevice::LoadConfig, this);
+  _dispatcher.add("WriteConfig", &ATLASPixDevice::WriteConfig, this);
+  _dispatcher.add("TDACScan", &ATLASPixDevice::TDACScan, this);
+  _dispatcher.add("SetMatrix", &ATLASPixDevice::SetMatrix, this);
+  _dispatcher.add("MaskPixel", &ATLASPixDevice::MaskPixel, this);
+  _dispatcher.add("isLocked", &ATLASPixDevice::isLocked, this);
+
   // Configuring the clock
   LOG(INFO) << "Setting clock circuit on CaR board " << DEVICE_NAME;
   configureClock();
