@@ -160,9 +160,11 @@ namespace caribou {
     {"trigger_always_armed", register_t<>(0x26, 0xFF, false, true, true)},		\
     {"t0_enable", register_t<>(0x26, 0xFF, false, true, true)},		\
     {"gray_decode", register_t<>(0x26, 0xFF, false, true, true)},		\
-    {"ext_clk", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"send_fpga_ts", register_t<>(0x26, 0xFF, false, true, true)},		\
   }
   // clang-format on
+  
+  //{"ext_clk", register_t<>(0x26, 0xFF, false, true, true)},		\
 
 } // namespace caribou
 
