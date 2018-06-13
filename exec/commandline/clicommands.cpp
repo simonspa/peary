@@ -985,7 +985,7 @@ int pearycli::LoadConfig(const std::vector<std::string>& input) {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(2)));
     dev->LoadConfig(input.at(1));
   } catch(caribou::caribouException& e) {
-    return ret::Error;
+    return ReturnCode::Error;
   }
   return ReturnCode::Ok;
 }
