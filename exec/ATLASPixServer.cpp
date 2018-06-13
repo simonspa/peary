@@ -138,9 +138,9 @@ int main(int argc, char* argv[]) {
   devM1ISO = manager->getDevice(device_idM1ISO);
   devM2 = manager->getDevice(device_idM2);
 
-  devM1->SetMatrix("M1");
-  devM1ISO->SetMatrix("M1ISO");
-  devM2->SetMatrix("M2");
+  devM1->command("SetMatrix", "M1");
+  devM1ISO->command("SetMatrix", "M1ISO");
+  devM2->command("SetMatrix", "M2");
 
   // Switch on its power:
   devM1->powerOn();
@@ -151,17 +151,17 @@ int main(int argc, char* argv[]) {
   devM2->configure();
   devM1ISO->configure();
 
-  devM1->lock();
-  devM2->lock();
-  devM1ISO->lock();
+  devM1->command("lock");
+  devM2->command("lock");
+  devM1ISO->command("lock");
 
-  devM1->unlock();
+  devM1->command("unlock");
 
-  devM1->setThreshold(1.2);
+  devM1->command("setThreshold", "1.2");
   devM1->setRegister("VNFBPix", 32);
   devM1->setRegister("VNPix", 20);
   devM1->setRegister("VNDACPix", 4);
-  devM1->setAllTDAC(4);
+  devM1->command("setAllTDAC", "4");
 
   /* -------------- INITIALIZING VARIABLES -------------- */
   int server, client;  // socket file descriptors
@@ -331,7 +331,7 @@ int main(int argc, char* argv[]) {
       else if(cmd.find("setThreshold") != std::string::npos) {
         std::vector<std::string> words = split(cmd, ' ');
         double value = std::stof(words[1]);
-        devM1->setThreshold(value);
+        devM1->command("setThreshold", std::to_string(value));
         std::cout << "Setting Threshold to " << value << std::endl;
         // memset(buffer, 0, sizeof buffer);
         strcpy(buffer, "[ATLASPixServer] Setting threshold\n");
@@ -357,7 +357,7 @@ int main(int argc, char* argv[]) {
       else if(cmd.find("LoadConfig") != std::string::npos) {
         std::vector<std::string> words = split(cmd, ' ');
         std::cout << "Loading Config with basename " << words[1] << std::endl;
-        devM1->LoadConfig(words[1]);
+        devM1->command("LoadConfig", words[1]);
         // memset(buffer, 0, sizeof buffer);
         strcpy(buffer, "[ATLASPixServer] Loading Config\n");
 
@@ -366,7 +366,7 @@ int main(int argc, char* argv[]) {
       else if(cmd.find("WriteConfig") != std::string::npos) {
         std::vector<std::string> words = split(cmd, ' ');
         std::cout << "Writing Config with basename " << words[1] << std::endl;
-        devM1->WriteConfig(words[1]);
+        devM1->command("WriteConfig", words[1]);
         // memset(buffer, 0, sizeof buffer);
         strcpy(buffer, "[ATLASPixServer] Writing Config\n");
 
