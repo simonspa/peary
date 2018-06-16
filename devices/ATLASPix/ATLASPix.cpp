@@ -2703,6 +2703,8 @@ pearydata ATLASPix::getData() {
 
       case 0b01000000: // BinCnt from ATLASPix, not read for now
         timestamp = d1 & 0xFFFFFF;
+        //disk << "BINCOUNTER " << timestamp << std::endl;
+
         break;
       case 0b00000001: // Buffer overflow, data after this are lost
         disk << "BUFFER_OVERFLOW" << std::endl;

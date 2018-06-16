@@ -93,7 +93,7 @@ namespace caribou {
     uint32_t getTriggerCounter();
 
     pearydata getData();
-    pearydata getDataTO(int maskx, int masky);
+	pearydata getDataTO(int maskx, int masky);
     std::vector<pixelhit> getDataTOvector();
 
     void dataTuning(double vmax, int nstep, int npulses);
