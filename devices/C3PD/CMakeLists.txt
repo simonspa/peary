@@ -1,4 +1,4 @@
-PEARY_ENABLE_DEFAULT(OFF)
+PEARY_ENABLE_DEFAULT(ON)
 
 # Define device and return the generated name as DEVICE_NAME
 PEARY_DEVICE(DEVICE_NAME)
