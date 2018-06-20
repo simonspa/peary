@@ -121,6 +121,7 @@ INCLUDE_DIRECTORIES(devices)
 
 # Always build main peary library;
 ADD_SUBDIRECTORY(peary)
+SET(PEARY_LIBRARIES ${PEARY_LIBRARIES} peary)
 
 # Include optional device support
 ADD_SUBDIRECTORY(devices)

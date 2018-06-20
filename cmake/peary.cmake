@@ -59,7 +59,7 @@ Create the header or provide the alternative class name as first argument")
 
     TARGET_SOURCES(${${name}} PRIVATE "${PROJECT_SOURCE_DIR}/peary/device/dynamic_device_impl.cpp")
     SET_PROPERTY(SOURCE "${PROJECT_SOURCE_DIR}/peary/device/dynamic_device_impl.cpp" APPEND PROPERTY OBJECT_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${_peary_device_class}.hpp")
-    # SET_PROPERTY(SOURCE "${PROJECT_SOURCE_DIR}/src/core/device/Module.cpp" APPEND PROPERTY OBJECT_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${_peary_device_class}.hpp")
+    SET_PROPERTY(SOURCE "${PROJECT_SOURCE_DIR}/peary/device/device.cpp" APPEND PROPERTY OBJECT_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${_peary_device_class}.hpp")
 ENDMACRO()
 
 # Add sources to the device
