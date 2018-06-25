@@ -37,9 +37,9 @@ namespace caribou {
 #define ATLASPix_VMinusPix_M1ISO 0.57
 #define ATLASPix_GatePix_M1ISO 2.2
 
-#define ATLASPix_BLPix_M1 0.7
-#define ATLASPix_BLPix_M1ISO 0.7
-#define ATLASPix_BLPix_M2 0.7
+#define ATLASPix_BLPix_M1 0.8
+#define ATLASPix_BLPix_M1ISO 0.8
+#define ATLASPix_BLPix_M2 0.8
 
 #define ATLASPix_ThPix_M1 0.85
 #define ATLASPix_ThPix_M1ISO 0.85
