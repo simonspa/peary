@@ -92,6 +92,10 @@ namespace caribou {
      */
     virtual void daqStop() = 0;
 
+    /** Set output base directory for all files.
+     */
+    virtual void setOutputDirectory(std::string path);
+
     virtual void configure();
 
     // Controlling the device
@@ -184,6 +188,10 @@ namespace caribou {
     /** Periphery dictionary to access CaR components:
      */
     caribou::component_dict _periphery;
+
+    /** Output base directory
+     */
+    std::string _output_directory;
 
   private:
     /** State indicating powering of the device

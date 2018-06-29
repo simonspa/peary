@@ -25,6 +25,10 @@ namespace caribou {
    */
   bool acquire_flock(std::string filename);
 
+  /** Ensure the directory and all its parents exists
+   */
+  void make_directories(std::string path);
+
   /** Delay helper function
    *  Uses usleep() to wait the given time in milliseconds
    */

@@ -61,6 +61,10 @@ namespace caribou {
      */
     virtual void powerOff() = 0;
 
+    /** Set output base directory for all files.
+     */
+    virtual void setOutputDirectory(std::string){};
+
     /** Start the data acquisition
      */
     virtual void daqStart() = 0;
