@@ -2728,6 +2728,8 @@ pearydata ATLASPixDevice::getData() {
 
       case 0b01000000: // BinCnt from ATLASPix, not read for now
         timestamp = d1 & 0xFFFFFF;
+        //disk << "BINCOUNTER " << timestamp << std::endl;
+
         break;
       case 0b00000001: // Buffer overflow, data after this are lost
         disk << "BUFFER_OVERFLOW" << std::endl;
@@ -3401,6 +3403,12 @@ void ATLASPixDevice::reset() {
 
   this->setThreshold(thor);
 
+
+
+  // Locking on comma word from ATLASPix
+  theMatrix.CurrentDACConfig->SetParameter("RO_res_n", 0);
+  this->ProgramSR(theMatrix);
+
   void* readout_base =
     _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
   volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
@@ -3408,6 +3416,12 @@ void ATLASPixDevice::reset() {
   *fifo_config = (*fifo_config & 0xFFFFFFEF) + 0b10000;
   usleep(50);
   *fifo_config = (*fifo_config & 0xFFFFFFEF) + 0b00000;
+
+  usleep(100);
+
+  theMatrix.CurrentDACConfig->SetParameter("RO_res_n", 1);
+  this->ProgramSR(theMatrix);
+
 }
 
 std::string ATLASPixDevice::getName() {
