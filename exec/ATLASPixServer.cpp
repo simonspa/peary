@@ -349,12 +349,10 @@ int main(int argc, char* argv[]) {
       }
       else if(cmd.find("setVMinus") != std::string::npos) {
         std::vector<std::string> words = split(cmd, ' ');
-        double value = std::stof(words[1]);
-        devM1->setVMinus(value);
-        std::cout << "Setting VMinus to " << value << std::endl;
+        devM1->command("setVMinus", words[1]);
+        std::cout << "Setting VMinus to " << words[1] << std::endl;
         // memset(buffer, 0, sizeof buffer);
         strcpy(buffer, "[ATLASPixServer] Setting threshold\n");
-
       }
 
       else if(cmd.find("setRegister") != std::string::npos) {
@@ -401,17 +399,15 @@ int main(int argc, char* argv[]) {
       else if(cmd.find("MaskPixel") != std::string::npos) {
         std::vector<std::string> words = split(cmd, ' ');
         std::cout << "Masking Pixel  " << words[1] << " " << words[2] << std::endl;
-        devM1->MaskPixel(std::stoi(words[1]),std::stoi(words[2]));
+        devM1->command("MaskPixel", {words[1], words[2]});
         // memset(buffer, 0, sizeof buffer);
         strcpy(buffer, "[ATLASPixServer] Masking a pixel \n");
-
       }
-
 
       else if(cmd.find("setAllTDAC") != std::string::npos) {
         std::vector<std::string> words = split(cmd, ' ');
         std::cout << "Setting all TDAC to  " << words[1] << std::endl;
-        devM1->setAllTDAC(std::stoi(words[1]));
+        devM1->command("setAllTDAC", words[1]);
         // memset(buffer, 0, sizeof buffer);
         strcpy(buffer, "[ATLASPixServer] Setting TDAC \n");
 
