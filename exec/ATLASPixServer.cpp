@@ -73,8 +73,6 @@ int main(int argc, char* argv[]) {
 
   sigaction(SIGINT, &sigIntHandler, NULL);
 
-  int run_nr;
-
   int bufSize = 1024;
   char* buffer = (char*)malloc(bufSize);
   std::string rundir = ".";
@@ -287,7 +285,6 @@ int main(int argc, char* argv[]) {
     std::cout << "- Connected with the client, waiting for commands..." << std::endl;
     // loop to recive messages from client
 
-    bool isExit = 0;
     do {
       std::cout << "\nClient: ";
       echo = "";
@@ -447,7 +444,7 @@ int main(int argc, char* argv[]) {
   close(server);
   clean();
   return 0;
-};
+}
 
 std::vector<std::string> split(std::string str, char delimiter) {
   std::vector<std::string> internal;
