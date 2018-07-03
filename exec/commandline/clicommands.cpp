@@ -460,7 +460,8 @@ int pearycli::scanDAC(const std::vector<std::string>& input) {
                                             {"threshold_msb", 12},
                                             {"test_cap_2", 13},
                                             {"test_cap_1_lsb", 14},
-                                            {"test_cap_1_msb", 14}};
+                                            {"test_cap_1_msb", 14},
+                                            {"test_cap_1", 14}};
 
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(7)));

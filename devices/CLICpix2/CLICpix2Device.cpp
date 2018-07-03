@@ -124,13 +124,18 @@ void CLICpix2Device::setSpecialRegister(std::string name, uint32_t value) {
     this->setRegister("threshold_msb", msb);
     this->setRegister("threshold_lsb", lsb);
   } else if(name == "test_cap_1") {
-    // Get pulsegen_counts LSB and MSB
-    // std::pair<uint8_t,uint8_t> dacs = test_cap_1.at(value);
-    LOG(DEBUG) << "Test_cap_1 lookup: " << value << " = " << static_cast<int>((value >> 8) & 0x00FF) << "-"
-               << static_cast<int>(value & 0x00FF);
+    uint8_t msb = floor(value / 121.) * 14;
+    uint8_t lsb = (value % 121) + 84;
+    uint32_t maxThl = ceil(255 / 14.) * 121;
+    if(value >= maxThl) {
+      msb = 255;
+      lsb = 255;
+      LOG(WARNING) << "Test_Cap_1 range is limited to " << maxThl << ", setting 255-255";
+    }
+    LOG(DEBUG) << "Test_cap_1 lookup: " << value << " = " << static_cast<int>(msb) << "-" << static_cast<int>(lsb);
     // Set the two values:
-    this->setRegister("test_cap_1_msb", (value >> 8) & 0x00FF);
-    this->setRegister("test_cap_1_lsb", value & 0x00FF);
+    this->setRegister("test_cap_1_msb", msb);
+    this->setRegister("test_cap_1_lsb", lsb);
   } else if(name == "pulsegen_counts") {
     // Get pulsegen_counts LSB and MSB
     LOG(DEBUG) << "Pulsegen_counts lookup: " << value << " = " << static_cast<int>((value >> 8) & 0x00FF) << "-"
