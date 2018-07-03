@@ -55,8 +55,7 @@ caribouDeviceMgr::~caribouDeviceMgr() {
 caribouDevice* caribouDeviceMgr::getDevice(size_t id) {
 
   if(_deviceList.size() < (id + 1)) {
-    LOG(FATAL) << "Device ID " << id << " not known!";
-    throw caribou::DeviceException("Unknown device id");
+    throw caribou::DeviceException("Device ID " + std::to_string(id) + " not known!");
   } else
     return _deviceList.at(id);
 }
