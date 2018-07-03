@@ -150,6 +150,8 @@ void pearycli::listUnregisteredCommands() {
 int pearycli::unregisteredCommand(const std::vector<std::string>& input) {
 
   try {
+    if(input.size() <= 1)
+      throw caribouException("No device ID provided");
     caribouDevice* dev = manager->getDevice(std::stoi(input.back()));
 
     auto commands = dev->list_commands();
