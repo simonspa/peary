@@ -89,18 +89,18 @@ rebuild_meta-caribou:
 
 # CentOS 7
 
-#fmt:centos7-llvm-format:
-#  stage: format
-#  tags:
-#    - docker
-#  dependencies:
-#    - cmp:centos7-llvm
-#  image: clicdp/cc7-base
-#  script:
-#    - export COMPILER_TYPE="llvm"
-#    - source .gitlab-ci.d/init_x86_64.sh
-#    - cd build/
-#    - ninja check-format
+fmt:centos7-llvm-format:
+  stage: format
+  tags:
+    - docker
+  dependencies:
+    - cmp:centos7-llvm
+  image: clicdp/cc7-base
+  script:
+    - export COMPILER_TYPE="llvm"
+    - source .gitlab-ci.d/init_x86_64.sh
+    - cd build/
+    - ninja check-format
 #peary-mac:
 #  tags:
 #  - mac
