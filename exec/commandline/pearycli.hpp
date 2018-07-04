@@ -52,38 +52,16 @@ namespace caribou {
     static int scanThreshold(const std::vector<std::string>& input);
     static int scanThreshold2D(const std::vector<std::string>& input);
 
-    static int exploreInterface(const std::vector<std::string>& input);
     static int getADC(const std::vector<std::string>& input);
-    static int powerStatusLog(const std::vector<std::string>& input);
 
     static int daqStart(const std::vector<std::string>& input);
     static int daqStop(const std::vector<std::string>& input);
 
     static int getRawData(const std::vector<std::string>& input);
     static int getData(const std::vector<std::string>& input);
-    static int dataTuning(const std::vector<std::string>& input);
-    static int VerifyTuning(const std::vector<std::string>& input);
 
     static int acquire(const std::vector<std::string>& input);
     static int flushMatrix(const std::vector<std::string>& input);
-    static int lock(const std::vector<std::string>& input);
-    static int unlock(const std::vector<std::string>& input);
-    static int setThreshold(const std::vector<std::string>& input);
-    static int setVMinus(const std::vector<std::string>& input);
-    static int getTriggerCount(const std::vector<std::string>& input);
-    static int pulse(const std::vector<std::string>& input);
-    static int SetPixelInjection(const std::vector<std::string>& input);
-    static int doNoiseCurve(const std::vector<std::string>& input);
-    static int doSCurve(const std::vector<std::string>& input);
-    static int doSCurves(const std::vector<std::string>& input);
-    static int setAllTDAC(const std::vector<std::string>& input);
-    static int LoadTDAC(const std::vector<std::string>& input);
-    static int LoadConfig(const std::vector<std::string>& input);
-    static int WriteConfig(const std::vector<std::string>& input);
-    static int TDACScan(const std::vector<std::string>& input);
-    static int SetMatrix(const std::vector<std::string>& input);
-    static int MaskPixel(const std::vector<std::string>& input);
-    static int isLocked(const std::vector<std::string>& input);
 
     // Create new Peary device manager
     static caribou::caribouDeviceMgr* manager;
