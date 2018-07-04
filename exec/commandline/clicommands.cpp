@@ -628,17 +628,6 @@ int pearycli::getADC(const std::vector<std::string>& input) {
   return ReturnCode::Ok;
 }
 
-int pearycli::setOutputDirectory(const std::vector<std::string>& input) {
-  try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(2)));
-    dev->setOutputDirectory(input.at(1));
-  } catch(caribou::caribouException& e) {
-    LOG(ERROR) << e.what();
-    return ReturnCode::Error;
-  }
-  return ReturnCode::Ok;
-}
-
 int pearycli::daqStart(const std::vector<std::string>& input) {
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
