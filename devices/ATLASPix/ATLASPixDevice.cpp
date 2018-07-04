@@ -143,9 +143,10 @@ namespace Color {
 } // namespace Color
 
 ATLASPixDevice::ATLASPixDevice(const caribou::Configuration config)
-    : pearyDevice(config, std::string(DEFAULT_DEVICEPATH), ATLASPix_DEFAULT_I2C), _daqContinue(ATOMIC_FLAG_INIT) {
+    : pearyDevice(config, std::string(DEFAULT_DEVICEPATH), ATLASPix_DEFAULT_I2C), _daqContinue(ATOMIC_FLAG_INIT), _output_directory("PEARYDATA") {
 
   // Register custom commands with the dispatcher:
+  _dispatcher.add("setOutputDirectory", &ATLASPixDevice::setOutputDirectory, this);
   _dispatcher.add("dataTuning", &ATLASPixDevice::dataTuning, this);
   _dispatcher.add("VerifyTuning", &ATLASPixDevice::VerifyTuning, this);
   _dispatcher.add("lock", &ATLASPixDevice::lock, this);
@@ -198,6 +199,10 @@ ATLASPixDevice::~ATLASPixDevice() {
   LOG(INFO) << DEVICE_NAME << ": Shutdown, delete device.";
   daqStop(); // does nothing if no daq thread is running
   powerOff();
+}
+
+void ATLASPixDevice::setOutputDirectory(std::string dir) {
+  _output_directory = std::move(dir);
 }
 
 void ATLASPixDevice::SetMatrix(std::string matrix) {

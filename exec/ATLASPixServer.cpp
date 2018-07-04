@@ -362,7 +362,7 @@ int main(int argc, char* argv[]) {
 
       } else if(cmd.find("setOutputDirectory") != std::string::npos) {
         std::vector<std::string> words = split(cmd, ' ');
-        devM1->setOutputDirectory(words[1]);
+        devM1->command("setOutputDirectory", words[1]);
         std::cout << "Setting output directory to " << words[1] << std::endl;
         // memset(buffer, 0, sizeof buffer);
         strcpy(buffer, "[ATLASPixServer] Setting output directory\n");

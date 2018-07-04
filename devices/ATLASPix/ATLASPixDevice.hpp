@@ -69,6 +69,10 @@ namespace caribou {
      */
     void powerDown();
 
+    /** Set output base directory for all files.
+     */
+    void setOutputDirectory(std::string);
+
     /** Start the data acquisition
      */
     void daqStart();
@@ -145,6 +149,7 @@ namespace caribou {
     int pulse_width;
     std::atomic_flag _daqContinue;
     std::thread _daqThread;
+    std::string _output_directory;
   };
 
 } // namespace caribou
