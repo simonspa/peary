@@ -114,6 +114,7 @@ pearycli::pearycli() : Console("# ") {
   registerCommand("daqStop", daqStop, "Stop DAQ for the selected device", 1, "DEVICE_ID");
   registerCommand("getRawData", getRawData, "Retrieve raw data from the selected device", 1, "DEVICE_ID");
   registerCommand("getData", getData, "Retrieve decoded data from the selected device.", 1, "DEVICE_ID");
+
   registerCommand(
     "acquire",
     acquire,
@@ -941,7 +942,7 @@ int pearycli::scanThreshold2D(const std::vector<std::string>& input) {
       dev2->setRegister(input.at(4), dac2);
     }
 
-    LOG(INFO) << "Data writte to file: \"" << filename << "\"";
+    LOG(INFO) << "Data written to file: \"" << filename << "\"";
   } catch(caribou::caribouException& e) {
     LOG(ERROR) << e.what();
     return ReturnCode::Error;

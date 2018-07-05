@@ -48,6 +48,9 @@ ENDIF("${isSystemDir}" STREQUAL "-1")
 ADD_DEFINITIONS(-std=c++14)
 INCLUDE(cmake/Platform.cmake)
 
+SET(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+FIND_PACKAGE(Threads REQUIRED)
+
 ########################################
 # Figure out the current peary version #
 ########################################

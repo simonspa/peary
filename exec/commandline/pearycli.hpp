@@ -52,15 +52,14 @@ namespace caribou {
     static int scanThreshold(const std::vector<std::string>& input);
     static int scanThreshold2D(const std::vector<std::string>& input);
 
-    static int exploreInterface(const std::vector<std::string>& input);
     static int getADC(const std::vector<std::string>& input);
-    static int powerStatusLog(const std::vector<std::string>& input);
 
     static int daqStart(const std::vector<std::string>& input);
     static int daqStop(const std::vector<std::string>& input);
 
     static int getRawData(const std::vector<std::string>& input);
     static int getData(const std::vector<std::string>& input);
+
     static int acquire(const std::vector<std::string>& input);
     static int flushMatrix(const std::vector<std::string>& input);
 

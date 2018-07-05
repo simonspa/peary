@@ -12,6 +12,8 @@ obj/
 *.dat
 *.txt
 *.csv
+# do not ignore cmake config
+!CMakeLists.txt
 
 # ignore backup files of any sort of editor:
 ~*
