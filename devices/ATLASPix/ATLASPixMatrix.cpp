@@ -50,12 +50,12 @@ void ATLASPixMatrix::_initializeGlobalParameters() {
 
   // DigitalDACs
   CurrentDACConfig->AddParameter("VPVCO", "5,4,3,1,0,2", 15);       // 5);//7);
-  CurrentDACConfig->AddParameter("VNVCO", "5,4,3,1,0,2", 5);       // 15);
-  CurrentDACConfig->AddParameter("VPDelDclMux", "5,4,3,1,0,2", 30);  // 30);
+  CurrentDACConfig->AddParameter("VNVCO", "5,4,3,1,0,2", 5);        // 15);
+  CurrentDACConfig->AddParameter("VPDelDclMux", "5,4,3,1,0,2", 30); // 30);
   CurrentDACConfig->AddParameter("VNDelDclMux", "5,4,3,1,0,2", 30); // 30);
-  CurrentDACConfig->AddParameter("VPDelDcl", "5,4,3,1,0,2", 30);     // 30);
+  CurrentDACConfig->AddParameter("VPDelDcl", "5,4,3,1,0,2", 30);    // 30);
   CurrentDACConfig->AddParameter("VNDelDcl", "5,4,3,1,0,2", 30);    // 30);
-  CurrentDACConfig->AddParameter("VPDelPreEmp", "5,4,3,1,0,2", 30);  // 30);
+  CurrentDACConfig->AddParameter("VPDelPreEmp", "5,4,3,1,0,2", 30); // 30);
   CurrentDACConfig->AddParameter("VNDelPreEmp", "5,4,3,1,0,2", 30); // 30);
   CurrentDACConfig->AddParameter("VPDcl", "5,4,3,1,0,2", 50);       // 30);
   CurrentDACConfig->AddParameter("VNDcl", "5,4,3,1,0,2", 20);       // 30);

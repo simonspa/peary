@@ -143,7 +143,8 @@ namespace Color {
 } // namespace Color
 
 ATLASPixDevice::ATLASPixDevice(const caribou::Configuration config)
-    : pearyDevice(config, std::string(DEFAULT_DEVICEPATH), ATLASPix_DEFAULT_I2C), _daqContinue(ATOMIC_FLAG_INIT), _output_directory("PEARYDATA") {
+    : pearyDevice(config, std::string(DEFAULT_DEVICEPATH), ATLASPix_DEFAULT_I2C), _daqContinue(ATOMIC_FLAG_INIT),
+      _output_directory("PEARYDATA") {
 
   // Register custom commands with the dispatcher:
   _dispatcher.add("setOutputDirectory", &ATLASPixDevice::setOutputDirectory, this);
@@ -2734,7 +2735,7 @@ pearydata ATLASPixDevice::getData() {
 
       case 0b01000000: // BinCnt from ATLASPix, not read for now
         timestamp = d1 & 0xFFFFFF;
-        //disk << "BINCOUNTER " << timestamp << std::endl;
+        // disk << "BINCOUNTER " << timestamp << std::endl;
 
         break;
       case 0b00000001: // Buffer overflow, data after this are lost
@@ -2771,7 +2772,7 @@ pearydata ATLASPixDevice::getData() {
         disk << "SERDES_LOCK_ESTABLISHED" << std::endl;
         break;
       case 0b00000100: // Unexpected/weird data came
-        //sdisk << "WEIRD_DATA" << std::endl;
+        // sdisk << "WEIRD_DATA" << std::endl;
         break;
       default: // weird stuff, should not happend
         LOG(WARNING) << "I AM IMPOSSIBLE!!!!!!!!!!!!!!!!!!" << std::endl;
@@ -3409,8 +3410,6 @@ void ATLASPixDevice::reset() {
 
   this->setThreshold(thor);
 
-
-
   // Locking on comma word from ATLASPix
   theMatrix.CurrentDACConfig->SetParameter("RO_res_n", 0);
   this->ProgramSR(theMatrix);
@@ -3427,7 +3426,6 @@ void ATLASPixDevice::reset() {
 
   theMatrix.CurrentDACConfig->SetParameter("RO_res_n", 1);
   this->ProgramSR(theMatrix);
-
 }
 
 std::string ATLASPixDevice::getName() {

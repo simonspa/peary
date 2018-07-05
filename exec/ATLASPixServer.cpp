@@ -338,13 +338,12 @@ int main(int argc, char* argv[]) {
       else if(cmd.find("setBias") != std::string::npos) {
         std::vector<std::string> words = split(cmd, ' ');
         double value = std::stof(words[2]);
-        devM1->setBias(words[1],value);
-        std::cout << "Setting Bias "<< words[1] <<" to " << value << std::endl;
+        devM1->setBias(words[1], value);
+        std::cout << "Setting Bias " << words[1] << " to " << value << std::endl;
         // memset(buffer, 0, sizeof buffer);
         strcpy(buffer, "[ATLASPixServer] Setting a bias\n");
 
-      }
-      else if(cmd.find("setVMinus") != std::string::npos) {
+      } else if(cmd.find("setVMinus") != std::string::npos) {
         std::vector<std::string> words = split(cmd, ' ');
         devM1->command("setVMinus", words[1]);
         std::cout << "Setting VMinus to " << words[1] << std::endl;
@@ -384,14 +383,14 @@ int main(int argc, char* argv[]) {
         // memset(buffer, 0, sizeof buffer);
         strcpy(buffer, "[ATLASPixServer] Writing Config\n");
 
-      }else if(cmd.find("reset") != std::string::npos) {
-          std::vector<std::string> words = split(cmd, ' ');
-          std::cout << "reset "  << std::endl;
-          devM1->reset();
-          // memset(buffer, 0, sizeof buffer);
-          strcpy(buffer, "[ATLASPixServer] reset \n");
+      } else if(cmd.find("reset") != std::string::npos) {
+        std::vector<std::string> words = split(cmd, ' ');
+        std::cout << "reset " << std::endl;
+        devM1->reset();
+        // memset(buffer, 0, sizeof buffer);
+        strcpy(buffer, "[ATLASPixServer] reset \n");
 
-        }
+      }
 
       else if(cmd.find("MaskPixel") != std::string::npos) {
         std::vector<std::string> words = split(cmd, ' ');
@@ -409,7 +408,6 @@ int main(int argc, char* argv[]) {
         strcpy(buffer, "[ATLASPixServer] Setting TDAC \n");
 
       }
-
 
       else if(cmd.find("exit") != std::string::npos) {
         std::cout << "Exiting" << std::endl;
