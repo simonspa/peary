@@ -7,6 +7,7 @@
 
 namespace caribou {
 
+// clang-format off
 /** Default device path for this device: SEAF-connector I2C bus on BUS_I2C2
  */
 #define DEFAULT_DEVICEPATH BUS_I2C2
@@ -88,7 +89,6 @@ namespace caribou {
 
 /** Dictionary for register address/name lookup for ATLASPix
  */
-// clang-format off
 #define ATLASPix_REGISTERS				\
   {						\
     {"unlock", register_t<>(0x26, 0xFF, false, true, true)},		\
