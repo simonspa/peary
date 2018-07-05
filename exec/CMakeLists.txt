@@ -36,7 +36,10 @@ INCLUDE_DIRECTORIES(devices/example)
 ADD_EXECUTABLE(peary_direct "direct_device.cpp")
 TARGET_LINK_LIBRARIES(peary_direct ${PROJECT_NAME} PearyDeviceExample )
 
-INSTALL(TARGETS peary_app peary_direct pearycli
+ADD_EXECUTABLE(pearyd pearyd.cpp)
+TARGET_LINK_LIBRARIES(pearyd ${PROJECT_NAME})
+
+INSTALL(TARGETS peary_app peary_direct pearycli pearyd
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib)
