@@ -168,6 +168,7 @@ ATLASPixDevice::ATLASPixDevice(const caribou::Configuration config)
   _dispatcher.add("SetMatrix", &ATLASPixDevice::SetMatrix, this);
   _dispatcher.add("MaskPixel", &ATLASPixDevice::MaskPixel, this);
   _dispatcher.add("isLocked", &ATLASPixDevice::isLocked, this);
+  _dispatcher.add("powerStatusLog", &ATLASPixDevice::powerStatusLog, this);
 
   // Configuring the clock
   LOG(INFO) << "Setting clock circuit on CaR board " << DEVICE_NAME;
