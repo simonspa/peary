@@ -2771,7 +2771,7 @@ pearydata ATLASPixDevice::getData() {
         disk << "SERDES_LOCK_ESTABLISHED" << std::endl;
         break;
       case 0b00000100: // Unexpected/weird data came
-        disk << "WEIRD_DATA" << std::endl;
+        //sdisk << "WEIRD_DATA" << std::endl;
         break;
       default: // weird stuff, should not happend
         LOG(WARNING) << "I AM IMPOSSIBLE!!!!!!!!!!!!!!!!!!" << std::endl;
