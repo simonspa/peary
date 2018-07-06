@@ -20,6 +20,8 @@
 #include "exceptions.hpp"
 #include "log.hpp"
 
+using caribou::caribouDevice;
+using caribou::caribouDeviceMgr;
 using caribou::Log;
 using caribou::LogLevel;
 
@@ -216,9 +218,62 @@ std::vector<std::string> split_by_whitespace(const char* txt, size_t len)
 }
 
 // -----------------------------------------------------------------------------
+// per-device commands
+
+void do_device_command(const std::string& cmd,
+                       const std::string& args,
+                       caribouDeviceMgr& mgr,
+                       ReplyBuffer& reply)
+{
+  // TODO add functionality
+  // expected command format: <device_number>.command
+  // 1. extract device number and get device
+  // 2a. run custom functions for fixed functionality
+  // 3a. reasonably encode result
+  // 2b. run dispatcher function for everything else
+  // 3b. dispatcher functions return string, use as payload
+
+  reply.set_error(UnknownCommand);
+  reply.payload = "Device commands not implemented";
+}
+
+// -----------------------------------------------------------------------------
+// global commands
+
+void do_hello(ReplyBuffer& reply) {
+  reply.payload = "1"; // protocol version
+  reply.set_success();
+}
+
+void do_add_device(const std::string& args, caribouDeviceMgr& mgr, ReplyBuffer& reply) {
+  // TODO how to handle configuration
+  caribou::Configuration cfg;
+
+  size_t idx = mgr.addDevice(args, cfg);
+  reply.payload = std::to_string(idx);
+  reply.set_success();
+}
+
+void do_list_devices(caribouDeviceMgr& mgr, ReplyBuffer& reply) {
+  reply.payload.clear();
+  size_t idx = 0;
+  for(caribouDevice* dev : mgr.getDevices()) {
+    // not sure if the vector can contain nullptr?
+    if(dev) {
+      if(!reply.payload.empty()) {
+        reply.payload.push_back('\n');
+      }
+      reply.payload.append(std::to_string(idx));
+    }
+    idx += 1;
+  }
+  reply.set_success();
+}
+
+// -----------------------------------------------------------------------------
 // request/reply handling
 
-void process_request(const std::vector<uint8_t>& request, ReplyBuffer& reply) {
+void process_request(caribouDeviceMgr& mgr, const std::vector<uint8_t>& request, ReplyBuffer& reply) {
 
   // request **must** contain at least the sequence number
   if (request.size() < 4) {
@@ -257,8 +312,14 @@ void process_request(const std::vector<uint8_t>& request, ReplyBuffer& reply) {
 
   // select commands
   if (strncmp(cmd, "hello", len_cmd) == 0 ) {
-    reply.set_success();
-    reply.payload = "1";
+    do_hello(reply);
+  } else if (strncmp(cmd, "add_device", len_cmd) == 0) {
+    do_add_device({args, len_args}, mgr, reply);
+  } else if (strncmp(cmd, "list_devices", len_cmd) == 0) {
+    do_list_devices(mgr, reply);
+  } else if (strncmp(cmd, "device.", len_cmd) == 0) {
+    // only need to hand over device number and device command
+    do_device_command({cmd + 7, len_cmd - 7}, {args, len_args}, mgr, reply);
   } else {
     // everything else gives an error
     reply.set_error(UnknownCommand);
@@ -327,7 +388,8 @@ int main(int argc, char* argv[]) {
     terminate_failure();
   }
 
-  // TODO setup peary manager, etc...
+  // setup peary device manager
+  caribouDeviceMgr mgr;
 
   // setup server
   struct sockaddr_in server_addr;
@@ -392,7 +454,7 @@ int main(int argc, char* argv[]) {
         break;
       }
 
-      process_request(request_buffer, reply_buffer);
+      process_request(mgr, request_buffer, reply_buffer);
       write_msg(client_fd, reply_buffer.header, reply_buffer.payload);
     }
 
