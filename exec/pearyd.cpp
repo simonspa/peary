@@ -84,9 +84,16 @@ bool read_fixed_into(int fd, size_t length, void* buffer)
   }
   do {
     ssize_t ret = read(fd, bytes, length);
-    if (ret < 0) {
+    // unexpected client connection reset is not fatal
+    if ((ret == -1) and (errno == ECONNRESET)) {
+      LOG(ERROR) << "Connection reset by client during read";
+      return false;
+    }
+    // any other error is fatal
+    if (ret == -1) {
       terminate_errno();
     }
+    // regular connection closure
     if (ret == 0) {
       return false;
     }
@@ -97,6 +104,9 @@ bool read_fixed_into(int fd, size_t length, void* buffer)
 }
 
 /// Read a length-encoded message into the buffer.
+///
+/// \returns true   on success
+/// \returns false  upon disconnect of the client
 bool read_msg_into(int fd, std::vector<uint8_t>& buffer)
 {
   uint32_t len;
@@ -114,21 +124,24 @@ bool read_msg_into(int fd, std::vector<uint8_t>& buffer)
   buffer.resize(len);
   if (!read_fixed_into(fd, len, buffer.data())) {
     LOG(ERROR) << "Client disconnected during request";
+    buffer.clear();
     return false;
   }
-
   return true;
 }
 
 /// Write a length-encoded message using multiple buffers as input
 ///
+/// \returns true   on success
+/// \returns false  upon disconnect of the client
+///
 /// Each buffer must have a `.data()` and `.size()` member fuctions.
 template <typename... Buffers>
-void write_msg(int fd, Buffers&&... buffers)
+bool write_msg(int fd, Buffers&&... buffers)
 {
   constexpr size_t n = sizeof...(Buffers);
 
-  // fill scatter/gather lists. one extra element for length
+  // fill scatter/gather lists. first element is message length
   std::array<struct iovec, 1 + n> iov = {{
     { nullptr, 0 },
     { ((void*)buffers.data()), (buffers.size() * sizeof(*buffers.data())) }...
@@ -142,7 +155,7 @@ void write_msg(int fd, Buffers&&... buffers)
   if (UINT32_MAX < length) {
     terminate_failure("Reply message length > 2^32 - 1");
   }
-  LOG(DEBUG) << "Reply message nbuffers=" << n << " length=" << length;
+  LOG(DEBUG) << "Reply message nbuffers=" << n << " total_length=" << length;
 
   // encoded message length
   uint32_t encoded_length = htonl(static_cast<uint32_t>(length));
@@ -151,12 +164,19 @@ void write_msg(int fd, Buffers&&... buffers)
 
   // write all message parts in a single step
   ssize_t ret = writev(fd, iov.data(), iov.size());
-  if (ret == -1) {
+  // unexpected client connection reset is not fatal
+  if ((ret == -1) and (errno == ECONNRESET)) {
+    LOG(ERROR) << "Connection reset by client during write";
+    return false;
+  }
+  // any other error is fatal
+  if(ret == -1) {
     terminate_errno();
   }
   if (static_cast<size_t>(ret) != (4 + length)) {
     terminate_failure("Could not write full message");
   }
+  return true;
 }
 
 // -----------------------------------------------------------------------------
@@ -446,21 +466,23 @@ int main(int argc, char* argv[]) {
     std::vector<uint8_t> request_buffer;
     ReplyBuffer reply_buffer;
 
-    // request/reply loop
+    // request/reply loop until client disconnects.
     while(true) {
 
       if(!read_msg_into(client_fd, request_buffer)) {
-        LOG(INFO) << "Client disconnected";
-         // allow next client to connect
         break;
       }
 
       process_request(mgr, request_buffer, reply_buffer);
-      write_msg(client_fd, reply_buffer.header, reply_buffer.payload);
+
+      if (!write_msg(client_fd, reply_buffer.header, reply_buffer.payload)) {
+        break;
+      }
     }
 
     close(client_fd);
     client_fd = -1;
+    LOG(INFO) << "Client disconnected";
   }
 
   cleanup();
