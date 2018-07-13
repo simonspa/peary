@@ -47,13 +47,15 @@ void terminate_success() {
   cleanup();
   std::exit(EXIT_SUCCESS);
 }
-void terminate_failure() {
+// terminate with an optional error message
+void terminate_failure(std::string err) {
+  LOG(FATAL) << err;
   cleanup();
   std::exit(EXIT_FAILURE);
 }
-// terminate with an error based on the current errno value
+// terminate with an error message based on the current errno value
 void terminate_errno() {
-  LOG(ERROR) << "Error: " << std::strerror(errno) << '\n';
+  LOG(FATAL) << "Error: " << std::strerror(errno);
   cleanup();
   std::exit(EXIT_FAILURE);
 }
@@ -69,7 +71,7 @@ void termination_handler(int signal) {
 
 /// Read a fixed number of bytes into the buffer.
 ///
-/// \returns true   on sucess
+/// \returns true   on success
 /// \returns false  upon disconnect of the client
 ///
 /// \warning The buffer **must** be big enough to receive the requested data
@@ -138,8 +140,7 @@ void write_msg(int fd, Buffers&&... buffers)
     length += iov[i].iov_len;
   }
   if (UINT32_MAX < length) {
-    LOG(ERROR) << "Reply message length > 2^32 - 1";
-    terminate_failure();
+    terminate_failure("Reply message length > 2^32 - 1");
   }
   LOG(DEBUG) << "Reply message nbuffers=" << n << " length=" << length;
 
@@ -154,8 +155,7 @@ void write_msg(int fd, Buffers&&... buffers)
     terminate_errno();
   }
   if (static_cast<size_t>(ret) != (4 + length)) {
-    LOG(ERROR) << "Could not write full message";
-    terminate_failure();
+    terminate_failure("Could not write full message");
   }
 }
 
@@ -357,8 +357,11 @@ void parse_args(int argc, char* argv[], uint16_t& port, std::string& verbosity)
     } else if(!strcmp(argv[i], "-v") and ((i + 1) < argc)) {
       verbosity = argv[++i];
     } else {
-      std::cerr << "Unrecognized option '" << argv[i] << '\'' << std::endl;
-      terminate_failure();
+      std::string msg;
+      msg += "Unrecognized option '";
+      msg += argv[i];
+      msg += '\'';
+      terminate_failure(std::move(msg));
     }
   }
 }
@@ -384,8 +387,7 @@ int main(int argc, char* argv[]) {
     LogLevel log_level = Log::getLevelFromString(arg_verbosity);
     Log::setReportingLevel(log_level);
   } catch(std::invalid_argument& e) {
-    LOG(ERROR) << "Invalid verbosity level '" << arg_verbosity << "'";
-    terminate_failure();
+    terminate_failure("Invalid verbosity level '" + arg_verbosity + "'");
   }
 
   // setup peary device manager
@@ -434,8 +436,7 @@ int main(int argc, char* argv[]) {
       continue;
     }
     if(client_addrlen != sizeof(client_addr)) {
-      LOG(ERROR) << "Inconsistent sockaddr size";
-      terminate_failure();
+      terminate_failure("Inconsistent sockaddr size");
     }
     LOG(INFO) << "Client connected from "
               << inet_ntoa(client_addr.sin_addr)
