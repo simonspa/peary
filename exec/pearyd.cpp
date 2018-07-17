@@ -180,59 +180,82 @@ bool write_msg(int fd, Buffers&&... buffers)
 }
 
 // -----------------------------------------------------------------------------
-// reply message encoding
+// common header and message handling
 
-enum ReplyError : uint8_t {
-  // 0 is not part of this enum since it is not an error
-  MalformedRequest = 1,
-  UnknownCommand = 2,
+enum class Status : uint16_t {
+  Ok = 0,
+  // message-level errors
+  MessageInvalid = 2,
+  // command-level errors
+  CommandUnknown = 16,
+  CommandNotEnoughArguments = 17,
+  CommandTooManyArguments = 18,
+  CommandInvalidArgument = 19,
+  CommandFailure = 20,
+};
+
+struct Header {
+  std::array<uint16_t, 2> encoded;
+
+  // direct compatibility w/ write_msg(...)
+  const uint8_t* data() const { return reinterpret_cast<const uint8_t*>(encoded.data()); }
+  size_t size() const { return 4u; }
+
+  uint16_t sequence() const { return ntohs(encoded[0]); }
+  Status status() const { return static_cast<Status>(ntohs(encoded[1])); }
+
+  Header() = default;
+  Header(const void* buffer) { std::memcpy(encoded.data(), buffer, 4); }
+  void set_sequence(uint16_t sequence_) { encoded[0] = htons(sequence_); }
+  void set_status(Status status_) { encoded[1] = htons(static_cast<uint16_t>(status_)); }
 };
 
 struct ReplyBuffer {
-  std::array<uint8_t, 5> header;
+  Header header;
   std::string payload;
 
-  void reset() {
-    header.fill(0);
+  void clear() {
+    header.set_sequence(0);
+    header.set_status(Status::Ok);
     payload.clear();
   }
-  void set_sequence_encoded(const void* buf) {
-      std::memcpy(header.data(), buf, 4);
-  }
-  void set_sequence(uint32_t seq) {
-    *reinterpret_cast<uint32_t*>(header.data()) = htonl(seq);
-  }
-  void set_success() { header[4] = 0; }
-  void set_error(ReplyError err) { header[4] = err; }
+  void set_sequence(uint16_t seq) { header.set_sequence(seq); }
+  void set_success() { header.set_status(Status::Ok); }
+  void set_status(Status status) { header.set_status(status); }
 };
+
+// -----------------------------------------------------------------------------
+// string helpers
+
+/// Split string into two parts using the first occurence of the separator.
+///
+/// \returns Length of the first part excluding the separator.
+size_t split_once(const char* txt, size_t len, char separator)
+{
+  size_t idx = 0;
+  while ((idx < len) && (txt[idx] != separator)) {
+    idx += 1;
+  }
+  return idx;
+}
 
 /// Split string into substrings using spaces as separator.
 ///
 /// Each part is stripped of leading/following whitespace as well.
-std::vector<std::string> split_by_whitespace(const char* txt, size_t len)
+std::vector<std::string> split(const char* txt, size_t len, char separator)
 {
   std::vector<std::string> parts;
 
-  constexpr char sep = ' ';
+  // empty input string should yield empty split result
   while (0 < len) {
-    // search first occurence of a non-separator byte
-    if (*txt == sep) {
-      txt += 1;
-      len -= 1;
-      continue;
+    size_t part_len = split_once(txt, len, separator);
+    parts.emplace_back(txt, part_len);
+    // skip separator
+    if (part_len < len) {
+      part_len += 1;
     }
-    const char* start = txt;
-    // seach next occurence of a separator byte
-    while (0 < len) {
-      if (*txt == sep) {
-        continue;
-      }
-      txt += 1;
-      len -= 1;
-    }
-    // select substring
-    parts.emplace_back(start, txt - start);
-    LOG(DEBUG) << "split part '" << parts.back() << "'";
+    txt += part_len;
+    len -= part_len;
   }
   return parts;
 }
@@ -240,41 +263,74 @@ std::vector<std::string> split_by_whitespace(const char* txt, size_t len)
 // -----------------------------------------------------------------------------
 // per-device commands
 
-void do_device_command(const std::string& cmd,
-                       const std::string& args,
-                       caribouDeviceMgr& mgr,
-                       ReplyBuffer& reply)
-{
-  // TODO add functionality
-  // expected command format: <device_number>.command
-  // 1. extract device number and get device
-  // 2a. run custom functions for fixed functionality
-  // 3a. reasonably encode result
-  // 2b. run dispatcher function for everything else
-  // 3b. dispatcher functions return string, use as payload
+void do_device_name(caribouDevice& device, ReplyBuffer& reply) {
+  reply.set_success();
+  reply.payload = device.getName();
+}
 
-  reply.set_error(UnknownCommand);
-  reply.payload = "Device commands not implemented";
+void do_device(const std::string& cmd, const std::vector<std::string>& args, caribouDeviceMgr& mgr, ReplyBuffer& reply) {
+
+  // parse command format: device.<device_id>.command
+  auto cmds = split(cmd.data(), cmd.size(), '.');
+  if ((cmds.size() != 3) or (cmds[0] != "device")) {
+    LOG(ERROR) << "Invalid device command '" << cmd << '\'';
+    reply.set_status(Status::CommandUnknown);
+    reply.payload = "Invalid device command";
+    return;
+  }
+
+  // find corresponding device
+  caribouDevice* device = nullptr;
+  try {
+    size_t device_id = std::stoul(cmds[1]);
+    device = mgr.getDevice(device_id);
+  } catch(const caribou::DeviceException& e) {
+    LOG(ERROR) << "Invalid device identifier " << cmds[1];
+    reply.set_status(Status::CommandFailure);
+    reply.payload = "Invalid device identifier";
+    return;
+  }
+
+  // TODO add missing fixed-functionality commands
+
+  // execute per-device command
+  const auto& device_cmd = cmds[2];
+  if (device_cmd == "name") {
+    do_device_name(*device, reply);
+  } else {
+    // try command w/ the dynamic dispatcher
+    try {
+      device->command(device_cmd, args);
+    } catch(const caribou::ConfigInvalid& e) {
+      LOG(ERROR) << "Unknown command '" << device_cmd << '\'';
+      reply.set_status(Status::CommandUnknown);
+      reply.payload = e.what();
+    }
+  }
 }
 
 // -----------------------------------------------------------------------------
 // global commands
 
-void do_hello(ReplyBuffer& reply) {
-  reply.payload = "1"; // protocol version
-  reply.set_success();
-}
-
-void do_add_device(const std::string& args, caribouDeviceMgr& mgr, ReplyBuffer& reply) {
+void do_add_device(const std::vector<std::string>& args, caribouDeviceMgr& mgr, ReplyBuffer& reply) {
   // TODO how to handle configuration
   caribou::Configuration cfg;
 
-  size_t idx = mgr.addDevice(args, cfg);
-  reply.payload = std::to_string(idx);
-  reply.set_success();
+  if (args.size() < 1) {
+    reply.set_status(Status::CommandNotEnoughArguments);
+    reply.payload.clear();
+  } else if (1 < args.size()) {
+    reply.set_status(Status::CommandTooManyArguments);
+    reply.payload.clear();
+  } else {
+    size_t idx = mgr.addDevice(args.front(), cfg);
+    reply.set_success();
+    reply.payload = std::to_string(idx);
+  }
 }
 
 void do_list_devices(caribouDeviceMgr& mgr, ReplyBuffer& reply) {
+  reply.set_success();
   reply.payload.clear();
   size_t idx = 0;
   for(caribouDevice* dev : mgr.getDevices()) {
@@ -287,64 +343,79 @@ void do_list_devices(caribouDeviceMgr& mgr, ReplyBuffer& reply) {
     }
     idx += 1;
   }
+}
+
+void do_protocol_version(ReplyBuffer& reply) {
   reply.set_success();
+  reply.payload = "1"; // protocol version
 }
 
 // -----------------------------------------------------------------------------
 // request/reply handling
 
 void process_request(caribouDeviceMgr& mgr, const std::vector<uint8_t>& request, ReplyBuffer& reply) {
-
-  // request **must** contain at least the sequence number
+  // request **must** contain at least the header
   if (request.size() < 4) {
-    LOG(ERROR) << "Received malformed request";
+    LOG(ERROR) << "Received malformed request, message is too small";
     // no request sequence number is available
     reply.set_sequence(0);
-    reply.set_error(MalformedRequest);
-    reply.payload = "Malformed request";
+    reply.set_status(Status::MessageInvalid);
+    reply.payload = "Message too small";
     return;
   }
-  // empty request is a keep-alive that returns no data
-  if (request.size() == 4) {
-    LOG(DEBUG) << "Received keep-alive";
-    reply.set_sequence_encoded(request.data());
+
+  // unpack request header and payload
+  Header request_header(request.data());
+  const char* payload_data = reinterpret_cast<const char*>(request.data() + 4);
+  size_t payload_len = request.size() - 4;
+
+  // reply **must** always contain the request sequence number
+  reply.clear();
+  reply.set_sequence(request_header.sequence());
+
+  if (request_header.status() != Status::Ok) {
+    LOG(ERROR) << "Received malformed request, invalid status";
+    reply.set_status(Status::MessageInvalid);
+    reply.payload = "Status is not Ok";
+    return;
+  }
+  // empty request is keep-alive that returns no data
+  if (payload_len == 0) {
+    LOG(INFO) << "Received keep-alive";
     reply.set_success();
     reply.payload.clear();
     return;
   }
 
-  // reply **must** always contain the same sequence number as the request
-  // is the same regardless of executed command
-  reply.set_sequence_encoded(request.data());
+  // payload comprises a command and its arguments
+  std::string cmd(payload_data, split_once(payload_data, payload_len, ' '));
+  std::vector<std::string> args;
+  // only split arguments if there are actually some available
+  if (cmd.size() < payload_len) {
+    size_t start_args = cmd.size() + 1; // ignore separator
+    args = split(payload_data + start_args, payload_len - start_args, ' ');
+  }
 
-  // split request into command and arguments
-  const char* cmd = reinterpret_cast<const char*>(request.data() + 4);
-  const char* args = cmd;
-  size_t len_args = request.size() - 4;
-  size_t len_cmd = 0;
-  // find first space to detect end of command
-  for(; (0 < len_args) and (*args != ' '); ++args, --len_args, ++len_cmd) {}
-  // find next non-space to detect beginning of arguments
-  for(; (0 < len_args) and (*args == ' '); ++args, --len_args) {}
+  LOG(DEBUG) << "Received command '" << cmd << "'";
+  for (const auto& arg : args) {
+    LOG(DEBUG) << "Received argument '" << arg << "'";
+  }
 
-  LOG(DEBUG) << "Received command '" << std::string(cmd, len_cmd) << "'";
-  LOG(DEBUG) << "Received arguments '" << std::string(args, len_args) << "'";
-
-  // select commands
-  if (strncmp(cmd, "hello", len_cmd) == 0 ) {
-    do_hello(reply);
-  } else if (strncmp(cmd, "add_device", len_cmd) == 0) {
-    do_add_device({args, len_args}, mgr, reply);
-  } else if (strncmp(cmd, "list_devices", len_cmd) == 0) {
+  // execute commands
+  if (cmd.find("device") == 0) {
+    // per-device commands are handled separately
+    do_device(cmd, args, mgr, reply);
+  } else if(cmd == "add_device") {
+    do_add_device(args, mgr, reply);
+  } else if (cmd == "list_devices") {
     do_list_devices(mgr, reply);
-  } else if (strncmp(cmd, "device.", len_cmd) == 0) {
-    // only need to hand over device number and device command
-    do_device_command({cmd + 7, len_cmd - 7}, {args, len_args}, mgr, reply);
+  } else if (cmd == "protocol_version") {
+    do_protocol_version(reply);
   } else {
-    // everything else gives an error
-    reply.set_error(UnknownCommand);
+    // everything else is an error
+    reply.set_status(Status::CommandUnknown);
     reply.payload = "Unknown command: ";
-    reply.payload.append(cmd, len_cmd);
+    reply.payload += cmd;
   }
 }
 
