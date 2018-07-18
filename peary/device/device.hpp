@@ -158,8 +158,8 @@ namespace caribou {
      *
      *   @throws ConfigInvalid if command is not found or arguments do not match
      */
-    void command(const std::string& name, const std::vector<std::string>& args = std::vector<std::string>());
-    void command(const std::string& name, const std::string& arg);
+    std::string command(const std::string& name, const std::vector<std::string>& args = std::vector<std::string>());
+    std::string command(const std::string& name, const std::string& arg);
 
   protected:
     /** Command dispatcher for this device
