@@ -2,9 +2,9 @@
 /// \date   2018-07-05
 /// \author Moritz Kiehn <msmk@cern.ch>
 
+#include <cstdint>
 #include <cstdlib>
 #include <cstring>
-#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -31,11 +31,11 @@ int client_fd = -1;
 
 // close any connections and flush logs
 void cleanup() {
-  if (client_fd != -1) {
+  if(client_fd != -1) {
     close(client_fd);
     client_fd = -1;
   }
-  if (server_fd != -1) {
+  if(server_fd != -1) {
     close(server_fd);
     server_fd = -1;
   }
@@ -75,31 +75,30 @@ void termination_handler(int signal) {
 /// \returns false  upon disconnect of the client
 ///
 /// \warning The buffer **must** be big enough to receive the requested data
-bool read_fixed_into(int fd, size_t length, void* buffer)
-{
+bool read_fixed_into(int fd, size_t length, void* buffer) {
   uint8_t* bytes = reinterpret_cast<uint8_t*>(buffer);
   // keep-alive packages could have zero length payload
-  if (length == 0) {
+  if(length == 0) {
     return true;
   }
   do {
     ssize_t ret = read(fd, bytes, length);
     // unexpected client connection reset is not fatal
-    if ((ret == -1) and (errno == ECONNRESET)) {
+    if((ret == -1) and (errno == ECONNRESET)) {
       LOG(ERROR) << "Connection reset by client during read";
       return false;
     }
     // any other error is fatal
-    if (ret == -1) {
+    if(ret == -1) {
       terminate_errno();
     }
     // regular connection closure
-    if (ret == 0) {
+    if(ret == 0) {
       return false;
     }
     length -= ret;
     bytes += ret;
-  } while (0 < length);
+  } while(0 < length);
   return true;
 }
 
@@ -107,12 +106,11 @@ bool read_fixed_into(int fd, size_t length, void* buffer)
 ///
 /// \returns true   on success
 /// \returns false  upon disconnect of the client
-bool read_msg_into(int fd, std::vector<uint8_t>& buffer)
-{
+bool read_msg_into(int fd, std::vector<uint8_t>& buffer) {
   uint32_t len;
 
   // read message length
-  if (!read_fixed_into(fd, 4, &len)) {
+  if(!read_fixed_into(fd, 4, &len)) {
     // client disconnected
     return false;
   }
@@ -122,7 +120,7 @@ bool read_msg_into(int fd, std::vector<uint8_t>& buffer)
 
   // read message content
   buffer.resize(len);
-  if (!read_fixed_into(fd, len, buffer.data())) {
+  if(!read_fixed_into(fd, len, buffer.data())) {
     LOG(ERROR) << "Client disconnected during request";
     buffer.clear();
     return false;
@@ -136,23 +134,19 @@ bool read_msg_into(int fd, std::vector<uint8_t>& buffer)
 /// \returns false  upon disconnect of the client
 ///
 /// Each buffer must have a `.data()` and `.size()` member fuctions.
-template <typename... Buffers>
-bool write_msg(int fd, Buffers&&... buffers)
-{
+template <typename... Buffers> bool write_msg(int fd, Buffers&&... buffers) {
   constexpr size_t n = sizeof...(Buffers);
 
   // fill scatter/gather lists. first element is message length
-  std::array<struct iovec, 1 + n> iov = {{
-    { nullptr, 0 },
-    { ((void*)buffers.data()), (buffers.size() * sizeof(*buffers.data())) }...
-  }};
+  std::array<struct iovec, 1 + n> iov = {
+    {{nullptr, 0}, {((void*)buffers.data()), (buffers.size() * sizeof(*buffers.data()))}...}};
 
   // compute and check total message length
   size_t length = 0;
-  for (size_t i = 1; i < (1 + n); ++i) {
+  for(size_t i = 1; i < (1 + n); ++i) {
     length += iov[i].iov_len;
   }
-  if (UINT32_MAX < length) {
+  if(UINT32_MAX < length) {
     terminate_failure("Reply message length > 2^32 - 1");
   }
   LOG(DEBUG) << "Reply message nbuffers=" << n << " total_length=" << length;
@@ -165,7 +159,7 @@ bool write_msg(int fd, Buffers&&... buffers)
   // write all message parts in a single step
   ssize_t ret = writev(fd, iov.data(), iov.size());
   // unexpected client connection reset is not fatal
-  if ((ret == -1) and (errno == ECONNRESET)) {
+  if((ret == -1) and (errno == ECONNRESET)) {
     LOG(ERROR) << "Connection reset by client during write";
     return false;
   }
@@ -173,7 +167,7 @@ bool write_msg(int fd, Buffers&&... buffers)
   if(ret == -1) {
     terminate_errno();
   }
-  if (static_cast<size_t>(ret) != (4 + length)) {
+  if(static_cast<size_t>(ret) != (4 + length)) {
     terminate_failure("Could not write full message");
   }
   return true;
@@ -230,10 +224,9 @@ struct ReplyBuffer {
 /// Split string into two parts using the first occurence of the separator.
 ///
 /// \returns Length of the first part excluding the separator.
-size_t split_once(const char* txt, size_t len, char separator)
-{
+size_t split_once(const char* txt, size_t len, char separator) {
   size_t idx = 0;
-  while ((idx < len) && (txt[idx] != separator)) {
+  while((idx < len) && (txt[idx] != separator)) {
     idx += 1;
   }
   return idx;
@@ -242,16 +235,15 @@ size_t split_once(const char* txt, size_t len, char separator)
 /// Split string into substrings using spaces as separator.
 ///
 /// Each part is stripped of leading/following whitespace as well.
-std::vector<std::string> split(const char* txt, size_t len, char separator)
-{
+std::vector<std::string> split(const char* txt, size_t len, char separator) {
   std::vector<std::string> parts;
 
   // empty input string should yield empty split result
-  while (0 < len) {
+  while(0 < len) {
     size_t part_len = split_once(txt, len, separator);
     parts.emplace_back(txt, part_len);
     // skip separator
-    if (part_len < len) {
+    if(part_len < len) {
       part_len += 1;
     }
     txt += part_len;
@@ -263,16 +255,94 @@ std::vector<std::string> split(const char* txt, size_t len, char separator)
 // -----------------------------------------------------------------------------
 // per-device commands
 
-void do_device_name(caribouDevice& device, ReplyBuffer& reply) {
+/// Check for the correct number of arguments and set reply status if necessary.
+bool check_num_args(const std::vector<std::string>& args, size_t expected, ReplyBuffer& reply) {
+  if(args.size() < expected) {
+    reply.set_status(Status::CommandNotEnoughArguments);
+    return false;
+  }
+  if(expected < args.size()) {
+    reply.set_status(Status::CommandTooManyArguments);
+    return false;
+  }
+  return true;
+}
+
+void do_device_list_registers(caribouDevice& device, ReplyBuffer& reply) {
+  reply.payload.clear();
+  for(const auto& reg : device.getRegisters()) {
+    if(!reply.payload.empty()) {
+      reply.payload.push_back('\n');
+    }
+    // only return the register names
+    reply.payload.append(reg.first);
+  }
   reply.set_success();
-  reply.payload = device.getName();
+}
+
+void do_device_get_register(caribouDevice& device, const std::vector<std::string>& args, ReplyBuffer& reply) {
+  if(check_num_args(args, 1, reply)) {
+    reply.payload = std::to_string(device.getRegister(args[0]));
+    reply.set_success();
+  }
+}
+
+void do_device_set_register(caribouDevice& device, const std::vector<std::string>& args, ReplyBuffer& reply) {
+  if(check_num_args(args, 2, reply)) {
+    device.setRegister(args[0], std::stoul(args[1]));
+    reply.set_success();
+  }
+}
+
+void do_device_get_current(caribouDevice& device, const std::vector<std::string>& args, ReplyBuffer& reply) {
+  if(check_num_args(args, 1, reply)) {
+    reply.payload = std::to_string(device.getCurrent(args[0]));
+    reply.set_success();
+  }
+}
+
+void do_device_set_current(caribouDevice& device, const std::vector<std::string>& args, ReplyBuffer& reply) {
+  if(check_num_args(args, 3, reply)) {
+    // third argument is polarity
+    device.setCurrent(args[0], std::stod(args[1]), std::stoi(args[2]));
+    reply.set_success();
+  }
+}
+
+void do_device_get_voltage(caribouDevice& device, const std::vector<std::string>& args, ReplyBuffer& reply) {
+  if(check_num_args(args, 1, reply)) {
+    reply.payload = std::to_string(device.getCurrent(args[0]));
+    reply.set_success();
+  }
+}
+
+void do_device_set_voltage(caribouDevice& device, const std::vector<std::string>& args, ReplyBuffer& reply) {
+  if(check_num_args(args, 3, reply)) {
+    // third argument is current limit
+    device.setVoltage(args[0], std::stod(args[1]), std::stod(args[2]));
+    reply.set_success();
+  }
+}
+
+void do_device_switch_on(caribouDevice& device, const std::vector<std::string>& args, ReplyBuffer& reply) {
+  if(check_num_args(args, 1, reply)) {
+    device.switchOn(args[0]);
+    reply.set_success();
+  }
+}
+
+void do_device_switch_off(caribouDevice& device, const std::vector<std::string>& args, ReplyBuffer& reply) {
+  if(check_num_args(args, 1, reply)) {
+    device.switchOff(args[0]);
+    reply.set_success();
+  }
 }
 
 void do_device(const std::string& cmd, const std::vector<std::string>& args, caribouDeviceMgr& mgr, ReplyBuffer& reply) {
 
   // parse command format: device.<device_id>.command
   auto cmds = split(cmd.data(), cmd.size(), '.');
-  if ((cmds.size() != 3) or (cmds[0] != "device")) {
+  if((cmds.size() != 3) or (cmds[0] != "device")) {
     LOG(ERROR) << "Invalid device command '" << cmd << '\'';
     reply.set_status(Status::CommandUnknown);
     reply.payload = "Invalid device command";
@@ -291,18 +361,51 @@ void do_device(const std::string& cmd, const std::vector<std::string>& args, car
     return;
   }
 
-  // TODO add missing fixed-functionality commands
+  // reset status here
+  reply.set_success();
 
   // execute per-device command
   const auto& device_cmd = cmds[2];
-  if (device_cmd == "name") {
-    do_device_name(*device, reply);
+  if(device_cmd == "name") {
+    reply.payload = device->getName();
+  } else if(device_cmd == "firmware_version") {
+    reply.payload = device->getFirmwareVersion();
+  } else if(device_cmd == "power_on") {
+    device->powerOn();
+  } else if(device_cmd == "power_off") {
+    device->powerOff();
+  } else if(device_cmd == "reset") {
+    device->reset();
+  } else if(device_cmd == "configure") {
+    device->configure();
+  } else if(device_cmd == "daq_start") {
+    device->daqStart();
+  } else if(device_cmd == "daq_stop") {
+    device->daqStop();
+  } else if(device_cmd == "list_registers") {
+    do_device_list_registers(*device, reply);
+  } else if(device_cmd == "get_register") {
+    do_device_get_register(*device, args, reply);
+  } else if(device_cmd == "set_register") {
+    do_device_set_register(*device, args, reply);
+  } else if(device_cmd == "get_current") {
+    do_device_get_current(*device, args, reply);
+  } else if(device_cmd == "set_current") {
+    do_device_set_current(*device, args, reply);
+  } else if(device_cmd == "get_voltage") {
+    do_device_get_voltage(*device, args, reply);
+  } else if(device_cmd == "set_voltage") {
+    do_device_set_voltage(*device, args, reply);
+  } else if(device_cmd == "switch_on") {
+    do_device_switch_on(*device, args, reply);
+  } else if(device_cmd == "switch_off") {
+    do_device_switch_off(*device, args, reply);
   } else {
     // try command w/ the dynamic dispatcher
     try {
-      device->command(device_cmd, args);
+      reply.payload = device->command(device_cmd, args);
     } catch(const caribou::ConfigInvalid& e) {
-      LOG(ERROR) << "Unknown command '" << device_cmd << '\'';
+      LOG(ERROR) << "Unknown command '" << device_cmd << "' for device " << device->getName();
       reply.set_status(Status::CommandUnknown);
       reply.payload = e.what();
     }
@@ -316,12 +419,10 @@ void do_add_device(const std::vector<std::string>& args, caribouDeviceMgr& mgr, 
   // TODO how to handle configuration
   caribou::Configuration cfg;
 
-  if (args.size() < 1) {
+  if(args.size() < 1) {
     reply.set_status(Status::CommandNotEnoughArguments);
-    reply.payload.clear();
-  } else if (1 < args.size()) {
+  } else if(1 < args.size()) {
     reply.set_status(Status::CommandTooManyArguments);
-    reply.payload.clear();
   } else {
     size_t idx = mgr.addDevice(args.front(), cfg);
     reply.set_success();
@@ -331,7 +432,6 @@ void do_add_device(const std::vector<std::string>& args, caribouDeviceMgr& mgr, 
 
 void do_list_devices(caribouDeviceMgr& mgr, ReplyBuffer& reply) {
   reply.set_success();
-  reply.payload.clear();
   size_t idx = 0;
   for(caribouDevice* dev : mgr.getDevices()) {
     // not sure if the vector can contain nullptr?
@@ -355,7 +455,7 @@ void do_protocol_version(ReplyBuffer& reply) {
 
 void process_request(caribouDeviceMgr& mgr, const std::vector<uint8_t>& request, ReplyBuffer& reply) {
   // request **must** contain at least the header
-  if (request.size() < 4) {
+  if(request.size() < 4) {
     LOG(ERROR) << "Received malformed request, message is too small";
     // no request sequence number is available
     reply.set_sequence(0);
@@ -373,17 +473,16 @@ void process_request(caribouDeviceMgr& mgr, const std::vector<uint8_t>& request,
   reply.clear();
   reply.set_sequence(request_header.sequence());
 
-  if (request_header.status() != Status::Ok) {
+  if(request_header.status() != Status::Ok) {
     LOG(ERROR) << "Received malformed request, invalid status";
     reply.set_status(Status::MessageInvalid);
     reply.payload = "Status is not Ok";
     return;
   }
   // empty request is keep-alive that returns no data
-  if (payload_len == 0) {
+  if(payload_len == 0) {
     LOG(INFO) << "Received keep-alive";
     reply.set_success();
-    reply.payload.clear();
     return;
   }
 
@@ -391,25 +490,25 @@ void process_request(caribouDeviceMgr& mgr, const std::vector<uint8_t>& request,
   std::string cmd(payload_data, split_once(payload_data, payload_len, ' '));
   std::vector<std::string> args;
   // only split arguments if there are actually some available
-  if (cmd.size() < payload_len) {
+  if(cmd.size() < payload_len) {
     size_t start_args = cmd.size() + 1; // ignore separator
     args = split(payload_data + start_args, payload_len - start_args, ' ');
   }
 
   LOG(DEBUG) << "Received command '" << cmd << "'";
-  for (const auto& arg : args) {
+  for(const auto& arg : args) {
     LOG(DEBUG) << "Received argument '" << arg << "'";
   }
 
   // execute commands
-  if (cmd.find("device") == 0) {
+  if(cmd.find("device") == 0) {
     // per-device commands are handled separately
     do_device(cmd, args, mgr, reply);
   } else if(cmd == "add_device") {
     do_add_device(args, mgr, reply);
-  } else if (cmd == "list_devices") {
+  } else if(cmd == "list_devices") {
     do_list_devices(mgr, reply);
-  } else if (cmd == "protocol_version") {
+  } else if(cmd == "protocol_version") {
     do_protocol_version(reply);
   } else {
     // everything else is an error
@@ -433,14 +532,13 @@ void show_help() {
 }
 
 // parse arguments and terminate on error
-void parse_args(int argc, char* argv[], uint16_t& port, std::string& verbosity)
-{
+void parse_args(int argc, char* argv[], uint16_t& port, std::string& verbosity) {
   // set default values
   port = 12345;
   verbosity = "INFO";
 
   for(int i = 1; i < argc; ++i) {
-    if (!strcmp(argv[i], "-h")) {
+    if(!strcmp(argv[i], "-h")) {
       show_help();
       terminate_success();
     } else if(!strcmp(argv[i], "-p") and ((i + 1) < argc)) {
@@ -492,30 +590,28 @@ int main(int argc, char* argv[]) {
   server_addr.sin_port = htons(arg_port);
 
   // create tcp/ip socket
-  if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
+  if((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
     terminate_errno();
   }
   // avoid error when socket is reused. see also:
   // http://stackoverflow.com/questions/5592747/bind-error-while-recreating-socket
   int yes = 1;
-  if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) == -1) {
+  if(setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) == -1) {
     terminate_errno();
   }
   // bind to listen address
-  if (bind(server_fd, (struct sockaddr*)&server_addr, server_addrlen) == -1) {
+  if(bind(server_fd, (struct sockaddr*)&server_addr, server_addrlen) == -1) {
     terminate_errno();
   }
   // start listening for connections, allow only one client at a time
-  if (listen(server_fd, 1) == -1) {
+  if(listen(server_fd, 1) == -1) {
     terminate_errno();
   }
-  LOG(INFO) << "Listening for connections on "
-            << inet_ntoa(server_addr.sin_addr)
-            << ":" << ntohs(server_addr.sin_port);
+  LOG(INFO) << "Listening for connections on " << inet_ntoa(server_addr.sin_addr) << ":" << ntohs(server_addr.sin_port);
 
   // client loop
   // only a single client at any time, but multiple connections in series.
-  while (true) {
+  while(true) {
     // wait for a client to connect
     struct sockaddr_in client_addr;
     socklen_t client_addrlen = sizeof(client_addr);
@@ -529,9 +625,7 @@ int main(int argc, char* argv[]) {
     if(client_addrlen != sizeof(client_addr)) {
       terminate_failure("Inconsistent sockaddr size");
     }
-    LOG(INFO) << "Client connected from "
-              << inet_ntoa(client_addr.sin_addr)
-              << ":" << ntohs(client_addr.sin_port);
+    LOG(INFO) << "Client connected from " << inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port);
 
     // reusable buffers
     std::vector<uint8_t> request_buffer;
@@ -543,10 +637,8 @@ int main(int argc, char* argv[]) {
       if(!read_msg_into(client_fd, request_buffer)) {
         break;
       }
-
       process_request(mgr, request_buffer, reply_buffer);
-
-      if (!write_msg(client_fd, reply_buffer.header, reply_buffer.payload)) {
+      if(!write_msg(client_fd, reply_buffer.header, reply_buffer.payload)) {
         break;
       }
     }
