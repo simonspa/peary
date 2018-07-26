@@ -338,7 +338,7 @@ void do_device_switch_off(caribouDevice& device, const std::vector<std::string>&
   }
 }
 
-void do_device(const std::string& cmd, const std::vector<std::string>& args, caribouDeviceMgr& mgr, ReplyBuffer& reply) {
+void do_device(caribouDeviceMgr& mgr, const std::string& cmd, std::vector<std::string> args, ReplyBuffer& reply) {
 
   // parse command format: device.<device_id>.command
   auto cmds = split(cmd.data(), cmd.size(), '.');
@@ -415,7 +415,7 @@ void do_device(const std::string& cmd, const std::vector<std::string>& args, car
 // -----------------------------------------------------------------------------
 // global commands
 
-void do_add_device(const std::vector<std::string>& args, caribouDeviceMgr& mgr, ReplyBuffer& reply) {
+void do_add_device(caribouDeviceMgr& mgr, const std::vector<std::string>& args, ReplyBuffer& reply) {
   // TODO how to handle configuration
   caribou::Configuration cfg;
 
@@ -486,7 +486,7 @@ void process_request(caribouDeviceMgr& mgr, const std::vector<uint8_t>& request,
     return;
   }
 
-  // payload comprises a command and its arguments
+  // split payload into command and arguments
   std::string cmd(payload_data, split_once(payload_data, payload_len, ' '));
   std::vector<std::string> args;
   // only split arguments if there are actually some available
@@ -501,11 +501,11 @@ void process_request(caribouDeviceMgr& mgr, const std::vector<uint8_t>& request,
   }
 
   // execute commands
-  if(cmd.find("device") == 0) {
+  if(cmd.find("device.") == 0) {
     // per-device commands are handled separately
-    do_device(cmd, args, mgr, reply);
+    do_device(mgr, cmd, args, reply);
   } else if(cmd == "add_device") {
-    do_add_device(args, mgr, reply);
+    do_add_device(mgr, args, reply);
   } else if(cmd == "list_devices") {
     do_list_devices(mgr, reply);
   } else if(cmd == "protocol_version") {
