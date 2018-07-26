@@ -111,7 +111,7 @@ class Device(object):
     def __repr__(self):
         return 'Device(index={:d}, name={})'.format(self.index, self.name)
     def _call(self, cmd, *args):
-        parts = ['device.{:d}.{}'.format(self.index, cmd),]
+        parts = ['device.{}'.format(cmd), str(self.index)]
         parts.extend(str(_) for _ in args)
         return self._client._request(' '.join(parts))
     def __getattr__(self, name):

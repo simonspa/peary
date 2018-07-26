@@ -338,24 +338,27 @@ void do_device_switch_off(caribouDevice& device, const std::vector<std::string>&
   }
 }
 
-void do_device(caribouDeviceMgr& mgr, const std::string& cmd, std::vector<std::string> args, ReplyBuffer& reply) {
+void do_device(caribouDeviceMgr& mgr, const std::string& cmd, const std::vector<std::string>& args, ReplyBuffer& reply) {
 
-  // parse command format: device.<device_id>.command
-  auto cmds = split(cmd.data(), cmd.size(), '.');
-  if((cmds.size() != 3) or (cmds[0] != "device")) {
-    LOG(ERROR) << "Invalid device command '" << cmd << '\'';
-    reply.set_status(Status::CommandUnknown);
-    reply.payload = "Invalid device command";
+  // command format is device.<command> <device_id> <args...>
+
+  if (args.empty()) {
+    LOG(ERROR) << "Missing device identifier";
+    reply.set_status(Status::CommandNotEnoughArguments);
+    reply.payload = "Missing device identifier";
     return;
   }
+
+  size_t device_id = std::stoul(args.front());
+  std::string device_cmd = cmd.substr(7);
+  std::vector<std::string> device_args(args.begin() + 1, args.end());
 
   // find corresponding device
   caribouDevice* device = nullptr;
   try {
-    size_t device_id = std::stoul(cmds[1]);
     device = mgr.getDevice(device_id);
   } catch(const caribou::DeviceException& e) {
-    LOG(ERROR) << "Invalid device identifier " << cmds[1];
+    LOG(ERROR) << "Invalid device identifier " << device_id;
     reply.set_status(Status::CommandFailure);
     reply.payload = "Invalid device identifier";
     return;
@@ -365,7 +368,6 @@ void do_device(caribouDeviceMgr& mgr, const std::string& cmd, std::vector<std::s
   reply.set_success();
 
   // execute per-device command
-  const auto& device_cmd = cmds[2];
   if(device_cmd == "name") {
     reply.payload = device->getName();
   } else if(device_cmd == "firmware_version") {
@@ -385,25 +387,25 @@ void do_device(caribouDeviceMgr& mgr, const std::string& cmd, std::vector<std::s
   } else if(device_cmd == "list_registers") {
     do_device_list_registers(*device, reply);
   } else if(device_cmd == "get_register") {
-    do_device_get_register(*device, args, reply);
+    do_device_get_register(*device, device_args, reply);
   } else if(device_cmd == "set_register") {
-    do_device_set_register(*device, args, reply);
+    do_device_set_register(*device, device_args, reply);
   } else if(device_cmd == "get_current") {
-    do_device_get_current(*device, args, reply);
+    do_device_get_current(*device, device_args, reply);
   } else if(device_cmd == "set_current") {
-    do_device_set_current(*device, args, reply);
+    do_device_set_current(*device, device_args, reply);
   } else if(device_cmd == "get_voltage") {
-    do_device_get_voltage(*device, args, reply);
+    do_device_get_voltage(*device, device_args, reply);
   } else if(device_cmd == "set_voltage") {
-    do_device_set_voltage(*device, args, reply);
+    do_device_set_voltage(*device, device_args, reply);
   } else if(device_cmd == "switch_on") {
-    do_device_switch_on(*device, args, reply);
+    do_device_switch_on(*device, device_args, reply);
   } else if(device_cmd == "switch_off") {
-    do_device_switch_off(*device, args, reply);
+    do_device_switch_off(*device, device_args, reply);
   } else {
     // try command w/ the dynamic dispatcher
     try {
-      reply.payload = device->command(device_cmd, args);
+      reply.payload = device->command(device_cmd, device_args);
     } catch(const caribou::ConfigInvalid& e) {
       LOG(ERROR) << "Unknown command '" << device_cmd << "' for device " << device->getName();
       reply.set_status(Status::CommandUnknown);
