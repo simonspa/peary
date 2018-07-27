@@ -1,0 +1,12 @@
+[Unit]
+Description=Peary data aquisition and control system
+AssertPathIsDirectory=@PEARY_LOCK_DIR@
+AssertPathIsReadWrite=@PEARY_LOCK_DIR@
+
+[Service]
+EnvironmentFile=@CMAKE_INSTALL_PREFIX@/etc/pearyd.conf
+ExecStart=@CMAKE_INSTALL_PREFIX@/bin/pearyd -p ${port} -v ${loglevel}
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

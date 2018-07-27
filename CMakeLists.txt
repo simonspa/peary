@@ -134,9 +134,9 @@ ADD_SUBDIRECTORY(devices)
 # Add targets for Doxygen code reference and LaTeX User manual
 ADD_SUBDIRECTORY(doc)
 
-
 ################################################
 # Define build targets for sample applications #
 ################################################
 
 ADD_SUBDIRECTORY(exec)
+ADD_SUBDIRECTORY(etc) # pearyd service files
