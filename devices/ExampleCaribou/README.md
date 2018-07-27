@@ -1,4 +1,4 @@
-# A bare example device without hardware abstraction layer
+# Example device without hardware abstraction layer
 
 **Maintainer**: Moritz Kiehn (msmk@cern.ch)
 **Status**: Functional

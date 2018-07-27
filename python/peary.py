@@ -133,7 +133,7 @@ if __name__ == '__main__':
     pc.keep_alive()
     # ensure device allows multiple connections to the same
     # pearyd instance w/o adding a device every time.
-    dev1 = pc.ensure_device('BareExample')
+    dev1 = pc.ensure_device('ExampleCaribou')
     print('devices:')
     for device in pc.list_devices():
         print('  {}'.format(device))

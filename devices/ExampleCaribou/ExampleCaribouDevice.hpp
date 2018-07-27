@@ -1,16 +1,16 @@
-/** Caribou bare device example
+/** Example caribou device
  *
  * Use this class as a starting point for a device that does not rely on
  * an underlying hardware abstraction layer.
  */
 
-#ifndef BARE_EXAMPLE_DEVICE_H
-#define BARE_EXAMPLE_DEVICE_H
+#ifndef EXAMPLE_CARIBOU_DEVICE_H
+#define EXAMPLE_CARIBOU_DEVICE_H
 
 #include "device.hpp"
 
 namespace caribou {
-  /** Bare Example Device class definition
+  /** Example caribou device class definition
    *
    * This class directly implements all purely virtual functions of
    * `caribou::caribouDevice` without a hardware abstration layer.
@@ -18,10 +18,10 @@ namespace caribou {
    * device via the Caribou device class interface by using the device
    * manager to instanciate the device object.
    */
-  class BareExampleDevice final : public caribouDevice {
+  class ExampleCaribouDevice final : public caribouDevice {
   public:
-    BareExampleDevice(caribou::Configuration config);
-    ~BareExampleDevice();
+    ExampleCaribouDevice(caribou::Configuration config);
+    ~ExampleCaribouDevice();
 
     std::string getFirmwareVersion();
     std::string getName();
@@ -62,4 +62,4 @@ namespace caribou {
 
 } // namespace caribou
 
-#endif /* DEVICE_EXAMPLE_H */
+#endif /* EXAMPLE_CARIBOU_DEVICE_H */
