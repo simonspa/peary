@@ -34,10 +34,12 @@ void cleanup() {
   if(client_fd != -1) {
     close(client_fd);
     client_fd = -1;
+    LOG(DEBUG) << "Closed client connection";
   }
   if(server_fd != -1) {
     close(server_fd);
     server_fd = -1;
+    LOG(DEBUG) << "Closed server";
   }
   Log::finish();
 }
@@ -60,10 +62,17 @@ void terminate_errno() {
   std::exit(EXIT_FAILURE);
 }
 
-void termination_handler(int signal) {
-  LOG(INFO) << "Caught user signal '" << signal << "', ending application";
-  // ctrl-c is the regular way to close the application and not an error
+void termination_handler(int) {
   terminate_success();
+}
+
+void configure_signals() {
+  struct sigaction signal_handler;
+  signal_handler.sa_handler = termination_handler;
+  sigemptyset(&signal_handler.sa_mask);
+  signal_handler.sa_flags = 0;
+  sigaction(SIGTERM, &signal_handler, nullptr); // kill
+  sigaction(SIGINT, &signal_handler, nullptr);  // ctrl-c
 }
 
 // -----------------------------------------------------------------------------
@@ -561,12 +570,8 @@ int main(int argc, char* argv[]) {
   // log to std::cout by default
   Log::addStream(std::cout);
 
-  // handle ctrl-c
-  struct sigaction signal_handler;
-  signal_handler.sa_handler = termination_handler;
-  sigemptyset(&signal_handler.sa_mask);
-  signal_handler.sa_flags = 0;
-  sigaction(SIGINT, &signal_handler, nullptr);
+  // kill and ctrl-c
+  configure_signals();
 
   // handle options
   uint16_t arg_port;
