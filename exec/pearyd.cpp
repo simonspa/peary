@@ -351,7 +351,7 @@ void do_device(caribouDeviceMgr& mgr, const std::string& cmd, const std::vector<
 
   // command format is device.<command> <device_id> <args...>
 
-  if (args.empty()) {
+  if(args.empty()) {
     LOG(ERROR) << "Missing device identifier";
     reply.set_status(Status::CommandNotEnoughArguments);
     reply.payload = "Missing device identifier";
