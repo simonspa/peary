@@ -9,9 +9,11 @@ ENDIF(COMMAND CMAKE_POLICY)
 # Project name
 PROJECT(peary)
 
+# lock dir option must be available globally
+set(PEARY_LOCK_DIR "/var/lock" CACHE PATH "Path to lockfile directory")
+
 # Include peary cmake functions
 INCLUDE("cmake/peary.cmake")
-
 
 ###############################
 # Setup the build environment #
@@ -132,9 +134,9 @@ ADD_SUBDIRECTORY(devices)
 # Add targets for Doxygen code reference and LaTeX User manual
 ADD_SUBDIRECTORY(doc)
 
-
 ################################################
 # Define build targets for sample applications #
 ################################################
 
 ADD_SUBDIRECTORY(exec)
+ADD_SUBDIRECTORY(etc) # pearyd service files

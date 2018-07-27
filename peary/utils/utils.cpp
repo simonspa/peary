@@ -9,26 +9,30 @@
 
 bool caribou::check_flock(std::string filename) {
 
-  std::string file = "/var/lock/" + filename;
+  std::string file(PEARY_LOCK_DIR);
+  file.append("/");
+  file.append(filename);
   int fd = open(file.c_str(), O_RDWR | O_CREAT, 0666); // open or create lockfile
 
   if(flock(fd, LOCK_EX | LOCK_NB) == -1) {
     if(errno == EWOULDBLOCK) {
-      LOG(DEBUG) << "File " << file << "is locked.";
+      LOG(DEBUG) << "File " << file << " is locked.";
       return true;
     } else {
       throw caribouException("Error in checking file lock of " + file);
     }
   } else {
     flock(fd, LOCK_UN);
-    LOG(DEBUG) << "File " << file << "is unlocked.";
+    LOG(DEBUG) << "File " << file << " is unlocked.";
     return false;
   }
 }
 
 bool caribou::acquire_flock(std::string filename) {
 
-  std::string file = "/var/lock/" + filename;
+  std::string file(PEARY_LOCK_DIR);
+  file.append("/");
+  file.append(filename);
   int fd = open(file.c_str(), O_RDWR | O_CREAT, 0666); // open or create lockfile
 
   if(flock(fd, LOCK_EX | LOCK_NB) == -1) {

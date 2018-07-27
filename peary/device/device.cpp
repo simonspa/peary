@@ -35,14 +35,14 @@ std::vector<std::pair<std::string, std::size_t>> caribouDevice::list_commands() 
   return _dispatcher.commands();
 }
 
-void caribouDevice::command(const std::string& name, const std::vector<std::string>& args) {
+std::string caribouDevice::command(const std::string& name, const std::vector<std::string>& args) {
   try {
-    std::cout << _dispatcher.call(name, args) << '\n';
+    return _dispatcher.call(name, args);
   } catch(std::invalid_argument& e) {
     throw caribou::ConfigInvalid(e.what());
   }
 }
 
-void caribouDevice::command(const std::string& name, const std::string& arg) {
-  command(name, std::vector<std::string>{arg});
+std::string caribouDevice::command(const std::string& name, const std::string& arg) {
+  return command(name, std::vector<std::string>{arg});
 }

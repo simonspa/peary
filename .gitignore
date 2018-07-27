@@ -4,6 +4,9 @@ bin/
 lib/
 obj/
 
+# lock files from testing
+*.lock
+
 # root and data files do not belong into the repository
 *.root
 *.pdf
