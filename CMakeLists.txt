@@ -9,9 +9,11 @@ ENDIF(COMMAND CMAKE_POLICY)
 # Project name
 PROJECT(peary)
 
+# lock dir option must be available globally
+set(PEARY_LOCK_DIR "/var/lock" CACHE PATH "Path to lockfile directory")
+
 # Include peary cmake functions
 INCLUDE("cmake/peary.cmake")
-
 
 ###############################
 # Setup the build environment #
