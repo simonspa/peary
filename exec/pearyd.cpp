@@ -25,6 +25,21 @@ using caribou::caribouDeviceMgr;
 using caribou::Log;
 using caribou::LogLevel;
 
+// public definitions needed by clients
+
+static const char* PEARYD_PROTOCOL_VERSION = "1";
+enum class Status : uint16_t {
+  Ok = 0,
+  // message-level errors
+  MessageInvalid = 2,
+  // command-level errors
+  CommandUnknown = 16,
+  CommandNotEnoughArguments = 17,
+  CommandTooManyArguments = 18,
+  CommandInvalidArgument = 19,
+  CommandFailure = 20,
+};
+
 // global variables to allow cleanup in signal handler
 int server_fd = -1;
 int client_fd = -1;
@@ -184,18 +199,6 @@ template <typename... Buffers> bool write_msg(int fd, Buffers&&... buffers) {
 
 // -----------------------------------------------------------------------------
 // common header and message handling
-
-enum class Status : uint16_t {
-  Ok = 0,
-  // message-level errors
-  MessageInvalid = 2,
-  // command-level errors
-  CommandUnknown = 16,
-  CommandNotEnoughArguments = 17,
-  CommandTooManyArguments = 18,
-  CommandInvalidArgument = 19,
-  CommandFailure = 20,
-};
 
 struct Header {
   std::array<uint16_t, 2> encoded;
@@ -457,7 +460,7 @@ void do_add_device(caribouDeviceMgr& mgr, const std::vector<std::string>& args, 
 
 void do_protocol_version(ReplyBuffer& reply) {
   reply.set_success();
-  reply.payload = "1"; // protocol version
+  reply.payload = PEARYD_PROTOCOL_VERSION;
 }
 
 // -----------------------------------------------------------------------------
