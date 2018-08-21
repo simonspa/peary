@@ -482,6 +482,8 @@ void process_request(caribouDeviceMgr& mgr, const std::vector<uint8_t>& request,
   const char* payload_data = reinterpret_cast<const char*>(request.data() + 4);
   size_t payload_len = request.size() - 4;
 
+  LOG(DEBUG) << "Request sequence number=" << request_header.sequence();
+
   // reply **must** always contain the request sequence number
   reply.clear();
   reply.set_sequence(request_header.sequence());
