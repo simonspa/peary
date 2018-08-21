@@ -1,7 +1,6 @@
 # coding: utf-8
 
 import functools
-import random
 import socket
 import struct
 
@@ -32,8 +31,7 @@ class PearyClient(object):
         super(PearyClient, self).__init__()
         self.host = host
         self.port = port
-        self._sequence = random.Random()
-        self._sequence.seed()
+        self._sequence_number = 0
         self._socket = socket.create_connection((self.host, self.port))
         # check connection and protocol
         version = self._request('protocol_version')
@@ -61,8 +59,8 @@ class PearyClient(object):
         return self._socket.getpeername()
 
     def _request(self, cmd):
-        # randint limits are inclusive
-        req_seq = self._sequence.randint(0, 2**16 - 1)
+        self._sequence_number += 1
+        req_seq = self._sequence_number
         # constructive message content and header
         req_payload = cmd.encode('utf-8')
         req_fixed = bytearray(8)
