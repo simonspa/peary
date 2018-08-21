@@ -1,7 +1,4 @@
-#!/usr/bin/env python
-# encoding = utf-8
-
-from __future__ import print_function, unicode_literals
+# coding: utf-8
 
 import functools
 import random
@@ -96,8 +93,8 @@ class Device(object):
     """
     A Peary device.
 
-    This object acts as a proxy that forwards all function calls via
-    the network.
+    This object acts as a proxy that forwards all function calls to the
+    device specified by the device index using the client object.
     """
     def __init__(self, client, index):
         super(Device, self).__init__()
@@ -114,6 +111,8 @@ class Device(object):
         parts = ['device.{}'.format(cmd), str(self.index)]
         parts.extend(str(_) for _ in args)
         return self._client._request(' '.join(parts))
+    # unknown attributes are interpreted as dynamic functions
+    # and are forwarded to the pearyd instance
     def __getattr__(self, name):
         func = functools.partial(self._call, name)
         self.__dict__[name] = func
@@ -127,22 +126,3 @@ class Device(object):
         return float(self._call('get_current', name))
     def get_voltage(self, name):
         return float(self._call('get_voltage', name))
-
-if __name__ == '__main__':
-    pc = PearyClient(host='localhost')
-    pc.keep_alive()
-    # ensure device allows multiple connections to the same
-    # pearyd instance w/o adding a device every time.
-    dev1 = pc.ensure_device('ExampleCaribou')
-    print('devices:')
-    for device in pc.list_devices():
-        print('  {}'.format(device))
-    print(dev1.frobicate(123))
-    print(dev1.unfrobicate(543))
-    dev1.set_register('reg0', 12)
-    print('registers:')
-    for reg in dev1.list_registers():
-        print('  {}: {:#x}'.format(reg, dev1.get_register(reg)))
-    print(dev1.get_voltage('vdd'))
-    print(dev1.get_current('vdd'))
-    pc.keep_alive()
