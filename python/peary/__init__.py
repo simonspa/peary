@@ -41,7 +41,6 @@ class PearyClient(object):
             raise UnsupportedProtocol(version)
     def __del__(self):
         self.close()
-
     # support with statements
     def __enter__(self):
         return self
@@ -57,6 +56,9 @@ class PearyClient(object):
             # hard shutdown, no more sending or receiving
             self._socket.shutdown(socket.SHUT_RDWR)
             self._socket.close()
+    @property
+    def peername(self):
+        return self._socket.getpeername()
 
     def _request(self, cmd):
         # randint limits are inclusive
