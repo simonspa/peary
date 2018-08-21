@@ -34,6 +34,8 @@ class PearyClient(object):
         super(PearyClient, self).__init__()
         self.host = host
         self.port = port
+        # Cache of available device objects to avoid recreating them
+        self._devices = {}
         self._sequence_number = 0
         self._socket = socket.create_connection((self.host, self.port))
         # check connection and protocol
@@ -100,7 +102,10 @@ class PearyClient(object):
         indices = [int(_) for _ in indices.split()]
         return [self.get_device(_) for _ in indices]
     def get_device(self, index):
-        return Device(self, index)
+        device = self._devices.get(index)
+        if not device:
+            device = self._devices.setdefault(index, Device(self, index))
+        return device
     def add_device(self, name):
         index = self._request('add_device', name)
         index = int(index)
