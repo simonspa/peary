@@ -262,7 +262,7 @@ std::vector<std::string> split(const char* txt, size_t len, char separator) {
 }
 
 // -----------------------------------------------------------------------------
-// per-device commands
+// command helpers
 
 /// Check for the correct number of arguments and set reply status if necessary.
 bool check_num_args(const std::vector<std::string>& args, size_t expected, ReplyBuffer& reply) {
@@ -276,6 +276,9 @@ bool check_num_args(const std::vector<std::string>& args, size_t expected, Reply
   }
   return true;
 }
+
+// -----------------------------------------------------------------------------
+// per-device commands
 
 void do_device_list_registers(caribouDevice& device, ReplyBuffer& reply) {
   reply.payload.clear();
@@ -426,21 +429,6 @@ void do_device(caribouDeviceMgr& mgr, const std::string& cmd, const std::vector<
 // -----------------------------------------------------------------------------
 // global commands
 
-void do_add_device(caribouDeviceMgr& mgr, const std::vector<std::string>& args, ReplyBuffer& reply) {
-  // TODO how to handle configuration
-  caribou::Configuration cfg;
-
-  if(args.size() < 1) {
-    reply.set_status(Status::CommandNotEnoughArguments);
-  } else if(1 < args.size()) {
-    reply.set_status(Status::CommandTooManyArguments);
-  } else {
-    size_t idx = mgr.addDevice(args.front(), cfg);
-    reply.set_success();
-    reply.payload = std::to_string(idx);
-  }
-}
-
 void do_list_devices(caribouDeviceMgr& mgr, ReplyBuffer& reply) {
   reply.set_success();
   size_t idx = 0;
@@ -453,6 +441,17 @@ void do_list_devices(caribouDeviceMgr& mgr, ReplyBuffer& reply) {
       reply.payload.append(std::to_string(idx));
     }
     idx += 1;
+  }
+}
+
+void do_add_device(caribouDeviceMgr& mgr, const std::vector<std::string>& args, ReplyBuffer& reply) {
+  if(check_num_args(args, 1, reply)) {
+    // TODO how to handle configuration
+    caribou::Configuration cfg;
+
+    size_t idx = mgr.addDevice(args.front(), cfg);
+    reply.set_success();
+    reply.payload = std::to_string(idx);
   }
 }
 
@@ -515,10 +514,10 @@ void process_request(caribouDeviceMgr& mgr, const std::vector<uint8_t>& request,
   if(cmd.find("device.") == 0) {
     // per-device commands are handled separately
     do_device(mgr, cmd, args, reply);
-  } else if(cmd == "add_device") {
-    do_add_device(mgr, args, reply);
   } else if(cmd == "list_devices") {
     do_list_devices(mgr, reply);
+  } else if(cmd == "add_device") {
+    do_add_device(mgr, args, reply);
   } else if(cmd == "protocol_version") {
     do_protocol_version(reply);
   } else {
