@@ -39,6 +39,24 @@ class PearyClient(object):
         version = self._request('protocol_version')
         if version != PROTOCOL_VERSION:
             raise UnsupportedProtocol(version)
+    def __del__(self):
+        self.close()
+
+    # support with statements
+    def __enter__(self):
+        return self
+    def __exit__(self, *unused):
+        self.close()
+
+    def close(self):
+        """
+        Close the connection.
+        """
+        # is there a better way to allow double-close?
+        if self._socket.fileno() != -1:
+            # hard shutdown, no more sending or receiving
+            self._socket.shutdown(socket.SHUT_RDWR)
+            self._socket.close()
 
     def _request(self, cmd):
         # randint limits are inclusive
