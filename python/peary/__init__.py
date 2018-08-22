@@ -113,24 +113,27 @@ class PearyClient(object):
         if not device:
             device = self._devices.setdefault(index, Device(self, index))
         return device
-    def add_device(self, name):
-        index = self._request('add_device', name)
+    def add_device(self, device_type):
+        """
+        Add a new device of the given type.
+        """
+        index = self._request('add_device', device_type)
         index = int(index)
         return self.get_device(index)
-    def ensure_device(self, name):
+    def ensure_device(self, device_type):
         """
-        Ensure at least one device with the given name exists and return it.
+        Ensure at least one device of the given type exists and return it.
 
         If there are multiple devices with the same name, the first one
         is returned.
         """
         devices = self.list_devices()
-        devices = filter(lambda _: _.name == name, devices)
+        devices = filter(lambda _: _.device_type == device_type, devices)
         devices = sorted(devices, key=lambda _: _.index)
         if devices:
             return devices[0]
         else:
-            return self.add_device(name)
+            return self.add_device(device_type)
 
 class Device(object):
     """
@@ -145,11 +148,11 @@ class Device(object):
         self.index = index
         # internal name is actualy <name>Device, but we only use <name>
         # to generate it. remove the suffix for consistency
-        self.name = self._request('name').decode('utf-8')
-        if self.name.endswith('Device'):
-            self.name = self.name[:-6]
+        self.device_type = self._request('name').decode('utf-8')
+        if self.device_type.endswith('Device'):
+            self.device_type = self.device_type[:-6]
     def __repr__(self):
-        return 'Device(index={:d}, name={})'.format(self.index, self.name)
+        return '{}Device(index={:d})'.format(self.device_type, self.index)
     def _request(self, cmd, *args):
         """
         Send a per-device command to the host and return the reply payload.
