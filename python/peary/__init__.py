@@ -29,6 +29,13 @@ class Failure(Exception):
 class PearyClient(object):
     """
     Connect to a pearyd instance running somewhere else.
+
+    The peary client supports the context manager protocol and should be
+    used in a with statement for automatic connection closing on errors, i.e.
+
+        with PearyClient(host='localhost') as client:
+            # do something with the client
+
     """
     def __init__(self, host, port=12345):
         super(PearyClient, self).__init__()
@@ -43,14 +50,13 @@ class PearyClient(object):
         if version != PROTOCOL_VERSION:
             raise UnsupportedProtocol(version)
     def __del__(self):
-        self.close()
+        self._close()
     # support with statements
     def __enter__(self):
         return self
     def __exit__(self, *unused):
-        self.close()
-
-    def close(self):
+        self._close()
+    def _close(self):
         """
         Close the connection.
         """
@@ -59,6 +65,7 @@ class PearyClient(object):
             # hard shutdown, no more sending or receiving
             self._socket.shutdown(socket.SHUT_RDWR)
             self._socket.close()
+
     @property
     def peername(self):
         return self._socket.getpeername()
