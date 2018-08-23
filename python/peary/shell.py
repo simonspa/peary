@@ -36,9 +36,10 @@ def print_result(value):
         return
     elif isinstance(value, list):
         for x in value: print(x)
+    elif isinstance(value, (bytes, bytearray, memoryview)):
+        print(value.decode('utf-8'))
     else:
-        # automatically decodes bytes
-        print(str(value, encoding='utf-8'))
+        print(value)
 
 class PearyShell(cmd.Cmd):
     """
