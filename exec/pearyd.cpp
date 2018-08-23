@@ -25,6 +25,21 @@ using caribou::caribouDeviceMgr;
 using caribou::Log;
 using caribou::LogLevel;
 
+// public definitions needed by clients
+
+static const char* PEARYD_PROTOCOL_VERSION = "1";
+enum class Status : uint16_t {
+  Ok = 0,
+  // message-level errors
+  MessageInvalid = 2,
+  // command-level errors
+  CommandUnknown = 16,
+  CommandNotEnoughArguments = 17,
+  CommandTooManyArguments = 18,
+  CommandInvalidArgument = 19,
+  CommandFailure = 20,
+};
+
 // global variables to allow cleanup in signal handler
 int server_fd = -1;
 int client_fd = -1;
@@ -185,18 +200,6 @@ template <typename... Buffers> bool write_msg(int fd, Buffers&&... buffers) {
 // -----------------------------------------------------------------------------
 // common header and message handling
 
-enum class Status : uint16_t {
-  Ok = 0,
-  // message-level errors
-  MessageInvalid = 2,
-  // command-level errors
-  CommandUnknown = 16,
-  CommandNotEnoughArguments = 17,
-  CommandTooManyArguments = 18,
-  CommandInvalidArgument = 19,
-  CommandFailure = 20,
-};
-
 struct Header {
   std::array<uint16_t, 2> encoded;
 
@@ -262,7 +265,7 @@ std::vector<std::string> split(const char* txt, size_t len, char separator) {
 }
 
 // -----------------------------------------------------------------------------
-// per-device commands
+// command helpers
 
 /// Check for the correct number of arguments and set reply status if necessary.
 bool check_num_args(const std::vector<std::string>& args, size_t expected, ReplyBuffer& reply) {
@@ -276,6 +279,9 @@ bool check_num_args(const std::vector<std::string>& args, size_t expected, Reply
   }
   return true;
 }
+
+// -----------------------------------------------------------------------------
+// per-device commands
 
 void do_device_list_registers(caribouDevice& device, ReplyBuffer& reply) {
   reply.payload.clear();
@@ -426,21 +432,6 @@ void do_device(caribouDeviceMgr& mgr, const std::string& cmd, const std::vector<
 // -----------------------------------------------------------------------------
 // global commands
 
-void do_add_device(caribouDeviceMgr& mgr, const std::vector<std::string>& args, ReplyBuffer& reply) {
-  // TODO how to handle configuration
-  caribou::Configuration cfg;
-
-  if(args.size() < 1) {
-    reply.set_status(Status::CommandNotEnoughArguments);
-  } else if(1 < args.size()) {
-    reply.set_status(Status::CommandTooManyArguments);
-  } else {
-    size_t idx = mgr.addDevice(args.front(), cfg);
-    reply.set_success();
-    reply.payload = std::to_string(idx);
-  }
-}
-
 void do_list_devices(caribouDeviceMgr& mgr, ReplyBuffer& reply) {
   reply.set_success();
   size_t idx = 0;
@@ -456,9 +447,20 @@ void do_list_devices(caribouDeviceMgr& mgr, ReplyBuffer& reply) {
   }
 }
 
+void do_add_device(caribouDeviceMgr& mgr, const std::vector<std::string>& args, ReplyBuffer& reply) {
+  if(check_num_args(args, 1, reply)) {
+    // TODO how to handle configuration
+    caribou::Configuration cfg;
+
+    size_t idx = mgr.addDevice(args.front(), cfg);
+    reply.set_success();
+    reply.payload = std::to_string(idx);
+  }
+}
+
 void do_protocol_version(ReplyBuffer& reply) {
   reply.set_success();
-  reply.payload = "1"; // protocol version
+  reply.payload = PEARYD_PROTOCOL_VERSION;
 }
 
 // -----------------------------------------------------------------------------
@@ -479,6 +481,8 @@ void process_request(caribouDeviceMgr& mgr, const std::vector<uint8_t>& request,
   Header request_header(request.data());
   const char* payload_data = reinterpret_cast<const char*>(request.data() + 4);
   size_t payload_len = request.size() - 4;
+
+  LOG(DEBUG) << "Request sequence number=" << request_header.sequence();
 
   // reply **must** always contain the request sequence number
   reply.clear();
@@ -515,10 +519,10 @@ void process_request(caribouDeviceMgr& mgr, const std::vector<uint8_t>& request,
   if(cmd.find("device.") == 0) {
     // per-device commands are handled separately
     do_device(mgr, cmd, args, reply);
-  } else if(cmd == "add_device") {
-    do_add_device(mgr, args, reply);
   } else if(cmd == "list_devices") {
     do_list_devices(mgr, reply);
+  } else if(cmd == "add_device") {
+    do_add_device(mgr, args, reply);
   } else if(cmd == "protocol_version") {
     do_protocol_version(reply);
   } else {
