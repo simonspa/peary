@@ -41,10 +41,7 @@ caribouDeviceMgr::caribouDeviceMgr() : _deviceList() {
 caribouDeviceMgr::~caribouDeviceMgr() {
   LOG(DEBUG) << "Deleting all Caribou devices.";
 
-  // Call the destructor of the device instances
-  for(auto it : _deviceList) {
-    delete it;
-  };
+  clearDevices();
 
   // Close the loaded libraries
   for(auto it : _deviceLibraries) {
@@ -117,4 +114,11 @@ size_t caribouDeviceMgr::addDevice(std::string name, const caribou::Configuratio
   }
 
   return device_id;
+}
+
+void caribouDeviceMgr::clearDevices() {
+  // Call the destructor of the device instances
+  for(auto it : _deviceList) {
+    delete it;
+  };
 }

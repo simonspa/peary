@@ -46,6 +46,10 @@ namespace caribou {
      */
     size_t addDevice(std::string name, const caribou::Configuration config);
 
+    /** Method to remove all managed devices and close them by deleting the pointer
+     */
+    void clearDevices();
+
   private:
     /** Map of the device library name and the actual pointer to the loaded library
      */
