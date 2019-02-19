@@ -121,4 +121,7 @@ void caribouDeviceMgr::clearDevices() {
   for(auto it : _deviceList) {
     delete it;
   };
+
+  // Clear the list:
+  _deviceList.clear();
 }
