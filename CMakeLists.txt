@@ -140,3 +140,9 @@ ADD_SUBDIRECTORY(doc)
 
 ADD_SUBDIRECTORY(exec)
 ADD_SUBDIRECTORY(etc) # pearyd service files
+
+###################
+# Install headers #
+###################
+INSTALL(DIRECTORY peary DESTINATION include/peary )
+INSTALL(DIRECTORY devices DESTINATION include/peary )
