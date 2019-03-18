@@ -1,7 +1,7 @@
 #ifndef DEVICE_ATLASPix_DEFAULTS_H
 #define DEVICE_ATLASPix_DEFAULTS_H
 
-#include "ATLASPix_clk_100.h"
+#include "ATLASPix_clk_100-FMC_REF.h"
 #include "carboard.hpp"
 #include "dictionary.hpp"
 
@@ -14,17 +14,24 @@ namespace caribou {
 
 /** Default I2C address for standalone-ATLASPix board with unconnected I2C address lines
  */
-#define ATLASPix_DEFAULT_I2C 0x50
+#define ATLASPix_DEFAULT_I2C 0b0011000
 
   /** Definition of default values for the different DAC settings for ATLASPix
    */
+#define ATLASPix_VCC25 2.5
+#define ATLASPix_VCC25_CURRENT 2
 
 #define ATLASPix_VDDD 1.85
 #define ATLASPix_VDDD_CURRENT 2
+#define ATLASPix_VDDRam 1.85
+#define ATLASPix_VDDRam_CURRENT 2
+#define ATLASPix_VDDHigh 1.85
+#define ATLASPix_VDDHigh_CURRENT 2
 #define ATLASPix_VDDA 1.85
 #define ATLASPix_VDDA_CURRENT 2
 #define ATLASPix_VSSA 1.2
 #define ATLASPix_VSSA_CURRENT 2
+
 
 #define ATLASPix_GndDACPix_M2 0
 #define ATLASPix_VMinusPix_M2 0.65
@@ -55,11 +62,11 @@ namespace caribou {
 #define ncol_m2 56
 #define nrow_m2 320
 
-#define ATLASPix_mask_X 5
-#define ATLASPix_mask_Y 5
+#define ATLASPix_mask_X 1
+#define ATLASPix_mask_Y 400
 
-#define TuningMaxCount 6000
-#define Tuning_timeout 2000
+#define TuningMaxCount 1000
+#define Tuning_timeout 100
 
   // ATLASPix  SR FSM control
   const std::intptr_t ATLASPix_CONTROL_BASE_ADDRESS = 0x43C20000;
@@ -161,7 +168,17 @@ namespace caribou {
     {"t0_enable", register_t<>(0x26, 0xFF, false, true, true)},		\
     {"gray_decode", register_t<>(0x26, 0xFF, false, true, true)},		\
     {"send_fpga_ts", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"filter_hp", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"filter_weird_data", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"hw_masking", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"temperature", register_t<>(0b00000101)},		\
   }
+
+
+  const std::string AXI_registers[] = {"trigger_mode","ro_enable","armduration","trigger_injection"
+		  ,"edge_sel","edge_sel","trigger_enable","busy_when_armed","trigger_always_armed","t0_enable",
+		  "gray_decode","send_fpga_ts","filter_hp","filter_weird_data","hw_masking"};
+
   // clang-format on
 
   //{"ext_clk", register_t<>(0x26, 0xFF, false, true, true)},		\

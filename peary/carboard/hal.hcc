@@ -88,6 +88,9 @@ namespace caribou {
      */
     double readTemperature();
 
+    std::vector<typename T::data_type>
+    readLongRegister(std::string interf, uint32_t addr, uint32_t reg_addr, uint32_t length);
+
     /** Set bias voltage
      *
      *  The input parameter should be provided in SI Volts.

@@ -73,7 +73,7 @@ int main(int argc, char* argv[]) {
 
   sigaction(SIGINT, &sigIntHandler, NULL);
 
-  int bufSize = 1024;
+  int bufSize = 256;
   char* buffer = (char*)malloc(bufSize);
   std::string rundir = ".";
   std::string ipaddress;
@@ -128,30 +128,30 @@ int main(int argc, char* argv[]) {
 
   caribou::Configuration config = caribou::Configuration();
   size_t device_idM1 = manager->addDevice("ATLASPix", config);
-  size_t device_idM1ISO = manager->addDevice("ATLASPix", config);
-  size_t device_idM2 = manager->addDevice("ATLASPix", config);
+  // size_t device_idM1ISO = manager->addDevice("ATLASPix", config);
+  // size_t device_idM2 = manager->addDevice("ATLASPix", config);
 
   // Get the device from the manager:
   devM1 = manager->getDevice(device_idM1);
-  devM1ISO = manager->getDevice(device_idM1ISO);
-  devM2 = manager->getDevice(device_idM2);
+  // devM1ISO = manager->getDevice(device_idM1ISO);
+  // devM2 = manager->getDevice(device_idM2);
 
   devM1->command("SetMatrix", "M1");
-  devM1ISO->command("SetMatrix", "M1ISO");
-  devM2->command("SetMatrix", "M2");
+  // devM1ISO->command("SetMatrix", "M1ISO");
+  // devM2->command("SetMatrix", "M2");
 
   // Switch on its power:
   devM1->powerOn();
-  devM1ISO->powerOn();
-  devM2->powerOn();
+  // devM1ISO->powerOn();
+  // devM2->powerOn();
 
   devM1->configure();
-  devM2->configure();
-  devM1ISO->configure();
+  // devM2->configure();
+  // devM1ISO->configure();
 
   devM1->command("lock");
-  devM2->command("lock");
-  devM1ISO->command("lock");
+  // devM2->command("lock");
+  // devM1ISO->command("lock");
 
   devM1->command("unlock");
 
@@ -160,6 +160,8 @@ int main(int argc, char* argv[]) {
   devM1->setRegister("VNPix", 20);
   devM1->setRegister("VNDACPix", 4);
   devM1->command("setAllTDAC", "4");
+
+  devM1->command("powerStatusLog");
 
   /* -------------- INITIALIZING VARIABLES -------------- */
   int server, client;  // socket file descriptors
@@ -316,9 +318,28 @@ int main(int argc, char* argv[]) {
 
       }
 
-      else if(cmd.find("daqStop") != std::string::npos) {
-        devM1->daqStop();
+      else if(cmd.find("unlock") != std::string::npos) {
+        devM1->command("unlock");
+        std::cout << "unlock" << std::endl;
+        // memset(buffer, 0, sizeof buffer);
+        strcpy(buffer, "[ATLASPixServer] unlock\n");
 
+      } else if(cmd.find("lock") != std::string::npos) {
+        devM1->command("lock");
+        std::cout << "lock" << std::endl;
+        // memset(buffer, 0, sizeof buffer);
+        strcpy(buffer, "[ATLASPixServer] lock\n");
+
+      }
+
+      else if(cmd.find("isLocked") != std::string::npos) {
+        devM1->command("isLocked");
+        std::cout << "isLocked?" << std::endl;
+        // memset(buffer, 0, sizeof buffer);
+        strcpy(buffer, "[ATLASPixServer] isLocked\n");
+
+      } else if(cmd.find("daqStop") != std::string::npos) {
+        devM1->daqStop();
         std::cout << "Stoping Data acquisition" << std::endl;
         // memset(buffer, 0, sizeof buffer);
         strcpy(buffer, "[ATLASPixServer] Stopping Data acquisition\n");
@@ -383,6 +404,13 @@ int main(int argc, char* argv[]) {
         // memset(buffer, 0, sizeof buffer);
         strcpy(buffer, "[ATLASPixServer] Writing Config\n");
 
+      } else if(cmd.find("resetFIFO") != std::string::npos) {
+        std::vector<std::string> words = split(cmd, ' ');
+        std::cout << "reset " << std::endl;
+        devM1->command("resetFIFO");
+        // memset(buffer, 0, sizeof buffer);
+        strcpy(buffer, "[ATLASPixServer] reset FIFO \n");
+
       } else if(cmd.find("reset") != std::string::npos) {
         std::vector<std::string> words = split(cmd, ' ');
         std::cout << "reset " << std::endl;
@@ -390,14 +418,20 @@ int main(int argc, char* argv[]) {
         // memset(buffer, 0, sizeof buffer);
         strcpy(buffer, "[ATLASPixServer] reset \n");
 
-      }
-
-      else if(cmd.find("MaskPixel") != std::string::npos) {
+      } else if(cmd.find("MaskPixel") != std::string::npos) {
         std::vector<std::string> words = split(cmd, ' ');
         std::cout << "Masking Pixel  " << words[1] << " " << words[2] << std::endl;
         devM1->command("MaskPixel", {words[1], words[2]});
         // memset(buffer, 0, sizeof buffer);
         strcpy(buffer, "[ATLASPixServer] Masking a pixel \n");
+      }
+
+      else if(cmd.find("SetPixelInjection") != std::string::npos) {
+        std::vector<std::string> words = split(cmd, ' ');
+        std::cout << "Setting injection in Pixel  " << words[1] << " " << words[2] << std::endl;
+        devM1->command("SetPixelInjection", {words[1], words[2], words[3], words[4], words[5]});
+        // memset(buffer, 0, sizeof buffer);
+        strcpy(buffer, "[ATLASPixServer] Setting Injection \n");
       }
 
       else if(cmd.find("setAllTDAC") != std::string::npos) {
@@ -409,7 +443,59 @@ int main(int argc, char* argv[]) {
 
       }
 
-      else if(cmd.find("exit") != std::string::npos) {
+      else if(cmd.find("NoiseRun") != std::string::npos) {
+        std::vector<std::string> words = split(cmd, ' ');
+        std::cout << "Taking a Noise Run for  " << words[1] << " s" << std::endl;
+        devM1->command("NoiseRun", words[1]);
+        // memset(buffer, 0, sizeof buffer);
+        strcpy(buffer, "[ATLASPixServer] Noise run\n");
+
+      }
+
+      else if(cmd.find("SetInjectionOff") != std::string::npos) {
+        std::vector<std::string> words = split(cmd, ' ');
+        std::cout << "Setting injection off row by row  " << words[1] << std::endl;
+        devM1->command("SetInjectionOff");
+        // memset(buffer, 0, sizeof buffer);
+        strcpy(buffer, "[ATLASPixServer] Setting injection off \n");
+
+      } else if(cmd.find("ReapplyMask") != std::string::npos) {
+        std::vector<std::string> words = split(cmd, ' ');
+        std::cout << "Reapplying mask to pixel in the matrix  " << words[1] << std::endl;
+        devM1->command("ReapplyMask");
+        // memset(buffer, 0, sizeof buffer);
+        strcpy(buffer, "[ATLASPixServer] Reapplying Mask \n");
+
+      } else if(cmd.find("powerStatusLog") != std::string::npos) {
+        devM1->command("powerStatusLog");
+        // memset(buffer, 0, sizeof buffer);
+        strcpy(buffer, "[ATLASPixServer] Power report\n");
+
+      } else if(cmd.find("setOutput") != std::string::npos) {
+        std::vector<std::string> words = split(cmd, ' ');
+        devM1->command("setOutput", words[1]);
+        // memset(buffer, 0, sizeof buffer);
+        strcpy(buffer, "[ATLASPixServer] Set output formatt\n");
+
+      } else if(cmd.find("LoadTDAC") != std::string::npos) {
+        std::vector<std::string> words = split(cmd, ' ');
+        devM1->command("LoadTDAC", words[1]);
+        // memset(buffer, 0, sizeof buffer);
+        strcpy(buffer, "[ATLASPixServer] Loading TDAC file\n");
+
+      } else if(cmd.find("FindHotPixels") != std::string::npos) {
+        std::vector<std::string> words = split(cmd, ' ');
+        devM1->command("FindHotPixels", {words[1]});
+        // memset(buffer, 0, sizeof buffer);
+        strcpy(buffer, "[ATLASPixServer] Finding hot pixels\n");
+
+      } else if(cmd.find("pulse") != std::string::npos) {
+        std::vector<std::string> words = split(cmd, ' ');
+        devM1->command("pulse", {words[1], words[2], words[3], words[4]});
+        // memset(buffer, 0, sizeof buffer);
+        strcpy(buffer, "[ATLASPixServer] Setting pulser\n");
+
+      } else if(cmd.find("exit") != std::string::npos) {
         std::cout << "Exiting" << std::endl;
         isExit = true;
 

@@ -33,17 +33,17 @@ void ATLASPixMatrix::_initializeGlobalParameters() {
   // DAC Block 1 for DIgital Part
   // AnalogDACs
   CurrentDACConfig->AddParameter("unlock", 4, ATLASPix_Config::LSBFirst, 0b1010); // unlock = x101
-  CurrentDACConfig->AddParameter("BLResPix", "5,4,3,1,0,2", 5);
+  CurrentDACConfig->AddParameter("BLResPix", "5,4,3,1,0,2", 40);
   CurrentDACConfig->AddParameter("ThResPix", "5,4,3,1,0,2", 0);
   CurrentDACConfig->AddParameter("VNPix", "5,4,3,1,0,2", 20);
-  CurrentDACConfig->AddParameter("VNFBPix", "5,4,3,1,0,2", 30);
+  CurrentDACConfig->AddParameter("VNFBPix", "5,4,3,1,0,2", 10);
   CurrentDACConfig->AddParameter("VNFollPix", "5,4,3,1,0,2", 30);
   CurrentDACConfig->AddParameter("VNRegCasc", "5,4,3,1,0,2", 20); // hier : VNHitbus
-  CurrentDACConfig->AddParameter("VDel", "5,4,3,1,0,2", 20);
+  CurrentDACConfig->AddParameter("VDel", "5,4,3,1,0,2", 63);
   CurrentDACConfig->AddParameter("VPComp", "5,4,3,1,0,2", 20); // hier : VPHitbus
   CurrentDACConfig->AddParameter("VPDAC", "5,4,3,1,0,2", 10);
   CurrentDACConfig->AddParameter("VNPix2", "5,4,3,1,0,2", 0);
-  CurrentDACConfig->AddParameter("BLResDig", "5,4,3,1,0,2", 25);
+  CurrentDACConfig->AddParameter("BLResDig", "5,4,3,1,0,2", 63);
   CurrentDACConfig->AddParameter("VNBiasPix", "5,4,3,1,0,2", 0);
   CurrentDACConfig->AddParameter("VPLoadPix", "5,4,3,1,0,2", 5);
   CurrentDACConfig->AddParameter("VNOutPix", "5,4,3,1,0,2", 5);
@@ -60,8 +60,8 @@ void ATLASPixMatrix::_initializeGlobalParameters() {
   CurrentDACConfig->AddParameter("VPDcl", "5,4,3,1,0,2", 50);       // 30);
   CurrentDACConfig->AddParameter("VNDcl", "5,4,3,1,0,2", 20);       // 30);
   CurrentDACConfig->AddParameter("VNLVDS", "5,4,3,1,0,2", 63);      // 10);
-  CurrentDACConfig->AddParameter("VNLVDSDel", "5,4,3,1,0,2", 16);   // 10);
-  CurrentDACConfig->AddParameter("VPPump", "5,4,3,1,0,2", 63);      // 5);
+  CurrentDACConfig->AddParameter("VNLVDSDel", "5,4,3,1,0,2", 10);   // 10);
+  CurrentDACConfig->AddParameter("VPPump", "5,4,3,1,0,2", 5);       // 5);
 
   CurrentDACConfig->AddParameter("nu", "1,0", 0);
   CurrentDACConfig->AddParameter("RO_res_n", 1, ATLASPix_Config::LSBFirst, 1);  // 1) ;  //for fastreadout start set 1
@@ -72,15 +72,15 @@ void ATLASPixMatrix::_initializeGlobalParameters() {
   CurrentDACConfig->AddParameter("maxcycend", "5,4,3,2,1,0", 63);               // 10); // probably 0 not allowed
   CurrentDACConfig->AddParameter("slowdownend", "3,2,1,0", 0);                  // 1);
   CurrentDACConfig->AddParameter("timerend", "3,2,1,0", 9); // 8); // darf nicht 0!! sonst werden debug ausgaben verschluckt
-  CurrentDACConfig->AddParameter("ckdivend2", "5,4,3,2,1,0", 0); // 1);
+  CurrentDACConfig->AddParameter("ckdivend2", "5,4,3,2,1,0", 3); // 1);
   CurrentDACConfig->AddParameter("ckdivend", "5,4,3,2,1,0", 0);  // 1);
   CurrentDACConfig->AddParameter("VPRegCasc", "5,4,3,1,0,2", 20);
-  CurrentDACConfig->AddParameter("VPRamp", "5,4,3,1,0,2", 0);     // was 4, off for HB/Thlow usage and fastreadout
+  CurrentDACConfig->AddParameter("VPRamp", "5,4,3,1,0,2", 10);    // was 4, off for HB/Thlow usage and fastreadout
   CurrentDACConfig->AddParameter("VNcompPix", "5,4,3,1,0,2", 15); // VNComparator
   CurrentDACConfig->AddParameter("VPFoll", "5,4,3,1,0,2", 10);
-  CurrentDACConfig->AddParameter("VNDACPix", "5,4,3,1,0,2", 10);
-  CurrentDACConfig->AddParameter("VPBiasRec", "5,4,3,1,0,2", 30);
-  CurrentDACConfig->AddParameter("VNBiasRec", "5,4,3,1,0,2", 25);
+  CurrentDACConfig->AddParameter("VNDACPix", "5,4,3,1,0,2", 63);
+  CurrentDACConfig->AddParameter("VPBiasRec", "5,4,3,1,0,2", 63);
+  CurrentDACConfig->AddParameter("VNBiasRec", "5,4,3,1,0,2", 2);
   CurrentDACConfig->AddParameter("Invert", 1, ATLASPix_Config::LSBFirst, 0);  // 0);
   CurrentDACConfig->AddParameter("SelEx", 1, ATLASPix_Config::LSBFirst, 1);   // 1); //activated external clock input
   CurrentDACConfig->AddParameter("SelSlow", 1, ATLASPix_Config::LSBFirst, 0); // 1);
@@ -134,6 +134,10 @@ void ATLASPixMatrix::_initializeRowParameters() {
 void ATLASPixMatrix::initializeM1() {
   BLPix = 0.8;
   ThPix = 0.85;
+  VMinusPD = 0;
+  VNFBPix = 0;
+  BLResPix = 0;
+  VMain2 = 1.8;
   ncol = ncol_m1;
   ndoublecol = ncol_m1 / 2;
   nrow = nrow_m1;
@@ -156,7 +160,7 @@ void ATLASPixMatrix::initializeM1() {
 void ATLASPixMatrix::initializeM1Iso() {
 
   BLPix = 0.8;
-  ThPix = 0.86 + 0.014;
+  ThPix = 0.85;
   ncol = ncol_m1iso;
   ndoublecol = ncol_m1iso / 2;
   nrow = nrow_m1iso;

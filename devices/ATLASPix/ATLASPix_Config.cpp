@@ -16,7 +16,7 @@ bool ATLASPix_Config::AddParameter(std::string name, unsigned int bits, int shif
   // set initial value to maximum, if it is larger than the parameter
   if(initial >= ((unsigned int)1 << bits))
     initial = (1 << bits) - 1;
-
+  std::transform(name.begin(), name.end(), name.begin(), ::tolower);
   indextoname.insert(std::make_pair(parameters.size(), name));
   nametoindex.insert(std::make_pair(name, parameters.size()));
 
@@ -43,6 +43,8 @@ bool ATLASPix_Config::AddParameter(std::string name, unsigned int bits, int shif
 
 bool ATLASPix_Config::AddParameter(std::string name, std::string bitorder, unsigned int initial) {
   // the parameter is eihter empty or too large for this class:
+  std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
   if(bitorder.length() < 1 || bitorder.length() > 80)
     return false;
 
@@ -115,6 +117,7 @@ int ATLASPix_Config::GetParameter(unsigned int index) {
 }
 
 int ATLASPix_Config::GetParameter(std::string name) {
+  std::transform(name.begin(), name.end(), name.begin(), ::tolower);
   auto index = nametoindex.find(name);
   // check for validity of the returned index:
   if(index != nametoindex.end())
@@ -149,6 +152,8 @@ int ATLASPix_Config::GetParameterWidth(unsigned int index) {
 }
 
 int ATLASPix_Config::GetParameterWidth(std::string name) {
+  std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
   auto index = nametoindex.find(name);
   // check for validity of the returned index:
   if(index == nametoindex.end())
@@ -165,6 +170,7 @@ std::string ATLASPix_Config::GetParameterBitOrder(unsigned int index) {
 }
 
 std::string ATLASPix_Config::GetParameterBitOrder(std::string name) {
+  std::transform(name.begin(), name.end(), name.begin(), ::tolower);
   auto index = nametoindex.find(name);
   if(index == nametoindex.end())
     return "";
@@ -199,8 +205,8 @@ bool ATLASPix_Config::SetParameter(unsigned int index, unsigned int value) {
 }
 
 bool ATLASPix_Config::SetParameter(std::string name, unsigned int value) {
+  std::transform(name.begin(), name.end(), name.begin(), ::tolower);
   auto index = nametoindex.find(name);
-
   if(index == nametoindex.end()) {
     std::cout << "Name \"" << name << "\" was not found!" << std::endl;
     return false;

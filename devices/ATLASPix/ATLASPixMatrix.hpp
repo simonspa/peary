@@ -25,7 +25,7 @@ struct ATLASPixMatrix {
   uint32_t nu2;
   double ThPix; // Voltage, to be translated to DAC value
   uint32_t nu3;
-  double VMINUSPix, GatePix, GNDDACPix;
+  double VMINUSPix, GatePix, GNDDACPix, VMinusPD, VNFBPix, VMain2, BLResPix;
 
   // TDAC and mask maps
   std::array<std::array<int, 400>, 56> TDAC; // last bit also encodes mask
