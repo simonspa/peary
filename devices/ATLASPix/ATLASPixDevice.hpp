@@ -119,6 +119,7 @@ namespace caribou {
 
     pearydata getDataBin();
 
+    std::vector<uint32_t> getRawData();
     pearydata getData();
     pearydata getDataTO(int /* maskx */, int /* masky */);
     std::vector<pixelhit> getDataTOvector(uint32_t timeout = Tuning_timeout, bool noisescan = 0);

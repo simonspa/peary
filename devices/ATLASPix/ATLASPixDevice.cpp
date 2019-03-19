@@ -259,6 +259,8 @@ void ATLASPixDevice::setOutput(std::string datatype) {
     data_type = "binary";
   } else if(datatype == "text") {
     data_type = "text";
+  } else if(datatype == "raw") {
+    data_type = "raw";
   } else {
     LOG(INFO) << "Data type not recongnized, using binary ";
     data_type = "binary";
@@ -1500,6 +1502,23 @@ void ATLASPixDevice::getTriggerCount() {
   LOG(INFO) << "Trigger received              " << this->readCounter(3) << std::endl;
 }
 
+std::vector<uint32_t> ATLASPixDevice::getRawData() {
+
+  void* readout_base =
+    _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
+  volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
+
+  uint32_t dataRead;
+  std::vector<uint32_t> rawDataVec;
+
+  dataRead = static_cast<uint32_t>(*data);
+  // if there are data
+  if(dataRead != 0) {
+    rawDataVec.push_back(dataRead);
+  }
+  return rawDataVec;
+}
+
 pearydata ATLASPixDevice::getDataBin() {
 
   void* readout_base =
@@ -2476,32 +2495,44 @@ void ATLASPixDevice::daqStart() {
     _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
   volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
 
+  if(_daqThread.joinable() || _daqContinue.test_and_set()) {
+    LOG(WARNING) << "Data aquisition is already running";
+    return;
+  }
+  _daqContinue.clear();
+
   *fifo_config = (*fifo_config & 0xFFFFFFEF) + 0b10000;
   usleep(50);
   *fifo_config = (*fifo_config & 0xFFFFFFEF) + 0b00000;
 
-  if(_daqThread.joinable()) {
-    LOG(WARNING) << "Data aquisition is already running";
-    return;
-  }
   // arm the stop flag and start running
   this->resetCounters();
+
   _daqContinue.test_and_set();
-  _daqThread = std::thread(&ATLASPixDevice::runDaq, this);
+
+  if(data_type != "raw") {
+    _daqThread = std::thread(&ATLASPixDevice::runDaq, this);
+  }
   // LOG(INFO) << "acquisition started" << std::endl;
 }
 
 void ATLASPixDevice::daqStop() {
-  // signal to daq thread that we want to stop and wait until it does
+  if(_daqThread.joinable()) {
+    // signal to daq thread that we want to stop and wait until it does
+    _daqContinue.clear();
+    _daqThread.join();
+    // LOG(INFO) << "Trigger count at end of run : " << this->getTriggerCounter() << std::endl;
+  }
   _daqContinue.clear();
-  _daqThread.join();
-  // LOG(INFO) << "Trigger count at end of run : " << this->getTriggerCounter() << std::endl;
 }
 
 void ATLASPixDevice::runDaq() {
 
   if(data_type == "binary") {
     getDataBin();
+  }
+  if(data_type != "raw") {
+    return;
   } else {
     getData();
   }
