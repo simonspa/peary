@@ -64,11 +64,16 @@ namespace caribou {
     void configurePatternGenerator(std::string filename);
     void triggerPatternGenerator(bool sleep);
 
+    /**
+     * Reading raw data from CLICpix2. This function returns both the pixel data frame and the frame timestamps from the
+     * pattern generator. The first word contains the number of timestamp words to follow. Then, the timestamps are written,
+     * followed bu the frame data from the device.
+     * @return Block of raw data as described above
+     */
     std::vector<uint32_t> getRawData();
-    pearydata getData();
+    std::vector<uint64_t> timestampsPatternGenerator() { return std::vector<uint64_t>(); };
 
-    // Method returns stored timestamps
-    std::vector<uint64_t> timestampsPatternGenerator();
+    pearydata getData();
 
     void setSpecialRegister(std::string name, uint32_t value);
 
@@ -87,6 +92,13 @@ namespace caribou {
      * columns are flipped accordingly.
      */
     void programMatrix();
+
+    /**
+     * Method to return timestamps from the device pattern generator
+     * The timestamps are 64bit words, split into MSB and LSB part. The LSB part is shipped **first**.
+     * @return List of timestamp words.
+     */
+    std::vector<uint32_t> getTimestamps();
 
     /* Map of pixelConfigs for configuration storage (row/col)
      */

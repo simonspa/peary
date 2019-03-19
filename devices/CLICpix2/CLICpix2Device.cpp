@@ -554,12 +554,24 @@ std::vector<uint32_t> CLICpix2Device::getFrame() {
 }
 
 std::vector<uint32_t> CLICpix2Device::getRawData() {
-  return getFrame();
+  std::vector<uint32_t> rawdata;
+
+  // Get the timestamps:
+  auto timestamps = getTimestamps();
+
+  // Read frame data:
+  auto frame = getFrame();
+
+  // Pack data: first data block is number of timestamp words, followed by timestamps and frame data
+  rawdata.push_back(timestamps.size());
+  rawdata.insert(rawdata.end(), timestamps.begin(), timestamps.end());
+  rawdata.insert(rawdata.end(), frame.begin(), frame.end());
+  return rawdata;
 }
 
-std::vector<uint64_t> CLICpix2Device::timestampsPatternGenerator() {
+std::vector<uint32_t> CLICpix2Device::getTimestamps() {
 
-  std::vector<uint64_t> timestamps;
+  std::vector<uint32_t> timestamps;
   LOG(DEBUG) << DEVICE_NAME << " Requesting timestamps";
 
   void* control_base =
@@ -570,19 +582,22 @@ std::vector<uint64_t> CLICpix2Device::timestampsPatternGenerator() {
   volatile uint32_t* timestamp_msb =
     reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + CLICPIX2_TIMESTAMPS_MSB_OFFSET);
 
-  uint64_t timestamp;
-
   // dummy readout
   if((*timestamp_msb & 0x80000000) != 0) {
     LOG(WARNING) << DEVICE_NAME << " Timestamps FIFO is empty: ";
     return timestamps;
   }
 
+  uint32_t timestamp;
+
   do {
+    // Read LSB
     timestamp = *timestamp_lsb;
-    timestamp |= (static_cast<uint64_t>(*timestamp_msb) << 32);
-    timestamps.push_back(timestamp & 0x7ffffffffffff);
-  } while(!(timestamp & 0x8000000000000000));
+    timestamps.push_back(timestamp);
+    // Read MSB
+    timestamp = *timestamp_msb;
+    timestamps.push_back(timestamp);
+  } while(!(timestamp & 0x80000000));
   LOG(DEBUG) << DEVICE_NAME << " Received timestamps: " << listVector(timestamps, ",", false);
 
   return timestamps;
