@@ -437,16 +437,9 @@ bool getFrame() {
         } catch(caribou::DataException& e) {
           // Retrieval failed, retry once more before aborting:
           LOG(WARNING) << e.what() << ", skipping frame.";
-          // mDelay(10);
-          // data = dev->getData();
-          dev->timestampsPatternGenerator(); // in case of readout error, clear timestamp fifo before going to next event
           continue;
         }
-        std::vector<uint64_t> timestamps = dev->timestampsPatternGenerator();
         myfile << "===== " << framecounter << " =====\n";
-        for(const auto& timestamp : timestamps) {
-          myfile << (timestamp >> 48) << ":" << (timestamp & 0xffffffffffff) << "\n";
-        }
         for(const auto& px : data) {
           // myfile << px.first.first << "," << px.first.second << "," << (*px.second) << "\n";
           myfile << px << "\n";
@@ -454,7 +447,6 @@ bool getFrame() {
         LOG(INFO) << framecounter << " | " << data.size() << " pixel responses";
         framecounter++;
       } catch(caribou::DataException& e) {
-        dev->timestampsPatternGenerator(); // in case of readout error, clear timestamp fifo before going to next event
         continue;
       } catch(caribou::caribouException& e) {
         LOG(ERROR) << e.what();
