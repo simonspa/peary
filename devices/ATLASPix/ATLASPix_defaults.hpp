@@ -172,12 +172,13 @@ namespace caribou {
     {"filter_weird_data", register_t<>(0x26, 0xFF, false, true, true)},		\
     {"hw_masking", register_t<>(0x26, 0xFF, false, true, true)},		\
     {"temperature", register_t<>(0b00000101)},		\
+    {"t0_out_periodic", register_t<>(0x26, 0xFF, false, true, true)},		\
   }
 
 
   const std::string AXI_registers[] = {"trigger_mode","ro_enable","armduration","trigger_injection"
 		  ,"edge_sel","edge_sel","trigger_enable","busy_when_armed","trigger_always_armed","t0_enable",
-		  "gray_decode","send_fpga_ts","filter_hp","filter_weird_data","hw_masking"};
+		  "gray_decode","send_fpga_ts","filter_hp","filter_weird_data","hw_masking","t0_out_periodic"};
 
   // clang-format on
 

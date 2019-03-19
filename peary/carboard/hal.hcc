@@ -138,6 +138,31 @@ namespace caribou {
     // The method return true when SI5345 jitter attenuator/clock multiplier is locked
     bool isLockedSI5345();
 
+    // The method sets pulse parameters for an onboard pulser
+    void configurePulseParameters(const unsigned channel_mask,
+                                  const uint32_t periods,
+                                  const uint32_t time_active,
+                                  const uint32_t time_idle,
+                                  const double voltage);
+
+    // The method configures the onboard pulser
+    void configurePulser(unsigned channel_mask, const bool ext_trigger, const bool ext_trig_edge, const bool idle_state);
+
+    // The method starts the onboard pulser
+    void startPulser(unsigned channel_mask);
+
+    // The method enables the onboard pulser
+    void enablePulser(unsigned channel_mask);
+
+    // The method disables (stops) the onboard pulser
+    void disablePulser(unsigned channel_mask);
+
+    // The method returns 4 status bits corresponding to 4 pulser channels if a channel is running
+    uint32_t getPulserRunning();
+
+    // The returns the number of pulses that were done since a pulser channel was started for the specified channel.
+    uint32_t getPulseCount(const uint32_t channel);
+
     // The method measures current
     // It return value in SI A.
     double measureCurrent(const VOLTAGE_REGULATOR_T regulator);

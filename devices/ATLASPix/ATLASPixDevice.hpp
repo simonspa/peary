@@ -125,6 +125,8 @@ namespace caribou {
     std::vector<pixelhit> getDataTimer(uint32_t timeout, bool to_nodata = false);
     void NoiseRun(double duration);
 
+    void NoiseRun(double duration);
+
     void dataTuning(double vmax, int nstep, int npulses);
     void VerifyTuning(double vmin, double vmax, int npulses, int npoints);
     void TDACScan(int VNDAC, double vmin, double vmax, uint32_t npulses, uint32_t npoints);

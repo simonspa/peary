@@ -358,13 +358,7 @@ void ATLASPixDevice::setThreshold(double threshold) {
 
   this->ProgramSR(theMatrix);
 
-  LOG(DEBUG) << " ThPix ";
-  this->setVoltage("ThPix", threshold);
-  this->switchOn("ThPix");
-  theMatrix.ThPix = threshold;
-}
-
-void ATLASPixDevice::setVMinus(double vminus) {
+  // usleep(10000);
 
   theMatrix.VMINUSPix = vminus;
   LOG(DEBUG) << " VMinusPix ";
@@ -528,9 +522,14 @@ void ATLASPixDevice::setSpecialRegister(std::string name, uint32_t value) {
       filter_weird_data = value;
     } else if(name == "hw_masking") {
       HW_masking = value;
-    }
+    } else if(name == "t0_out_periodic") {
 
-    else {
+      void* readout_base =
+        _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
+      volatile uint32_t* fifo_config =
+        reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
+      *fifo_config = (*fifo_config & 0xEFFF) + ((value << 12) & 0b1000000000000);
+    } else {
       throw RegisterInvalid("Unknown register with \"special\" flag: " + name);
     }
   }
@@ -557,10 +556,11 @@ void ATLASPixDevice::configureClock() {
       // throw DeviceException("Cannot lock to external clock.");
       break;
   }
-  if(_hal->isLockedSI5345())
+  if(_hal->isLockedSI5345()) {
     LOG(INFO) << "PLL locked to external clock...";
-  else
+  } else {
     LOG(INFO) << "Cannot lock to external clock, PLL will continue in freerunning mode...";
+  }
   //  }
 }
 
@@ -1505,10 +1505,11 @@ pearydata ATLASPixDevice::getDataBin() {
   // write actual configuration
   theMatrix.writeGlobal(_output_directory + "/config.cfg");
   theMatrix.writeTDAC(_output_directory + "/config_TDAC.cfg");
-
   std::ofstream disk;
   disk.open(_output_directory + "/data.bin", std::ios::out | std::ios::binary);
-
+  if(!disk.is_open()) {
+    LOG(WARNING) << "Output data file NOT opened!";
+  }
   uint32_t d1;
 
   while(true) {
@@ -1670,13 +1671,15 @@ pearydata ATLASPixDevice::getDataTO(int maskx, int masky) {
   make_directories(_output_directory);
   std::ofstream disk;
   disk.open(_output_directory + "/data.txt", std::ios::out);
-  disk << "X:	Y:	   TS1:	   TS2:		FPGA_TS:  TR_CNT:  BinCounter :  " << std::endl;
+  disk << "X:	Y:	   TS1:	   TS2: 	TOT:FPGA_TS:  TR_CNT:  BinCounter :  " << std::endl;
 
   uint64_t fpga_ts = 0;
   uint64_t fpga_ts_last = 0;
   uint64_t fpga_ts_busy = 0;
+
   uint32_t timestamp = 0;
   uint32_t TrCNT = 0;
+  int TrCNT_next = -1;
 
   bool to = false;
   uint32_t tocnt = 0;
@@ -1720,9 +1723,9 @@ pearydata ATLASPixDevice::getDataTO(int maskx, int masky) {
 
       pixelhit hit = decodeHit(d1, theMatrix.CurrentDACConfig->GetParameter("ckdivend2"), gray_decoding_state);
       // LOG(INFO) << hit.col <<" " << hit.row << " " << hit.ts1 << ' ' << hit.ts2 << std::endl;
-      disk << "HIT " << hit.col << "	" << hit.row << "	" << hit.ts1 << "	" << hit.ts2 << "   " << hit.tot << "	"
+      disk << "HIT " << hit.col << "	" << hit.row << "	" << hit.ts1 << "	" << hit.ts2 << "	" << hit.tot << "	"
            << fpga_ts_last << "	"
-           << " " << TrCNT << " " << ((timestamp >> 8) & 0xFFFF) << std::endl;
+           << " " << TrCNT << " " << ((timestamp >> 8) & 0xFFFF) << " " << timing << std::endl;
       // disk << std::bitset<32>(d1) << std::endl;
     }
 
@@ -1768,7 +1771,7 @@ pearydata ATLASPixDevice::getDataTO(int maskx, int masky) {
         disk << "SERDES_LOCK_ESTABLISHED" << std::endl;
         break;
       case 0b00000100: // Unexpected/weird data came
-        // sdisk << "WEIRD_DATA" << std::endl;
+        disk << "WEIRD_DATA" << std::endl;
         break;
       default: // weird stuff, should not happend
         LOG(WARNING) << "I AM IMPOSSIBLE!!!!!!!!!!!!!!!!!!" << std::endl;
@@ -1861,7 +1864,7 @@ std::vector<pixelhit> ATLASPixDevice::getDataTOvector(uint32_t timeout, bool noi
         // disk << "BINCOUNTER " << timestamp << std::endl;
         break;
       case 0b00000001: // Buffer overflow, data after this are lost
-        // disk << "BUFFER_OVERFLOW" << std::endl;
+        disk << "BUFFER_OVERFLOW" << std::endl;
         break;
       case 0b00010000: // Trigger cnt 24bits
         TrCNT = d1 & 0xFFFFFF;
@@ -1876,13 +1879,22 @@ std::vector<pixelhit> ATLASPixDevice::getDataTOvector(uint32_t timeout, bool noi
       case 0b01100000: // End of fpga_ts (24 bits)
         fpga_ts = fpga_ts + ((d1)&0xFFFFFF);
         // LOG(INFO) << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
-        // disk << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
+        disk << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
         fpga_ts_last = fpga_ts;
         fpga_ts = 0;
         break;
       case 0b00000010: // BUSY asserted with 24bit LSB of Trigger FPGA TS
         fpga_ts_busy = d1 & 0xFFFFFF;
-        // disk << "BUSY_ASSERTED " << fpga_ts_busy << std::endl;
+        disk << "BUSY_ASSERTED " << fpga_ts_busy << std::endl;
+        break;
+      case 0b00001100: // SERDES lock lost
+        disk << "SERDES_LOCK_LOST" << std::endl;
+        break;
+      case 0b00001000: // SERDES lock established
+        disk << "SERDES_LOCK_ESTABLISHED" << std::endl;
+        break;
+      case 0b00000100: // Unexpected/weird data came
+        // sdisk << "WEIRD_DATA" << std::endl;
         break;
       case 0b00001100: // SERDES lock lost
         // disk << "SERDES_LOCK_LOST" << std::endl;
@@ -2500,6 +2512,10 @@ void ATLASPixDevice::runDaq() {
 
 void ATLASPixDevice::powerStatusLog() {
   LOG(INFO) << DEVICE_NAME << " power status:";
+
+  LOG(INFO) << "VCLK:";
+  LOG(INFO) << "\tBus voltage: " << _hal->measureVoltage(PWR_OUT_5) << "V";
+  LOG(INFO) << "\tBus current: " << _hal->measureCurrent(PWR_OUT_5) << "A";
 
   LOG(INFO) << "VDDD:";
   LOG(INFO) << "\tBus voltage: " << _hal->measureVoltage(PWR_OUT_4) << "V";
