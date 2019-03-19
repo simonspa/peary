@@ -32,8 +32,8 @@ struct ATLASPixMatrix {
   std::array<std::array<int, 400>, 56> MASK; // duplicate of last TDAC bit
 
   // info about matrix, SR etc...
-  int ncol, nrow, ndoublecol;
-  int nSRbuffer, nbits;
+  uint32_t ncol, nrow, ndoublecol;
+  uint32_t nSRbuffer, nbits;
   int counter;
   uint32_t SRmask, extraBits, PulserMask;
   ATLASPix1Flavor flavor = ATLASPix1Flavor::Undefined;

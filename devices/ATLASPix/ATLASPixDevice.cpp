@@ -636,7 +636,8 @@ void ATLASPixDevice::resetPulser() {
   *rst = 0x0;
 }
 
-void ATLASPixDevice::setPulse(ATLASPixMatrix& matrix, uint32_t npulse, uint32_t n_up, uint32_t n_down, double voltage) {
+void ATLASPixDevice::setPulse(
+  ATLASPixMatrix& /* matrix */, uint32_t npulse, uint32_t n_up, uint32_t n_down, double voltage) {
 
   LOG(DEBUG) << " Set injection voltages ";
   _hal->setBiasRegulator(INJ_1, voltage);
@@ -896,7 +897,7 @@ void ATLASPixDevice::writeOneTDAC(ATLASPixMatrix& matrix, uint32_t col, uint32_t
 
   matrix.setTDAC(col, row, value);
 
-  for(int col_i = 0; col_i < theMatrix.ncol; col_i++) {
+  for(uint32_t col_i = 0; col_i < theMatrix.ncol; col_i++) {
     if((matrix.flavor == ATLASPix1Flavor::M1) || (matrix.flavor == ATLASPix1Flavor::M1Iso)) {
 
       // Column Register
@@ -935,7 +936,7 @@ void ATLASPixDevice::writeOneTDAC(ATLASPixMatrix& matrix, uint32_t col, uint32_t
     }
   }
 
-  for(int row_i = 0; row_i < theMatrix.nrow; row_i++) {
+  for(uint32_t row_i = 0; row_i < theMatrix.nrow; row_i++) {
     std::string row_s = to_string(row_i);
     matrix.MatrixDACConfig->SetParameter("writedac" + row_s, 0);
   }
@@ -959,7 +960,7 @@ void ATLASPixDevice::writeUniformTDAC(ATLASPixMatrix& matrix, uint32_t value) {
   if((matrix.flavor == ATLASPix1Flavor::M1) || (matrix.flavor == ATLASPix1Flavor::M1Iso)) {
 
     // Column Register
-    for(int col = 0; col < matrix.ncol; col++) {
+    for(uint32_t col = 0; col < matrix.ncol; col++) {
       std::string s = to_string(col);
       matrix.MatrixDACConfig->SetParameter("colinjDown" + s, 0);
       matrix.MatrixDACConfig->SetParameter("hitbusDown" + s, 0);
@@ -974,7 +975,7 @@ void ATLASPixDevice::writeUniformTDAC(ATLASPixMatrix& matrix, uint32_t value) {
   }
 
   else {
-    for(int col = 0; col < matrix.ncol; col++) {
+    for(uint32_t col = 0; col < matrix.ncol; col++) {
       double_col = int(std::floor(double(col) / 2));
       col_s = to_string(double_col);
       if(col % 2 == 0) {
@@ -987,7 +988,7 @@ void ATLASPixDevice::writeUniformTDAC(ATLASPixMatrix& matrix, uint32_t value) {
     }
   };
 
-  for(int row = 0; row < matrix.nrow; row++) {
+  for(uint32_t row = 0; row < matrix.nrow; row++) {
 
     // std::cout << "processing row : " << row << std::endl;
     std::string row_s = to_string(row);
@@ -999,7 +1000,7 @@ void ATLASPixDevice::writeUniformTDAC(ATLASPixMatrix& matrix, uint32_t value) {
 
   this->ProgramSR(matrix);
 
-  for(int row = 0; row < matrix.nrow; row++) {
+  for(uint32_t row = 0; row < matrix.nrow; row++) {
 
     // std::cout << "processing row : " << row << std::endl;
     std::string row_s = to_string(row);
@@ -1011,7 +1012,7 @@ void ATLASPixDevice::writeUniformTDAC(ATLASPixMatrix& matrix, uint32_t value) {
 
   this->ProgramSR(matrix);
 
-  for(int row = 0; row < matrix.nrow; row++) {
+  for(uint32_t row = 0; row < matrix.nrow; row++) {
 
     // std::cout << "processing row : " << row << std::endl;
     std::string row_s = to_string(row);
@@ -1031,11 +1032,11 @@ void ATLASPixDevice::writeAllTDAC(ATLASPixMatrix& matrix) {
 
   // std::cout << "i am here" << std::endl;
 
-  for(int row = 0; row < matrix.nrow; row++) {
+  for(uint32_t row = 0; row < matrix.nrow; row++) {
     if((matrix.flavor == ATLASPix1Flavor::M1) || (matrix.flavor == ATLASPix1Flavor::M1Iso)) {
 
       // Column Register
-      for(int col = 0; col < matrix.ncol; col++) {
+      for(uint32_t col = 0; col < matrix.ncol; col++) {
         std::string s = to_string(col);
         matrix.MatrixDACConfig->SetParameter("colinjDown" + s, 0);
         matrix.MatrixDACConfig->SetParameter("hitbusDown" + s, 0);
@@ -1056,7 +1057,7 @@ void ATLASPixDevice::writeAllTDAC(ATLASPixMatrix& matrix) {
     }
 
     else {
-      for(int col = 0; col < matrix.ncol; col++) {
+      for(uint32_t col = 0; col < matrix.ncol; col++) {
         double_col = int(std::floor(double(col) / 2));
         col_s = to_string(double_col);
         if(col % 2 == 0) {
@@ -1074,7 +1075,7 @@ void ATLASPixDevice::writeAllTDAC(ATLASPixMatrix& matrix) {
     }
     std::string row_s = to_string(row);
 
-    for(int arow = 0; arow < matrix.nrow; arow++) {
+    for(uint32_t arow = 0; arow < matrix.nrow; arow++) {
 
       // std::cout << "processing row : " << row << std::endl;
       std::string arow_s = to_string(arow);
@@ -1147,13 +1148,13 @@ void ATLASPixDevice::SetPixelInjection(uint32_t col, uint32_t row, bool ana_stat
 
 void ATLASPixDevice::SetInjectionOff() {
 
-  for(int col = 0; col < theMatrix.ncol; col++) {
+  for(uint32_t col = 0; col < theMatrix.ncol; col++) {
     // for(int row = 0; row < theMatrix.nrow; row++) {
     if(col % 5 == 0) {
       LOG(INFO) << "Setting col " << col << std::endl;
     }
 
-    for(int row = 0; row < theMatrix.nrow; row++) {
+    for(uint32_t row = 0; row < theMatrix.nrow; row++) {
       this->SetPixelInjectionState(col, row, 0, 0, 0);
     }
     this->ProgramSR(theMatrix);
@@ -1216,7 +1217,7 @@ void ATLASPixDevice::SetPixelInjectionState(uint32_t col, uint32_t row, bool ana
 
 void ATLASPixDevice::ResetWriteDAC() {
 
-  for(int row = 0; row < theMatrix.nrow; row++) {
+  for(uint32_t row = 0; row < theMatrix.nrow; row++) {
     std::string row_s = to_string(row);
     theMatrix.MatrixDACConfig->SetParameter("writedac" + row_s, 0);
   }
@@ -1224,7 +1225,7 @@ void ATLASPixDevice::ResetWriteDAC() {
 
 void ATLASPixDevice::SetInjectionMask(uint32_t maskx, uint32_t masky, uint32_t state) {
 
-  for(int col = 0; col < (theMatrix.ncol); col++) {
+  for(uint32_t col = 0; col < (theMatrix.ncol); col++) {
     if(((col + maskx) % theMatrix.maskx) == 0) {
 
       // LOG(INFO) << "injecting in col " << col << std::endl;
@@ -1233,7 +1234,7 @@ void ATLASPixDevice::SetInjectionMask(uint32_t maskx, uint32_t masky, uint32_t s
     }
   }
 
-  for(int row = 0; row < theMatrix.nrow; row++) {
+  for(uint32_t row = 0; row < theMatrix.nrow; row++) {
     if(((row + masky) % theMatrix.masky) == 0) {
       this->SetPixelInjectionState(0, row, 0, 0, state);
       // LOG(INFO) << "injecting in row " << row << std::endl;
@@ -1309,7 +1310,7 @@ void ATLASPixDevice::doSCurvePixel(
   uint32_t count = 0;
   vinj = vmin;
   this->SetPixelInjection(col, row, 0, 0, 1);
-  for(int i = 0; i < npoints; i++) {
+  for(uint32_t i = 0; i < npoints; i++) {
     // LOG(INFO) << "pulse height : " << vinj << std::endl;
     this->pulse(npulses, 10000, 10000, vinj);
     usleep(1000);
@@ -1347,7 +1348,7 @@ void ATLASPixDevice::doSCurves(double vmin, double vmax, uint32_t npulses, uint3
       //      }
 
       vinj = vmin;
-      for(int i = 0; i < npoints; i++) {
+      for(uint32_t i = 0; i < npoints; i++) {
         LOG(INFO) << "pulse height : " << vinj << std::endl;
         this->pulse(npulses, 10000, 10000, vinj);
         usleep(10000);
@@ -1356,12 +1357,12 @@ void ATLASPixDevice::doSCurves(double vmin, double vmax, uint32_t npulses, uint3
         vinj += dv;
       }
 
-      for(int col = 0; col < theMatrix.ncol; col++) {
-        for(int row = 0; row < theMatrix.nrow; row++) {
+      for(uint32_t col = 0; col < theMatrix.ncol; col++) {
+        for(uint32_t row = 0; row < theMatrix.nrow; row++) {
 
           if((((col + mx) % theMatrix.maskx) == 0) && (((row + my) % theMatrix.masky) == 0)) {
             disk << col << " " << row << " ";
-            for(int i = 0; i < npoints; i++) {
+            for(uint32_t i = 0; i < npoints; i++) {
               disk << SCurveData[i][std::make_pair(col, row)] << " ";
             }
             disk << std::endl;
@@ -1376,16 +1377,15 @@ void ATLASPixDevice::doSCurves(double vmin, double vmax, uint32_t npulses, uint3
   disk.close();
 }
 
-void ATLASPixDevice::PulseTune(double target) {
+void ATLASPixDevice::PulseTune(double /*target*/) {
 
   // this->setPulse(theMatrix, 100, 10000, 10000, target);
 
-  for(int col = 0; col < theMatrix.ncol; col++) {
-    for(int row = 0; row < theMatrix.nrow; row++) {
+  for(uint32_t col = 0; col < theMatrix.ncol; col++) {
+    for(uint32_t row = 0; row < theMatrix.nrow; row++) {
 
       LOG(INFO) << "pixel " << col << " " << row << std::endl;
       bool ok = false;
-      uint32_t count = 0;
       int curr_tdac = 4;
       int niter = 0;
       this->writeOneTDAC(theMatrix, col, row, curr_tdac);
@@ -1447,7 +1447,7 @@ void ATLASPixDevice::MeasureTOT(double vmin, double vmax, uint32_t npulses, uint
       this->SetInjectionMask(mx, my, 1);
 
       vinj = vmin;
-      for(int i = 0; i < npoints; i++) {
+      for(uint32_t i = 0; i < npoints; i++) {
         LOG(INFO) << "pulse height : " << vinj << std::endl;
         this->pulse(npulses, 10000, 10000, vinj);
         this->AverageTOT(this->getDataTOvector(), mx, my, SCurveData[i]);
@@ -1455,12 +1455,12 @@ void ATLASPixDevice::MeasureTOT(double vmin, double vmax, uint32_t npulses, uint
         vinj += dv;
       }
 
-      for(int col = 0; col < theMatrix.ncol; col++) {
-        for(int row = 0; row < theMatrix.nrow; row++) {
+      for(uint32_t col = 0; col < theMatrix.ncol; col++) {
+        for(uint32_t row = 0; row < theMatrix.nrow; row++) {
 
           if((((col + mx) % theMatrix.maskx) == 0) && (((row + my) % theMatrix.masky) == 0)) {
             disk << col << " " << row << " ";
-            for(int i = 0; i < npoints; i++) {
+            for(uint32_t i = 0; i < npoints; i++) {
               disk << SCurveData[i][std::make_pair(col, row)] << " ";
             }
             disk << std::endl;
@@ -1564,7 +1564,7 @@ pearydata ATLASPixDevice::getData() {
 
   uint32_t timestamp = 0;
   uint32_t TrCNT = 0;
-  int TrCNT_next = -1;
+  /* int TrCNT_next = -1; */
 
   while(true) {
 
@@ -1584,7 +1584,7 @@ pearydata ATLASPixDevice::getData() {
 
       pixelhit hit = decodeHit(d1, theMatrix.CurrentDACConfig->GetParameter("ckdivend2"), gray_decoding_state);
 
-      double timing = (hit.ts1 * 2 - (((fpga_ts_last))) & 0b11111111111);
+      double timing = (((hit.ts1 * 2) - (fpga_ts_last)) & 0b11111111111);
 
       // LOG(INFO) << hit.col <<" " << hit.row << " " << hit.ts1 << ' ' << hit.ts2 << std::endl;
       if(filter_hp) {
@@ -1664,7 +1664,7 @@ pearydata ATLASPixDevice::getData() {
   return dummy;
 }
 
-pearydata ATLASPixDevice::getDataTO(int maskx, int masky) {
+pearydata ATLASPixDevice::getDataTO(int /* maskx */, int /* masky */) {
 
   void* readout_base =
     _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
@@ -1794,7 +1794,7 @@ pearydata ATLASPixDevice::getDataTO(int maskx, int masky) {
   return dummy;
 }
 
-std::vector<pixelhit> ATLASPixDevice::getDataTOvector(uint32_t timeout, bool noisescan) {
+std::vector<pixelhit> ATLASPixDevice::getDataTOvector(uint32_t /* timeout */, bool /* noisescan */) {
 
   void* readout_base =
     _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
@@ -1812,14 +1812,14 @@ std::vector<pixelhit> ATLASPixDevice::getDataTOvector(uint32_t timeout, bool noi
   //  disk << "X:	Y:	   TS1:	   TS2:		FPGA_TS:   SyncedCNT:   TR_CNT:	ATPBinCounter:   ATPGreyCounter:	" << std::endl;
 
   uint64_t fpga_ts = 0;
-  uint64_t fpga_ts_last = 0;
-  uint64_t fpga_ts_busy = 0;
-  uint32_t timestamp = 0;
+  /* uint64_t fpga_ts_last; */
+  /* uint64_t fpga_ts_busy; */
+  /* uint32_t timestamp; */
   uint32_t TrCNT = 0;
 
   bool to = false;
   uint32_t tocnt = 0;
-  uint32_t datatocnt = 0;
+  /* uint32_t datatocnt = 0; */
   std::vector<pixelhit> datavec;
   uint32_t datacnt = 0;
 
@@ -1866,7 +1866,7 @@ std::vector<pixelhit> ATLASPixDevice::getDataTOvector(uint32_t timeout, bool noi
       switch(data_type) {
 
       case 0b01000000: // BinCnt from ATLASPix, not read for now
-        timestamp = d1 & 0xFFFFFF;
+        /* timestamp = d1 & 0xFFFFFF; */
         // disk << "BINCOUNTER " << timestamp << std::endl;
         break;
       case 0b00000001: // Buffer overflow, data after this are lost
@@ -1886,11 +1886,11 @@ std::vector<pixelhit> ATLASPixDevice::getDataTOvector(uint32_t timeout, bool noi
         fpga_ts = fpga_ts + ((d1)&0xFFFFFF);
         // LOG(INFO) << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
         // disk << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
-        fpga_ts_last = fpga_ts;
+        /* fpga_ts_last = fpga_ts; */
         fpga_ts = 0;
         break;
       case 0b00000010: // BUSY asserted with 24bit LSB of Trigger FPGA TS
-        fpga_ts_busy = d1 & 0xFFFFFF;
+        /* fpga_ts_busy = d1 & 0xFFFFFF; */
         // disk << "BUSY_ASSERTED " << fpga_ts_busy << std::endl;
         break;
       case 0b00001100: // SERDES lock lost
@@ -1932,14 +1932,14 @@ std::vector<pixelhit> ATLASPixDevice::getDataTimer(uint32_t timeout, bool to_nod
   //  disk << "X:	Y:	   TS1:	   TS2:		FPGA_TS:   SyncedCNT:   TR_CNT:	ATPBinCounter:   ATPGreyCounter:	" << std::endl;
 
   uint64_t fpga_ts = 0;
-  uint64_t fpga_ts_last = 0;
-  uint64_t fpga_ts_busy = 0;
-  uint32_t timestamp = 0;
+  /* uint64_t fpga_ts_last; */
+  /* uint64_t fpga_ts_busy; */
+  /* uint32_t timestamp; */
   uint32_t TrCNT = 0;
 
   bool to = false;
   uint32_t tocnt = 0;
-  uint32_t datatocnt = 0;
+  /* uint32_t datatocnt = 0; */
   std::vector<pixelhit> datavec;
   uint32_t datacnt = 0;
 
@@ -1989,7 +1989,7 @@ std::vector<pixelhit> ATLASPixDevice::getDataTimer(uint32_t timeout, bool to_nod
       switch(data_type) {
 
       case 0b01000000: // BinCnt from ATLASPix, not read for now
-        timestamp = d1 & 0xFFFFFF;
+        /* timestamp = d1 & 0xFFFFFF; */
         // disk << "BINCOUNTER " << timestamp << std::endl;
         break;
       case 0b00000001: // Buffer overflow, data after this are lost
@@ -2009,11 +2009,11 @@ std::vector<pixelhit> ATLASPixDevice::getDataTimer(uint32_t timeout, bool to_nod
         fpga_ts = fpga_ts + ((d1)&0xFFFFFF);
         // LOG(INFO) << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
         // disk << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
-        fpga_ts_last = fpga_ts;
+        /* fpga_ts_last = fpga_ts; */
         fpga_ts = 0;
         break;
       case 0b00000010: // BUSY asserted with 24bit LSB of Trigger FPGA TS
-        fpga_ts_busy = d1 & 0xFFFFFF;
+        /* fpga_ts_busy = d1 & 0xFFFFFF; */
         // disk << "BUSY_ASSERTED " << fpga_ts_busy << std::endl;
         break;
       case 0b00001100: // SERDES lock lost
@@ -2040,8 +2040,8 @@ std::vector<pixelhit> ATLASPixDevice::getDataTimer(uint32_t timeout, bool to_nod
 void ATLASPixDevice::ReapplyMask() {
 
   LOG(INFO) << "re-applying mask " << std::endl;
-  for(int col = 0; col < theMatrix.ncol; col++) {
-    for(int row = 0; row < theMatrix.nrow; row++) {
+  for(uint32_t col = 0; col < theMatrix.ncol; col++) {
+    for(uint32_t row = 0; row < theMatrix.nrow; row++) {
       if(theMatrix.MASK[col][row] == 1) {
         // LOG(INFO) << "masking " << col << " " << row << std::endl;
         this->MaskPixel(col, row);
@@ -2050,7 +2050,7 @@ void ATLASPixDevice::ReapplyMask() {
   };
 }
 
-void ATLASPixDevice::dataTuning(double vmax, int nstep, int npulses) {
+void ATLASPixDevice::dataTuning(double vmax, int nstep, uint32_t npulses) {
 
   const double margin = 0.05;
 
@@ -2070,8 +2070,8 @@ void ATLASPixDevice::dataTuning(double vmax, int nstep, int npulses) {
   disk << "X:	Y:	   TDAC:	   COUNT:	" << std::endl;
 
   LOG(INFO) << "Tuning using data for target " << vmax;
-  for(int col = 0; col < theMatrix.ncol; col++) {
-    for(int row = 0; row < theMatrix.nrow; row++) {
+  for(uint32_t col = 0; col < theMatrix.ncol; col++) {
+    for(uint32_t row = 0; row < theMatrix.nrow; row++) {
 
       int cur_tdac = 4;
       bool done = false;
@@ -2185,8 +2185,8 @@ void ATLASPixDevice::VerifyTuning(double vmin, double vmax, int npulses, int npo
         vinj += dv;
       }
 
-      for(int col = 0; col < theMatrix.ncol; col++) {
-        for(int row = 0; row < theMatrix.nrow; row++) {
+      for(uint32_t col = 0; col < theMatrix.ncol; col++) {
+        for(uint32_t row = 0; row < theMatrix.nrow; row++) {
 
           if((((col + mx) % theMatrix.maskx) == 0) && (((row + my) % theMatrix.masky) == 0)) {
             disk << col << " " << row << " ";
@@ -2231,11 +2231,11 @@ void ATLASPixDevice::doSCurvesAndWrite(
 
   myfile << npoints << std::endl;
 
-  std::clock_t start;
-  double duration;
+  /* std::clock_t start; */
+  /* double duration; */
 
-  for(int col = 0; col < theMatrix.ncol; col++) {
-    for(int row = 0; row < theMatrix.nrow; row++) {
+  for(uint32_t col = 0; col < theMatrix.ncol; col++) {
+    for(uint32_t row = 0; row < theMatrix.nrow; row++) {
 
       // start = std::clock();
 
@@ -2250,7 +2250,7 @@ void ATLASPixDevice::doSCurvesAndWrite(
       this->SetPixelInjection(col, row, 1, 1, 1);
       this->resetCounters();
 
-      for(int i = 0; i < npoints; i++) {
+      for(uint32_t i = 0; i < npoints; i++) {
         this->pulse(npulses, 1000, 1000, vinj);
         // cnt=this->readCounter(theMatrixISO);
         cnt = this->readCounter(theMatrix);

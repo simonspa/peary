@@ -120,12 +120,12 @@ namespace caribou {
     pearydata getDataBin();
 
     pearydata getData();
-    pearydata getDataTO(int maskx, int masky);
+    pearydata getDataTO(int /* maskx */, int /* masky */);
     std::vector<pixelhit> getDataTOvector(uint32_t timeout = Tuning_timeout, bool noisescan = 0);
     std::vector<pixelhit> getDataTimer(uint32_t timeout, bool to_nodata = false);
     void NoiseRun(double duration);
 
-    void dataTuning(double vmax, int nstep, int npulses);
+    void dataTuning(double vmax, int nstep, uint32_t npulses);
     void VerifyTuning(double vmin, double vmax, int npulses, int npoints);
     void TDACScan(int VNDAC, double vmin, double vmax, uint32_t npulses, uint32_t npoints);
 
@@ -135,7 +135,7 @@ namespace caribou {
     void doSCurves(double vmin, double vmax, uint32_t npulses, uint32_t npoints);
     void doSCurvesAndWrite(std::string basefolder, double vmin, double vmax, uint32_t npulses, uint32_t npoints);
     void ComputeSCurves(ATLASPixMatrix& matrix, double vmax, int nstep, int npulses, int tup, int tdown);
-    void PulseTune(double target);
+    void PulseTune(double /* target */);
     void MeasureTOT(double vmin, double vmax, uint32_t npulses, uint32_t npoints);
     void AverageTOT(std::vector<pixelhit> data, uint32_t maskidx, uint32_t maskidy, TOTMap& tots);
 
@@ -171,7 +171,7 @@ namespace caribou {
     int readCounter(ATLASPixMatrix& matrix);
 
     void resetPulser();
-    void setPulse(ATLASPixMatrix& matrix, uint32_t npulse, uint32_t n_up, uint32_t n_down, double voltage);
+    void setPulse(ATLASPixMatrix& /* matrix */, uint32_t npulse, uint32_t n_up, uint32_t n_down, double voltage);
     void sendPulse();
 
     // void tune(ATLASPixMatrix& matrix, double vmax, int nstep, int npulses, bool tuning_verification);

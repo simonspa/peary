@@ -94,7 +94,7 @@ void ATLASPixMatrix::_initializeGlobalParameters() {
 }
 
 void ATLASPixMatrix::_initializeM1LikeColumnParameters() {
-  for(int col = 0; col < ncol; col++) {
+  for(uint32_t col = 0; col < ncol; col++) {
     std::string s = to_string(col);
     MatrixDACConfig->AddParameter("RamDown" + s, 4, ATLASPix_Config::LSBFirst, 0b000); // 0b1011
     MatrixDACConfig->AddParameter("colinjDown" + s, 1, ATLASPix_Config::LSBFirst, 0);
@@ -108,7 +108,7 @@ void ATLASPixMatrix::_initializeM1LikeColumnParameters() {
 }
 
 void ATLASPixMatrix::_initializeM2ColumnParameters() {
-  for(int col = 0; col < ndoublecol; col++) {
+  for(uint32_t col = 0; col < ndoublecol; col++) {
     std::string s = to_string(col);
     MatrixDACConfig->AddParameter("RamL" + s, 3, ATLASPix_Config::LSBFirst, 0);
     MatrixDACConfig->AddParameter("colinjL" + s, 1, ATLASPix_Config::LSBFirst, 0);
@@ -118,7 +118,7 @@ void ATLASPixMatrix::_initializeM2ColumnParameters() {
 }
 
 void ATLASPixMatrix::_initializeRowParameters() {
-  for(int row = 0; row < nrow; row++) {
+  for(uint32_t row = 0; row < nrow; row++) {
     std::string s = to_string(row);
     MatrixDACConfig->AddParameter("writedac" + s, 1, ATLASPix_Config::LSBFirst, 0);
     MatrixDACConfig->AddParameter("unused" + s, 3, ATLASPix_Config::LSBFirst, 0);
@@ -219,8 +219,8 @@ void ATLASPixMatrix::setUniformTDAC(uint32_t value) {
     value = 7;
   }
 
-  for(int col = 0; col < ncol; col++) {
-    for(int row = 0; row < nrow; row++) {
+  for(uint32_t col = 0; col < ncol; col++) {
+    for(uint32_t row = 0; row < nrow; row++) {
       // MASK[col][row] = 0;
       TDAC[col][row] = (value << 1) | MASK[col][row];
     }
@@ -306,8 +306,8 @@ void ATLASPixMatrix::loadGlobal(std::string filename) {
 void ATLASPixMatrix::writeTDAC(std::string filename) const {
   std::ofstream out(filename, std::ofstream::out | std::ofstream::trunc);
 
-  for(int col = 0; col < ncol; col++) {
-    for(int row = 0; row < nrow; row++) {
+  for(uint32_t col = 0; col < ncol; col++) {
+    for(uint32_t row = 0; row < nrow; row++) {
       out << std::left << std::setw(3) << col << " ";
       out << std::left << std::setw(3) << row << " ";
       out << std::left << std::setw(2) << (TDAC[col][row] >> 1) << " ";
