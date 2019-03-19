@@ -236,7 +236,7 @@ void CLICpix2Device::configureMatrix(std::string filename) {
   // Read back the matrix configuration and thus clear it:
   LOG(DEBUG) << "Flushing matrix...";
 
-  std::vector<uint32_t> frame = getRawData();
+  std::vector<uint32_t> frame = getFrame();
   clicpix2_frameDecoder decoder(false, false, pixelsConfig);
 
   try {
@@ -520,10 +520,10 @@ pearydata CLICpix2Device::decodeFrame(const std::vector<uint32_t>& frame) {
 }
 
 pearydata CLICpix2Device::getData() {
-  return decodeFrame(getRawData());
+  return decodeFrame(getFrame());
 }
 
-std::vector<uint32_t> CLICpix2Device::getRawData() {
+std::vector<uint32_t> CLICpix2Device::getFrame() {
 
   LOG(DEBUG) << DEVICE_NAME << " readout requested";
   this->setRegister("readout", 0);
@@ -551,6 +551,10 @@ std::vector<uint32_t> CLICpix2Device::getRawData() {
   }
   LOG(DEBUG) << DEVICE_NAME << " Read raw SerDes data:\n" << listVector(frame, ", ", true);
   return frame;
+}
+
+std::vector<uint32_t> CLICpix2Device::getRawData() {
+  return getFrame();
 }
 
 std::vector<uint64_t> CLICpix2Device::timestampsPatternGenerator() {

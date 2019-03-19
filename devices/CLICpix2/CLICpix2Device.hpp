@@ -95,6 +95,9 @@ namespace caribou {
     // The functions sets clocks required by CLICpix2 to operate
     void configureClock();
 
+    // Retrieve frame from device
+    std::vector<uint32_t> getFrame();
+
     // Methods decodes frame
     pearydata decodeFrame(const std::vector<uint32_t>& frame);
 
