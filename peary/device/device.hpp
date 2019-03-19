@@ -100,9 +100,6 @@ namespace caribou {
      */
     virtual void reset() = 0;
 
-    // Return timestamps for the execeuted sequence in the pattern generator.
-    virtual std::vector<uint64_t> timestampsPatternGenerator() = 0;
-
     // Voltage regulators
 
     // To set supply voltages, same question as above: how to define voltage names?

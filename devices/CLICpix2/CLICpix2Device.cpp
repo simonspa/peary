@@ -589,7 +589,6 @@ std::vector<uint32_t> CLICpix2Device::getTimestamps() {
   }
 
   uint32_t timestamp;
-
   do {
     // Read LSB
     timestamp = *timestamp_lsb;

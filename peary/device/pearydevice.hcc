@@ -109,8 +109,6 @@ namespace caribou {
     // Could be either the supplied clock from DAQ or internal clock divider...
     // virtual void setClockFrequency();
 
-    virtual std::vector<uint64_t> timestampsPatternGenerator();
-
     // Voltage regulators
 
     // To set supply voltages, same question as above: how to define voltage names?

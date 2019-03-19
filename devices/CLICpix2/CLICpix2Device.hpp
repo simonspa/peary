@@ -71,8 +71,6 @@ namespace caribou {
      * @return Block of raw data as described above
      */
     std::vector<uint32_t> getRawData();
-    std::vector<uint64_t> timestampsPatternGenerator() { return std::vector<uint64_t>(); };
-
     pearydata getData();
 
     void setSpecialRegister(std::string name, uint32_t value);
