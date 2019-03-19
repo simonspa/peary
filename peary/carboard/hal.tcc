@@ -567,27 +567,27 @@ namespace caribou {
         continue;
       }
 
-      BIAS_REGULATOR_T regulator;
       switch(channel) {
       case 0b0001:
-        regulator = INJ_1;
+        setBiasRegulator(INJ_1, voltage);
+        powerBiasRegulator(INJ_1, true);
         break;
       case 0b0010:
-        regulator = INJ_2;
+        setBiasRegulator(INJ_2, voltage);
+        powerBiasRegulator(INJ_2, true);
         break;
       case 0b0100:
-        regulator = INJ_3;
+        setBiasRegulator(INJ_3, voltage);
+        powerBiasRegulator(INJ_3, true);
         break;
       case 0b1000:
-        regulator = INJ_4;
+        setBiasRegulator(INJ_4, voltage);
+        powerBiasRegulator(INJ_4, true);
         break;
       default:
         throw FirmwareException("Something went terribly wrong in caribouHAL::configurePulseParameters() and the function "
                                 "reached a state where it should not be.");
       }
-
-      setBiasRegulator(regulator, voltage);
-      powerBiasRegulator(regulator, true);
 
       *pulserChPeriods_reg = periods;
       *pulserChTimeActive_reg = time_active;
