@@ -40,7 +40,6 @@ namespace caribou {
     void setRegister(std::string, uint32_t){};
     uint32_t getRegister(std::string) { return 0u; };
     std::vector<std::pair<std::string, uint32_t>> getRegisters();
-    std::vector<uint64_t> timestampsPatternGenerator();
     // Voltage regulators and current sources
     void setVoltage(std::string, double, double){};
     void setBias(std::string, double){};

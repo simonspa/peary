@@ -54,10 +54,6 @@ std::vector<std::pair<std::string, uint32_t>> ExampleCaribouDevice::getRegisters
   return {{"reg0", 0u}, {"reg1", 1u}};
 }
 
-std::vector<uint64_t> ExampleCaribouDevice::timestampsPatternGenerator() {
-  return {0u, 1u};
-}
-
 // custom device functionality exported via the dispatcher
 
 int32_t ExampleCaribouDevice::frobicate(int32_t a) {
