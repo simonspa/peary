@@ -203,20 +203,6 @@ namespace caribou {
     return temp * 0.0625;
   }
 
-  template <typename T>
-  std::vector<typename T::data_type>
-  caribouHAL<T>::readLongRegister(std::string interf, uint32_t addr, uint32_t reg_addr, uint32_t length) {
-
-    iface_i2c& myi2c = interface_manager::getInterface<iface_i2c>(interf);
-
-    // Read the data
-    std::vector<uint8_t> data = myi2c.read(addr, reg_addr, length);
-    if(data.size() != 2)
-      throw CommunicationError("No data returned");
-
-    return data;
-  }
-
   template <typename T> void caribouHAL<T>::setDCDCConverter(const DCDC_CONVERTER_T converter, const double voltage) {
     LOG(DEBUG) << "Setting " << voltage << "V "
                << "on " << converter.name();
