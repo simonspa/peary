@@ -71,9 +71,16 @@ namespace caribou {
      * Reading raw data from CLICpix2. This function returns both the pixel data frame and the frame timestamps from the
      * pattern generator. The first word contains the number of timestamp words to follow. Then, the timestamps are written,
      * followed bu the frame data from the device.
+     * @warning This function automatically triggers the Pattern Generator!
      * @return Block of raw data as described above
      */
     std::vector<uint32_t> getRawData();
+
+    /**
+     * Reading one decoded data frame from CLICpix2. This function returns a fully decoded data frame
+     * @warning This function does NOT trigger the Pattern Generator! It needs to be done manually before calling getData()
+     * @return Pearydata with pixel hits from one frame
+     */
     pearydata getData();
 
     void setSpecialRegister(std::string name, uint32_t value);

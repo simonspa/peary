@@ -555,6 +555,8 @@ std::vector<uint32_t> CLICpix2Device::getFrame() {
 }
 
 std::vector<uint32_t> CLICpix2Device::getRawData() {
+  // Trigger the pattern generator to open the shutter and acquire one frame:
+  triggerPatternGenerator(true);
 
   LOG(DEBUG) << DEVICE_NAME << " Preparing raw data packet";
   std::vector<uint32_t> rawdata;
