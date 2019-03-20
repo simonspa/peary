@@ -32,6 +32,7 @@ CLICpix2Device::CLICpix2Device(const caribou::Configuration config)
   _dispatcher.add("exploreInterface", &CLICpix2Device::exploreInterface, this);
   _dispatcher.add("powerStatusLog", &CLICpix2Device::powerStatusLog, this);
   _dispatcher.add("triggerPatternGenerator", &CLICpix2Device::triggerPatternGenerator, this);
+  _dispatcher.add("configureClock", &CLICpix2Device::configureClock, this);
 
   // Set up periphery
   _periphery.add("vddd", PWR_OUT_1);
@@ -58,7 +59,7 @@ CLICpix2Device::CLICpix2Device(const caribou::Configuration config)
 
 void CLICpix2Device::configure() {
   LOG(INFO) << "Configuring " << DEVICE_NAME;
-  configureClock();
+  configureClock(_config.Get<bool>("clock_internal", false));
   reset();
   mDelay(10);
 
@@ -421,10 +422,10 @@ void CLICpix2Device::programMatrix() {
   _hal->send(spi_data);
 }
 
-void CLICpix2Device::configureClock() {
+void CLICpix2Device::configureClock(bool internal) {
 
   // Check of we should configure for external or internal clock, default to external:
-  if(_config.Get<bool>("clock_internal", false)) {
+  if(internal) {
     LOG(DEBUG) << DEVICE_NAME << ": Configure internal clock source, free running, not locking";
     _hal->configureSI5345((SI5345_REG_T const* const)si5345_revb_registers_free, SI5345_REVB_REG_CONFIG_NUM_REGS_FREE);
     mDelay(100); // let the PLL lock

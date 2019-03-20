@@ -64,6 +64,9 @@ namespace caribou {
     void configurePatternGenerator(std::string filename);
     void triggerPatternGenerator(bool sleep);
 
+    // The functions sets clocks required by CLICpix2 to operate
+    void configureClock(bool internal);
+
     /**
      * Reading raw data from CLICpix2. This function returns both the pixel data frame and the frame timestamps from the
      * pattern generator. The first word contains the number of timestamp words to follow. Then, the timestamps are written,
@@ -101,9 +104,6 @@ namespace caribou {
     /* Map of pixelConfigs for configuration storage (row/col)
      */
     std::map<std::pair<uint8_t, uint8_t>, pixelConfig> pixelsConfig{};
-
-    // The functions sets clocks required by CLICpix2 to operate
-    void configureClock();
 
     // Retrieve frame from device
     std::vector<uint32_t> getFrame();
