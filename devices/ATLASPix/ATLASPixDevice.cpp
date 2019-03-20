@@ -18,19 +18,9 @@
 
 using namespace caribou;
 
-uint32_t reverseBits(uint8_t n) {
+uint32_t reverseBits(uint8_t n, uint32_t length = 8) {
   uint32_t x = 0;
-  for(auto i = 7; n;) {
-    x |= (n & 1) << i;
-    n >>= 1;
-    --i;
-  }
-  return x;
-}
-
-uint32_t reverseBits64(uint64_t n) {
-  uint32_t x;
-  for(auto i = 63; n;) {
+  for(auto i = length - 1; n;) {
     x |= (n & 1) << i;
     n >>= 1;
     --i;
@@ -40,15 +30,15 @@ uint32_t reverseBits64(uint64_t n) {
 
 // BASIC Configuration
 
-uint32_t grey_decode(uint32_t g) {
-  for(uint32_t bit = 1U << 31; bit > 1; bit >>= 1) {
+uint32_t grey_decode(uint32_t g, uint32_t length) {
+  for(uint32_t bit = 1U << (length - 1); bit > 1; bit >>= 1) {
     if(g & bit)
       g ^= bit >> 1;
   }
   return g;
 }
 
-pixelhit decodeHit(uint32_t hit) {
+pixelhit decodeHit(uint32_t hit, uint32_t ckdivend2 = 1, bool gray_decoding_state = false) {
   pixelhit tmp;
 
   tmp.col = (hit >> 25) & 0b11111;
@@ -57,54 +47,35 @@ pixelhit decodeHit(uint32_t hit) {
   tmp.ts1 = (hit >> 6) & 0x3FF;
   tmp.ts2 = hit & 0x3F;
 
-  if(((tmp.ts1 * 2) & 0x3F) > tmp.ts2) {
-    tmp.tot = 64 - ((tmp.ts1 * 2) & 0x3F) + tmp.ts2;
-  } else {
-    tmp.tot = +tmp.ts2 - ((tmp.ts1 * 2) & 0x3F);
+  if(gray_decoding_state == false) {
+    tmp.ts1 = grey_decode((tmp.ts1), 10);
+    tmp.ts2 = grey_decode((tmp.ts2), 6);
   }
+
+  uint32_t divider = ckdivend2 + 1;
+  uint32_t shift = 0;
+  // TOT decoding
+  if(((divider & (divider - 1)) == 0))
+    shift = int(log2(divider));
+  else
+    LOG(WARNING) << ": ckdivend2 yield an non power of 2 clock divider, please don't do that, TOT might be rubbish"
+                 << std::endl;
+  ;
+
+  uint32_t ts1_scaled_to_Tts2 = (tmp.ts1 << 1);
+  ts1_scaled_to_Tts2 = ts1_scaled_to_Tts2 >> shift;
+  ts1_scaled_to_Tts2 = ts1_scaled_to_Tts2 & 0x3F;
+  if(ts1_scaled_to_Tts2 < tmp.ts2) {
+    tmp.tot = tmp.ts2 - ts1_scaled_to_Tts2;
+  } else // rollover
+  {
+    tmp.tot = 64 - ts1_scaled_to_Tts2 + tmp.ts2;
+  }
+
+  tmp.tot = tmp.tot & 0x3F;
 
   return tmp;
 }
-
-// pixelhit decodeHit(uint32_t hit, uint32_t TS, uint64_t fpga_ts, uint32_t SyncedTS, uint32_t triggercnt) {
-//
-//  pixelhit tmp;
-//  uint8_t buf = 0;
-//
-//  tmp.fpga_ts = fpga_ts;
-//  tmp.SyncedTS = SyncedTS;
-//  tmp.triggercnt = triggercnt;
-//  tmp.ATPbinaryCnt = (TS & 0xFFFF00) + grey_decode((TS & 0xFF));
-//  tmp.ATPGreyCnt = TS & 0xFF;
-//
-//  buf = ((hit >> 23) & 0xFF);
-//
-//  tmp.col = (24 - ((buf >> 2) & 0b00111111));
-//  tmp.row = 255 - (reverseBits(hit & 0xFF));
-//  tmp.ts2 = (hit >> 18) & 0b00111111;
-//  tmp.ts1 = ((hit >> 8) & 0b1111111111); //+ (hit >> 16 & 0b11);
-//  tmp.col = tmp.col & 0b11111;
-//  tmp.row = tmp.row & 0b111111111;
-//
-//  //tmp.tot=tmp.ts2<<2;
-//
-////  gray decoding ToT:
-//  int normal = tmp.ts2 & (1 << 5);
-//  for(int i=6; i>=0;--i)
-//      normal |= (tmp.ts2 ^ (normal >> 1)) & (1 << i);
-//  tmp.tot = normal;
-//
-////  if (tmp.ts2<(tmp.ts1 & 0b111111)){
-////	  tmp.tot=64+tmp.ts2;
-////  }
-////  else{
-////	  tmp.tot=tmp.ts2;
-////  }
-//
-//  if((buf >> 1 & 0x1) == 0)
-//    tmp.row += 200;
-//  return tmp;
-//}
 
 namespace Color {
   enum Code {
@@ -170,6 +141,18 @@ ATLASPixDevice::ATLASPixDevice(const caribou::Configuration config)
   _dispatcher.add("MaskPixel", &ATLASPixDevice::MaskPixel, this);
   _dispatcher.add("isLocked", &ATLASPixDevice::isLocked, this);
   _dispatcher.add("powerStatusLog", &ATLASPixDevice::powerStatusLog, this);
+  _dispatcher.add("StopMonitorPower", &ATLASPixDevice::StopMonitorPower, this);
+  _dispatcher.add("MonitorPower", &ATLASPixDevice::MonitorPower, this);
+  _dispatcher.add("SetInjectionOff", &ATLASPixDevice::SetInjectionOff, this);
+  _dispatcher.add("ReapplyMask", &ATLASPixDevice::ReapplyMask, this);
+  _dispatcher.add("NoiseRun", &ATLASPixDevice::NoiseRun, this);
+  _dispatcher.add("MaskColumn", &ATLASPixDevice::MaskColumn, this);
+  _dispatcher.add("setOutput", &ATLASPixDevice::setOutput, this);
+  _dispatcher.add("FindHotPixels", &ATLASPixDevice::FindHotPixels, this);
+  _dispatcher.add("MeasureTOT", &ATLASPixDevice::MeasureTOT, this);
+  _dispatcher.add("doSCurvesPixel", &ATLASPixDevice::doSCurvePixel, this);
+  _dispatcher.add("resetFIFO", &ATLASPixDevice::resetFIFO, this);
+  _dispatcher.add("PulseTune", &ATLASPixDevice::PulseTune, this);
 
   // Configuring the clock
   LOG(INFO) << "Setting clock circuit on CaR board " << DEVICE_NAME;
@@ -195,6 +178,8 @@ ATLASPixDevice::ATLASPixDevice(const caribou::Configuration config)
 
   // enable data taking
   _daqContinue.test_and_set();
+
+  data_type = "binary";
 }
 
 ATLASPixDevice::~ATLASPixDevice() {
@@ -217,6 +202,9 @@ void ATLASPixDevice::SetMatrix(std::string matrix) {
   _periphery.add("VDDD", PWR_OUT_4);
   _periphery.add("VDDA", PWR_OUT_3);
   _periphery.add("VSSA", PWR_OUT_2);
+  _periphery.add("VCC25", PWR_OUT_5);
+  _periphery.add("VDDRam", PWR_OUT_1);
+  _periphery.add("VDDHigh", PWR_OUT_6);
 
   if(name == "m1") {
 
@@ -225,6 +213,10 @@ void ATLASPixDevice::SetMatrix(std::string matrix) {
     _periphery.add("GatePix", BIAS_2);
     _periphery.add("ThPix", BIAS_25);
     _periphery.add("BLPix", BIAS_17);
+    _periphery.add("VMinusPD", BIAS_7);
+    _periphery.add("VNFBPix", BIAS_11);
+    _periphery.add("BLResPix", BIAS_10);
+    _periphery.add("VMain2", BIAS_24);
 
     theMatrix.initializeM1();
 
@@ -253,9 +245,29 @@ void ATLASPixDevice::SetMatrix(std::string matrix) {
   }
 }
 
+void ATLASPixDevice::SetScanningMask(uint32_t mx, uint32_t my) {
+
+  theMatrix.maskx = mx;
+  theMatrix.masky = my;
+}
+
+void ATLASPixDevice::setOutput(std::string datatype) {
+
+  if(datatype == "binary") {
+    data_type = "binary";
+  } else if(datatype == "text") {
+    data_type = "text";
+  } else if(datatype == "raw") {
+    data_type = "raw";
+  } else {
+    LOG(INFO) << "Data type not recongnized, using binary ";
+    data_type = "binary";
+  }
+}
+
 void ATLASPixDevice::configure() {
 
-  LOG(INFO) << "Configuring " << DEVICE_NAME;
+  LOG(INFO) << "Configuring " << DEVICE_NAME << " with default configuration";
 
   this->resetPulser();
   this->resetCounters();
@@ -264,7 +276,6 @@ void ATLASPixDevice::configure() {
   usleep(1000);
 
   // Build the SR string with default values and shift in the values in the chip
-  std::cout << "sending default config " << std::endl;
   this->ProgramSR(theMatrix);
 
   // this->ComputeSCurves(0,0.5,50,128,100,100);
@@ -274,21 +285,21 @@ void ATLASPixDevice::configure() {
   this->setSpecialRegister("ro_enable", 0);
   this->setSpecialRegister("armduration", 2000);
 
-  for(int col = 0; col < theMatrix.ncol; col++) {
-    for(int row = 0; row < theMatrix.nrow; row++) {
-      this->SetPixelInjectionState(col, row, 0, 0, 1);
-    }
-  }
-
-  this->ProgramSR(theMatrix);
-  this->ResetWriteDAC();
-  this->ProgramSR(theMatrix);
-
-  for(int col = 0; col < theMatrix.ncol; col++) {
-    for(int row = 0; row < theMatrix.nrow; row++) {
-      this->SetPixelInjectionState(col, row, 0, 0, 0);
-    }
-  }
+  //  for(int col = 0; col < theMatrix.ncol; col++) {
+  //    for(int row = 0; row < theMatrix.nrow; row++) {
+  //      this->SetPixelInjectionState(col, row, 0, 0, 1);
+  //    }
+  //  }
+  //
+  //  this->ProgramSR(theMatrix);
+  //  this->ResetWriteDAC();
+  //  this->ProgramSR(theMatrix);
+  //
+  //  for(int col = 0; col < theMatrix.ncol; col++) {
+  //    for(int row = 0; row < theMatrix.nrow; row++) {
+  //      this->SetPixelInjectionState(col, row, 0, 0, 0);
+  //    }
+  //  }
 
   this->ProgramSR(theMatrix);
   this->ResetWriteDAC();
@@ -300,13 +311,19 @@ void ATLASPixDevice::configure() {
 
 void ATLASPixDevice::lock() {
 
-  this->theMatrix.CurrentDACConfig->SetParameter("unlock", 0x0);
+  theMatrix.CurrentDACConfig->SetParameter("unlock", 0x0);
   this->ProgramSR(theMatrix);
+
+  // usleep(10000);
+
+  // this->ProgramSR(theMatrix);
+
+  // this->ProgramSR(theMatrix);
 }
 
 void ATLASPixDevice::unlock() {
 
-  this->theMatrix.CurrentDACConfig->SetParameter("unlock", 0b1010);
+  theMatrix.CurrentDACConfig->SetParameter("unlock", 0b1010);
   this->ProgramSR(theMatrix);
 }
 
@@ -324,1582 +341,183 @@ void ATLASPixDevice::setThreshold(double threshold) {
 
 void ATLASPixDevice::setVMinus(double vminus) {
 
-  // theMatrix.VoltageDACConfig->SetParameter("ThPix",static_cast<int>(floor(255 * threshold/1.8)));
-
-  // this->ProgramSR(theMatrix);
   theMatrix.VMINUSPix = vminus;
   LOG(DEBUG) << " VMinusPix ";
   this->setVoltage("VMinusPix", vminus);
   this->switchOn("VMinusPix");
 }
 
+template <typename T> uint32_t ATLASPixDevice::getSpecialRegister(std::string name) {
+  throw RegisterInvalid("Unknown readable register with \"special\" flag: " + name);
+}
+
 void ATLASPixDevice::setSpecialRegister(std::string name, uint32_t value) {
 
-  char Choice;
-
-  switch(theMatrix.flavor) {
-  case ATLASPix1Flavor::M1:
-    Choice = '1';
-    break;
-  case ATLASPix1Flavor::M1Iso:
-    Choice = '3';
-    break;
-  case ATLASPix1Flavor::M2:
-    Choice = '2';
-    break;
-  default:
-    LOG(ERROR) << "Undefined matrix flavor";
-  }
-
-  if(name == "unlock") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("unlock", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("unlock", 0x0);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("unlock", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  }
-
-  else if(name == "blrespix") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("BLResPix", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("BLResPix", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("BLResPix", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "threspix") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("ThResPix", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("ThResPix", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("ThResPix", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  }
-
-  else if(name == "vnpix") {
-    // Set DAC value here calling setParameter
-    ////std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    ////std::cin >> Choice ;
-    Choice = '1';
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("VNPix", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("VNPix", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("VNPix", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  }
-
-  else if(name == "vnfbpix") {
-    // Set DAC value here calling setParameter
-    ////std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    ////std::cin >> Choice ;
-    Choice = '1';
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("VNFBPix", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("VNFBPix", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("VNFBPix", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "vnfollpix") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("VNFollPix", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("VNFollPix", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("VNFollPix", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "vnregcasc") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("VNRegCasc", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("VNRegCasc", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("VNRegCasc", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "vdel") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("VDel", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("VDel", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("VDel", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "vpcomp") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("VPComp", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("VPComp", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("VPComp", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "vpdac") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("VPDAC", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("VPDAC", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("VPDAC", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "vnpix2") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("VNPix2", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("VNPix2", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("VNPix2", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "blresdig") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("BLResDig", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("BLResDig", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("BLResDig", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "vnbiaspix") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("VNBiasPix", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("VNBiasPix", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("VNBiasPix", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "vploadpix") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("VPLoadPix", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("VPLoadPix", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("VPLoadPix", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "vnoutpix") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("VNOutPix", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("VNOutPix", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("VNOutPix", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "vpvco") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("VPVCO", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("VPVCO", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("VPVCO", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "vnvco") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("VNVCO", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("VNVCO", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("VNVCO", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "vpdeldclmux") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("VPDelDclMux", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("VPDelDclMux", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("VPDelDclMux", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "vndeldclmux") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("VNDelDclMux", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("VNDelDclMux", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("VNDelDclMux", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "vpdeldcl") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("VPDelDcl", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("VPDelDcl", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("VPDelDcl", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "vndeldcl") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("VNDelDcl", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("VNDelDcl", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("VNDelDcl", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "vpdelpreemp") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("VPDelPreEmp", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("VPDelPreEmp", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("VPDelPreEmp", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "vndelpreemp") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("VNDelPreEmp", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("VNDelPreEmp", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("VNDelPreEmp", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "vpdcl") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("VPDcl", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("VPDcl", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("VPDcl", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "vndcl") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("VNDcl", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("VNDcl", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("VNDcl", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "vnlvds") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("VNLVDS", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("VNLVDS", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("VNLVDS", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "vnlvdsdel") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("VNLVDSDel", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("VNLVDSDel", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("VNLVDSDel", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "vppump") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("VPPump", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("VPPump", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("VPPump", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "nu") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("nu", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("nu", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("nu", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "ro_res_n") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("RO_res_n", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("RO_res_n", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("RO_res_n", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "ser_res_n") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("Ser_res_n", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("Ser_res_n", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("Ser_res_n", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "aur_res_n") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("Aur_res_n", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("Aur_res_n", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("Aur_res_n", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "sendcnt") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("sendcnt", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("sendcnt", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("sendcnt", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "resetckdivend") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("resetckdivend", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("resetckdivend", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("resetckdivend", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "maxcycend") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("maxcycend", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("maxcycend", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("maxcycend", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "slowdownend") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("slowdownend", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("slowdownend", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("slowdownend", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "timerend") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("timerend", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("timerend", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("timerend", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "ckdivend2") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("ckdivend2", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("ckdivend2", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("ckdivend2", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "ckdivend") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("ckdivend", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("ckdivend", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("ckdivend", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "vpregcasc") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("VPRegCasc", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("VPRegCasc", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("VPRegCasc", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "vpramp") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("VPRamp", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("VPRamp", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("VPRamp", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "vncomppix") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("VNcompPix", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("VNcompPix", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("VNcompPix", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "vpfoll") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("VPFoll", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("VPFoll", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("VPFoll", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "vndacpix") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    ////std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("VNDACPix", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("VNDACPix", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("VNDACPix", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "vpbiasrec") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("VPBiasRec", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("VPBiasRec", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("VPBiasRec", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "vnbiasrec") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("VNBiasRec", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("VNBiasRec", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("VNBiasRec", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "invert") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("Invert", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("Invert", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("Invert", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "selex") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("SelEx", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("SelEx", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("SelEx", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "selslow") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("SelSlow", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("SelSlow", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("SelSlow", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "enpll") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("EnPLL", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("EnPLL", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("EnPLL", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "triggerdelay") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("TriggerDelay", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("TriggerDelay", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("TriggerDelay", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "reset") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("Reset", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("Reset", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("Reset", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    default:
-      std::cout << "\nBad Input. Must be '1', '2' or '3'. Sorry, Try Again!" << '\n' << '\n';
-    }
-  } else if(name == "connres") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("ConnRes", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("ConnRes", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("ConnRes", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    }
-  } else if(name == "seltest") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("SelTest", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("SelTest", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("SelTest", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    }
-  } else if(name == "seltestout") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("SelTestOut", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("SelTestOut", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("SelTestOut", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    }
-  } else if(name == "blpix") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.VoltageDACConfig->SetParameter("BLPix", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.VoltageDACConfig->SetParameter("BLPix", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.VoltageDACConfig->SetParameter("BLPix", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    }
-  } else if(name == "nu2") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("nu2", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("nu2", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("nu2", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    }
-  } else if(name == "thpix") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.VoltageDACConfig->SetParameter("ThPix", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.VoltageDACConfig->SetParameter("ThPix", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.VoltageDACConfig->SetParameter("ThPix", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    }
-  } else if(name == "nu3") {
-    // Set DAC value here calling setParameter
-    // std::cout << "\n\nWhich Matrix (1. Matrix M1-Simple or 3. Matrix M2-Triggered or 3. Matrix M1ISO)?  Enter 1-3: " ;
-    // std::cin >> Choice ;
-
-    switch(Choice) {
-    case '1': {
-      theMatrix.CurrentDACConfig->SetParameter("nu3", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '2': {
-      theMatrix.CurrentDACConfig->SetParameter("nu3", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    case '3': {
-      theMatrix.CurrentDACConfig->SetParameter("nu3", value);
-      this->ProgramSR(theMatrix);
-      break;
-    }
-    }
-  }
-
-  else if(name == "ro_enable") {
-
-    void* readout_base =
-      _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
-
-    // volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
-    // volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) +
-    // 0x4);
-    volatile uint32_t* fifo_config =
-      reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
-    // volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
-    // volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
-
-    *fifo_config = (*fifo_config & 0xFFFFFFFE) + ((value)&0b1);
-    //    if(value == 1) {
-    //      this->resetCounters();
-    //    }
-
-  } else if(name == "trigger_enable") {
-
-    void* readout_base =
-      _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
-    volatile uint32_t* fifo_config =
-      reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
-
-    *fifo_config = (*fifo_config & 0xFFFD) + ((value << 1) & 0b10);
-
-  } else if(name == "edge_sel") {
-
-    void* readout_base =
-      _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
-
-    volatile uint32_t* fifo_config =
-      reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
-    *fifo_config = (*fifo_config & 0xFFFFFFFB) + ((value << 2) & 0b0100);
+  // atlaspix registers
+  if(std::find(std::begin(AXI_registers), std::end(AXI_registers), name) == std::end(AXI_registers)) {
+
+    theMatrix.CurrentDACConfig->SetParameter(name, value);
+    this->ProgramSR(theMatrix);
 
   }
 
-  else if(name == "busy_when_armed") {
+  // axi registers
+  else {
 
-    void* readout_base =
-      _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
+    if(name == "ro_enable") {
 
-    volatile uint32_t* fifo_config =
-      reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
-    *fifo_config = (*fifo_config & 0xFFFFFFF7) + ((value << 3) & 0b1000);
-  }
+      this->ro_enable = value;
 
-  else if(name == "armduration") {
+      void* readout_base =
+        _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
 
-    void* readout_base =
-      _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
+      // volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
+      // volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base)
+      // + 0x4);
+      volatile uint32_t* fifo_config =
+        reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
+      // volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
+      // volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
 
-    // volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
-    // volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) +
-    // 0x4);
-    // volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) +
-    // 0x8);
-    // volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
-    volatile uint32_t* config2 = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
+      *fifo_config = (*fifo_config & 0xFFFFFFFE) + ((value)&0b1);
+      //    if(value == 1) {
+      //      this->resetCounters();
+      //    }
 
-    *config2 = ((value)&0xFFFFFF);
+    } else if(name == "trigger_enable") {
 
-  } else if(name == "trigger_always_armed") {
+      trigger_enable = value;
+      void* readout_base =
+        _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
+      volatile uint32_t* fifo_config =
+        reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
 
-    void* readout_base =
-      _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
+      *fifo_config = (*fifo_config & 0xFFFD) + ((value << 1) & 0b10);
 
-    // volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
-    // volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) +
-    // 0x4);
-    // volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) +
-    // 0x8);
-    // volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
-    volatile uint32_t* fifo_config =
-      reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
+    } else if(name == "edge_sel") {
 
-    *fifo_config = (*fifo_config & 0xFFFFFFBF) + ((value << 6) & 0b1000000);
+      edge_sel = value;
+      void* readout_base =
+        _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
 
-  }
+      volatile uint32_t* fifo_config =
+        reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
+      *fifo_config = (*fifo_config & 0xFFFFFFFB) + ((value << 2) & 0b0100);
 
-  else if(name == "t0_enable") {
+    }
 
-    void* readout_base =
-      _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
+    else if(name == "busy_when_armed") {
 
-    // volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
-    // volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) +
-    // 0x4);
-    // volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) +
-    // 0x8);
-    // volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
-    volatile uint32_t* fifo_config =
-      reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
+      busy_when_armed = value;
 
-    *fifo_config = (*fifo_config & 0xFFFFFF7F) + ((value << 7) & 0b10000000);
+      void* readout_base =
+        _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
 
-  } else if(name == "trigger_injection") {
+      volatile uint32_t* fifo_config =
+        reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
+      *fifo_config = (*fifo_config & 0xFFFFFFF7) + ((value << 3) & 0b1000);
+    }
 
-    void* readout_base =
-      _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
+    else if(name == "armduration") {
 
-    // volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
-    // volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) +
-    // 0x4);
-    // volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) +
-    // 0x8);
-    // volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
-    volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
+      armduration = value;
+      void* readout_base =
+        _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
 
-    *ro = ((*ro) & 0xFFFFFF) + (value << 24);
+      // volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
+      // volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base)
+      // + 0x4); volatile uint32_t* fifo_config = reinterpret_cast<volatile
+      // uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8); volatile uint32_t* leds = reinterpret_cast<volatile
+      // uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
+      volatile uint32_t* config2 = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
 
-  } else if(name == "gray_decode") {
+      *config2 = ((value)&0xFFFFFF);
 
-    void* readout_base =
-      _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
-    volatile uint32_t* fifo_config =
-      reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
-    *fifo_config = (*fifo_config & 0xFBFF) + ((value << 10) & 0b010000000000);
-  }
-  /*
-    else if(name == "ext_clk") {
+    } else if(name == "trigger_always_armed") {
 
-          void* readout_base =
-            _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
-          volatile uint32_t* fifo_config =
-            reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
-          *fifo_config = (*fifo_config & 0xFDFF) + ((value << 9) & 0b001000000000);
-        }
-  */
-  else if(name == "send_fpga_ts") {
+      trigger_always_armed = value;
+      void* readout_base =
+        _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
 
-    void* readout_base =
-      _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
-    volatile uint32_t* fifo_config =
-      reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
-    *fifo_config = (*fifo_config & 0xF7FF) + ((value << 11) & 0b100000000000);
-  } else {
-    throw RegisterInvalid("Unknown register with \"special\" flag: " + name);
+      // volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
+      // volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base)
+      // + 0x4); volatile uint32_t* fifo_config = reinterpret_cast<volatile
+      // uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8); volatile uint32_t* leds = reinterpret_cast<volatile
+      // uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
+      volatile uint32_t* fifo_config =
+        reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
+
+      *fifo_config = (*fifo_config & 0xFFFFFFBF) + ((value << 6) & 0b1000000);
+
+    }
+
+    else if(name == "t0_enable") {
+      t0_enable = value;
+      void* readout_base =
+        _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
+
+      // volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
+      // volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base)
+      // + 0x4); volatile uint32_t* fifo_config = reinterpret_cast<volatile
+      // uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8); volatile uint32_t* leds = reinterpret_cast<volatile
+      // uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
+      volatile uint32_t* fifo_config =
+        reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
+
+      *fifo_config = (*fifo_config & 0xFFFFFF7F) + ((value << 7) & 0b10000000);
+
+    } else if(name == "trigger_injection") {
+      trigger_injection = value;
+      void* pulser_base =
+        _hal->getMappedMemoryRW(ATLASPix_PULSER_BASE_ADDRESS, ATLASPix_PULSER_MAP_SIZE, ATLASPix_PULSER_MASK);
+      volatile uint32_t* triggerinj =
+        reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x18);
+      *triggerinj = value;
+
+    } else if(name == "gray_decode") {
+
+      gray_decode = value;
+      void* readout_base =
+        _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
+      volatile uint32_t* fifo_config =
+        reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
+      *fifo_config = (*fifo_config & 0xFBFF) + ((value << 10) & 0b010000000000);
+      gray_decoding_state = value;
+
+    }
+    /*
+      else if(name == "ext_clk") {
+
+            void* readout_base =
+              _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
+            volatile uint32_t* fifo_config =
+              reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
+            *fifo_config = (*fifo_config & 0xFDFF) + ((value << 9) & 0b001000000000);
+          }
+    */
+    else if(name == "send_fpga_ts") {
+      send_fpga_ts = value;
+      void* readout_base =
+        _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
+      volatile uint32_t* fifo_config =
+        reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
+      *fifo_config = (*fifo_config & 0xF7FF) + ((value << 11) & 0b100000000000);
+    } else if(name == "filter_hp") {
+      filter_hp = value;
+    } else if(name == "filter_weird_data") {
+      filter_weird_data = value;
+    } else if(name == "hw_masking") {
+      HW_masking = value;
+    } else if(name == "t0_out_periodic") {
+
+      void* readout_base =
+        _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
+      volatile uint32_t* fifo_config =
+        reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
+      *fifo_config = (*fifo_config & 0xEFFF) + ((value << 12) & 0b1000000000000);
+    } else {
+      throw RegisterInvalid("Unknown register with \"special\" flag: " + name);
+    }
   }
 }
 
@@ -1920,14 +538,15 @@ void ATLASPixDevice::configureClock() {
   std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
   while(!_hal->isLockedSI5345()) {
     auto dur = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - start);
-    if(dur.count() > 3)
+    if(dur.count() > 0.5)
       // throw DeviceException("Cannot lock to external clock.");
       break;
   }
-  if(_hal->isLockedSI5345())
+  if(_hal->isLockedSI5345()) {
     LOG(INFO) << "PLL locked to external clock...";
-  else
+  } else {
     LOG(INFO) << "Cannot lock to external clock, PLL will continue in freerunning mode...";
+  }
   //  }
 }
 
@@ -1953,6 +572,7 @@ void ATLASPixDevice::ProgramSR(const ATLASPixMatrix& matrix) {
     reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + 0x1C);
 
   *Config_flag = 0;
+
   *RAM_reg_limit = matrix.nSRbuffer;
   *RAM_shift_limit = matrix.extraBits;
 
@@ -1966,12 +586,14 @@ void ATLASPixDevice::ProgramSR(const ATLASPixMatrix& matrix) {
     *RAM_write_enable = 0x0;
   };
 
+  usleep(100);
   *output_enable = matrix.SRmask;
-  usleep(10);
+  usleep(100);
   *Config_flag = 0x1;
-  usleep(30000);
-  *Config_flag = 0;
-  *output_enable = 0x0;
+  //  usleep(300000);
+  //  *Config_flag = 0;
+  //  *output_enable = 0x0;
+  //  usleep(100);
 
   // Sync RO state machine ckdivend with the one in the chip
   void* readout_base =
@@ -1994,7 +616,8 @@ void ATLASPixDevice::resetPulser() {
   *rst = 0x0;
 }
 
-void ATLASPixDevice::setPulse(ATLASPixMatrix& matrix, uint32_t npulse, uint32_t n_up, uint32_t n_down, double voltage) {
+void ATLASPixDevice::setPulse(
+  ATLASPixMatrix& /* matrix */, uint32_t npulse, uint32_t n_up, uint32_t n_down, double voltage) {
 
   LOG(DEBUG) << " Set injection voltages ";
   _hal->setBiasRegulator(INJ_1, voltage);
@@ -2029,28 +652,9 @@ void ATLASPixDevice::sendPulse() {
   void* pulser_base = _hal->getMappedMemoryRW(ATLASPix_PULSER_BASE_ADDRESS, ATLASPix_PULSER_MAP_SIZE, ATLASPix_PULSER_MASK);
   volatile uint32_t* inj_flag = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x0);
 
-  //	 void* readout_base = _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE,
-  // ATLASPix_READOUT_MASK);
-  //
-  //	 volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
-  //	 volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) +
-  // 0x4);
-  //	 volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) +
-  // 0x8);
-  //	 volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
-  //	 volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
-  //
-  //
-  //	 *ro = 0x20000;
-  //	 *fifo_config = 0b11;
-
   *inj_flag = 0x1;
   usleep(this->pulse_width);
   *inj_flag = 0x0;
-
-  //	 sleep(1);
-  //	 *ro = 0x20000;
-  //	 *fifo_config = 0b10;
 }
 
 void ATLASPixDevice::resetCounters() {
@@ -2153,17 +757,115 @@ void ATLASPixDevice::pulse(uint32_t npulse, uint32_t tup, uint32_t tdown, double
 
 // TDAC Manipulation
 
+void ATLASPixDevice::FindHotPixels(uint32_t threshold) {
+
+  CounterMap counts;
+  std::vector<pixelhit> data = this->getDataTimer(1000);
+
+  for(auto& hit : data) {
+    counts[std::make_pair(hit.col, hit.row)]++;
+  }
+
+  for(auto& cnt : counts) {
+    if(cnt.second > threshold) {
+      std::cout << "MaskPixel  " << cnt.first.first << " " << cnt.first.second << " 0" << std::endl;
+      this->MaskPixel(cnt.first.first, cnt.first.second);
+    }
+  }
+}
+
 void ATLASPixDevice::MaskPixel(uint32_t col, uint32_t row) {
 
   theMatrix.setMask(col, row, 1);
   // std::cout << "pixel masked col:" << col << " row: " << row << " " << theMatrix.MASK[col][row] << std::endl;
-  this->writeOneTDAC(theMatrix, col, row, 7);
+
+  if(HW_masking) {
+    this->writeOneTDAC(theMatrix, col, row, 7);
+  }
+
+  pixelhit pix;
+  pix.col = col;
+  pix.row = row;
+  if(filter_hp) {
+    if(std::find(hplist.begin(), hplist.end(), pix) == hplist.end()) {
+      hplist.push_back(pix);
+    }
+  }
+
   // this->SetPixelInjection(col, row, 1, 1, 1);
   // this->SetPixelInjection(col, row, 0, 0, 0);
 }
 
+void ATLASPixDevice::MaskColumn(uint32_t col) {
+
+  for(uint32_t row = 0; row < theMatrix.nrow; row++) {
+
+    theMatrix.setTDAC(col, row, 7);
+
+    if((theMatrix.flavor == ATLASPix1Flavor::M1) || (theMatrix.flavor == ATLASPix1Flavor::M1Iso)) {
+
+      // Column Register
+
+      std::string s = to_string(col);
+      theMatrix.MatrixDACConfig->SetParameter("colinjDown" + s, 0);
+      theMatrix.MatrixDACConfig->SetParameter("hitbusDown" + s, 0);
+      theMatrix.MatrixDACConfig->SetParameter("unusedDown" + s, 0);
+      theMatrix.MatrixDACConfig->SetParameter("colinjUp" + s, 0);
+      theMatrix.MatrixDACConfig->SetParameter("hitbusUp" + s, 0);
+      theMatrix.MatrixDACConfig->SetParameter("unusedUp" + s, 0);
+
+      if(row < 200) {
+        theMatrix.MatrixDACConfig->SetParameter("RamDown" + s, theMatrix.TDAC[col][row]); // 0b1011
+        // std::cout << std::bitset<4>(theMatrix.TDAC[col][row]) << std::endl;
+
+        // theMatrix.MatrixDACConfig->SetParameter("RamUp"+s, 4, ATLASPix_Config::LSBFirst,  theMatrix.TDAC[col][row]);
+        // //0b1011
+      } else {
+        // theMatrix.MatrixDACConfig->SetParameter("RamDown"+s, 4, ATLASPix_Config::LSBFirst,  theMatrix.TDAC[col][row]);
+        // //0b1011
+        theMatrix.MatrixDACConfig->SetParameter("RamUp" + s, theMatrix.TDAC[col][row]); // 0b1011
+        // std::cout << std::bitset<4>(theMatrix.TDAC[col][row]) << std::endl;
+      }
+
+    }
+
+    else {
+
+      int double_col = int(std::floor(double(col) / 2));
+      std::string col_s = to_string(double_col);
+      if(col % 2 == 0) {
+        theMatrix.MatrixDACConfig->SetParameter("RamL" + col_s, theMatrix.TDAC[col][row]);
+        theMatrix.MatrixDACConfig->SetParameter("colinjL" + col_s, 0);
+      } else {
+        theMatrix.MatrixDACConfig->SetParameter("RamR" + col_s, theMatrix.TDAC[col][row]);
+        theMatrix.MatrixDACConfig->SetParameter("colinjR" + col_s, 0);
+      }
+    }
+
+    std::string row_s = to_string(row);
+    theMatrix.MatrixDACConfig->SetParameter("writedac" + row_s, 1);
+    theMatrix.MatrixDACConfig->SetParameter("unused" + row_s, 0);
+    theMatrix.MatrixDACConfig->SetParameter("rowinjection" + row_s, 0);
+    theMatrix.MatrixDACConfig->SetParameter("analogbuffer" + row_s, 0);
+  }
+
+  this->ProgramSR(theMatrix);
+
+  for(uint32_t row = 0; row < theMatrix.nrow; row++) {
+    std::string row_s = to_string(row);
+
+    theMatrix.MatrixDACConfig->SetParameter("writedac" + row_s, 0);
+    theMatrix.MatrixDACConfig->SetParameter("unused" + row_s, 0);
+    theMatrix.MatrixDACConfig->SetParameter("rowinjection" + row_s, 0);
+    theMatrix.MatrixDACConfig->SetParameter("analogbuffer" + row_s, 0);
+  }
+
+  this->ProgramSR(theMatrix);
+}
+
 void ATLASPixDevice::setAllTDAC(uint32_t value) {
   this->writeUniformTDAC(theMatrix, value);
+  this->ReapplyMask();
 }
 
 void ATLASPixDevice::LoadTDAC(std::string filename) {
@@ -2175,58 +877,55 @@ void ATLASPixDevice::writeOneTDAC(ATLASPixMatrix& matrix, uint32_t col, uint32_t
 
   matrix.setTDAC(col, row, value);
 
-  if((matrix.flavor == ATLASPix1Flavor::M1) || (matrix.flavor == ATLASPix1Flavor::M1Iso)) {
+  for(uint32_t col_i = 0; col_i < theMatrix.ncol; col_i++) {
+    if((matrix.flavor == ATLASPix1Flavor::M1) || (matrix.flavor == ATLASPix1Flavor::M1Iso)) {
 
-    // Column Register
+      // Column Register
 
-    std::string s = to_string(col);
-    matrix.MatrixDACConfig->SetParameter("colinjDown" + s, 0);
-    matrix.MatrixDACConfig->SetParameter("hitbusDown" + s, 0);
-    matrix.MatrixDACConfig->SetParameter("unusedDown" + s, 0);
-    matrix.MatrixDACConfig->SetParameter("colinjUp" + s, 0);
-    matrix.MatrixDACConfig->SetParameter("hitbusUp" + s, 0);
-    matrix.MatrixDACConfig->SetParameter("unusedUp" + s, 0);
+      std::string s = to_string(col);
+      matrix.MatrixDACConfig->SetParameter("colinjDown" + s, 0);
+      matrix.MatrixDACConfig->SetParameter("hitbusDown" + s, 0);
+      matrix.MatrixDACConfig->SetParameter("unusedDown" + s, 0);
+      matrix.MatrixDACConfig->SetParameter("colinjUp" + s, 0);
+      matrix.MatrixDACConfig->SetParameter("hitbusUp" + s, 0);
+      matrix.MatrixDACConfig->SetParameter("unusedUp" + s, 0);
 
-    if(row < 200) {
-      matrix.MatrixDACConfig->SetParameter("RamDown" + s, matrix.TDAC[col][row]); // 0b1011
-      // std::cout << std::bitset<4>(matrix.TDAC[col][row]) << std::endl;
+      if(row < 200) {
+        matrix.MatrixDACConfig->SetParameter("RamDown" + s, matrix.TDAC[col][row]); // 0b1011
+        // std::cout << std::bitset<4>(matrix.TDAC[col][row]) << std::endl;
 
-      // matrix.MatrixDACConfig->SetParameter("RamUp"+s, 4, ATLASPix_Config::LSBFirst,  matrix.TDAC[col][row]); //0b1011
-    } else {
-      // matrix.MatrixDACConfig->SetParameter("RamDown"+s, 4, ATLASPix_Config::LSBFirst,  matrix.TDAC[col][row]); //0b1011
-      matrix.MatrixDACConfig->SetParameter("RamUp" + s, matrix.TDAC[col][row]); // 0b1011
-      // std::cout << std::bitset<4>(matrix.TDAC[col][row]) << std::endl;
+        // matrix.MatrixDACConfig->SetParameter("RamUp"+s, 4, ATLASPix_Config::LSBFirst,  matrix.TDAC[col][row]); //0b1011
+      } else {
+        // matrix.MatrixDACConfig->SetParameter("RamDown"+s, 4, ATLASPix_Config::LSBFirst,  matrix.TDAC[col][row]); //0b1011
+        matrix.MatrixDACConfig->SetParameter("RamUp" + s, matrix.TDAC[col][row]); // 0b1011
+        // std::cout << std::bitset<4>(matrix.TDAC[col][row]) << std::endl;
+      }
+
     }
 
-  }
-
-  else {
-
-    int double_col = int(std::floor(double(col) / 2));
-    std::string col_s = to_string(double_col);
-    if(col % 2 == 0) {
-      matrix.MatrixDACConfig->SetParameter("RamL" + col_s, matrix.TDAC[col][row]);
-      matrix.MatrixDACConfig->SetParameter("colinjL" + col_s, 0);
-    } else {
-      matrix.MatrixDACConfig->SetParameter("RamR" + col_s, matrix.TDAC[col][row]);
-      matrix.MatrixDACConfig->SetParameter("colinjR" + col_s, 0);
+    else {
+      int double_col = int(std::floor(double(col) / 2));
+      std::string col_s = to_string(double_col);
+      if(col % 2 == 0) {
+        matrix.MatrixDACConfig->SetParameter("RamL" + col_s, matrix.TDAC[col][row]);
+        matrix.MatrixDACConfig->SetParameter("colinjL" + col_s, 0);
+      } else {
+        matrix.MatrixDACConfig->SetParameter("RamR" + col_s, matrix.TDAC[col][row]);
+        matrix.MatrixDACConfig->SetParameter("colinjR" + col_s, 0);
+      }
     }
   }
+
+  for(uint32_t row_i = 0; row_i < theMatrix.nrow; row_i++) {
+    std::string row_s = to_string(row_i);
+    matrix.MatrixDACConfig->SetParameter("writedac" + row_s, 0);
+  }
+  this->ProgramSR(matrix);
 
   std::string row_s = to_string(row);
   matrix.MatrixDACConfig->SetParameter("writedac" + row_s, 1);
-  matrix.MatrixDACConfig->SetParameter("unused" + row_s, 0);
-  matrix.MatrixDACConfig->SetParameter("rowinjection" + row_s, 0);
-  matrix.MatrixDACConfig->SetParameter("analogbuffer" + row_s, 0);
-
   this->ProgramSR(matrix);
-
   matrix.MatrixDACConfig->SetParameter("writedac" + row_s, 0);
-  matrix.MatrixDACConfig->SetParameter("unused" + row_s, 0);
-  matrix.MatrixDACConfig->SetParameter("rowinjection" + row_s, 0);
-  matrix.MatrixDACConfig->SetParameter("analogbuffer" + row_s, 0);
-
-  this->ProgramSR(matrix);
 }
 
 void ATLASPixDevice::writeUniformTDAC(ATLASPixMatrix& matrix, uint32_t value) {
@@ -2241,7 +940,7 @@ void ATLASPixDevice::writeUniformTDAC(ATLASPixMatrix& matrix, uint32_t value) {
   if((matrix.flavor == ATLASPix1Flavor::M1) || (matrix.flavor == ATLASPix1Flavor::M1Iso)) {
 
     // Column Register
-    for(int col = 0; col < matrix.ncol; col++) {
+    for(uint32_t col = 0; col < matrix.ncol; col++) {
       std::string s = to_string(col);
       matrix.MatrixDACConfig->SetParameter("colinjDown" + s, 0);
       matrix.MatrixDACConfig->SetParameter("hitbusDown" + s, 0);
@@ -2256,7 +955,7 @@ void ATLASPixDevice::writeUniformTDAC(ATLASPixMatrix& matrix, uint32_t value) {
   }
 
   else {
-    for(int col = 0; col < matrix.ncol; col++) {
+    for(uint32_t col = 0; col < matrix.ncol; col++) {
       double_col = int(std::floor(double(col) / 2));
       col_s = to_string(double_col);
       if(col % 2 == 0) {
@@ -2269,7 +968,7 @@ void ATLASPixDevice::writeUniformTDAC(ATLASPixMatrix& matrix, uint32_t value) {
     }
   };
 
-  for(int row = 0; row < matrix.nrow; row++) {
+  for(uint32_t row = 0; row < matrix.nrow; row++) {
 
     // std::cout << "processing row : " << row << std::endl;
     std::string row_s = to_string(row);
@@ -2281,7 +980,7 @@ void ATLASPixDevice::writeUniformTDAC(ATLASPixMatrix& matrix, uint32_t value) {
 
   this->ProgramSR(matrix);
 
-  for(int row = 0; row < matrix.nrow; row++) {
+  for(uint32_t row = 0; row < matrix.nrow; row++) {
 
     // std::cout << "processing row : " << row << std::endl;
     std::string row_s = to_string(row);
@@ -2293,7 +992,7 @@ void ATLASPixDevice::writeUniformTDAC(ATLASPixMatrix& matrix, uint32_t value) {
 
   this->ProgramSR(matrix);
 
-  for(int row = 0; row < matrix.nrow; row++) {
+  for(uint32_t row = 0; row < matrix.nrow; row++) {
 
     // std::cout << "processing row : " << row << std::endl;
     std::string row_s = to_string(row);
@@ -2313,11 +1012,11 @@ void ATLASPixDevice::writeAllTDAC(ATLASPixMatrix& matrix) {
 
   // std::cout << "i am here" << std::endl;
 
-  for(int row = 0; row < matrix.nrow; row++) {
+  for(uint32_t row = 0; row < matrix.nrow; row++) {
     if((matrix.flavor == ATLASPix1Flavor::M1) || (matrix.flavor == ATLASPix1Flavor::M1Iso)) {
 
       // Column Register
-      for(int col = 0; col < matrix.ncol; col++) {
+      for(uint32_t col = 0; col < matrix.ncol; col++) {
         std::string s = to_string(col);
         matrix.MatrixDACConfig->SetParameter("colinjDown" + s, 0);
         matrix.MatrixDACConfig->SetParameter("hitbusDown" + s, 0);
@@ -2338,7 +1037,7 @@ void ATLASPixDevice::writeAllTDAC(ATLASPixMatrix& matrix) {
     }
 
     else {
-      for(int col = 0; col < matrix.ncol; col++) {
+      for(uint32_t col = 0; col < matrix.ncol; col++) {
         double_col = int(std::floor(double(col) / 2));
         col_s = to_string(double_col);
         if(col % 2 == 0) {
@@ -2356,17 +1055,18 @@ void ATLASPixDevice::writeAllTDAC(ATLASPixMatrix& matrix) {
     }
     std::string row_s = to_string(row);
 
-    matrix.MatrixDACConfig->SetParameter("unused" + row_s, 0);
-    matrix.MatrixDACConfig->SetParameter("rowinjection" + row_s, 0);
-    matrix.MatrixDACConfig->SetParameter("analogbuffer" + row_s, 0);
+    for(uint32_t arow = 0; arow < matrix.nrow; arow++) {
 
-    // Toggle the line
-    matrix.MatrixDACConfig->SetParameter("writedac" + row_s, 0);
-    this->ProgramSR(matrix);
-
+      // std::cout << "processing row : " << row << std::endl;
+      std::string arow_s = to_string(arow);
+      matrix.MatrixDACConfig->SetParameter("writedac" + arow_s, 0);
+      matrix.MatrixDACConfig->SetParameter("unused" + arow_s, 0);
+      matrix.MatrixDACConfig->SetParameter("rowinjection" + arow_s, 0);
+      matrix.MatrixDACConfig->SetParameter("analogbuffer" + arow_s, 0);
+    };
+    // this->ProgramSR(matrix);
     matrix.MatrixDACConfig->SetParameter("writedac" + row_s, 1);
     this->ProgramSR(matrix);
-
     matrix.MatrixDACConfig->SetParameter("writedac" + row_s, 0);
     this->ProgramSR(matrix);
   };
@@ -2378,48 +1078,29 @@ void ATLASPixDevice::SetPixelInjection(uint32_t col, uint32_t row, bool ana_stat
   std::string col_s;
   int double_col = 0;
 
-  // set All injection in row and columns to off
-  if(col == 999) {
-
-    for(int colt = 0; colt < theMatrix.ncol; colt++) {
-      this->SetPixelInjectionState(colt, 0, 0, 0, 0);
-    }
-    for(int rowt = 0; rowt < theMatrix.nrow; rowt++) {
-      this->SetPixelInjectionState(0, rowt, 0, 0, 0);
-      std::string row_s = to_string(rowt);
-      theMatrix.MatrixDACConfig->SetParameter("writedac" + row_s, 1);
-    }
-    this->ProgramSR(theMatrix);
-    for(int rowt = 0; rowt < theMatrix.nrow; rowt++) {
-      std::string row_s = to_string(rowt);
-      theMatrix.MatrixDACConfig->SetParameter("writedac" + row_s, 0);
-    }
-    this->ProgramSR(theMatrix);
-  }
-
   if((theMatrix.flavor == ATLASPix1Flavor::M1) || (theMatrix.flavor == ATLASPix1Flavor::M1Iso)) {
     std::string s = to_string(col);
 
     if(row < 200) {
       theMatrix.MatrixDACConfig->SetParameter("RamDown" + s, theMatrix.TDAC[col][row]); // 0b1011
-      theMatrix.MatrixDACConfig->SetParameter("RamUp" + s, theMatrix.TDAC[col][row]);   // 0b1011
+      // theMatrix.MatrixDACConfig->SetParameter("RamUp" + s, theMatrix.TDAC[col][row]);   // 0b1011
       theMatrix.MatrixDACConfig->SetParameter("colinjDown" + s, inj_state);
       theMatrix.MatrixDACConfig->SetParameter("hitbusDown" + s, hb_state);
-      theMatrix.MatrixDACConfig->SetParameter("unusedDown" + s, 3);
+      theMatrix.MatrixDACConfig->SetParameter("unusedDown" + s, 0);
       theMatrix.MatrixDACConfig->SetParameter("colinjUp" + s, inj_state);
       theMatrix.MatrixDACConfig->SetParameter("hitbusUp" + s, 0);
-      theMatrix.MatrixDACConfig->SetParameter("unusedUp" + s, 3);
+      theMatrix.MatrixDACConfig->SetParameter("unusedUp" + s, 0);
 
     } else {
       // std::cout << "up pixels" << std::endl;
-      theMatrix.MatrixDACConfig->SetParameter("RamUp" + s, theMatrix.TDAC[col][row]);   // 0b1011
-      theMatrix.MatrixDACConfig->SetParameter("RamDown" + s, theMatrix.TDAC[col][row]); // 0b1011
+      theMatrix.MatrixDACConfig->SetParameter("RamUp" + s, theMatrix.TDAC[col][row]); // 0b1011
+      // theMatrix.MatrixDACConfig->SetParameter("RamDown" + s, theMatrix.TDAC[col][row]); // 0b1011
       theMatrix.MatrixDACConfig->SetParameter("colinjDown" + s, inj_state);
       theMatrix.MatrixDACConfig->SetParameter("hitbusDown" + s, 0);
-      theMatrix.MatrixDACConfig->SetParameter("unusedDown" + s, 3);
+      theMatrix.MatrixDACConfig->SetParameter("unusedDown" + s, 0);
       theMatrix.MatrixDACConfig->SetParameter("colinjUp" + s, inj_state);
       theMatrix.MatrixDACConfig->SetParameter("hitbusUp" + s, hb_state);
-      theMatrix.MatrixDACConfig->SetParameter("unusedUp" + s, 3);
+      theMatrix.MatrixDACConfig->SetParameter("unusedUp" + s, 0);
     }
 
   } else {
@@ -2436,13 +1117,33 @@ void ATLASPixDevice::SetPixelInjection(uint32_t col, uint32_t row, bool ana_stat
   }
 
   std::string row_s = to_string(row);
-  theMatrix.MatrixDACConfig->SetParameter("writedac" + row_s, 1);
+  theMatrix.MatrixDACConfig->SetParameter("writedac" + row_s, 0);
   theMatrix.MatrixDACConfig->SetParameter("unused" + row_s, 0);
   theMatrix.MatrixDACConfig->SetParameter("rowinjection" + row_s, inj_state);
   theMatrix.MatrixDACConfig->SetParameter("analogbuffer" + row_s, ana_state);
   this->ProgramSR(theMatrix);
   theMatrix.MatrixDACConfig->SetParameter("writedac" + row_s, 0);
   this->ProgramSR(theMatrix);
+}
+
+void ATLASPixDevice::SetInjectionOff() {
+
+  for(uint32_t col = 0; col < theMatrix.ncol; col++) {
+    // for(int row = 0; row < theMatrix.nrow; row++) {
+    if(col % 5 == 0) {
+      LOG(INFO) << "Setting col " << col << std::endl;
+    }
+
+    for(uint32_t row = 0; row < theMatrix.nrow; row++) {
+      this->SetPixelInjectionState(col, row, 0, 0, 0);
+    }
+    this->ProgramSR(theMatrix);
+    this->ResetWriteDAC();
+    this->ProgramSR(theMatrix);
+  }
+  //}
+
+  this->ReapplyMask();
 }
 
 void ATLASPixDevice::SetPixelInjectionState(uint32_t col, uint32_t row, bool ana_state, bool hb_state, bool inj) {
@@ -2496,7 +1197,7 @@ void ATLASPixDevice::SetPixelInjectionState(uint32_t col, uint32_t row, bool ana
 
 void ATLASPixDevice::ResetWriteDAC() {
 
-  for(int row = 0; row < theMatrix.nrow; row++) {
+  for(uint32_t row = 0; row < theMatrix.nrow; row++) {
     std::string row_s = to_string(row);
     theMatrix.MatrixDACConfig->SetParameter("writedac" + row_s, 0);
   }
@@ -2504,7 +1205,7 @@ void ATLASPixDevice::ResetWriteDAC() {
 
 void ATLASPixDevice::SetInjectionMask(uint32_t maskx, uint32_t masky, uint32_t state) {
 
-  for(int col = 0; col < theMatrix.ncol; col++) {
+  for(uint32_t col = 0; col < (theMatrix.ncol); col++) {
     if(((col + maskx) % theMatrix.maskx) == 0) {
 
       // LOG(INFO) << "injecting in col " << col << std::endl;
@@ -2513,7 +1214,7 @@ void ATLASPixDevice::SetInjectionMask(uint32_t maskx, uint32_t masky, uint32_t s
     }
   }
 
-  for(int row = 0; row < theMatrix.nrow; row++) {
+  for(uint32_t row = 0; row < theMatrix.nrow; row++) {
     if(((row + masky) % theMatrix.masky) == 0) {
       this->SetPixelInjectionState(0, row, 0, 0, state);
       // LOG(INFO) << "injecting in row " << row << std::endl;
@@ -2523,66 +1224,6 @@ void ATLASPixDevice::SetInjectionMask(uint32_t maskx, uint32_t masky, uint32_t s
   this->ProgramSR(theMatrix);
   this->ResetWriteDAC();
   this->ProgramSR(theMatrix);
-}
-
-// Tuning
-
-// void ATLASPixDevice::tune(ATLASPixMatrix& matrix, double vmax, int nstep, int npulses, bool tuning_verification) {
-//  LOG(INFO) << "Tunning " << DEVICE_NAME;
-//
-//  for(int TDAC_value = 0; TDAC_value < 8; TDAC_value++) {
-//    matrix.setUniformTDAC(TDAC_value);
-//    writeAllTDAC(matrix);
-//    ComputeSCurves(matrix, vmax, nstep, npulses, 100, 100);
-//    // s_curve plots
-//  }
-//
-//  // double threshold_target = 0;
-//  const int cols = matrix.ncol;
-//  const int rows = matrix.nrow;
-//  int TDAC_map[cols][rows]; //= {0,0};
-//  // threshold_target calculation;
-//  // pixel TDAC interpolation for target
-//  //==> new, tuned, TDAC map
-//
-//  for(int col = 0; col < matrix.ncol; col++) {
-//    for(int row = 0; row < matrix.nrow; row++) {
-//      matrix.TDAC[col][row] = TDAC_map[col][row];
-//    }
-//  }
-//  writeAllTDAC(matrix);
-//  if(tuning_verification == true) {
-//    ComputeSCurves(matrix, 0.5, 50, 128, 100, 100);
-//    // S_curve plots + threshold distribution
-//  }
-//}
-
-void ATLASPixDevice::ComputeSCurves(ATLASPixMatrix& matrix, double vmax, int nstep, int npulses, int tup, int tdown) {
-
-  std::clock_t start;
-  double duration;
-
-  start = std::clock();
-  const int steps = nstep;
-  const int cols = matrix.ncol;
-  const int rows = matrix.nrow;
-  double s_curves[steps][cols][rows]; // = {0, 0, 0};
-
-  int step = 0;
-  for(double v = 0; v <= vmax; v += (vmax / nstep)) {
-    setPulse(matrix, npulses, tup, tdown, v);
-    std::cout << "  bias :" << v << "V" << std::endl;
-
-    for(int col = 0; col < matrix.ncol; col++) {
-      for(int row = 0; row < matrix.nrow; row++) {
-        sendPulse();
-        s_curves[step][col][row] = 0;
-      }
-    }
-    step++;
-  }
-  duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
-  std::cout << "duration : " << duration << "s" << std::endl;
 }
 
 std::vector<pixelhit>
@@ -2596,14 +1237,70 @@ ATLASPixDevice::CountHits(std::vector<pixelhit> data, uint32_t maskidx, uint32_t
   std::vector<pixelhit> hp;
   for(auto& cnt : counts) {
     if(cnt.second > 250) {
-      std::cout << "HOT PIXEL: " << cnt.first.first << " " << cnt.first.second << std::endl;
-      this->MaskPixel(cnt.first.first, cnt.first.second);
+      // std::cout << "HOT PIXEL: " << cnt.first.first << " " << cnt.first.second << std::endl;
+      // this->MaskPixel(cnt.first.first, cnt.first.second);
       pixelhit ahp;
       ahp.col = cnt.first.first;
       ahp.row = cnt.first.second;
       hp.push_back(ahp);
     }
   }
+
+  return hp;
+}
+
+uint32_t ATLASPixDevice::CountHits(std::vector<pixelhit> data, uint32_t col, uint32_t row) {
+
+  uint32_t count = 0;
+  for(auto& hit : data) {
+    // LOG(INFO) << hit.col << " " << hit.row << std::endl;
+    if((hit.col == col) && (hit.row == row)) {
+      count++;
+    }
+  }
+  return count;
+}
+
+void ATLASPixDevice::AverageTOT(std::vector<pixelhit> data, uint32_t maskidx, uint32_t maskidy, TOTMap& tots) {
+
+  CounterMap counts;
+
+  for(auto& hit : data) {
+    if((((hit.col + maskidx) % theMatrix.maskx) == 0) && (((hit.row + maskidy) % theMatrix.masky) == 0)) {
+      counts[std::make_pair(hit.col, hit.row)]++;
+      tots[std::make_pair(hit.col, hit.row)] += hit.tot;
+    }
+  }
+
+  std::vector<pixelhit> hp;
+  for(auto& cnt : counts) {
+    tots[std::make_pair(cnt.first.first, cnt.first.second)] /= cnt.second;
+  }
+}
+
+void ATLASPixDevice::doSCurvePixel(
+  uint32_t col, uint32_t row, double vmin, double vmax, uint32_t npulses, uint32_t npoints) {
+
+  double vinj = vmin;
+  double dv = (vmax - vmin) / (npoints - 1);
+
+  std::vector<uint32_t> counts;
+  std::vector<CounterMap> SCurveData(npoints);
+  std::vector<pixelhit> hp;
+  uint32_t count = 0;
+  vinj = vmin;
+  this->SetPixelInjection(col, row, 0, 0, 1);
+  for(uint32_t i = 0; i < npoints; i++) {
+    // LOG(INFO) << "pulse height : " << vinj << std::endl;
+    this->pulse(npulses, 10000, 10000, vinj);
+    usleep(1000);
+    count = this->CountHits(this->getDataTimer(30), col, row);
+    counts.push_back(count);
+    LOG(INFO) << vinj << " " << count << std::endl;
+    this->resetFIFO();
+    vinj += dv;
+  }
+  this->SetPixelInjection(col, row, 0, 0, 0);
 }
 
 void ATLASPixDevice::doSCurves(double vmin, double vmax, uint32_t npulses, uint32_t npoints) {
@@ -2615,31 +1312,135 @@ void ATLASPixDevice::doSCurves(double vmin, double vmax, uint32_t npulses, uint3
   std::vector<pixelhit> hp;
   make_directories(_output_directory);
   std::ofstream disk;
-  disk.open(_output_directory + "/SCURVE_TDAC" + std::to_string(theMatrix.TDAC[0][0] >> 1) + ".txt", std::ios::out);
+  disk.open(_output_directory + "/SCURVE_VNDAC" + std::to_string(theMatrix.CurrentDACConfig->GetParameter("VNDACPix")) +
+              "_TDAC" + std::to_string(theMatrix.TDAC[0][0] >> 1) + ".txt",
+            std::ios::out);
   // disk << "X:	Y:	   TS1:	   TS2:		FPGA_TS:  TR_CNT:  BinCounter :  " << std::endl;
 
   for(int mx = 0; mx < theMatrix.maskx; mx++) {
     for(int my = 0; my < theMatrix.masky; my++) {
 
       this->SetInjectionMask(mx, my, 1);
-      for(auto& pix : hp) {
-        this->MaskPixel(pix.col, pix.row);
-      }
+      this->reset();
+      usleep(1000);
+      //      for(auto& pix : hp) {
+      //        this->MaskPixel(pix.col, pix.row);
+      //      }
 
       vinj = vmin;
-      for(int i = 0; i < npoints; i++) {
+      for(uint32_t i = 0; i < npoints; i++) {
         LOG(INFO) << "pulse height : " << vinj << std::endl;
         this->pulse(npulses, 10000, 10000, vinj);
-        hp = this->CountHits(this->getDataTOvector(), mx, my, SCurveData[i]);
+        usleep(10000);
+        hp = this->CountHits(this->getDataTimer(200, true), mx, my, SCurveData[i]);
+        this->resetFIFO();
         vinj += dv;
       }
 
-      for(int col = 0; col < theMatrix.ncol; col++) {
-        for(int row = 0; row < theMatrix.nrow; row++) {
+      for(uint32_t col = 0; col < theMatrix.ncol; col++) {
+        for(uint32_t row = 0; row < theMatrix.nrow; row++) {
 
           if((((col + mx) % theMatrix.maskx) == 0) && (((row + my) % theMatrix.masky) == 0)) {
             disk << col << " " << row << " ";
-            for(int i = 0; i < npoints; i++) {
+            for(uint32_t i = 0; i < npoints; i++) {
+              disk << SCurveData[i][std::make_pair(col, row)] << " ";
+            }
+            disk << std::endl;
+          }
+        }
+      };
+
+      this->SetInjectionMask(mx, my, 0);
+    }
+  }
+
+  disk.close();
+}
+
+void ATLASPixDevice::PulseTune(double /*target*/) {
+
+  // this->setPulse(theMatrix, 100, 10000, 10000, target);
+
+  for(uint32_t col = 0; col < theMatrix.ncol; col++) {
+    for(uint32_t row = 0; row < theMatrix.nrow; row++) {
+
+      LOG(INFO) << "pixel " << col << " " << row << std::endl;
+      bool ok = false;
+      int curr_tdac = 4;
+      int niter = 0;
+      this->writeOneTDAC(theMatrix, col, row, curr_tdac);
+
+      while(!ok && niter < 8) {
+
+        uint32_t count = 0;
+        this->SetPixelInjection(col, row, 0, 0, 1);
+        this->pulse(100, 10000, 10000, 0.3);
+        usleep(1000);
+        count = this->CountHits(this->getDataTimer(300), col, row);
+        this->resetFIFO();
+        double ratio = double(count) / 100;
+        LOG(INFO) << "TDAC " << curr_tdac << " " << ratio << std::endl;
+        if(ratio < 0.45) {
+          curr_tdac--;
+        } else if(ratio > 0.55) {
+          curr_tdac++;
+        } else {
+          ok = true;
+        }
+
+        if(curr_tdac < 0) {
+          curr_tdac = 0;
+          ok = true;
+        }
+        if(curr_tdac > 7) {
+          curr_tdac = 7;
+          ok = true;
+        }
+
+        this->writeOneTDAC(theMatrix, col, row, curr_tdac);
+        this->SetPixelInjection(col, row, 0, 0, 0);
+
+        niter++;
+      }
+
+      LOG(INFO) << "Best TDAC " << curr_tdac << std::endl;
+    }
+  }
+}
+
+void ATLASPixDevice::MeasureTOT(double vmin, double vmax, uint32_t npulses, uint32_t npoints) {
+
+  double vinj = vmin;
+  double dv = (vmax - vmin) / (npoints - 1);
+
+  std::vector<TOTMap> SCurveData(npoints);
+  make_directories(_output_directory);
+  std::ofstream disk;
+  disk.open(_output_directory + "/TOT_VNFBPix" + std::to_string(theMatrix.CurrentDACConfig->GetParameter("VNFBPix")) +
+              "_VNPix" + std::to_string(theMatrix.CurrentDACConfig->GetParameter("VNPix")) + ".txt",
+            std::ios::out);
+  // disk << "X:	Y:	   TS1:	   TS2:		FPGA_TS:  TR_CNT:  BinCounter :  " << std::endl;
+
+  for(int mx = 0; mx < theMatrix.maskx; mx++) {
+    for(int my = 0; my < theMatrix.masky; my++) {
+
+      this->SetInjectionMask(mx, my, 1);
+
+      vinj = vmin;
+      for(uint32_t i = 0; i < npoints; i++) {
+        LOG(INFO) << "pulse height : " << vinj << std::endl;
+        this->pulse(npulses, 10000, 10000, vinj);
+        this->AverageTOT(this->getDataTOvector(), mx, my, SCurveData[i]);
+        // this->reset();
+        vinj += dv;
+      }
+
+      for(uint32_t col = 0; col < theMatrix.ncol; col++) {
+        for(uint32_t row = 0; row < theMatrix.nrow; row++) {
+
+          if((((col + mx) % theMatrix.maskx) == 0) && (((row + my) % theMatrix.masky) == 0)) {
+            disk << col << " " << row << " ";
+            for(uint32_t i = 0; i < npoints; i++) {
               disk << SCurveData[i][std::make_pair(col, row)] << " ";
             }
             disk << std::endl;
@@ -2679,6 +1480,64 @@ void ATLASPixDevice::getTriggerCount() {
   LOG(INFO) << "Trigger received              " << this->readCounter(3) << std::endl;
 }
 
+std::vector<uint32_t> ATLASPixDevice::getRawData() {
+
+  void* readout_base =
+    _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
+  volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
+
+  uint32_t dataRead;
+  std::vector<uint32_t> rawDataVec;
+
+  dataRead = static_cast<uint32_t>(*data);
+  // if there are data
+  if(dataRead != 0) {
+    rawDataVec.push_back(dataRead);
+  }
+  return rawDataVec;
+}
+
+pearydata ATLASPixDevice::getDataBin() {
+
+  void* readout_base =
+    _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
+
+  volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
+
+  make_directories(_output_directory);
+  // write actual configuration
+  theMatrix.writeGlobal(_output_directory + "/config.cfg");
+  theMatrix.writeTDAC(_output_directory + "/config_TDAC.cfg");
+
+  std::ofstream disk;
+  disk.open(_output_directory + "/data.bin", std::ios::out | std::ios::binary);
+  if(!disk.is_open()) {
+    LOG(WARNING) << "Output data file NOT opened!";
+  }
+
+  uint32_t d1;
+
+  while(true) {
+
+    // check for stop request from another thread
+    if(!this->_daqContinue.test_and_set())
+      break;
+    // check for new data in fifo
+    d1 = static_cast<uint32_t>(*data);
+    if(d1 == 0) {
+      continue;
+    } else {
+      disk.write((char*)&d1, sizeof(uint32_t));
+      disk.flush();
+    }
+  }
+
+  disk.close();
+
+  pearydata dummy;
+  return dummy;
+}
+
 pearydata ATLASPixDevice::getData() {
 
   void* readout_base =
@@ -2694,11 +1553,12 @@ pearydata ATLASPixDevice::getData() {
   make_directories(_output_directory);
   std::ofstream disk;
   disk.open(_output_directory + "/data.txt", std::ios::out);
-  disk << "X:	Y:	   TS1:	   TS2:		FPGA_TS:  TR_CNT:  BinCounter :  " << std::endl;
+  disk << "X:	Y:	   TS1:	   TS2: 	TOT:FPGA_TS:  TR_CNT:  BinCounter :  " << std::endl;
 
   uint64_t fpga_ts = 0;
   uint64_t fpga_ts_last = 0;
   uint64_t fpga_ts_busy = 0;
+
   uint32_t timestamp = 0;
   uint32_t TrCNT = 0;
 
@@ -2713,17 +1573,27 @@ pearydata ATLASPixDevice::getData() {
     }
 
     uint32_t d1 = static_cast<uint32_t>(*data);
-    // std::cout << std::bitset<32>(d1) << std::endl;
 
     // HIT data of bit 31 is = 1
     if((d1 >> 31) == 1) {
 
-      pixelhit hit = decodeHit(d1);
-      // LOG(INFO) << hit.col <<" " << hit.row << " " << hit.ts1 << ' ' << hit.ts2 << std::endl;
-      disk << "HIT " << hit.col << "	" << hit.row << "	" << hit.ts1 << "	" << hit.ts2 << "   " << hit.tot << "	"
-           << fpga_ts_last << "	"
-           << " " << TrCNT << " " << ((timestamp >> 8) & 0xFFFF) << std::endl;
-      // disk << std::bitset<32>(d1) << std::endl;
+      pixelhit hit = decodeHit(d1, theMatrix.CurrentDACConfig->GetParameter("ckdivend2"), gray_decoding_state);
+
+      double timing = (((hit.ts1 * 2) - (fpga_ts_last)) & 0b11111111111);
+
+      if(filter_hp) {
+        if(std::find(hplist.begin(), hplist.end(), hit) == hplist.end()) {
+          disk << "HIT " << hit.col << "	" << hit.row << "	" << hit.ts1 << "	" << hit.ts2 << "	" << hit.tot << "	"
+               << fpga_ts_last << "	"
+               << " " << TrCNT << " " << ((timestamp >> 8) & 0xFFFF) << " " << timing << std::endl;
+        }
+
+      } else {
+
+        disk << "HIT " << hit.col << "	" << hit.row << "	" << hit.ts1 << "	" << hit.ts2 << "	" << hit.tot << "	"
+             << fpga_ts_last << "	"
+             << " " << TrCNT << " " << ((timestamp >> 8) & 0xFFFF) << " " << timing << std::endl;
+      }
     }
 
     else {
@@ -2735,8 +1605,6 @@ pearydata ATLASPixDevice::getData() {
 
       case 0b01000000: // BinCnt from ATLASPix, not read for now
         timestamp = d1 & 0xFFFFFF;
-        // disk << "BINCOUNTER " << timestamp << std::endl;
-
         break;
       case 0b00000001: // Buffer overflow, data after this are lost
         disk << "BUFFER_OVERFLOW" << std::endl;
@@ -2753,18 +1621,14 @@ pearydata ATLASPixDevice::getData() {
         break;
       case 0b01100000: // End of fpga_ts (24 bits)
         fpga_ts = fpga_ts + ((d1)&0xFFFFFF);
-        // LOG(INFO) << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
         disk << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
         fpga_ts_last = fpga_ts;
         fpga_ts = 0;
         break;
       case 0b00000010: // BUSY asserted with 24bit LSB of Trigger FPGA TS
-
         fpga_ts_busy = d1 & 0xFFFFFF;
         disk << "BUSY_ASSERTED " << fpga_ts_busy << std::endl;
-
         break;
-
       case 0b00001100: // SERDES lock lost
         disk << "SERDES_LOCK_LOST" << std::endl;
         break;
@@ -2772,7 +1636,9 @@ pearydata ATLASPixDevice::getData() {
         disk << "SERDES_LOCK_ESTABLISHED" << std::endl;
         break;
       case 0b00000100: // Unexpected/weird data came
-        // sdisk << "WEIRD_DATA" << std::endl;
+        if(!filter_weird_data) {
+          disk << "WEIRD_DATA " << std::hex << d1 << std::dec << std::endl;
+        }
         break;
       default: // weird stuff, should not happend
         LOG(WARNING) << "I AM IMPOSSIBLE!!!!!!!!!!!!!!!!!!" << std::endl;
@@ -2790,7 +1656,7 @@ pearydata ATLASPixDevice::getData() {
   return dummy;
 }
 
-pearydata ATLASPixDevice::getDataTO(int maskx, int masky) {
+pearydata ATLASPixDevice::getDataTO(int /* maskx */, int /* masky */) {
 
   void* readout_base =
     _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
@@ -2848,29 +1714,32 @@ pearydata ATLASPixDevice::getDataTO(int maskx, int masky) {
     }
 
     uint32_t d1 = static_cast<uint32_t>(*data);
+    // std::cout << std::bitset<32>(d1) << std::endl;
 
+    // HIT data of bit 31 is = 1
     if((d1 >> 31) == 1) {
 
-      pixelhit hit = decodeHit(d1);
+      pixelhit hit = decodeHit(d1, theMatrix.CurrentDACConfig->GetParameter("ckdivend2"), gray_decoding_state);
       // LOG(INFO) << hit.col <<" " << hit.row << " " << hit.ts1 << ' ' << hit.ts2 << std::endl;
-      disk << "HIT " << hit.col << "	" << hit.row << "	" << hit.ts1 << "	" << hit.ts2 << "	" << fpga_ts_last << "	"
-           << " " << TrCNT << " " << ((timestamp >> 8) & 0xFFFF) << " " << (timestamp & 0xFF) << " "
-           << ((fpga_ts_last >> 1) & 0xFFFF) << std::endl;
-      datatocnt++;
-
+      disk << "HIT " << hit.col << "	" << hit.row << "	" << hit.ts1 << "	" << hit.ts2 << "   " << hit.tot << "	"
+           << fpga_ts_last << "	"
+           << " " << TrCNT << " " << ((timestamp >> 8) & 0xFFFF) << std::endl;
+      // disk << std::bitset<32>(d1) << std::endl;
     }
 
     else {
 
       uint32_t data_type = (d1 >> 24) & 0xFF;
 
+      // Parse the different data types (BUFFEROVERFLOW,TRIGGER,BUSY_ASSERTED)
       switch(data_type) {
 
       case 0b01000000: // BinCnt from ATLASPix, not read for now
         timestamp = d1 & 0xFFFFFF;
+        // disk << "BINCOUNTER " << timestamp << std::endl;
         break;
       case 0b00000001: // Buffer overflow, data after this are lost
-        // disk << "BUFFER_OVERFLOW" << std::endl;
+        disk << "BUFFER_OVERFLOW" << std::endl;
         break;
       case 0b00010000: // Trigger cnt 24bits
         TrCNT = d1 & 0xFFFFFF;
@@ -2885,15 +1754,23 @@ pearydata ATLASPixDevice::getDataTO(int maskx, int masky) {
       case 0b01100000: // End of fpga_ts (24 bits)
         fpga_ts = fpga_ts + ((d1)&0xFFFFFF);
         // LOG(INFO) << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
-        // disk << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
+        disk << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
         fpga_ts_last = fpga_ts;
         fpga_ts = 0;
         break;
       case 0b00000010: // BUSY asserted with 24bit LSB of Trigger FPGA TS
         fpga_ts_busy = d1 & 0xFFFFFF;
-        // disk << "BUSY_ASSERTED " << fpga_ts_busy << std::endl;
+        disk << "BUSY_ASSERTED " << fpga_ts_busy << std::endl;
         break;
-
+      case 0b00001100: // SERDES lock lost
+        disk << "SERDES_LOCK_LOST" << std::endl;
+        break;
+      case 0b00001000: // SERDES lock established
+        disk << "SERDES_LOCK_ESTABLISHED" << std::endl;
+        break;
+      case 0b00000100: // Unexpected/weird data came
+        // sdisk << "WEIRD_DATA" << std::endl;
+        break;
       default: // weird stuff, should not happend
         LOG(WARNING) << "I AM IMPOSSIBLE!!!!!!!!!!!!!!!!!!" << std::endl;
         break;
@@ -2909,7 +1786,7 @@ pearydata ATLASPixDevice::getDataTO(int maskx, int masky) {
   return dummy;
 }
 
-std::vector<pixelhit> ATLASPixDevice::getDataTOvector() {
+std::vector<pixelhit> ATLASPixDevice::getDataTOvector(uint32_t /* timeout */, bool /* noisescan */) {
 
   void* readout_base =
     _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
@@ -2927,14 +1804,10 @@ std::vector<pixelhit> ATLASPixDevice::getDataTOvector() {
   //  disk << "X:	Y:	   TS1:	   TS2:		FPGA_TS:   SyncedCNT:   TR_CNT:	ATPBinCounter:   ATPGreyCounter:	" << std::endl;
 
   uint64_t fpga_ts = 0;
-  uint64_t fpga_ts_last = 0;
-  uint64_t fpga_ts_busy = 0;
-  uint32_t timestamp = 0;
   uint32_t TrCNT = 0;
 
   bool to = false;
   uint32_t tocnt = 0;
-  uint32_t datatocnt = 0;
   std::vector<pixelhit> datavec;
   uint32_t datacnt = 0;
 
@@ -2956,26 +1829,32 @@ std::vector<pixelhit> ATLASPixDevice::getDataTOvector() {
       }
     }
 
-    uint32_t d1 = static_cast<uint32_t>(*data);
-
-    if((d1 >> 31) == 1) {
-
-      pixelhit hit = decodeHit(d1);
-      datavec.push_back(hit);
-      datacnt++;
+    if(datacnt > 1e5) {
+      break;
     }
 
-    else {
+    uint32_t d1 = static_cast<uint32_t>(*data);
+
+    // HIT data of bit 31 is = 1
+    pixelhit hit = decodeHit(d1, theMatrix.CurrentDACConfig->GetParameter("ckdivend2"), gray_decoding_state);
+
+    if((d1 >> 31) == 1) {
+      if(filter_hp) {
+        if(std::find(hplist.begin(), hplist.end(), hit) == hplist.end()) {
+          datavec.push_back(hit);
+          datacnt++;
+        }
+      }
+    } else {
 
       uint32_t data_type = (d1 >> 24) & 0xFF;
 
+      // Parse the different data types (BUFFEROVERFLOW,TRIGGER,BUSY_ASSERTED)
       switch(data_type) {
 
       case 0b01000000: // BinCnt from ATLASPix, not read for now
-        timestamp = d1 & 0xFFFFFF;
         break;
       case 0b00000001: // Buffer overflow, data after this are lost
-        // disk << "BUFFER_OVERFLOW" << std::endl;
         break;
       case 0b00010000: // Trigger cnt 24bits
         TrCNT = d1 & 0xFFFFFF;
@@ -2989,16 +1868,16 @@ std::vector<pixelhit> ATLASPixDevice::getDataTOvector() {
         break;
       case 0b01100000: // End of fpga_ts (24 bits)
         fpga_ts = fpga_ts + ((d1)&0xFFFFFF);
-        // LOG(INFO) << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
-        // disk << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
-        fpga_ts_last = fpga_ts;
         fpga_ts = 0;
         break;
       case 0b00000010: // BUSY asserted with 24bit LSB of Trigger FPGA TS
-        fpga_ts_busy = d1 & 0xFFFFFF;
-        // disk << "BUSY_ASSERTED " << fpga_ts_busy << std::endl;
         break;
-
+      case 0b00001100: // SERDES lock lost
+        break;
+      case 0b00001000: // SERDES lock established
+        break;
+      case 0b00000100: // Unexpected/weird data came
+        break;
       default: // weird stuff, should not happend
         LOG(WARNING) << "I AM IMPOSSIBLE!!!!!!!!!!!!!!!!!!" << std::endl;
         break;
@@ -3011,11 +1890,118 @@ std::vector<pixelhit> ATLASPixDevice::getDataTOvector() {
   return datavec;
 }
 
+std::vector<pixelhit> ATLASPixDevice::getDataTimer(uint32_t timeout, bool to_nodata) {
+
+  void* readout_base =
+    _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
+
+  volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
+  volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x4);
+  // volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) +
+  // 0x8);
+  // volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
+  // volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
+
+  //  make_directories(_output_directory);
+  //  std::ofstream disk;
+  //  disk.open(_output_directory + "/data.txt", std::ios::out);
+  //  disk << "X:	Y:	   TS1:	   TS2:		FPGA_TS:   SyncedCNT:   TR_CNT:	ATPBinCounter:   ATPGreyCounter:	" << std::endl;
+
+  uint64_t fpga_ts = 0;
+  uint32_t TrCNT = 0;
+
+  bool to = false;
+  uint32_t tocnt = 0;
+  std::vector<pixelhit> datavec;
+  uint32_t datacnt = 0;
+
+  std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+
+  while(to == false) {
+
+    // check for stop request from another thread
+    if(!this->_daqContinue.test_and_set())
+      break;
+
+    auto dur = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start);
+    if(dur.count() > timeout) {
+      break;
+    }
+    // check for new first half-word or restart loop
+
+    if((*fifo_status & 0x1) == 0) {
+      usleep(1);
+      tocnt += 1;
+      if(tocnt == Tuning_timeout && to_nodata) {
+        to = true;
+        break;
+      } else {
+        continue;
+      }
+    }
+
+    uint32_t d1 = static_cast<uint32_t>(*data);
+    // std::cout << std::bitset<32>(d1) << std::endl;
+
+    // HIT data of bit 31 is = 1
+    pixelhit hit = decodeHit(d1, theMatrix.CurrentDACConfig->GetParameter("ckdivend2"), gray_decoding_state);
+
+    if((d1 >> 31) == 1) {
+      if(filter_hp) {
+        if(std::find(hplist.begin(), hplist.end(), hit) == hplist.end()) {
+          datavec.push_back(hit);
+          datacnt++;
+        }
+      }
+    } else {
+
+      uint32_t data_type = (d1 >> 24) & 0xFF;
+
+      // Parse the different data types (BUFFEROVERFLOW,TRIGGER,BUSY_ASSERTED)
+      switch(data_type) {
+
+      case 0b01000000: // BinCnt from ATLASPix, not read for now
+        break;
+      case 0b00000001: // Buffer overflow, data after this are lost
+        break;
+      case 0b00010000: // Trigger cnt 24bits
+        TrCNT = d1 & 0xFFFFFF;
+        break;
+      case 0b00110000: // Trigger cnt 8b + fpga_ts 16 bits
+        TrCNT = TrCNT + ((d1 << 8) & 0xFF000000);
+        fpga_ts = fpga_ts + (((uint64_t)d1 << 48) & 0xFFFF000000000000);
+        break;
+      case 0b00100000: // continuation of fpga_ts (24 bits)
+        fpga_ts = fpga_ts + (((uint64_t)d1 << 24) & 0x0000FFFFFF000000);
+        break;
+      case 0b01100000: // End of fpga_ts (24 bits)
+        fpga_ts = fpga_ts + ((d1)&0xFFFFFF);
+        fpga_ts = 0;
+        break;
+      case 0b00000010: // BUSY asserted with 24bit LSB of Trigger FPGA TS
+        break;
+      case 0b00001100: // SERDES lock lost
+        break;
+      case 0b00001000: // SERDES lock established
+        break;
+      case 0b00000100: // Unexpected/weird data came
+        break;
+      default: // weird stuff, should not happend
+        break;
+      }
+    }
+  }
+
+  // LOG(INFO) << "data count : " << datacnt << std::endl;
+
+  return datavec;
+}
+
 void ATLASPixDevice::ReapplyMask() {
 
   LOG(INFO) << "re-applying mask " << std::endl;
-  for(int col = 0; col < theMatrix.ncol; col++) {
-    for(int row = 0; row < theMatrix.nrow; row++) {
+  for(uint32_t col = 0; col < theMatrix.ncol; col++) {
+    for(uint32_t row = 0; row < theMatrix.nrow; row++) {
       if(theMatrix.MASK[col][row] == 1) {
         // LOG(INFO) << "masking " << col << " " << row << std::endl;
         this->MaskPixel(col, row);
@@ -3024,7 +2010,7 @@ void ATLASPixDevice::ReapplyMask() {
   };
 }
 
-void ATLASPixDevice::dataTuning(double vmax, int nstep, int npulses) {
+void ATLASPixDevice::dataTuning(double vmax, int nstep, uint32_t npulses) {
 
   const double margin = 0.05;
 
@@ -3044,8 +2030,8 @@ void ATLASPixDevice::dataTuning(double vmax, int nstep, int npulses) {
   disk << "X:	Y:	   TDAC:	   COUNT:	" << std::endl;
 
   LOG(INFO) << "Tuning using data for target " << vmax;
-  for(int col = 0; col < theMatrix.ncol; col++) {
-    for(int row = 0; row < theMatrix.nrow; row++) {
+  for(uint32_t col = 0; col < theMatrix.ncol; col++) {
+    for(uint32_t row = 0; row < theMatrix.nrow; row++) {
 
       int cur_tdac = 4;
       bool done = false;
@@ -3128,168 +2114,56 @@ void ATLASPixDevice::dataTuning(double vmax, int nstep, int npulses) {
   disk.close();
 }
 
-// void ATLASPixDevice::dataTuning( double vmax, int nstep, int npulses) {
-//  double vstep=vmax /double(nstep-1);
-//
-//  LOG(INFO) << "Tuning using data with " << DEVICE_NAME;
-//  LOG(INFO) << "VMAX= " << vmax << " vstep=" << vstep << std::endl;
-//
-//
-//  for(int TDAC_value = 1; TDAC_value < 8; TDAC_value+=2) {
-//
-//
-//	this->writeUniformTDAC(theMatrix,TDAC_value);
-//    this->ReapplyMask();
-//
-//	LOG(INFO) << "TDAC " << TDAC_value << std::endl;
-//
-//
-//    for(unsigned int maskidx = 0; maskidx < theMatrix.maskx; ++maskidx) {
-//        for(unsigned int maskidy = 0; maskidy < theMatrix.masky; ++maskidy) {
-//
-//        LOG(INFO) << "setting mask id  " << maskidx << " " << maskidy << " " << (maskidx*theMatrix.masky + maskidy) <<
-//        std::endl;
-//    	this->SetInjectionMask(maskidx,maskidy,1);
-//
-//    	//for(double v = (vmax /(nstep-1)); v <= vmax; v += (vmax /(nstep-1))) {
-//        for(double vi = 1; vi <=nstep; vi +=1) {
-//          double v = (vi)*(vmax/(nstep));
-//          //ugly hack
-//          //LOG(INFO) << "pulsing with " << v << "V" << std::endl;
-//          this->setPulse(theMatrix, npulses, 10000, 10000, v);
-//          std::stringstream ss;
-//          ss << "PEARYDATA/gradeA06-test6/VNAC" << theMatrix.CurrentDACConfig->GetParameter("VNDACPix") << "_TDAC" <<
-//          TDAC_value << "_maskid_" << (maskidx*theMatrix.masky + maskidy) << "_vpulse_" << v ;
-//          this->setOutputDirectory(ss.str());
-//          this->reset();
-//          //this->daqStart();
-//          sendPulse();
-//          this->getDataTO(maskidx,maskidy);
-//
-//        }
-//    	this->SetInjectionMask(maskidx,maskidy,0);
-//      }
-//    }
-//    }
-//
-//
-//
-//}
+void ATLASPixDevice::VerifyTuning(double vmin, double vmax, int npulses, int npoints) {
+  double vinj = vmin;
+  double dv = (vmax - vmin) / (npoints - 1);
 
-void ATLASPixDevice::VerifyTuning(double vmax, int nstep, int npulses, std::string TDACFile) {
-  double vstep = vmax / double(nstep - 1);
+  std::vector<CounterMap> SCurveData(npoints);
+  std::vector<pixelhit> hp;
+  make_directories(_output_directory);
+  std::ofstream disk;
+  disk.open(_output_directory + "/SCURVE_TDAC_" + "verification" + ".txt", std::ios::out);
+  // disk << "X:	Y:	   TS1:	   TS2:		FPGA_TS:  TR_CNT:  BinCounter :  " << std::endl;
 
-  LOG(INFO) << "Tuning using data with " << DEVICE_NAME;
-  LOG(INFO) << "VMAX= " << vmax << " vstep=" << vstep << std::endl;
+  for(int mx = 0; mx < theMatrix.maskx; mx++) {
+    for(int my = 0; my < theMatrix.masky; my++) {
 
-  // 1this->LoadTDAC(TDACFile);
-  this->ReapplyMask();
+      this->SetInjectionMask(mx, my, 1);
+      this->reset();
+      usleep(1000);
+      //      for(auto& pix : hp) {
+      //        this->MaskPixel(pix.col, pix.row);
+      //      }
 
-  for(unsigned int maskidx = 0; maskidx < theMatrix.maskx; ++maskidx) {
-    for(unsigned int maskidy = 0; maskidy < theMatrix.masky; ++maskidy) {
-
-      LOG(INFO) << "setting mask id  " << maskidx << " " << maskidy << " " << (maskidx * theMatrix.masky + maskidy)
-                << std::endl;
-      this->SetInjectionMask(maskidx, maskidy, 1);
-
-      // for(double v = (vmax /(nstep-1)); v <= vmax; v += (vmax /(nstep-1))) {
-      for(double vi = 1; vi <= nstep; vi += 1) {
-        double v = (vi) * (vmax / (nstep));
-        // ugly hack
-        // LOG(INFO) << "pulsing with " << v << "V" << std::endl;
-        this->setPulse(theMatrix, npulses, 10000, 10000, v);
-        std::stringstream ss;
-        ss << "PEARYDATA/gradeA06-test7/VNAC" << theMatrix.CurrentDACConfig->GetParameter("VNDACPix") << "_TDAC" << 99
-           << "_maskid_" << (maskidx * theMatrix.masky + maskidy) << "_vpulse_" << v;
-        this->setOutputDirectory(ss.str());
-        this->reset();
-        // this->daqStart();
-        sendPulse();
-        this->getDataTO(maskidx, maskidy);
+      vinj = vmin;
+      for(int i = 0; i < npoints; i++) {
+        LOG(INFO) << "pulse height : " << vinj << std::endl;
+        this->pulse(npulses, 10000, 10000, vinj);
+        usleep(10000);
+        hp = this->CountHits(this->getDataTimer(50), mx, my, SCurveData[i]);
+        this->resetFIFO();
+        vinj += dv;
       }
-      this->SetInjectionMask(maskidx, maskidy, 0);
+
+      for(uint32_t col = 0; col < theMatrix.ncol; col++) {
+        for(uint32_t row = 0; row < theMatrix.nrow; row++) {
+
+          if((((col + mx) % theMatrix.maskx) == 0) && (((row + my) % theMatrix.masky) == 0)) {
+            disk << col << " " << row << " ";
+            for(int i = 0; i < npoints; i++) {
+              disk << SCurveData[i][std::make_pair(col, row)] << " ";
+            }
+            disk << std::endl;
+          }
+        }
+      };
+
+      this->SetInjectionMask(mx, my, 0);
     }
   }
-}
 
-// void ATLASPixDevice::doSCurves(double vmin, double vmax, uint32_t npulses, uint32_t npoints) {
-//
-//  std::cout << "Ok lets get started" << std::endl;
-//  int cnt = 0;
-//  double vinj = vmin;
-//  double dv = (vmax - vmin) / (npoints - 1);
-//  std::cout << "vmin : " << vmin << " vmax : " << vmax << " dV  : " << dv << std::endl;
-//
-//  // Setting Time Stamp in the file name
-//  std::time_t t = std::time(NULL);
-//  std::tm* ptm = std::localtime(&t);
-//  std::stringstream ss;
-//  ss << "PEARYDATA/ATLASPixGradeA_02/"
-//     << "_" << ptm->tm_year + 1900 << "_" << ptm->tm_mon + 1 << "_" << ptm->tm_mday << "@" << ptm->tm_hour + 1 << "_"
-//     << ptm->tm_min + 1 << "_" << ptm->tm_sec + 1 << "_VNPix";
-//
-//  std::string cmd;
-//  cmd += "mkdir -p ";
-//  cmd += " ";
-//  cmd += ss.str();
-//  const int dir_err = system(cmd.c_str());
-//
-//  std::string filename;
-//  filename += ss.str();
-//  filename += "/";
-//  filename += "M1_VNDAC_";
-//  filename += std::to_string(theMatrix.CurrentDACConfig->GetParameter("VNDACPix"));
-//  filename += "_TDAC_";
-//  filename += std::to_string(theMatrix.TDAC[0][0] >> 1);
-//  // filename+=ss.str();
-//  filename += ".txt";
-//
-//  std::cout << "writing to file : " << filename << std::endl;
-//
-//  std::ofstream myfile;
-//  myfile.open(filename);
-//
-//  myfile << npoints << std::endl;
-//
-//  std::clock_t start;
-//  double duration;
-//
-//  for(int col = 0; col < theMatrix.ncol; col++) {
-//    for(int row = 0; row < theMatrix.nrow; row++) {
-//
-//      // start = std::clock();
-//
-//      if(row % 5 == 0) {
-//        std::cout << "X: " << col << " Y: " << row << "\n";
-//      }
-//
-//      vinj = vmin;
-//      // this->SetPixelInjection(theMatrix,0,0,1,1);
-//      // this->SetPixelInjection(theMatrix,0,0,0,0);
-//
-//      this->SetPixelInjection(col, row, 1, 1,1);
-//      this->resetCounters();
-//
-//      for(int i = 0; i < npoints; i++) {
-//        this->pulse(npulses, 1000, 1000, vinj);
-//        // cnt=this->readCounter(theMatrixISO);
-//        cnt = this->readCounter(theMatrix);
-//        // this->getData();
-//        myfile << vinj << " " << cnt << " ";
-//        // std::cout << "V : " << vinj << " count : " << cnt << std::endl;
-//        vinj += dv;
-//      }
-//
-//      this->SetPixelInjection(col, row, 0, 0,0);
-//      myfile << std::endl;
-//
-//      // duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
-//      // std::cout << duration << " s \n" ;
-//    }
-//  }
-//
-//  myfile.close();
-//}
+  disk.close();
+}
 
 void ATLASPixDevice::doSCurvesAndWrite(
   std::string basefolder, double vmin, double vmax, uint32_t npulses, uint32_t npoints) {
@@ -3317,11 +2191,8 @@ void ATLASPixDevice::doSCurvesAndWrite(
 
   myfile << npoints << std::endl;
 
-  std::clock_t start;
-  double duration;
-
-  for(int col = 0; col < theMatrix.ncol; col++) {
-    for(int row = 0; row < theMatrix.nrow; row++) {
+  for(uint32_t col = 0; col < theMatrix.ncol; col++) {
+    for(uint32_t row = 0; row < theMatrix.nrow; row++) {
 
       // start = std::clock();
 
@@ -3336,7 +2207,7 @@ void ATLASPixDevice::doSCurvesAndWrite(
       this->SetPixelInjection(col, row, 1, 1, 1);
       this->resetCounters();
 
-      for(int i = 0; i < npoints; i++) {
+      for(uint32_t i = 0; i < npoints; i++) {
         this->pulse(npulses, 1000, 1000, vinj);
         // cnt=this->readCounter(theMatrixISO);
         cnt = this->readCounter(theMatrix);
@@ -3357,17 +2228,15 @@ void ATLASPixDevice::doSCurvesAndWrite(
   myfile.close();
 }
 
-void ATLASPixDevice::TDACScan(
-  std::string basefolder, int VNDAC, int step, double vmin, double vmax, uint32_t npulses, uint32_t npoints) {
-
-  this->WriteConfig(basefolder + "/config");
+void ATLASPixDevice::TDACScan(int VNDAC, double vmin, double vmax, uint32_t npulses, uint32_t npoints) {
 
   theMatrix.CurrentDACConfig->SetParameter("VNDACPix", VNDAC);
+  this->ProgramSR(theMatrix);
 
-  for(int tdac = 0; tdac <= 7; tdac += step) {
+  for(int tdac = 0; tdac <= 7; tdac += 1) {
 
     this->setAllTDAC(tdac);
-    this->doSCurvesAndWrite(basefolder, vmin, vmax, npulses, npoints);
+    this->doSCurves(vmin, vmax, npulses, npoints);
   }
 }
 
@@ -3428,6 +2297,18 @@ void ATLASPixDevice::reset() {
   this->ProgramSR(theMatrix);
 }
 
+void ATLASPixDevice::resetFIFO() {
+  // LOG(INFO) << "Resetting " << DEVICE_NAME;
+
+  void* readout_base =
+    _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
+  volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
+
+  *fifo_config = (*fifo_config & 0xFFFFFFEF) + 0b10000;
+  usleep(50);
+  *fifo_config = (*fifo_config & 0xFFFFFFEF) + 0b00000;
+}
+
 std::string ATLASPixDevice::getName() {
   return DEVICE_NAME;
 }
@@ -3436,11 +2317,30 @@ void ATLASPixDevice::powerUp() {
   LOG(INFO) << DEVICE_NAME << ": Powering up ATLASPix";
   std::cout << '\n';
 
+  this->setVoltage("VCC25", ATLASPix_VCC25, ATLASPix_VCC25_CURRENT);
+  this->switchOn("VCC25");
+
+  usleep(200000);
+
   this->setVoltage("VDDD", ATLASPix_VDDD, ATLASPix_VDDD_CURRENT);
   this->switchOn("VDDD");
 
+  usleep(200000);
+
+  this->setVoltage("VDDRam", ATLASPix_VDDRam, ATLASPix_VDDRam_CURRENT);
+  this->switchOn("VDDRam");
+
+  usleep(200000);
+
+  this->setVoltage("VDDHigh", ATLASPix_VDDHigh, ATLASPix_VDDHigh_CURRENT);
+  this->switchOn("VDDHigh");
+
+  usleep(200000);
+
   this->setVoltage("VDDA", ATLASPix_VDDA, ATLASPix_VDDA_CURRENT);
   this->switchOn("VDDA");
+
+  usleep(200000);
 
   this->setVoltage("VSSA", ATLASPix_VSSA, ATLASPix_VSSA_CURRENT);
   this->switchOn("VSSA");
@@ -3455,6 +2355,15 @@ void ATLASPixDevice::powerUp() {
 
   this->setVoltage("GatePix", theMatrix.GatePix);
   this->switchOn("GatePix");
+
+  this->setVoltage("VNFBPix", theMatrix.VNFBPix);
+  this->switchOn("VNFBPix");
+
+  this->setVoltage("BLResPix", theMatrix.BLResPix);
+  this->switchOn("BLResPix");
+
+  this->setVoltage("VMain2", theMatrix.VMain2);
+  this->switchOn("VMain2");
 
   // Threshold and Baseline
 
@@ -3477,6 +2386,15 @@ void ATLASPixDevice::powerDown() {
   LOG(DEBUG) << "Powering off VSSA";
   this->switchOff("VSSA");
 
+  LOG(DEBUG) << "Powering off VDDRam";
+  this->switchOff("VDDRam");
+
+  LOG(DEBUG) << "Powering off VDDHigh";
+  this->switchOff("VDDHigh");
+
+  LOG(DEBUG) << "Powering off VCC25";
+  this->switchOff("VCC25");
+
   LOG(DEBUG) << "Turning off GNDDacPix";
   this->switchOff("GNDDACPix");
 
@@ -3494,29 +2412,68 @@ namespace {
   using TimeoutTimepoint = std::chrono::steady_clock::time_point;
 } // unnamed namespace
 
+void ATLASPixDevice::NoiseRun(double duration) {
+
+  std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+  this->daqStart();
+
+  while(1) {
+    auto dur = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - start);
+    if(dur.count() > duration)
+      // throw DeviceException("Cannot lock to external clock.");
+      break;
+  }
+
+  this->daqStop();
+}
+
 void ATLASPixDevice::daqStart() {
   // ensure only one daq thread is running
-  this->reset();
-  if(_daqThread.joinable()) {
+  void* readout_base =
+    _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
+  volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
+
+  if(_daqThread.joinable() || _daqContinue.test_and_set()) {
     LOG(WARNING) << "Data aquisition is already running";
     return;
   }
+  _daqContinue.clear();
+
+  *fifo_config = (*fifo_config & 0xFFFFFFEF) + 0b10000;
+  usleep(50);
+  *fifo_config = (*fifo_config & 0xFFFFFFEF) + 0b00000;
+
   // arm the stop flag and start running
   this->resetCounters();
+
   _daqContinue.test_and_set();
-  _daqThread = std::thread(&ATLASPixDevice::runDaq, this);
+
+  if(data_type != "raw") {
+    _daqThread = std::thread(&ATLASPixDevice::runDaq, this);
+  }
   // LOG(INFO) << "acquisition started" << std::endl;
 }
 
 void ATLASPixDevice::daqStop() {
-  // signal to daq thread that we want to stop and wait until it does
+  if(_daqThread.joinable()) {
+    // signal to daq thread that we want to stop and wait until it does
+    _daqContinue.clear();
+    _daqThread.join();
+    // LOG(INFO) << "Trigger count at end of run : " << this->getTriggerCounter() << std::endl;
+  }
   _daqContinue.clear();
-  _daqThread.join();
-  // LOG(INFO) << "Trigger count at end of run : " << this->getTriggerCounter() << std::endl;
 }
 
 void ATLASPixDevice::runDaq() {
-  getData();
+
+  if(data_type == "binary") {
+    getDataBin();
+  }
+  if(data_type != "raw") {
+    return;
+  } else {
+    getData();
+  }
 }
 
 void ATLASPixDevice::powerStatusLog() {
@@ -3533,12 +2490,90 @@ void ATLASPixDevice::powerStatusLog() {
   LOG(INFO) << "VSSA:";
   LOG(INFO) << "\tBus voltage: " << _hal->measureVoltage(PWR_OUT_2) << "V";
   LOG(INFO) << "\tBus current: " << _hal->measureCurrent(PWR_OUT_2) << "A";
+
+  LOG(INFO) << "VDDRam:";
+  LOG(INFO) << "\tBus voltage: " << _hal->measureVoltage(PWR_OUT_1) << "V";
+  LOG(INFO) << "\tBus current: " << _hal->measureCurrent(PWR_OUT_1) << "A";
+
+  LOG(INFO) << "VCC25:";
+  LOG(INFO) << "\tBus voltage: " << _hal->measureVoltage(PWR_OUT_5) << "V";
+  LOG(INFO) << "\tBus current: " << _hal->measureCurrent(PWR_OUT_5) << "A";
+
+  LOG(INFO) << "VDDHigh:";
+  LOG(INFO) << "\tBus voltage: " << _hal->measureVoltage(PWR_OUT_6) << "V";
+  LOG(INFO) << "\tBus current: " << _hal->measureCurrent(PWR_OUT_6) << "A";
+}
+
+void ATLASPixDevice::MonitorPower() {
+
+  if(_monitorPowerThread.joinable()) {
+    LOG(WARNING) << "Power monitoring is already running";
+    return;
+  }
+
+  _monitorPowerContinue.test_and_set();
+  _monitorPowerThread = std::thread(&ATLASPixDevice::runMonitorPower, this);
+}
+
+void ATLASPixDevice::StopMonitorPower() {
+
+  _monitorPowerContinue.clear();
+  _monitorPowerThread.join();
+}
+
+void ATLASPixDevice::runMonitorPower() {
+
+  make_directories(_output_directory);
+  std::ofstream outFile(_output_directory + "/power_log.txt");
+  if(!outFile.is_open()) {
+    _monitorPowerContinue.clear();
+    // TODO log with error
+    return;
+  }
+
+  outFile << "# VDDD voltage [V], VDDD current [A], VDDA voltage [V], VDDA current [A], VSSA voltage [V], VSSA current [A]"
+          << std::endl;
+  while(true) {
+    // check for stop request from another thread
+    if(!this->_monitorPowerContinue.test_and_set())
+      break;
+
+    outFile << _hal->measureVoltage(PWR_OUT_4) << " " << _hal->measureCurrent(PWR_OUT_4) << " "
+            << _hal->measureVoltage(PWR_OUT_3) << " " << _hal->measureCurrent(PWR_OUT_3) << " "
+            << _hal->measureVoltage(PWR_OUT_2) << " " << _hal->measureCurrent(PWR_OUT_2) << std::endl;
+
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+  }
+  outFile.close();
+}
+
+void ATLASPixDevice::WriteFWRegistersAndBias(std::string name) {
+  std::ofstream cfg(name, std::ofstream::out | std::ofstream::app);
+
+  cfg << "ro_enable : " << std::left << std::setw(20) << ro_enable << std::endl;
+  cfg << "edge_sel : " << std::left << std::setw(20) << edge_sel << std::endl;
+  cfg << "trigger_enable : " << std::left << std::setw(20) << trigger_enable << std::endl;
+  cfg << "trigger_always_armed : " << std::left << std::setw(20) << trigger_always_armed << std::endl;
+  cfg << "busy_when_armed : " << std::left << std::setw(20) << busy_when_armed << std::endl;
+  cfg << "t0_enable : " << std::left << std::setw(20) << t0_enable << std::endl;
+  cfg << "send_fpga_ts : " << std::left << std::setw(20) << send_fpga_ts << std::endl;
+  cfg << "armduration : " << std::left << std::setw(20) << armduration << std::endl;
+  cfg << "filter_hp : " << std::left << std::setw(20) << filter_hp << std::endl;
+  cfg << "HW_masking : " << std::left << std::setw(20) << HW_masking << std::endl;
+  cfg << "filter_weird_data : " << std::left << std::setw(20) << filter_weird_data << std::endl;
+  cfg << "trigger_injection : " << std::left << std::setw(20) << trigger_injection << std::endl;
+  cfg << "gray_decode : " << std::left << std::setw(20) << gray_decode << std::endl;
+  cfg << "VSSA : " << std::left << std::setw(20) << _hal->measureVoltage(PWR_OUT_2) << std::endl;
+  cfg << "VDDD : " << std::left << std::setw(20) << _hal->measureVoltage(PWR_OUT_4) << std::endl;
+  cfg << "VDDA : " << std::left << std::setw(20) << _hal->measureVoltage(PWR_OUT_3) << std::endl;
+  cfg << "VDDRam : " << std::left << std::setw(20) << _hal->measureVoltage(PWR_OUT_1) << std::endl;
 }
 
 void ATLASPixDevice::WriteConfig(std::string name) {
   make_directories(_output_directory);
   theMatrix.writeGlobal(_output_directory + "/" + name + ".cfg");
   theMatrix.writeTDAC(_output_directory + "/" + name + "_TDAC.cfg");
+  this->WriteFWRegistersAndBias(_output_directory + "/" + name + ".cfg");
 }
 
 void ATLASPixDevice::LoadConfig(std::string basename) {
@@ -3551,15 +2586,15 @@ void ATLASPixDevice::LoadConfig(std::string basename) {
   // this loads configuration data from file and powers everything up or
   // should this be just the loading which must be followed up by the actual
   // powerUp command?
-  this->setVoltage("GNDDACPix", theMatrix.GNDDACPix);
-  this->switchOn("GNDDACPix");
-  this->setVoltage("VMinusPix", theMatrix.VMINUSPix);
-  this->switchOn("VMinusPix");
-  this->setVoltage("GatePix", theMatrix.GatePix);
-  this->switchOn("GatePix");
-  this->setVoltage("BLPix", theMatrix.BLPix);
-  this->switchOn("BLPix");
-  this->setVoltage("ThPix", theMatrix.ThPix);
-  this->switchOn("ThPix");
-  this->LoadTDAC(basename + "_TDAC.cfg");
+  //  this->setVoltage("GNDDACPix", theMatrix.GNDDACPix);
+  //  this->switchOn("GNDDACPix");
+  //  this->setVoltage("VMinusPix", theMatrix.VMINUSPix);
+  //  this->switchOn("VMinusPix");
+  //  this->setVoltage("GatePix", theMatrix.GatePix);
+  //  this->switchOn("GatePix");
+  //  this->setVoltage("BLPix", theMatrix.BLPix);
+  //  this->switchOn("BLPix");
+  //  this->setVoltage("ThPix", theMatrix.ThPix);
+  //  this->switchOn("ThPix");
+  // this->LoadTDAC(basename + "_TDAC.cfg");
 }

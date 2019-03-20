@@ -25,15 +25,15 @@ struct ATLASPixMatrix {
   uint32_t nu2;
   double ThPix; // Voltage, to be translated to DAC value
   uint32_t nu3;
-  double VMINUSPix, GatePix, GNDDACPix;
+  double VMINUSPix, GatePix, GNDDACPix, VMinusPD, VNFBPix, VMain2, BLResPix;
 
   // TDAC and mask maps
   std::array<std::array<int, 400>, 56> TDAC; // last bit also encodes mask
   std::array<std::array<int, 400>, 56> MASK; // duplicate of last TDAC bit
 
   // info about matrix, SR etc...
-  int ncol, nrow, ndoublecol;
-  int nSRbuffer, nbits;
+  uint32_t ncol, nrow, ndoublecol;
+  uint32_t nSRbuffer, nbits;
   int counter;
   uint32_t SRmask, extraBits, PulserMask;
   ATLASPix1Flavor flavor = ATLASPix1Flavor::Undefined;

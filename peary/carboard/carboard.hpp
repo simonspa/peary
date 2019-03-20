@@ -25,6 +25,20 @@ const std::intptr_t CARIBOU_FIRMWARE_VERSION_OFFSET = 0;
 const std::size_t CARIBOU_CONTROL_MAP_SIZE = 4096;
 const std::size_t CARIBOU_CONTROL_MAP_MASK = CARIBOU_CONTROL_MAP_SIZE - 1;
 
+// Caribou pulser addresses
+const std::intptr_t CARIBOU_PULSER_BASE_ADDRESS = 0x43C30000; // XXX - Add correct address
+const std::size_t CARIBOU_PULSER_MAP_SIZE = 512;
+const std::size_t CARIBOU_PULSER_MAP_MASK = CARIBOU_PULSER_MAP_SIZE - 1;
+// Common regs for pulser
+const std::intptr_t CARIBOU_PULSER_REG_CONTROL_OFFSET = 0;
+const std::intptr_t CARIBOU_PULSER_REG_STATUS_OFFSET = 4;
+// CH regs
+const std::intptr_t CARIBOU_PULSER_REG_PERIODS_OFFSET = 8;
+const std::intptr_t CARIBOU_PULSER_REG_TIME_ACTIVE_OFFSET = 12;
+const std::intptr_t CARIBOU_PULSER_REG_TIME_IDLE_OFFSET = 16;
+const std::intptr_t CARIBOU_PULSER_REG_PULSE_COUNT_OFFSET = 20;
+const std::intptr_t CARIBOU_PULSER_CHANNEL_OFFSET = 16;
+
 /** Devices on I2C0
  */
 #define ADDR_BRIDGE 0x28 // SC18IS602B BRIDGE SPI/I2C

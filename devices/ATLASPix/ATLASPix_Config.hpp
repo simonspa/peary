@@ -18,6 +18,7 @@
  *              added support for arbitary permutations of the bits         *
  ****************************************************************************/
 
+#include <algorithm>
 #include <iostream>
 #include <map>
 #include <sstream>
