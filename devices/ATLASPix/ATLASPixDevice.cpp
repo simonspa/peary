@@ -141,7 +141,6 @@ ATLASPixDevice::ATLASPixDevice(const caribou::Configuration config)
   _dispatcher.add("MaskPixel", &ATLASPixDevice::MaskPixel, this);
   _dispatcher.add("isLocked", &ATLASPixDevice::isLocked, this);
   _dispatcher.add("powerStatusLog", &ATLASPixDevice::powerStatusLog, this);
-  //  _dispatcher.add("getDataBin", &ATLASPixDevice::getDataBin, this);
   _dispatcher.add("StopMonitorPower", &ATLASPixDevice::StopMonitorPower, this);
   _dispatcher.add("MonitorPower", &ATLASPixDevice::MonitorPower, this);
   _dispatcher.add("SetInjectionOff", &ATLASPixDevice::SetInjectionOff, this);
@@ -1562,7 +1561,6 @@ pearydata ATLASPixDevice::getData() {
 
   uint32_t timestamp = 0;
   uint32_t TrCNT = 0;
-  /* int TrCNT_next = -1; */
 
   while(true) {
 
@@ -1575,7 +1573,6 @@ pearydata ATLASPixDevice::getData() {
     }
 
     uint32_t d1 = static_cast<uint32_t>(*data);
-    // std::cout << std::bitset<32>(d1) << std::endl;
 
     // HIT data of bit 31 is = 1
     if((d1 >> 31) == 1) {
@@ -1584,7 +1581,6 @@ pearydata ATLASPixDevice::getData() {
 
       double timing = (((hit.ts1 * 2) - (fpga_ts_last)) & 0b11111111111);
 
-      // LOG(INFO) << hit.col <<" " << hit.row << " " << hit.ts1 << ' ' << hit.ts2 << std::endl;
       if(filter_hp) {
         if(std::find(hplist.begin(), hplist.end(), hit) == hplist.end()) {
           disk << "HIT " << hit.col << "	" << hit.row << "	" << hit.ts1 << "	" << hit.ts2 << "	" << hit.tot << "	"
@@ -1609,7 +1605,6 @@ pearydata ATLASPixDevice::getData() {
 
       case 0b01000000: // BinCnt from ATLASPix, not read for now
         timestamp = d1 & 0xFFFFFF;
-        // disk << "BINCOUNTER " << timestamp << std::endl;
         break;
       case 0b00000001: // Buffer overflow, data after this are lost
         disk << "BUFFER_OVERFLOW" << std::endl;
@@ -1626,7 +1621,6 @@ pearydata ATLASPixDevice::getData() {
         break;
       case 0b01100000: // End of fpga_ts (24 bits)
         fpga_ts = fpga_ts + ((d1)&0xFFFFFF);
-        // LOG(INFO) << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
         disk << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
         fpga_ts_last = fpga_ts;
         fpga_ts = 0;
@@ -1810,14 +1804,10 @@ std::vector<pixelhit> ATLASPixDevice::getDataTOvector(uint32_t /* timeout */, bo
   //  disk << "X:	Y:	   TS1:	   TS2:		FPGA_TS:   SyncedCNT:   TR_CNT:	ATPBinCounter:   ATPGreyCounter:	" << std::endl;
 
   uint64_t fpga_ts = 0;
-  /* uint64_t fpga_ts_last; */
-  /* uint64_t fpga_ts_busy; */
-  /* uint32_t timestamp; */
   uint32_t TrCNT = 0;
 
   bool to = false;
   uint32_t tocnt = 0;
-  /* uint32_t datatocnt = 0; */
   std::vector<pixelhit> datavec;
   uint32_t datacnt = 0;
 
@@ -1844,7 +1834,6 @@ std::vector<pixelhit> ATLASPixDevice::getDataTOvector(uint32_t /* timeout */, bo
     }
 
     uint32_t d1 = static_cast<uint32_t>(*data);
-    // std::cout << std::bitset<32>(d1) << std::endl;
 
     // HIT data of bit 31 is = 1
     pixelhit hit = decodeHit(d1, theMatrix.CurrentDACConfig->GetParameter("ckdivend2"), gray_decoding_state);
@@ -1864,11 +1853,8 @@ std::vector<pixelhit> ATLASPixDevice::getDataTOvector(uint32_t /* timeout */, bo
       switch(data_type) {
 
       case 0b01000000: // BinCnt from ATLASPix, not read for now
-        /* timestamp = d1 & 0xFFFFFF; */
-        // disk << "BINCOUNTER " << timestamp << std::endl;
         break;
       case 0b00000001: // Buffer overflow, data after this are lost
-        // disk << "BUFFER_OVERFLOW" << std::endl;
         break;
       case 0b00010000: // Trigger cnt 24bits
         TrCNT = d1 & 0xFFFFFF;
@@ -1882,23 +1868,15 @@ std::vector<pixelhit> ATLASPixDevice::getDataTOvector(uint32_t /* timeout */, bo
         break;
       case 0b01100000: // End of fpga_ts (24 bits)
         fpga_ts = fpga_ts + ((d1)&0xFFFFFF);
-        // LOG(INFO) << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
-        // disk << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
-        /* fpga_ts_last = fpga_ts; */
         fpga_ts = 0;
         break;
       case 0b00000010: // BUSY asserted with 24bit LSB of Trigger FPGA TS
-        /* fpga_ts_busy = d1 & 0xFFFFFF; */
-        // disk << "BUSY_ASSERTED " << fpga_ts_busy << std::endl;
         break;
       case 0b00001100: // SERDES lock lost
-        // disk << "SERDES_LOCK_LOST" << std::endl;
         break;
       case 0b00001000: // SERDES lock established
-        // disk << "SERDES_LOCK_ESTABLISHED" << std::endl;
         break;
       case 0b00000100: // Unexpected/weird data came
-        // sdisk << "WEIRD_DATA" << std::endl;
         break;
       default: // weird stuff, should not happend
         LOG(WARNING) << "I AM IMPOSSIBLE!!!!!!!!!!!!!!!!!!" << std::endl;
@@ -1930,14 +1908,10 @@ std::vector<pixelhit> ATLASPixDevice::getDataTimer(uint32_t timeout, bool to_nod
   //  disk << "X:	Y:	   TS1:	   TS2:		FPGA_TS:   SyncedCNT:   TR_CNT:	ATPBinCounter:   ATPGreyCounter:	" << std::endl;
 
   uint64_t fpga_ts = 0;
-  /* uint64_t fpga_ts_last; */
-  /* uint64_t fpga_ts_busy; */
-  /* uint32_t timestamp; */
   uint32_t TrCNT = 0;
 
   bool to = false;
   uint32_t tocnt = 0;
-  /* uint32_t datatocnt = 0; */
   std::vector<pixelhit> datavec;
   uint32_t datacnt = 0;
 
@@ -1987,11 +1961,8 @@ std::vector<pixelhit> ATLASPixDevice::getDataTimer(uint32_t timeout, bool to_nod
       switch(data_type) {
 
       case 0b01000000: // BinCnt from ATLASPix, not read for now
-        /* timestamp = d1 & 0xFFFFFF; */
-        // disk << "BINCOUNTER " << timestamp << std::endl;
         break;
       case 0b00000001: // Buffer overflow, data after this are lost
-                       // LOG(WARNING) << "BUFFER_OVERFLOW" << std::endl;
         break;
       case 0b00010000: // Trigger cnt 24bits
         TrCNT = d1 & 0xFFFFFF;
@@ -2005,26 +1976,17 @@ std::vector<pixelhit> ATLASPixDevice::getDataTimer(uint32_t timeout, bool to_nod
         break;
       case 0b01100000: // End of fpga_ts (24 bits)
         fpga_ts = fpga_ts + ((d1)&0xFFFFFF);
-        // LOG(INFO) << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
-        // disk << "TRIGGER " << TrCNT << " " << fpga_ts << std::endl;
-        /* fpga_ts_last = fpga_ts; */
         fpga_ts = 0;
         break;
       case 0b00000010: // BUSY asserted with 24bit LSB of Trigger FPGA TS
-        /* fpga_ts_busy = d1 & 0xFFFFFF; */
-        // disk << "BUSY_ASSERTED " << fpga_ts_busy << std::endl;
         break;
       case 0b00001100: // SERDES lock lost
-                       // LOG(WARNING) << "SERDES_LOCK_LOST" << std::endl;
         break;
       case 0b00001000: // SERDES lock established
-                       // LOG(WARNING) << "SERDES_LOCK_ESTABLISHED" << std::endl;
         break;
       case 0b00000100: // Unexpected/weird data came
-        // sdisk << "WEIRD_DATA" << std::endl;
         break;
       default: // weird stuff, should not happend
-               // LOG(WARNING) << "I AM IMPOSSIBLE!!!!!!!!!!!!!!!!!!" << std::endl;
         break;
       }
     }
@@ -2228,9 +2190,6 @@ void ATLASPixDevice::doSCurvesAndWrite(
   myfile.open(filename);
 
   myfile << npoints << std::endl;
-
-  /* std::clock_t start; */
-  /* double duration; */
 
   for(uint32_t col = 0; col < theMatrix.ncol; col++) {
     for(uint32_t row = 0; row < theMatrix.nrow; row++) {

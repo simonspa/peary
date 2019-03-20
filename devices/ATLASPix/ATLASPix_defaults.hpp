@@ -182,8 +182,6 @@ namespace caribou {
 
   // clang-format on
 
-  // /*{"ext_clk", register_t<>(0x26, 0xFF, false, true, true)},		\*/
-
 } // namespace caribou
 
 #endif /* DEVICE_ATLASPix_DEFAULTS_H */
