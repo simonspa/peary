@@ -526,7 +526,7 @@ pearydata CLICpix2Device::getData() {
 
 std::vector<uint32_t> CLICpix2Device::getFrame() {
 
-  LOG(DEBUG) << DEVICE_NAME << " readout requested";
+  LOG(DEBUG) << DEVICE_NAME << " frame readout requested";
   this->setRegister("readout", 0);
   std::vector<uint32_t> frame;
 
@@ -555,6 +555,8 @@ std::vector<uint32_t> CLICpix2Device::getFrame() {
 }
 
 std::vector<uint32_t> CLICpix2Device::getRawData() {
+
+  LOG(DEBUG) << DEVICE_NAME << " Preparing raw data packet";
   std::vector<uint32_t> rawdata;
 
   // Get the timestamps:
@@ -567,6 +569,8 @@ std::vector<uint32_t> CLICpix2Device::getRawData() {
   rawdata.push_back(timestamps.size());
   rawdata.insert(rawdata.end(), timestamps.begin(), timestamps.end());
   rawdata.insert(rawdata.end(), frame.begin(), frame.end());
+
+  LOG(DEBUG) << DEVICE_NAME << " Raw data packet with " << rawdata.size() << " words ready";
   return rawdata;
 }
 
@@ -585,7 +589,7 @@ std::vector<uint32_t> CLICpix2Device::getTimestamps() {
 
   // dummy readout
   if((*timestamp_msb & 0x80000000) != 0) {
-    LOG(WARNING) << DEVICE_NAME << " Timestamps FIFO is empty: ";
+    LOG(WARNING) << DEVICE_NAME << " Timestamps FIFO is empty";
     return timestamps;
   }
 
@@ -598,7 +602,8 @@ std::vector<uint32_t> CLICpix2Device::getTimestamps() {
     timestamp = *timestamp_msb;
     timestamps.push_back(timestamp);
   } while(!(timestamp & 0x80000000));
-  LOG(DEBUG) << DEVICE_NAME << " Received timestamps: " << listVector(timestamps, ",", false);
+  LOG(DEBUG) << DEVICE_NAME << " Received " << timestamps.size() / 2
+             << " timestamps: " << listVector(timestamps, ",", false);
 
   return timestamps;
 }
