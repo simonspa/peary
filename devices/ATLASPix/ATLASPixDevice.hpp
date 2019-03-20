@@ -115,8 +115,6 @@ namespace caribou {
     void getTriggerCount();
     uint32_t getTriggerCounter();
 
-    double ReadTemperature();
-
     pearydata getDataBin();
 
     std::vector<uint32_t> getRawData();
@@ -164,6 +162,8 @@ namespace caribou {
     void writeAllTDAC(ATLASPixMatrix& matrix);
     void SetInjectionMask(uint32_t maskx, uint32_t masky, uint32_t state);
     void ResetWriteDAC();
+
+    template <typename T> uint32_t getSpecialRegister(std::string name);
 
     std::vector<pixelhit> CountHits(std::vector<pixelhit> data, uint32_t maskidx, uint32_t maskidy, CounterMap& counts);
     uint32_t CountHits(std::vector<pixelhit> data, uint32_t col, uint32_t row);

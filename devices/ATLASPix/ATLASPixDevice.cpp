@@ -154,7 +154,6 @@ ATLASPixDevice::ATLASPixDevice(const caribou::Configuration config)
   _dispatcher.add("doSCurvesPixel", &ATLASPixDevice::doSCurvePixel, this);
   _dispatcher.add("resetFIFO", &ATLASPixDevice::resetFIFO, this);
   _dispatcher.add("PulseTune", &ATLASPixDevice::PulseTune, this);
-  _dispatcher.add("ReadTemperature", &ATLASPixDevice::ReadTemperature, this);
 
   // Configuring the clock
   LOG(INFO) << "Setting clock circuit on CaR board " << DEVICE_NAME;
@@ -329,31 +328,6 @@ void ATLASPixDevice::unlock() {
   this->ProgramSR(theMatrix);
 }
 
-double ATLASPixDevice::ReadTemperature() {
-
-  // Read data from DS25095A
-  std::vector<uint8_t> data = _hal->readLongRegister(DEFAULT_DEVICEPATH, ATLASPix_DEFAULT_I2C, 0b00000101, 2);
-  uint8_t UpperByte = data.at(0);
-  uint8_t LowerByte = data.at(1);
-
-  // Convert the temperature data
-  double Temperature = 0;
-  UpperByte = UpperByte & 0x1F; // Clear flag bits
-
-  if((UpperByte & 0x10) == 0x10) {
-    UpperByte = UpperByte & 0x0F; // Clear SIGN
-    Temperature = 256 - (double(UpperByte) * 16 + double(LowerByte) / 16);
-  }
-
-  else {
-    Temperature = (double(UpperByte) * 16 + double(LowerByte) / 16);
-  }
-
-  LOG(INFO) << "ATLASPix PCB Temperature : " << Temperature << " ºC" << std::endl;
-
-  return Temperature;
-}
-
 void ATLASPixDevice::setThreshold(double threshold) {
 
   theMatrix.VoltageDACConfig->SetParameter("ThPix", static_cast<int>(floor(255 * threshold / 1.8)));
@@ -373,6 +347,11 @@ void ATLASPixDevice::setVMinus(double vminus) {
   this->setVoltage("VMinusPix", vminus);
   this->switchOn("VMinusPix");
 }
+
+template <typename T> uint32_t ATLASPixDevice::getSpecialRegister(std::string name) {
+  throw RegisterInvalid("Unknown readable register with \"special\" flag: " + name);
+}
+
 void ATLASPixDevice::setSpecialRegister(std::string name, uint32_t value) {
 
   // atlaspix registers
