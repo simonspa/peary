@@ -63,6 +63,7 @@ namespace caribou {
     void configureMatrix(std::string filename = std::string());
     void configurePatternGenerator(std::string filename);
     void triggerPatternGenerator(bool sleep);
+    void clearTimestamps();
 
     // The functions sets clocks required by CLICpix2 to operate
     void configureClock(bool internal);

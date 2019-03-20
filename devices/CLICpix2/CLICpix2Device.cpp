@@ -33,6 +33,7 @@ CLICpix2Device::CLICpix2Device(const caribou::Configuration config)
   _dispatcher.add("powerStatusLog", &CLICpix2Device::powerStatusLog, this);
   _dispatcher.add("triggerPatternGenerator", &CLICpix2Device::triggerPatternGenerator, this);
   _dispatcher.add("configureClock", &CLICpix2Device::configureClock, this);
+  _dispatcher.add("clearTimestamps", &CLICpix2Device::clearTimestamps, this);
 
   // Set up periphery
   _periphery.add("vddd", PWR_OUT_1);
@@ -574,6 +575,11 @@ std::vector<uint32_t> CLICpix2Device::getRawData() {
 
   LOG(DEBUG) << DEVICE_NAME << " Raw data packet with " << rawdata.size() << " words ready";
   return rawdata;
+}
+
+void CLICpix2Device::clearTimestamps() {
+  // Retrieve all timestamps and throw them away:
+  getTimestamps();
 }
 
 std::vector<uint32_t> CLICpix2Device::getTimestamps() {
