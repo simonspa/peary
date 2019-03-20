@@ -601,15 +601,16 @@ std::vector<uint32_t> CLICpix2Device::getTimestamps() {
     return timestamps;
   }
 
-  uint32_t timestamp;
+  uint32_t ts_lsb;
+  uint32_t ts_msb;
   do {
-    // Read LSB
-    timestamp = *timestamp_lsb;
-    timestamps.push_back(timestamp);
     // Read MSB
-    timestamp = *timestamp_msb;
-    timestamps.push_back(timestamp);
-  } while(!(timestamp & 0x80000000));
+    ts_msb = *timestamp_msb;
+    timestamps.push_back(ts_msb);
+    // Read LSB
+    ts_lsb = *timestamp_lsb;
+    timestamps.push_back(ts_lsb);
+  } while(!(ts_msb & 0x80000000));
   LOG(DEBUG) << DEVICE_NAME << " Received " << timestamps.size() / 2
              << " timestamps: " << listVector(timestamps, ",", false);
 
