@@ -160,6 +160,14 @@ ATLASPixDevice::ATLASPixDevice(const caribou::Configuration config)
 
   _registers.add(ATLASPix_REGISTERS);
 
+  // Always set up common periphery for all matrices:
+  _periphery.add("VDDD", PWR_OUT_4);
+  _periphery.add("VDDA", PWR_OUT_3);
+  _periphery.add("VSSA", PWR_OUT_2);
+  _periphery.add("VCC25", PWR_OUT_5);
+  _periphery.add("VDDRam", PWR_OUT_1);
+  _periphery.add("VDDHigh", PWR_OUT_6);
+
   void* pulser_base = _hal->getMappedMemoryRW(ATLASPix_PULSER_BASE_ADDRESS, ATLASPix_PULSER_MAP_SIZE, ATLASPix_PULSER_MASK);
   volatile uint32_t* inj_flag = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x0);
   volatile uint32_t* pulse_count = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x4);
@@ -197,14 +205,6 @@ void ATLASPixDevice::SetMatrix(std::string matrix) {
   // avoid stupid case mistakes
   std::string name = matrix;
   std::transform(name.begin(), name.end(), name.begin(), ::tolower);
-
-  // Set up periphery
-  _periphery.add("VDDD", PWR_OUT_4);
-  _periphery.add("VDDA", PWR_OUT_3);
-  _periphery.add("VSSA", PWR_OUT_2);
-  _periphery.add("VCC25", PWR_OUT_5);
-  _periphery.add("VDDRam", PWR_OUT_1);
-  _periphery.add("VDDHigh", PWR_OUT_6);
 
   if(name == "m1") {
 
