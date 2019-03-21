@@ -188,6 +188,14 @@ ATLASPixDevice::ATLASPixDevice(const caribou::Configuration config)
   _daqContinue.test_and_set();
 
   data_type = "binary";
+
+  // Check for matrix value in the configuration:
+  if(_config.Has("matrix")) {
+    SetMatrix(_config.Get<std::string>("matrix"));
+  }
+
+  // Define output:
+  setOutput(_config.Get("output", "binary"));
 }
 
 ATLASPixDevice::~ATLASPixDevice() {
