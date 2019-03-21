@@ -313,6 +313,13 @@ void ATLASPixDevice::configure() {
   this->ResetWriteDAC();
   this->ProgramSR(theMatrix);
 
+  // Print power status information:
+  powerStatusLog();
+
+  // locking and unlocking seems to be good practice: "it works better afterwards" I have been told:
+  lock();
+  unlock();
+
   // Call the base class configuration function:
   pearyDevice<iface_i2c>::configure();
 }
