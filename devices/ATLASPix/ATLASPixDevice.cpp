@@ -206,6 +206,7 @@ ATLASPixDevice::ATLASPixDevice(const caribou::Configuration config)
 
   // Define output:
   setOutput(_config.Get("output", "binary"));
+  setOutputDirectory(_config.Get("output_directory", "."));
 }
 
 ATLASPixDevice::~ATLASPixDevice() {
