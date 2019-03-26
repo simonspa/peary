@@ -1552,8 +1552,10 @@ pearydata ATLASPixDevice::getDataBin() {
   while(true) {
 
     // check for stop request from another thread
-    if(!this->_daqContinue.test_and_set())
+    if(!this->_daqContinue.test_and_set()) {
+      LOG(DEBUG) << "Exiting DAQ thread";
       break;
+    }
     // check for new data in fifo
     d1 = static_cast<uint32_t>(*data);
     if(d1 == 0) {
