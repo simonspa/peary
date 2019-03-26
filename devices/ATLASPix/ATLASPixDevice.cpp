@@ -1515,9 +1515,13 @@ std::vector<uint32_t> ATLASPixDevice::getRawData() {
   std::vector<uint32_t> rawDataVec;
 
   dataRead = static_cast<uint32_t>(*data);
-  // if there are data
+  // if there is data
   if(dataRead != 0) {
-    rawDataVec.push_back(dataRead);
+    // if filter for WEIRD_DATA is set, and the data has a WEIRD_DATA header, do not store.
+    // Otherwise store data to return vector
+    if(!(filter_weird_data && (dataRead >> 24 == 0b00000100))) {
+      rawDataVec.push_back(dataRead);
+    }
   }
   return rawDataVec;
 }
