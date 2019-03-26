@@ -216,6 +216,7 @@ ATLASPixDevice::~ATLASPixDevice() {
 }
 
 void ATLASPixDevice::setOutputDirectory(std::string dir) {
+  LOG(INFO) << "Setting output directory to: " << dir;
   _output_directory = std::move(dir);
 }
 
