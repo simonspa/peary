@@ -330,6 +330,9 @@ void ATLASPixDevice::configure() {
   lock();
   unlock();
 
+  // Set all TDAC:
+  this->setAllTDAC(0);
+
   // Call the base class configuration function:
   pearyDevice<iface_i2c>::configure();
 }
