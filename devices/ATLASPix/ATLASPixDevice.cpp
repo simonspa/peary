@@ -2332,32 +2332,33 @@ void ATLASPixDevice::powerUp() {
   LOG(INFO) << DEVICE_NAME << ": Powering up ATLASPix";
   std::cout << '\n';
 
-  this->setVoltage("VCC25", ATLASPix_VCC25, ATLASPix_VCC25_CURRENT);
+  this->setVoltage("VCC25", _config.Get("vcc25", ATLASPix_VCC25), _config.Get("vcc25_current", ATLASPix_VCC25_CURRENT));
   this->switchOn("VCC25");
 
   usleep(200000);
 
-  this->setVoltage("VDDD", ATLASPix_VDDD, ATLASPix_VDDD_CURRENT);
+  this->setVoltage("VDDD", _config.Get("vddd", ATLASPix_VDDD), _config.Get("vddd_current", ATLASPix_VDDD_CURRENT));
   this->switchOn("VDDD");
 
   usleep(200000);
 
-  this->setVoltage("VDDRam", ATLASPix_VDDRam, ATLASPix_VDDRam_CURRENT);
+  this->setVoltage("VDDRam", _config.Get("vddram", ATLASPix_VDDRam), _config.Get("vddram_current", ATLASPix_VDDRam_CURRENT));
   this->switchOn("VDDRam");
 
   usleep(200000);
 
-  this->setVoltage("VDDHigh", ATLASPix_VDDHigh, ATLASPix_VDDHigh_CURRENT);
+  this->setVoltage(
+    "VDDHigh", _config.Get("vddhigh", ATLASPix_VDDHigh), _config.Get("vddhigh_current", ATLASPix_VDDHigh_CURRENT));
   this->switchOn("VDDHigh");
 
   usleep(200000);
 
-  this->setVoltage("VDDA", ATLASPix_VDDA, ATLASPix_VDDA_CURRENT);
+  this->setVoltage("VDDA", _config.Get("vdda", ATLASPix_VDDA), _config.Get("vdda_current", ATLASPix_VDDA_CURRENT));
   this->switchOn("VDDA");
 
   usleep(200000);
 
-  this->setVoltage("VSSA", ATLASPix_VSSA, ATLASPix_VSSA_CURRENT);
+  this->setVoltage("VSSA", _config.Get("vssa", ATLASPix_VSSA), _config.Get("vssa_current", ATLASPix_VSSA_CURRENT));
   this->switchOn("VSSA");
 
   // Analog biases
