@@ -1518,6 +1518,9 @@ void ATLASPixDevice::getTriggerCount() {
 }
 
 std::vector<uint32_t> ATLASPixDevice::getRawData() {
+  if(data_type != "raw") {
+    throw NoDataAvailable();
+  }
 
   void* readout_base =
     _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
