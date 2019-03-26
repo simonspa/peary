@@ -192,6 +192,16 @@ ATLASPixDevice::ATLASPixDevice(const caribou::Configuration config)
   // Check for matrix value in the configuration:
   if(_config.Has("matrix")) {
     SetMatrix(_config.Get<std::string>("matrix"));
+
+    // Configure default voltages:
+    theMatrix.VMINUSPix = _config.Get("vminuspix", theMatrix.VMINUSPix);
+    theMatrix.GNDDACPix = _config.Get("GNDDACPix", theMatrix.GNDDACPix);
+    theMatrix.GatePix = _config.Get("GatePix", theMatrix.GatePix);
+    theMatrix.VNFBPix = _config.Get("VNFBPix", theMatrix.VNFBPix);
+    theMatrix.BLResPix = _config.Get("BLResPix", theMatrix.BLResPix);
+    theMatrix.VMain2 = _config.Get("VMain2", theMatrix.VMain2);
+    theMatrix.ThPix = _config.Get("ThPix", theMatrix.ThPix);
+    theMatrix.BLPix = _config.Get("BLPix", theMatrix.BLPix);
   }
 
   // Define output:
