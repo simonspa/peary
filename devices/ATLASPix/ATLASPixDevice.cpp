@@ -335,6 +335,13 @@ void ATLASPixDevice::configure() {
 
   // Call the base class configuration function:
   pearyDevice<iface_i2c>::configure();
+
+  // Check lock:
+  if(_hal->isLockedSI5345()) {
+    LOG(INFO) << "PLL locked to external clock...";
+  } else {
+    LOG(WARNING) << "Cannot lock to external clock, PLL will continue in freerunning mode...";
+  }
 }
 
 void ATLASPixDevice::lock() {
