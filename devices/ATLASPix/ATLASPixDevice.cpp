@@ -2464,15 +2464,21 @@ void ATLASPixDevice::NoiseRun(double duration) {
 
 void ATLASPixDevice::daqStart() {
   // ensure only one daq thread is running
+  if(daqRunning) {
+    LOG(WARNING) << "Data aquisition is already running";
+    return;
+  }
+
   void* readout_base =
     _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
   volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
 
-  if(_daqThread.joinable() || _daqContinue.test_and_set()) {
-    LOG(WARNING) << "Data aquisition is already running";
+  if(_daqThread.joinable()) {
+    LOG(WARNING) << "DAQ thread is already running";
     return;
   }
-  _daqContinue.clear();
+
+  daqRunning = true;
 
   *fifo_config = (*fifo_config & 0xFFFFFFEF) + 0b10000;
   usleep(50);
@@ -2481,9 +2487,8 @@ void ATLASPixDevice::daqStart() {
   // arm the stop flag and start running
   this->resetCounters();
 
-  _daqContinue.test_and_set();
-
   if(data_type != "raw") {
+    _daqContinue.test_and_set();
     _daqThread = std::thread(&ATLASPixDevice::runDaq, this);
   }
   // LOG(INFO) << "acquisition started" << std::endl;
@@ -2504,10 +2509,11 @@ void ATLASPixDevice::runDaq() {
   if(data_type == "binary") {
     getDataBin();
   }
-  if(data_type != "raw") {
-    return;
-  } else {
+  if(data_type == "text") {
     getData();
+  } else {
+    LOG(WARNING) << "Unknown output format \"" << data_type << "\"";
+    return;
   }
 }
 

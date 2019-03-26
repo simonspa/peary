@@ -195,6 +195,7 @@ namespace caribou {
     std::vector<pixelhit> hplist;
 
     // SW registers
+    bool daqRunning = false;
     bool filter_hp = false;
     bool filter_weird_data = false;
     bool gray_decoding_state = false;
