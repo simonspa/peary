@@ -2514,6 +2514,7 @@ void ATLASPixDevice::daqStop() {
     // LOG(INFO) << "Trigger count at end of run : " << this->getTriggerCounter() << std::endl;
   }
   _daqContinue.clear();
+  daqRunning = false;
 }
 
 void ATLASPixDevice::runDaq() {
