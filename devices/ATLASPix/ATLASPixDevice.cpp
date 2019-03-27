@@ -2520,8 +2520,7 @@ void ATLASPixDevice::runDaq() {
 
   if(data_type == "binary") {
     getDataBin();
-  }
-  if(data_type == "text") {
+  } else if(data_type == "text") {
     getData();
   } else {
     LOG(WARNING) << "Unknown output format \"" << data_type << "\"";
