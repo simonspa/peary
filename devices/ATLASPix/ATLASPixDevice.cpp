@@ -200,7 +200,7 @@ ATLASPixDevice::ATLASPixDevice(const caribou::Configuration config)
     theMatrix.VNFBPix = _config.Get("VNFBPix", theMatrix.VNFBPix);
     theMatrix.BLResPix = _config.Get("BLResPix", theMatrix.BLResPix);
     theMatrix.VMain2 = _config.Get("VMain2", theMatrix.VMain2);
-    theMatrix.ThPix = _config.Get("ThPix", theMatrix.ThPix);
+    theMatrix.ThPix = _config.Get("VThPix", theMatrix.ThPix);
     theMatrix.BLPix = _config.Get("VBLPix", theMatrix.BLPix);
   }
 
@@ -231,7 +231,7 @@ void ATLASPixDevice::SetMatrix(std::string matrix) {
     _periphery.add("GNDDACPix", BIAS_9);
     _periphery.add("VMinusPix", BIAS_5);
     _periphery.add("GatePix", BIAS_2);
-    _periphery.add("ThPix", BIAS_25);
+    _periphery.add("VThPix", BIAS_25);
     _periphery.add("VBLPix", BIAS_17);
     _periphery.add("VMinusPD", BIAS_7);
     _periphery.add("VNFBPix", BIAS_11);
@@ -245,7 +245,7 @@ void ATLASPixDevice::SetMatrix(std::string matrix) {
     _periphery.add("GNDDACPix", BIAS_12);
     _periphery.add("VMinusPix", BIAS_8);
     _periphery.add("GatePix", BIAS_3);
-    _periphery.add("ThPix", BIAS_31);
+    _periphery.add("VThPix", BIAS_31);
     _periphery.add("VBLPix", BIAS_20);
 
     theMatrix.initializeM1Iso();
@@ -255,7 +255,7 @@ void ATLASPixDevice::SetMatrix(std::string matrix) {
     _periphery.add("GNDDACPix", BIAS_6);
     _periphery.add("VMinusPix", BIAS_4);
     _periphery.add("GatePix", BIAS_1);
-    _periphery.add("ThPix", BIAS_28);
+    _periphery.add("VThPix", BIAS_28);
     _periphery.add("VBLPix", BIAS_23);
 
     theMatrix.initializeM2();
@@ -370,9 +370,9 @@ void ATLASPixDevice::setThreshold(double threshold) {
 
   this->ProgramSR(theMatrix);
 
-  LOG(DEBUG) << " ThPix ";
-  this->setVoltage("ThPix", threshold);
-  this->switchOn("ThPix");
+  LOG(DEBUG) << " VThPix ";
+  this->setVoltage("VThPix", threshold);
+  this->switchOn("VThPix");
   theMatrix.ThPix = threshold;
 }
 
@@ -2414,8 +2414,8 @@ void ATLASPixDevice::powerUp() {
 
   // Threshold and Baseline
 
-  this->setVoltage("ThPix", theMatrix.ThPix);
-  this->switchOn("ThPix");
+  this->setVoltage("VThPix", theMatrix.ThPix);
+  this->switchOn("VThPix");
 
   this->setVoltage("VBLPix", theMatrix.BLPix);
   this->switchOn("VBLPix");
@@ -2647,7 +2647,7 @@ void ATLASPixDevice::LoadConfig(std::string basename) {
   //  this->switchOn("GatePix");
   //  this->setVoltage("VBLPix", theMatrix.BLPix);
   //  this->switchOn("VBLPix");
-  //  this->setVoltage("ThPix", theMatrix.ThPix);
-  //  this->switchOn("ThPix");
+  //  this->setVoltage("VThPix", theMatrix.ThPix);
+  //  this->switchOn("VThPix");
   // this->LoadTDAC(basename + "_TDAC.cfg");
 }
