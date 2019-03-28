@@ -542,7 +542,7 @@ void ATLASPixDevice::setSpecialRegister(std::string name, uint32_t value) {
     } else if(name == "filter_hp") {
       filter_hp = value;
     } else if(name == "filter_weird_data") {
-      filter_weird_data = value;
+      filter_weird_data = static_cast<bool>(value);
     } else if(name == "hw_masking") {
       HW_masking = value;
     } else if(name == "t0_out_periodic") {
@@ -1543,14 +1543,14 @@ std::vector<uint32_t> ATLASPixDevice::getRawData() {
   uint32_t dataRead;
   std::vector<uint32_t> rawDataVec;
 
-  dataRead = static_cast<uint32_t>(*data);
-  // if there is data
+  // if a filter for WEIRD_DATA is set and the data has a WEIRD_DATA header read next data.
+  do {
+    dataRead = static_cast<uint32_t>(*data);
+  } while((filter_weird_data && (dataRead >> 24 == 0b00000100)));
+
+  // if there was data, store data to return vector
   if(dataRead != 0) {
-    // if filter for WEIRD_DATA is set, and the data has a WEIRD_DATA header, do not store.
-    // Otherwise store data to return vector
-    if(!(filter_weird_data && (dataRead >> 24 == 0b00000100))) {
-      rawDataVec.push_back(dataRead);
-    }
+    rawDataVec.push_back(dataRead);
   }
   return rawDataVec;
 }
