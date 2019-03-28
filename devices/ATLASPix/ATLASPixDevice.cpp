@@ -552,6 +552,18 @@ void ATLASPixDevice::setSpecialRegister(std::string name, uint32_t value) {
       volatile uint32_t* fifo_config =
         reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
       *fifo_config = (*fifo_config & 0xEFFF) + ((value << 12) & 0b1000000000000);
+    } else if(name == "blpix") {
+      double dval = static_cast<double>(value) / 1000;
+      theMatrix.BLPix = dval;
+      this->setVoltage("VBLPix", dval);
+      this->switchOn("VThPix");
+    } else if(name == "thpix") {
+      double dval = static_cast<double>(value) / 1000;
+      theMatrix.VoltageDACConfig->SetParameter("ThPix", static_cast<unsigned int>(floor(255 * dval / 1.8)));
+      this->ProgramSR(theMatrix);
+      theMatrix.ThPix = dval;
+      this->setVoltage("VThPix", dval);
+      this->switchOn("VThPix");
     } else {
       throw RegisterInvalid("Unknown register with \"special\" flag: " + name);
     }
