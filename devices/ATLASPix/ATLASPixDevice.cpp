@@ -556,7 +556,7 @@ void ATLASPixDevice::setSpecialRegister(std::string name, uint32_t value) {
       double dval = static_cast<double>(value) / 1000;
       theMatrix.BLPix = dval;
       this->setVoltage("VBLPix", dval);
-      this->switchOn("VThPix");
+      this->switchOn("VBLPix");
       LOG(DEBUG) << "set blpix to " << theMatrix.BLPix;
     } else if(name == "thpix") {
       double dval = static_cast<double>(value) / 1000;

@@ -178,7 +178,8 @@ namespace caribou {
 
   const std::string AXI_registers[] = {"trigger_mode","ro_enable","armduration","trigger_injection"
 		  ,"edge_sel","edge_sel","trigger_enable","busy_when_armed","trigger_always_armed","t0_enable",
-		  "gray_decode","send_fpga_ts","filter_hp","filter_weird_data","hw_masking","t0_out_periodic"};
+		  "gray_decode","send_fpga_ts","filter_hp","filter_weird_data","hw_masking","t0_out_periodic",
+      "thpix","blpix"};
 
   // clang-format on
 
