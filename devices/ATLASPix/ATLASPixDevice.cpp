@@ -557,6 +557,7 @@ void ATLASPixDevice::setSpecialRegister(std::string name, uint32_t value) {
       theMatrix.BLPix = dval;
       this->setVoltage("VBLPix", dval);
       this->switchOn("VThPix");
+      LOG(DEBUG) << "set blpix to " << theMatrix.BLPix;
     } else if(name == "thpix") {
       double dval = static_cast<double>(value) / 1000;
       theMatrix.VoltageDACConfig->SetParameter("ThPix", static_cast<unsigned int>(floor(255 * dval / 1.8)));
@@ -564,6 +565,7 @@ void ATLASPixDevice::setSpecialRegister(std::string name, uint32_t value) {
       theMatrix.ThPix = dval;
       this->setVoltage("VThPix", dval);
       this->switchOn("VThPix");
+      LOG(DEBUG) << "set thpix to " << theMatrix.ThPix;
     } else {
       throw RegisterInvalid("Unknown register with \"special\" flag: " + name);
     }
