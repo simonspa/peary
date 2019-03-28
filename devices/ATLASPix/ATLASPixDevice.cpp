@@ -207,6 +207,8 @@ ATLASPixDevice::ATLASPixDevice(const caribou::Configuration config)
   // Define output:
   setOutput(_config.Get("output", "binary"));
   setOutputDirectory(_config.Get("output_directory", "."));
+
+  filter_weird_data = _config.Get("filter_weird_data", false);
 }
 
 ATLASPixDevice::~ATLASPixDevice() {
@@ -541,8 +543,6 @@ void ATLASPixDevice::setSpecialRegister(std::string name, uint32_t value) {
       *fifo_config = (*fifo_config & 0xF7FF) + ((value << 11) & 0b100000000000);
     } else if(name == "filter_hp") {
       filter_hp = value;
-    } else if(name == "filter_weird_data") {
-      filter_weird_data = static_cast<bool>(value);
     } else if(name == "hw_masking") {
       HW_masking = value;
     } else if(name == "t0_out_periodic") {
@@ -1574,7 +1574,7 @@ pearydata ATLASPixDevice::getDataBin() {
   }
 
   uint32_t d1;
-
+  LOG(DEBUG) << "WEID_DATA filter is " << filter_weird_data ? "ON" : "OFF";
   while(true) {
 
     // check for stop request from another thread
