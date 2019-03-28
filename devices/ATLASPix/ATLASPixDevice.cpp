@@ -208,8 +208,12 @@ ATLASPixDevice::ATLASPixDevice(const caribou::Configuration config)
   setOutput(_config.Get("output", "binary"));
   setOutputDirectory(_config.Get("output_directory", "."));
 
-  filter_weird_data = _config.Get("filter_weird_data", false);
-  LOG(INFO) << "WEID_DATA filter is " << (filter_weird_data ? "ENABLED" : "OFF");
+  if(_config.Has("filter_weird_data")) {
+    LOG(WARNING) << "Has setting for data filter";
+  }
+
+  filter_weird_data = _config.Get<bool>("filter_weird_data", false);
+  LOG(INFO) << "WEIRD_DATA filter is " << (filter_weird_data ? "ENABLED" : "OFF");
 }
 
 ATLASPixDevice::~ATLASPixDevice() {
