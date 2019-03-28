@@ -1584,7 +1584,7 @@ pearydata ATLASPixDevice::getDataBin() {
     }
     // check for new data in fifo
     d1 = static_cast<uint32_t>(*data);
-    if(d1 == 0) {
+    if((d1 == 0) || (filter_weird_data && (d1 >> 24 == 0b00000100))) {
       continue;
     } else {
       disk.write((char*)&d1, sizeof(uint32_t));
