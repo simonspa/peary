@@ -604,12 +604,13 @@ std::vector<uint32_t> CLICpix2Device::getTimestamps() {
   uint32_t ts_lsb;
   uint32_t ts_msb;
   do {
-    // Read MSB and remove top header bits
-    ts_msb = *timestamp_msb;
-    timestamps.push_back(ts_msb & 0x7ffff);
-
     // Read LSB
     ts_lsb = *timestamp_lsb;
+
+    // Read MSB and remove top header bits
+    ts_msb = *timestamp_msb;
+
+    timestamps.push_back(ts_msb & 0x7ffff);
     timestamps.push_back(ts_lsb);
     LOG(DEBUG) << ts_msb << " | " << ts_lsb << " = " << ((static_cast<uint64_t>(ts_msb) << 32) | ts_lsb);
   } while(!(ts_msb & 0x80000000));
