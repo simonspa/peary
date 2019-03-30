@@ -18,7 +18,7 @@ CCPDv5Device::CCPDv5Device(const caribou::Configuration config) : pearyDevice(co
 }
 
 void CCPDv5Device::configure() {
-  LOG(INFO) << "Configuring " << DEVICE_NAME;
+  LOG(INFO) << "Configuring ";
   reset();
 
   // Call the base class configuration function:
@@ -26,11 +26,11 @@ void CCPDv5Device::configure() {
 }
 
 void CCPDv5Device::reset() {
-  LOG(DEBUG) << "Resetting " << DEVICE_NAME;
+  LOG(DEBUG) << "Resetting ";
 }
 
 CCPDv5Device::~CCPDv5Device() {
-  LOG(INFO) << DEVICE_NAME << ": Shutdown, delete device.";
+  LOG(INFO) << ": Shutdown, delete device.";
   powerOff();
 }
 
@@ -39,25 +39,25 @@ std::string CCPDv5Device::getName() {
 }
 
 void CCPDv5Device::powerUp() {
-  LOG(INFO) << DEVICE_NAME << ": Powering up CCPDv5Device";
+  LOG(INFO) << ": Powering up CCPDv5Device";
 }
 
 void CCPDv5Device::powerDown() {}
 
 void CCPDv5Device::daqStart() {
-  LOG(INFO) << DEVICE_NAME << ": DAQ started.";
+  LOG(INFO) << ": DAQ started.";
 }
 
 void CCPDv5Device::daqStop() {
-  LOG(INFO) << DEVICE_NAME << ": DAQ stopped.";
+  LOG(INFO) << ": DAQ stopped.";
 }
 
 void CCPDv5Device::powerStatusLog() {
-  LOG(INFO) << DEVICE_NAME << " power status:";
+  LOG(INFO) << " power status:";
 }
 
 caribouDevice* caribou::generator(const caribou::Configuration config) {
-  LOG(DEBUG) << "Generator: " << DEVICE_NAME;
+  LOG(DEBUG) << "Generator: ";
   CCPDv5Device* mDevice = new CCPDv5Device(config);
   return dynamic_cast<caribouDevice*>(mDevice);
 }

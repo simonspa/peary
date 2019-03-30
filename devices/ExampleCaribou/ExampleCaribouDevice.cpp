@@ -13,7 +13,7 @@ ExampleCaribouDevice::ExampleCaribouDevice(caribou::Configuration config) : cari
 }
 
 ExampleCaribouDevice::~ExampleCaribouDevice() {
-  LOG(INFO) << ": shutdown, delete device";
+  LOG(INFO) << "Shutdown, delete device";
 }
 
 std::string ExampleCaribouDevice::getFirmwareVersion() {
@@ -25,19 +25,19 @@ std::string ExampleCaribouDevice::getName() {
 }
 
 void ExampleCaribouDevice::powerOn() {
-  LOG(INFO) << ": power on";
+  LOG(INFO) << "Power on";
 }
 
 void ExampleCaribouDevice::powerOff() {
-  LOG(INFO) << ": power off";
+  LOG(INFO) << "Power off";
 }
 
 void ExampleCaribouDevice::daqStart() {
-  LOG(INFO) << ": daq started";
+  LOG(INFO) << "DAQ started";
 }
 
 void ExampleCaribouDevice::daqStop() {
-  LOG(INFO) << ": daq stopped";
+  LOG(INFO) << "DAQ stopped";
 }
 
 std::vector<uint32_t> ExampleCaribouDevice::getRawData() {

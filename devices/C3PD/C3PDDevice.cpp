@@ -37,7 +37,7 @@ C3PDDevice::C3PDDevice(const caribou::Configuration config)
 }
 
 void C3PDDevice::configure() {
-  LOG(INFO) << "Configuring " << DEVICE_NAME;
+  LOG(INFO) << "Configuring";
   reset();
 
   // Call the base class configuration function:
@@ -89,7 +89,7 @@ void C3PDDevice::configureMatrix(std::string filename) {
 }
 
 void C3PDDevice::reset() {
-  LOG(DEBUG) << "Resetting " << DEVICE_NAME;
+  LOG(DEBUG) << "Resetting";
 
   void* control_base = _hal->getMappedMemoryRW(C3PD_CONTROL_BASE_ADDRESS, C3PD_CONTROL_MAP_SIZE, C3PD_CONTROL_MAP_MASK);
   volatile uint32_t* control_reg =
@@ -100,7 +100,7 @@ void C3PDDevice::reset() {
 }
 
 C3PDDevice::~C3PDDevice() {
-  LOG(INFO) << DEVICE_NAME << ": Shutdown, delete device.";
+  LOG(INFO) << "Shutdown, delete device.";
   powerOff();
 }
 
@@ -109,7 +109,7 @@ std::string C3PDDevice::getName() {
 }
 
 void C3PDDevice::powerUp() {
-  LOG(INFO) << DEVICE_NAME << ": Powering up C3PD";
+  LOG(INFO) << "Powering up";
 
   // Power rails:
   LOG(DEBUG) << " VDDD: " << _config.Get("vddd", C3PD_VDDD) << "V";
@@ -131,7 +131,7 @@ void C3PDDevice::powerUp() {
 }
 
 void C3PDDevice::powerDown() {
-  LOG(INFO) << DEVICE_NAME << ": Power off C3PD";
+  LOG(INFO) << "Power off";
 
   LOG(DEBUG) << "Power off VDDA";
   this->switchOff("vdda");
@@ -147,15 +147,15 @@ void C3PDDevice::powerDown() {
 }
 
 void C3PDDevice::daqStart() {
-  LOG(INFO) << DEVICE_NAME << ": DAQ started.";
+  LOG(INFO) << "DAQ started.";
 }
 
 void C3PDDevice::daqStop() {
-  LOG(INFO) << DEVICE_NAME << ": DAQ stopped.";
+  LOG(INFO) << "DAQ stopped.";
 }
 
 void C3PDDevice::powerStatusLog() {
-  LOG(INFO) << DEVICE_NAME << " power status:";
+  LOG(INFO) << "Power status:";
 
   LOG(INFO) << "VDDD:";
   LOG(INFO) << "\tBus voltage: " << this->getVoltage("vddd") << "V";

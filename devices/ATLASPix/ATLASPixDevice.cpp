@@ -155,7 +155,7 @@ ATLASPixDevice::ATLASPixDevice(const caribou::Configuration config)
   _dispatcher.add("PulseTune", &ATLASPixDevice::PulseTune, this);
 
   // Configuring the clock
-  LOG(INFO) << "Setting clock circuit on CaR board " << DEVICE_NAME;
+  LOG(INFO) << "Setting clock circuit on CaR board";
   configureClock();
 
   _registers.add(ATLASPix_REGISTERS);
@@ -213,7 +213,7 @@ ATLASPixDevice::ATLASPixDevice(const caribou::Configuration config)
 }
 
 ATLASPixDevice::~ATLASPixDevice() {
-  LOG(INFO) << DEVICE_NAME << ": Shutdown, delete device.";
+  LOG(INFO) << "Shutdown, delete device.";
   daqStop(); // does nothing if no daq thread is running
   powerOff();
 }
@@ -290,7 +290,7 @@ void ATLASPixDevice::setOutput(std::string datatype) {
 
 void ATLASPixDevice::configure() {
 
-  LOG(INFO) << "Configuring " << DEVICE_NAME << " with default configuration";
+  LOG(INFO) << "Configuring with default configuration";
 
   this->resetPulser();
   this->resetCounters();
@@ -577,12 +577,12 @@ void ATLASPixDevice::configureClock() {
   /*
     // Check of we should configure for external or internal clock, default to external:
     if(_config.Get<bool>("clock_internal", false)) {
-      LOG(DEBUG) << DEVICE_NAME << ": Configure internal clock source, free running, not locking";
+      LOG(DEBUG) << "Configure internal clock source, free running, not locking";
       _hal->configureSI5345((SI5345_REG_T const* const)si5345_revb_registers_free, SI5345_REVB_REG_CONFIG_NUM_REGS_FREE);
       mDelay(100); // let the PLL lock
     } else {
   */
-  LOG(DEBUG) << DEVICE_NAME << ": Configure external clock source, locked to TLU input clock";
+  LOG(DEBUG) << "Configure external clock source, locked to TLU input clock";
   _hal->configureSI5345((SI5345_REG_T const* const)si5345_revb_registers, SI5345_REVB_REG_CONFIG_NUM_REGS);
   LOG(DEBUG) << "Waiting for clock to lock...";
 
@@ -2303,7 +2303,7 @@ void ATLASPixDevice::TDACScan(int VNDAC, double vmin, double vmax, uint32_t npul
 // CaR Board related
 
 void ATLASPixDevice::reset() {
-  // LOG(INFO) << "Resetting " << DEVICE_NAME;
+  LOG(INFO) << "Resetting";
 
   double thor = theMatrix.ThPix;
 
@@ -2358,7 +2358,7 @@ void ATLASPixDevice::reset() {
 }
 
 void ATLASPixDevice::resetFIFO() {
-  // LOG(INFO) << "Resetting " << DEVICE_NAME;
+  LOG(INFO) << "Resetting FIFO";
 
   void* readout_base =
     _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
@@ -2374,7 +2374,7 @@ std::string ATLASPixDevice::getName() {
 }
 
 void ATLASPixDevice::powerUp() {
-  LOG(INFO) << DEVICE_NAME << ": Powering up ATLASPix";
+  LOG(INFO) << "Powering up";
   std::cout << '\n';
 
   this->setVoltage("VCC25", _config.Get("vcc25", ATLASPix_VCC25), _config.Get("vcc25_current", ATLASPix_VCC25_CURRENT));
@@ -2436,7 +2436,7 @@ void ATLASPixDevice::powerUp() {
 }
 
 void ATLASPixDevice::powerDown() {
-  LOG(INFO) << DEVICE_NAME << ": Power off ATLASPix";
+  LOG(INFO) << "Power off";
 
   LOG(DEBUG) << "Powering off VDDA";
   this->switchOff("VDDA");
@@ -2544,7 +2544,7 @@ void ATLASPixDevice::runDaq() {
 }
 
 void ATLASPixDevice::powerStatusLog() {
-  LOG(INFO) << DEVICE_NAME << " power status:";
+  LOG(INFO) << "Power status:";
 
   LOG(INFO) << "VDDD:";
   LOG(INFO) << "\tBus voltage: " << _hal->measureVoltage(PWR_OUT_4) << "V";

@@ -26,7 +26,7 @@ DSO9254ADevice::DSO9254ADevice(const caribou::Configuration config)
 }
 
 DSO9254ADevice::~DSO9254ADevice() {
-  LOG(INFO) << DEVICE_NAME << ": Shutdown, delete device.";
+  LOG(INFO) << "Shutdown, delete device.";
 }
 
 void DSO9254ADevice::send(std::string command) {
