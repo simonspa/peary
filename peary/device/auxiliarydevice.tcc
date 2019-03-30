@@ -25,6 +25,8 @@ namespace caribou {
 
   template <typename T> auxiliaryDevice<T>::~auxiliaryDevice() {}
 
+  template <typename T> std::string auxiliaryDevice<T>::getType() { return PEARY_DEVICE_NAME; }
+
   template <typename T> typename T::data_type auxiliaryDevice<T>::send(const typename T::data_type& data) {
     return interface_manager::getInterface<T>(_devpath).write(_devaddress, data);
   }
