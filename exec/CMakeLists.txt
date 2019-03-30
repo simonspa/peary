@@ -15,7 +15,7 @@ ENDIF(BUILD_server)
 ADD_EXECUTABLE(peary_app "sample_application.cpp")
 TARGET_LINK_LIBRARIES(peary_app ${PROJECT_NAME})
 
-OPTION(BUILD_ATPserver "Build ATLASPix server for receiving commands from Run Control?" ON)
+OPTION(BUILD_ATPserver "Build ATLASPix server for receiving commands from Run Control?" OFF)
 IF(BUILD_ATPserver)
   # add target
   ADD_EXECUTABLE(ATLASPixServer "ATLASPixServer.cpp")
