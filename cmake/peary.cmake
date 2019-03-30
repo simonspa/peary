@@ -55,7 +55,7 @@ Create the header or provide the alternative class name as first argument")
     # Set the special header flags and add the special dynamic implementation file
     TARGET_COMPILE_DEFINITIONS(${${name}} PRIVATE PEARY_DEVICE_CLASS=${_peary_device_class})
     STRING(REPLACE Device "" _peary_device_name ${_peary_device_class})
-    TARGET_COMPILE_DEFINITIONS(${${name}} PRIVATE DEVICE_NAME="${_peary_device_name}")
+    TARGET_COMPILE_DEFINITIONS(${${name}} PRIVATE PEARY_DEVICE_NAME="${_peary_device_name}")
     TARGET_COMPILE_DEFINITIONS(${${name}} PRIVATE PEARY_DEVICE_HEADER="${_peary_device_class}.hpp")
 
     TARGET_SOURCES(${${name}} PRIVATE "${PROJECT_SOURCE_DIR}/peary/device/dynamic_device_impl.cpp")
