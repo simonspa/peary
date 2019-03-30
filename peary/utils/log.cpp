@@ -156,8 +156,8 @@ void DefaultLogger::finish() {
  * This method is typically automatically called by the \ref LOG macro to return a stream after constructing the logger. The
  * header of the stream is added before returning the output stream.
  */
-std::ostringstream&
-DefaultLogger::getStream(LogLevel level, const std::string& file, const std::string& function, uint32_t line) {
+std::ostringstream& DefaultLogger::getStream(
+  LogLevel level, const std::string& file, const std::string& function, uint32_t line, const std::string& name) {
   // Add date in all except short format
   if(get_format() != LogFormat::SHORT) {
     os << "\x1B[1m"; // BOLD
@@ -197,9 +197,9 @@ DefaultLogger::getStream(LogLevel level, const std::string& file, const std::str
   os << "\x1B[0m"; // RESET
 
   // Add section if available
-  if(!get_section().empty()) {
+  if(!name.empty()) {
     os << "\x1B[1m"; // BOLD
-    os << "[" << get_section() << "] ";
+    os << "[" << name << "] ";
     os << "\x1B[0m"; // RESET
   }
 
@@ -227,10 +227,14 @@ DefaultLogger::getStream(LogLevel level, const std::string& file, const std::str
  * This method is typically automatically called by the \ref LOG_PROGRESS macro. An empty identifier is the same as
  * underscore.
  */
-std::ostringstream& DefaultLogger::getProcessStream(
-  std::string identifier, LogLevel level, const std::string& file, const std::string& function, uint32_t line) {
+std::ostringstream& DefaultLogger::getProcessStream(std::string identifier,
+                                                    LogLevel level,
+                                                    const std::string& file,
+                                                    const std::string& function,
+                                                    uint32_t line,
+                                                    const std::string& name) {
   // Get the standard process stream
-  std::ostringstream& stream = getStream(level, file, function, line);
+  std::ostringstream& stream = getStream(level, file, function, line, name);
 
   // Replace empty identifier with underscore because empty is already used for check
   if(identifier.empty()) {

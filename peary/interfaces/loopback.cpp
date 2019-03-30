@@ -60,8 +60,9 @@ std::vector<std::pair<uint8_t, uint8_t>> iface_loopback::write(const uint8_t& ad
   std::lock_guard<std::mutex> lock(mutex);
 
   LOG(TRACE) << std::hex << "LOOPBACK (" << devicePath() << ") : Writing block data to registers:";
-  for(auto i : data)
+  for(const auto& i : data) {
     LOG(TRACE) << to_hex_string(i.first) << " | " << static_cast<int>(i.second);
+  }
   LOG(TRACE) << "at address " << to_hex_string(address) << std::dec;
 
   return data;

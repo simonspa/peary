@@ -85,7 +85,8 @@ namespace caribou {
     std::ostringstream& getStream(LogLevel level = LogLevel::INFO,
                                   const std::string& file = "",
                                   const std::string& function = "",
-                                  uint32_t line = 0);
+                                  uint32_t line = 0,
+                                  const std::string& name = "");
 
     /**
      * @brief Gives a process stream which updates the same line as long as it is the same
@@ -100,7 +101,8 @@ namespace caribou {
                                          LogLevel level = LogLevel::INFO,
                                          const std::string& file = "",
                                          const std::string& function = "",
-                                         uint32_t line = 0);
+                                         uint32_t line = 0,
+                                         const std::string& name = "");
 
     /**
      * @brief Finish the logging ensuring proper termination of all streams
@@ -236,27 +238,28 @@ namespace caribou {
 #define __FILE_NAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 
 /**
+ * @brief Name of the log stream
+ */
+#ifdef PEARY_DEVICE_NAME
+#define __LOG_NAME__ PEARY_DEVICE_NAME
+#else
+#define __LOG_NAME__ ""
+#endif
+
+/**
  * @brief Execute a block only if the reporting level is high enough
  * @param level The minimum log level
  */
 #define IFLOG(level) if(caribou::LogLevel::level <= caribou::Log::getReportingLevel() && !caribou::Log::getStreams().empty())
 
-#define LOGGING(level)                                                                                                      \
-  if(caribou::LogLevel::level <= caribou::Log::getReportingLevel() && !caribou::Log::getStreams().empty())                  \
-  caribou::Log().getStream(                                                                                                 \
-    caribou::LogLevel::level, __FILE_NAME__, std::string(static_cast<const char*>(__func__)), __LINE__)
-
 /**
  * @brief Create a logging stream if the reporting level is high enough
  * @param level The log level of the stream
  */
-#ifdef DEVICE_NAME
 #define LOG(level)                                                                                                          \
-  caribou::Log::setSection(DEVICE_NAME);                                                                                    \
-  LOGGING(level)
-#else
-#define LOG(level) LOGGING(level)
-#endif
+  if(caribou::LogLevel::level <= caribou::Log::getReportingLevel() && !caribou::Log::getStreams().empty())                  \
+  caribou::Log().getStream(                                                                                                 \
+    caribou::LogLevel::level, __FILE_NAME__, std::string(static_cast<const char*>(__func__)), __LINE__, __LOG_NAME__)
 
 /**
  * @brief Create a logging stream that overwrites the line if the previous message has the same identifier
@@ -265,8 +268,12 @@ namespace caribou {
  */
 #define LOG_PROGRESS(level, identifier)                                                                                     \
   if(caribou::LogLevel::level <= caribou::Log::getReportingLevel() && !caribou::Log::getStreams().empty())                  \
-  caribou::Log().getProcessStream(                                                                                          \
-    identifier, caribou::LogLevel::level, __FILE_NAME__, std::string(static_cast<const char*>(__func__)), __LINE__)
+  caribou::Log().getProcessStream(identifier,                                                                               \
+                                  caribou::LogLevel::level,                                                                 \
+                                  __FILE_NAME__,                                                                            \
+                                  std::string(static_cast<const char*>(__func__)),                                          \
+                                  __LINE__,                                                                                 \
+                                  __LOG_NAME__)
 
 #define LOGTIME caribou::Log::getTimestamp()
 
