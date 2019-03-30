@@ -246,10 +246,10 @@ namespace caribou {
   caribou::Log().getStream(                                                                                                 \
     caribou::LogLevel::level, __FILE_NAME__, std::string(static_cast<const char*>(__func__)), __LINE__)
 
-  /**
-   * @brief Create a logging stream if the reporting level is high enough
-   * @param level The log level of the stream
-   */
+/**
+ * @brief Create a logging stream if the reporting level is high enough
+ * @param level The log level of the stream
+ */
 #ifdef DEVICE_NAME
 #define LOG(level)                                                                                                          \
   caribou::Log::setSection(DEVICE_NAME);                                                                                    \
