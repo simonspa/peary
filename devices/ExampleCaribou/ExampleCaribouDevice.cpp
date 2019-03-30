@@ -6,7 +6,7 @@
 
 using namespace caribou;
 
-ExampleCaribouDevice::ExampleCaribouDevice(caribou::Configuration config) : pearyDevice(config, "/dev/null") {
+ExampleCaribouDevice::ExampleCaribouDevice(caribou::Configuration config) : caribouDevice(config) {
   _dispatcher.add("frobicate", &ExampleCaribouDevice::frobicate, this);
   _dispatcher.add("unfrobicate", &ExampleCaribouDevice::unfrobicate, this);
 }
@@ -23,11 +23,11 @@ std::string ExampleCaribouDevice::getName() {
   return DEVICE_NAME;
 }
 
-void ExampleCaribouDevice::powerUp() {
+void ExampleCaribouDevice::powerOn() {
   LOG(INFO) << DEVICE_NAME << ": power on";
 }
 
-void ExampleCaribouDevice::powerDown() {
+void ExampleCaribouDevice::powerOff() {
   LOG(INFO) << DEVICE_NAME << ": power off";
 }
 
