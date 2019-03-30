@@ -7,12 +7,13 @@
 using namespace caribou;
 
 ExampleCaribouDevice::ExampleCaribouDevice(caribou::Configuration config) : caribouDevice(config) {
+
   _dispatcher.add("frobicate", &ExampleCaribouDevice::frobicate, this);
   _dispatcher.add("unfrobicate", &ExampleCaribouDevice::unfrobicate, this);
 }
 
 ExampleCaribouDevice::~ExampleCaribouDevice() {
-  LOG(INFO) << DEVICE_NAME << ": shutdown, delete device";
+  LOG(INFO) << ": shutdown, delete device";
 }
 
 std::string ExampleCaribouDevice::getFirmwareVersion() {
@@ -24,19 +25,19 @@ std::string ExampleCaribouDevice::getName() {
 }
 
 void ExampleCaribouDevice::powerOn() {
-  LOG(INFO) << DEVICE_NAME << ": power on";
+  LOG(INFO) << ": power on";
 }
 
 void ExampleCaribouDevice::powerOff() {
-  LOG(INFO) << DEVICE_NAME << ": power off";
+  LOG(INFO) << ": power off";
 }
 
 void ExampleCaribouDevice::daqStart() {
-  LOG(INFO) << DEVICE_NAME << ": daq started";
+  LOG(INFO) << ": daq started";
 }
 
 void ExampleCaribouDevice::daqStop() {
-  LOG(INFO) << DEVICE_NAME << ": daq stopped";
+  LOG(INFO) << ": daq stopped";
 }
 
 std::vector<uint32_t> ExampleCaribouDevice::getRawData() {
