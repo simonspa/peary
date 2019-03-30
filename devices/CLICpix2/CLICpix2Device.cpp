@@ -233,46 +233,57 @@ void CLICpix2Device::configureMatrix(std::string filename) {
     LOG(DEBUG) << "Configuring the pixel matrix from file \"" << filename << "\"";
     pixelsConfig = readMatrix(filename);
   }
-  programMatrix();
 
-  // Read back the matrix configuration and thus clear it:
-  LOG(DEBUG) << "Flushing matrix...";
-
-  std::vector<uint32_t> frame = getFrame();
+  // Prepare decoder for configuration:
   clicpix2_frameDecoder decoder(false, false, pixelsConfig);
 
-  try {
-    decoder.decode(frame, false);
-  } catch(caribou::DataException& e) {
-    LOG(ERROR) << e.what();
-    throw CommunicationError("Matrix configuration readout failed");
-  }
+  // Retry programming matrix:
+  int retry = 0;
+  int retry_max = _config.Get<int>("retry_matrix_config", 3);
+  while(true) {
+    try {
+      programMatrix();
 
-  LOG(INFO) << "Verifing matrix configuration...";
+      // Read back the matrix configuration and thus clear it:
+      LOG(DEBUG) << "Flushing matrix...";
+      std::vector<uint32_t> frame = getFrame();
+      decoder.decode(frame, false);
 
-  bool configurationError = false;
-  for(const auto& px : pixelsConfig) {
+      LOG(INFO) << "Verifing matrix configuration...";
+      bool configurationError = false;
+      for(const auto& px : pixelsConfig) {
 
-    // Fetch readback value for this pixel:
-    pixelReadout pxv = decoder.get(px.first.first, px.first.second);
+        // Fetch readback value for this pixel:
+        pixelReadout pxv = decoder.get(px.first.first, px.first.second);
 
-    // The flag bit if the readout is returned as (mask | (threshold & 0x1)), thus resetting to mask state only:
-    if(pxv.GetBit(8)) {
-      pxv.SetFlag(px.second.GetMask());
+        // The flag bit if the readout is returned as (mask | (threshold & 0x1)), thus resetting to mask state only:
+        if(pxv.GetBit(8)) {
+          pxv.SetFlag(px.second.GetMask());
+        }
+
+        // Compare with value read from the matrix:
+        if(px.second != pxv) {
+          LOG(ERROR) << "Matrix configuration of pixel " << static_cast<int>(px.first.second) << ","
+                     << static_cast<int>(px.first.first) << " does not match:";
+          LOG(ERROR) << to_bit_string(px.second.GetLatches()) << " != " << to_bit_string(pxv.GetLatches());
+          configurationError = true;
+        }
+      }
+
+      if(configurationError) {
+        throw DataException("Matrix configuration mismatch");
+      }
+
+      LOG(INFO) << "Verified matrix configuration.";
+      break;
+    } catch(caribou::DataException& e) {
+      LOG(ERROR) << e.what();
+      if(++retry == retry_max) {
+        throw CommunicationError("Matrix configuration failed");
+      }
+      LOG(INFO) << "Retyring configuration.";
     }
-
-    // Compare with value read from the matrix:
-    if(px.second != pxv) {
-      LOG(ERROR) << "Matrix configuration of pixel " << static_cast<int>(px.first.second) << ","
-                 << static_cast<int>(px.first.first) << " does not match:";
-      LOG(ERROR) << to_bit_string(px.second.GetLatches()) << " != " << to_bit_string(pxv.GetLatches());
-      configurationError = true;
-    }
   }
-  if(configurationError)
-    throw CommunicationError("Matrix configuration failed");
-  else
-    LOG(INFO) << "Verified matrix configuration.";
 
   // Reset compression state to previous values:
   this->setRegister("comp", comp);
@@ -604,12 +615,13 @@ std::vector<uint32_t> CLICpix2Device::getTimestamps() {
   uint32_t ts_lsb;
   uint32_t ts_msb;
   do {
-    // Read MSB and remove top header bits
-    ts_msb = *timestamp_msb;
-    timestamps.push_back(ts_msb & 0x7ffff);
-
     // Read LSB
     ts_lsb = *timestamp_lsb;
+
+    // Read MSB and remove top header bits
+    ts_msb = *timestamp_msb;
+
+    timestamps.push_back(ts_msb & 0x7ffff);
     timestamps.push_back(ts_lsb);
     LOG(DEBUG) << ts_msb << " | " << ts_lsb << " = " << ((static_cast<uint64_t>(ts_msb) << 32) | ts_lsb);
   } while(!(ts_msb & 0x80000000));

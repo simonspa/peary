@@ -160,6 +160,14 @@ ATLASPixDevice::ATLASPixDevice(const caribou::Configuration config)
 
   _registers.add(ATLASPix_REGISTERS);
 
+  // Always set up common periphery for all matrices:
+  _periphery.add("VDDD", PWR_OUT_4);
+  _periphery.add("VDDA", PWR_OUT_3);
+  _periphery.add("VSSA", PWR_OUT_2);
+  _periphery.add("VCC25", PWR_OUT_5);
+  _periphery.add("VDDRam", PWR_OUT_1);
+  _periphery.add("VDDHigh", PWR_OUT_6);
+
   void* pulser_base = _hal->getMappedMemoryRW(ATLASPix_PULSER_BASE_ADDRESS, ATLASPix_PULSER_MAP_SIZE, ATLASPix_PULSER_MASK);
   volatile uint32_t* inj_flag = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x0);
   volatile uint32_t* pulse_count = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x4);
@@ -180,6 +188,28 @@ ATLASPixDevice::ATLASPixDevice(const caribou::Configuration config)
   _daqContinue.test_and_set();
 
   data_type = "binary";
+
+  // Check for matrix value in the configuration:
+  if(_config.Has("matrix")) {
+    SetMatrix(_config.Get<std::string>("matrix"));
+
+    // Configure default voltages:
+    theMatrix.VMINUSPix = _config.Get("vminuspix", theMatrix.VMINUSPix);
+    theMatrix.GNDDACPix = _config.Get("GNDDACPix", theMatrix.GNDDACPix);
+    theMatrix.GatePix = _config.Get("GatePix", theMatrix.GatePix);
+    theMatrix.VNFBPix = _config.Get("VNFBPix", theMatrix.VNFBPix);
+    theMatrix.BLResPix = _config.Get("BLResPix", theMatrix.BLResPix);
+    theMatrix.VMain2 = _config.Get("VMain2", theMatrix.VMain2);
+    theMatrix.ThPix = _config.Get("VThPix", theMatrix.ThPix);
+    theMatrix.BLPix = _config.Get("VBLPix", theMatrix.BLPix);
+  }
+
+  // Define output:
+  setOutput(_config.Get("output", "binary"));
+  setOutputDirectory(_config.Get("output_directory", "."));
+
+  filter_weird_data = _config.Get<bool>("filter_weird_data", false);
+  LOG(INFO) << "WEIRD_DATA filter is " << (filter_weird_data ? "ENABLED" : "OFF");
 }
 
 ATLASPixDevice::~ATLASPixDevice() {
@@ -189,6 +219,7 @@ ATLASPixDevice::~ATLASPixDevice() {
 }
 
 void ATLASPixDevice::setOutputDirectory(std::string dir) {
+  LOG(INFO) << "Setting output directory to: " << dir;
   _output_directory = std::move(dir);
 }
 
@@ -198,21 +229,13 @@ void ATLASPixDevice::SetMatrix(std::string matrix) {
   std::string name = matrix;
   std::transform(name.begin(), name.end(), name.begin(), ::tolower);
 
-  // Set up periphery
-  _periphery.add("VDDD", PWR_OUT_4);
-  _periphery.add("VDDA", PWR_OUT_3);
-  _periphery.add("VSSA", PWR_OUT_2);
-  _periphery.add("VCC25", PWR_OUT_5);
-  _periphery.add("VDDRam", PWR_OUT_1);
-  _periphery.add("VDDHigh", PWR_OUT_6);
-
   if(name == "m1") {
 
     _periphery.add("GNDDACPix", BIAS_9);
     _periphery.add("VMinusPix", BIAS_5);
     _periphery.add("GatePix", BIAS_2);
-    _periphery.add("ThPix", BIAS_25);
-    _periphery.add("BLPix", BIAS_17);
+    _periphery.add("VThPix", BIAS_25);
+    _periphery.add("VBLPix", BIAS_17);
     _periphery.add("VMinusPD", BIAS_7);
     _periphery.add("VNFBPix", BIAS_11);
     _periphery.add("BLResPix", BIAS_10);
@@ -225,8 +248,8 @@ void ATLASPixDevice::SetMatrix(std::string matrix) {
     _periphery.add("GNDDACPix", BIAS_12);
     _periphery.add("VMinusPix", BIAS_8);
     _periphery.add("GatePix", BIAS_3);
-    _periphery.add("ThPix", BIAS_31);
-    _periphery.add("BLPix", BIAS_20);
+    _periphery.add("VThPix", BIAS_31);
+    _periphery.add("VBLPix", BIAS_20);
 
     theMatrix.initializeM1Iso();
 
@@ -235,8 +258,8 @@ void ATLASPixDevice::SetMatrix(std::string matrix) {
     _periphery.add("GNDDACPix", BIAS_6);
     _periphery.add("VMinusPix", BIAS_4);
     _periphery.add("GatePix", BIAS_1);
-    _periphery.add("ThPix", BIAS_28);
-    _periphery.add("BLPix", BIAS_23);
+    _periphery.add("VThPix", BIAS_28);
+    _periphery.add("VBLPix", BIAS_23);
 
     theMatrix.initializeM2();
 
@@ -305,8 +328,25 @@ void ATLASPixDevice::configure() {
   this->ResetWriteDAC();
   this->ProgramSR(theMatrix);
 
+  // Print power status information:
+  powerStatusLog();
+
+  // locking and unlocking seems to be good practice: "it works better afterwards" I have been told:
+  lock();
+  unlock();
+
+  // Set all TDAC:
+  this->setAllTDAC(0);
+
   // Call the base class configuration function:
   pearyDevice<iface_i2c>::configure();
+
+  // Check lock:
+  if(_hal->isLockedSI5345()) {
+    LOG(INFO) << "PLL locked to external clock...";
+  } else {
+    LOG(WARNING) << "Cannot lock to external clock, PLL will continue in freerunning mode...";
+  }
 }
 
 void ATLASPixDevice::lock() {
@@ -333,9 +373,9 @@ void ATLASPixDevice::setThreshold(double threshold) {
 
   this->ProgramSR(theMatrix);
 
-  LOG(DEBUG) << " ThPix ";
-  this->setVoltage("ThPix", threshold);
-  this->switchOn("ThPix");
+  LOG(DEBUG) << " VThPix ";
+  this->setVoltage("VThPix", threshold);
+  this->switchOn("VThPix");
   theMatrix.ThPix = threshold;
 }
 
@@ -504,8 +544,6 @@ void ATLASPixDevice::setSpecialRegister(std::string name, uint32_t value) {
       *fifo_config = (*fifo_config & 0xF7FF) + ((value << 11) & 0b100000000000);
     } else if(name == "filter_hp") {
       filter_hp = value;
-    } else if(name == "filter_weird_data") {
-      filter_weird_data = value;
     } else if(name == "hw_masking") {
       HW_masking = value;
     } else if(name == "t0_out_periodic") {
@@ -515,6 +553,20 @@ void ATLASPixDevice::setSpecialRegister(std::string name, uint32_t value) {
       volatile uint32_t* fifo_config =
         reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
       *fifo_config = (*fifo_config & 0xEFFF) + ((value << 12) & 0b1000000000000);
+    } else if(name == "blpix") {
+      double dval = static_cast<double>(value) / 1000;
+      theMatrix.BLPix = dval;
+      this->setVoltage("VBLPix", dval);
+      this->switchOn("VBLPix");
+      LOG(DEBUG) << "set blpix to " << theMatrix.BLPix;
+    } else if(name == "thpix") {
+      double dval = static_cast<double>(value) / 1000;
+      theMatrix.VoltageDACConfig->SetParameter("ThPix", static_cast<unsigned int>(floor(255 * dval / 1.8)));
+      this->ProgramSR(theMatrix);
+      theMatrix.ThPix = dval;
+      this->setVoltage("VThPix", dval);
+      this->switchOn("VThPix");
+      LOG(DEBUG) << "set thpix to " << theMatrix.ThPix;
     } else {
       throw RegisterInvalid("Unknown register with \"special\" flag: " + name);
     }
@@ -1481,6 +1533,9 @@ void ATLASPixDevice::getTriggerCount() {
 }
 
 std::vector<uint32_t> ATLASPixDevice::getRawData() {
+  if(data_type != "raw") {
+    throw NoDataAvailable();
+  }
 
   void* readout_base =
     _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
@@ -1489,8 +1544,12 @@ std::vector<uint32_t> ATLASPixDevice::getRawData() {
   uint32_t dataRead;
   std::vector<uint32_t> rawDataVec;
 
-  dataRead = static_cast<uint32_t>(*data);
-  // if there are data
+  // if a filter for WEIRD_DATA is set and the data has a WEIRD_DATA header read next data.
+  do {
+    dataRead = static_cast<uint32_t>(*data);
+  } while((filter_weird_data && (dataRead >> 24 == 0b00000100)));
+
+  // if there was data, store data to return vector
   if(dataRead != 0) {
     rawDataVec.push_back(dataRead);
   }
@@ -1516,15 +1575,16 @@ pearydata ATLASPixDevice::getDataBin() {
   }
 
   uint32_t d1;
-
   while(true) {
 
     // check for stop request from another thread
-    if(!this->_daqContinue.test_and_set())
+    if(!this->_daqContinue.test_and_set()) {
+      LOG(DEBUG) << "Exiting DAQ thread";
       break;
+    }
     // check for new data in fifo
     d1 = static_cast<uint32_t>(*data);
-    if(d1 == 0) {
+    if((d1 == 0) || (filter_weird_data && (d1 >> 24 == 0b00000100))) {
       continue;
     } else {
       disk.write((char*)&d1, sizeof(uint32_t));
@@ -2317,32 +2377,33 @@ void ATLASPixDevice::powerUp() {
   LOG(INFO) << DEVICE_NAME << ": Powering up ATLASPix";
   std::cout << '\n';
 
-  this->setVoltage("VCC25", ATLASPix_VCC25, ATLASPix_VCC25_CURRENT);
+  this->setVoltage("VCC25", _config.Get("vcc25", ATLASPix_VCC25), _config.Get("vcc25_current", ATLASPix_VCC25_CURRENT));
   this->switchOn("VCC25");
 
   usleep(200000);
 
-  this->setVoltage("VDDD", ATLASPix_VDDD, ATLASPix_VDDD_CURRENT);
+  this->setVoltage("VDDD", _config.Get("vddd", ATLASPix_VDDD), _config.Get("vddd_current", ATLASPix_VDDD_CURRENT));
   this->switchOn("VDDD");
 
   usleep(200000);
 
-  this->setVoltage("VDDRam", ATLASPix_VDDRam, ATLASPix_VDDRam_CURRENT);
+  this->setVoltage("VDDRam", _config.Get("vddram", ATLASPix_VDDRam), _config.Get("vddram_current", ATLASPix_VDDRam_CURRENT));
   this->switchOn("VDDRam");
 
   usleep(200000);
 
-  this->setVoltage("VDDHigh", ATLASPix_VDDHigh, ATLASPix_VDDHigh_CURRENT);
+  this->setVoltage(
+    "VDDHigh", _config.Get("vddhigh", ATLASPix_VDDHigh), _config.Get("vddhigh_current", ATLASPix_VDDHigh_CURRENT));
   this->switchOn("VDDHigh");
 
   usleep(200000);
 
-  this->setVoltage("VDDA", ATLASPix_VDDA, ATLASPix_VDDA_CURRENT);
+  this->setVoltage("VDDA", _config.Get("vdda", ATLASPix_VDDA), _config.Get("vdda_current", ATLASPix_VDDA_CURRENT));
   this->switchOn("VDDA");
 
   usleep(200000);
 
-  this->setVoltage("VSSA", ATLASPix_VSSA, ATLASPix_VSSA_CURRENT);
+  this->setVoltage("VSSA", _config.Get("vssa", ATLASPix_VSSA), _config.Get("vssa_current", ATLASPix_VSSA_CURRENT));
   this->switchOn("VSSA");
 
   // Analog biases
@@ -2367,11 +2428,11 @@ void ATLASPixDevice::powerUp() {
 
   // Threshold and Baseline
 
-  this->setVoltage("ThPix", theMatrix.ThPix);
-  this->switchOn("ThPix");
+  this->setVoltage("VThPix", theMatrix.ThPix);
+  this->switchOn("VThPix");
 
-  this->setVoltage("BLPix", theMatrix.BLPix);
-  this->switchOn("BLPix");
+  this->setVoltage("VBLPix", theMatrix.BLPix);
+  this->switchOn("VBLPix");
 }
 
 void ATLASPixDevice::powerDown() {
@@ -2429,15 +2490,21 @@ void ATLASPixDevice::NoiseRun(double duration) {
 
 void ATLASPixDevice::daqStart() {
   // ensure only one daq thread is running
+  if(daqRunning) {
+    LOG(WARNING) << "Data aquisition is already running";
+    return;
+  }
+
   void* readout_base =
     _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
   volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
 
-  if(_daqThread.joinable() || _daqContinue.test_and_set()) {
-    LOG(WARNING) << "Data aquisition is already running";
+  if(_daqThread.joinable()) {
+    LOG(WARNING) << "DAQ thread is already running";
     return;
   }
-  _daqContinue.clear();
+
+  daqRunning = true;
 
   *fifo_config = (*fifo_config & 0xFFFFFFEF) + 0b10000;
   usleep(50);
@@ -2446,9 +2513,8 @@ void ATLASPixDevice::daqStart() {
   // arm the stop flag and start running
   this->resetCounters();
 
-  _daqContinue.test_and_set();
-
   if(data_type != "raw") {
+    _daqContinue.test_and_set();
     _daqThread = std::thread(&ATLASPixDevice::runDaq, this);
   }
   // LOG(INFO) << "acquisition started" << std::endl;
@@ -2462,17 +2528,18 @@ void ATLASPixDevice::daqStop() {
     // LOG(INFO) << "Trigger count at end of run : " << this->getTriggerCounter() << std::endl;
   }
   _daqContinue.clear();
+  daqRunning = false;
 }
 
 void ATLASPixDevice::runDaq() {
 
   if(data_type == "binary") {
     getDataBin();
-  }
-  if(data_type != "raw") {
-    return;
-  } else {
+  } else if(data_type == "text") {
     getData();
+  } else {
+    LOG(WARNING) << "Unknown output format \"" << data_type << "\"";
+    return;
   }
 }
 
@@ -2592,9 +2659,9 @@ void ATLASPixDevice::LoadConfig(std::string basename) {
   //  this->switchOn("VMinusPix");
   //  this->setVoltage("GatePix", theMatrix.GatePix);
   //  this->switchOn("GatePix");
-  //  this->setVoltage("BLPix", theMatrix.BLPix);
-  //  this->switchOn("BLPix");
-  //  this->setVoltage("ThPix", theMatrix.ThPix);
-  //  this->switchOn("ThPix");
+  //  this->setVoltage("VBLPix", theMatrix.BLPix);
+  //  this->switchOn("VBLPix");
+  //  this->setVoltage("VThPix", theMatrix.ThPix);
+  //  this->switchOn("VThPix");
   // this->LoadTDAC(basename + "_TDAC.cfg");
 }

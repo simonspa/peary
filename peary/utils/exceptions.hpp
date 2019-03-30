@@ -129,7 +129,7 @@ namespace caribou {
    */
   class NoDataAvailable : public DataException {
   public:
-    NoDataAvailable(const std::string& what_arg) : DataException(what_arg) {}
+    NoDataAvailable() : DataException("") {}
   };
 
   /** Exception inidcating an incomplete data response
