@@ -20,6 +20,8 @@ pearycli::pearycli() : Console("# ") {
   registerCommand(
     "list_commands", list_commands, "list available device-specific commands for selected device", 1, "DEVICE_ID");
 
+  registerCommand("getName", getName, "Print device name", 1, "DEVICE_ID");
+  registerCommand("getType", getType, "Print device type", 1, "DEVICE_ID");
   registerCommand("version", version, "Print software and firmware version of the selected device", 1, "DEVICE_ID");
   registerCommand("init", configure, "Initialize and configure the selected device", 1, "DEVICE_ID");
   registerCommand("configure", configure, "Initialize and configure the selected device", 1, "DEVICE_ID");
@@ -268,6 +270,28 @@ int pearycli::version(const std::vector<std::string>& input) {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
     LOG(STATUS) << dev->getVersion();
     LOG(STATUS) << dev->getFirmwareVersion();
+  } catch(caribou::caribouException& e) {
+    LOG(ERROR) << e.what();
+    return ReturnCode::Error;
+  }
+  return ReturnCode::Ok;
+}
+
+int pearycli::getName(const std::vector<std::string>& input) {
+  try {
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
+    LOG(STATUS) << dev->getName();
+  } catch(caribou::caribouException& e) {
+    LOG(ERROR) << e.what();
+    return ReturnCode::Error;
+  }
+  return ReturnCode::Ok;
+}
+
+int pearycli::getType(const std::vector<std::string>& input) {
+  try {
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
+    LOG(STATUS) << dev->getType();
   } catch(caribou::caribouException& e) {
     LOG(ERROR) << e.what();
     return ReturnCode::Error;
