@@ -169,7 +169,6 @@ namespace caribou {
     {"gray_decode", register_t<>(0x26, 0xFF, false, true, true)},		\
     {"send_fpga_ts", register_t<>(0x26, 0xFF, false, true, true)},		\
     {"filter_hp", register_t<>(0x26, 0xFF, false, true, true)},		\
-    {"filter_weird_data", register_t<>(0x26, 0xFF, false, true, true)},		\
     {"hw_masking", register_t<>(0x26, 0xFF, false, true, true)},		\
     {"temperature", register_t<>(0b00000101)},		\
     {"t0_out_periodic", register_t<>(0x26, 0xFF, false, true, true)},		\
@@ -178,7 +177,8 @@ namespace caribou {
 
   const std::string AXI_registers[] = {"trigger_mode","ro_enable","armduration","trigger_injection"
 		  ,"edge_sel","edge_sel","trigger_enable","busy_when_armed","trigger_always_armed","t0_enable",
-		  "gray_decode","send_fpga_ts","filter_hp","filter_weird_data","hw_masking","t0_out_periodic"};
+		  "gray_decode","send_fpga_ts","filter_hp","hw_masking","t0_out_periodic",
+      "thpix","blpix"};
 
   // clang-format on
 
