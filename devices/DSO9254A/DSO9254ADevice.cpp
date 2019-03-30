@@ -19,7 +19,7 @@ DSO9254ADevice::DSO9254ADevice(const caribou::Configuration config)
 
   LOG(DEBUG) << "New scope interface, trying to connect...";
   std::string query = "*IDN?";
-  std::string data = this->receive(query).front();
+  std::string data = auxiliaryDevice<iface_ipsocket>::receive(query).front();
 
   LOG(DEBUG) << "Connected successfully to " << _devpath;
   LOG(DEBUG) << "Scope identifier: " << data;
@@ -30,11 +30,11 @@ DSO9254ADevice::~DSO9254ADevice() {
 }
 
 void DSO9254ADevice::send(std::string command) {
-  this->send(command);
+  auxiliaryDevice<iface_ipsocket>::send(command);
 }
 
 std::string DSO9254ADevice::query(const std::string query) {
-  return this->receive(query).front();
+  return auxiliaryDevice<iface_ipsocket>::receive(query).front();
 }
 
 int DSO9254ADevice::waitForTrigger() {
@@ -44,7 +44,7 @@ int DSO9254ADevice::waitForTrigger() {
   int trigger = 0;
   while(trigger == 0) {
     mDelay(10);
-    trigger = std::stoi(this->receive(query).front());
+    trigger = std::stoi(auxiliaryDevice<iface_ipsocket>::receive(query).front());
   }
 
   return trigger;
@@ -56,7 +56,7 @@ pearydata DSO9254ADevice::getData() {
 
   LOG(INFO) << "Retrieving data from scope...";
   std::string cmd = "wav:data?";
-  std::vector<std::string> data = this->receive(cmd);
+  std::vector<std::string> data = auxiliaryDevice<iface_ipsocket>::receive(cmd);
 
   LOG(INFO) << "Crunching numbers...";
 
