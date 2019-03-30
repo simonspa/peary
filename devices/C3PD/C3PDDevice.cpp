@@ -13,6 +13,8 @@ using namespace caribou;
 C3PDDevice::C3PDDevice(const caribou::Configuration config)
     : pearyDevice(config, std::string(DEFAULT_DEVICEPATH), C3PD_DEFAULT_I2C) {
 
+  _dispatcher.add("powerStatusLog", &C3PDDevice::powerStatusLog, this);
+
   // Set up periphery
   _periphery.add("vddd", PWR_OUT_2);
   _periphery.add("vdda", PWR_OUT_6);

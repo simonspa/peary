@@ -1,7 +1,7 @@
 #include <fstream>
 #include <iostream>
 
-#include "Example/ExampleDevice.hpp"
+#include "ExampleCaribou/ExampleCaribouDevice.hpp"
 #include "configuration.hpp"
 #include "log.hpp"
 
@@ -44,13 +44,13 @@ int main(int argc, char* argv[]) {
     }
     const caribou::Configuration config(file);
 
-    ExampleDevice* dev = new ExampleDevice(config);
+    ExampleCaribouDevice* dev = new ExampleCaribouDevice(config);
 
     // It's possible to call base class functions
     dev->powerOn();
 
     // But now also functions of the specialized class are available:
-    dev->exampleCall();
+    dev->command("frobicate", "123");
 
     delete dev;
     LOG(INFO) << "Done. And thanks for all the fish.";

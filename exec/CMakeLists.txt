@@ -15,6 +15,16 @@ ENDIF(BUILD_server)
 ADD_EXECUTABLE(peary_app "sample_application.cpp")
 TARGET_LINK_LIBRARIES(peary_app ${PROJECT_NAME})
 
+OPTION(BUILD_ATPserver "Build ATLASPix server for receiving commands from Run Control?" ON)
+IF(BUILD_ATPserver)
+  # add target
+  ADD_EXECUTABLE(ATLASPixServer "ATLASPixServer.cpp")
+  TARGET_LINK_LIBRARIES(ATLASPixServer ${PROJECT_NAME})
+  INSTALL(TARGETS ATLASPixServer
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib)
+ENDIF(BUILD_ATPserver)
 
 # Gather dependencies and build command line:
 FIND_PACKAGE(Readline REQUIRED)
@@ -24,9 +34,12 @@ TARGET_LINK_LIBRARIES(pearycli ${PROJECT_NAME} ${Readline_LIBRARY})
 
 INCLUDE_DIRECTORIES(devices/example)
 ADD_EXECUTABLE(peary_direct "direct_device.cpp")
-TARGET_LINK_LIBRARIES(peary_direct ${PROJECT_NAME} PearyDeviceExample )
+TARGET_LINK_LIBRARIES(peary_direct ${PROJECT_NAME} PearyDeviceExampleCaribou)
 
-INSTALL(TARGETS peary_app peary_direct pearycli
+ADD_EXECUTABLE(pearyd pearyd.cpp)
+TARGET_LINK_LIBRARIES(pearyd ${PROJECT_NAME})
+
+INSTALL(TARGETS peary_app peary_direct pearycli pearyd
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib)

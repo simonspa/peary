@@ -63,12 +63,26 @@ namespace caribou {
     void configureMatrix(std::string filename = std::string());
     void configurePatternGenerator(std::string filename);
     void triggerPatternGenerator(bool sleep);
+    void clearTimestamps();
 
+    // The functions sets clocks required by CLICpix2 to operate
+    void configureClock(bool internal);
+
+    /**
+     * Reading raw data from CLICpix2. This function returns both the pixel data frame and the frame timestamps from the
+     * pattern generator. The first word contains the number of timestamp words to follow. Then, the timestamps are written,
+     * followed by the frame data from the device.
+     * @warning This function automatically triggers the Pattern Generator!
+     * @return Block of raw data as described above
+     */
     std::vector<uint32_t> getRawData();
-    pearydata getData();
 
-    // Method returns stored timestamps
-    std::vector<uint64_t> timestampsPatternGenerator();
+    /**
+     * Reading one decoded data frame from CLICpix2. This function returns a fully decoded data frame
+     * @warning This function does NOT trigger the Pattern Generator! It needs to be done manually before calling getData()
+     * @return Pearydata with pixel hits from one frame
+     */
+    pearydata getData();
 
     void setSpecialRegister(std::string name, uint32_t value);
 
@@ -88,12 +102,19 @@ namespace caribou {
      */
     void programMatrix();
 
+    /**
+     * Method to return timestamps from the device pattern generator
+     * The timestamps are 64bit words, split into MSB and LSB part. The MSB part is shipped **first**.
+     * @return List of timestamp words.
+     */
+    std::vector<uint32_t> getTimestamps();
+
     /* Map of pixelConfigs for configuration storage (row/col)
      */
     std::map<std::pair<uint8_t, uint8_t>, pixelConfig> pixelsConfig{};
 
-    // The functions sets clocks required by CLICpix2 to operate
-    void configureClock();
+    // Retrieve frame from device
+    std::vector<uint32_t> getFrame();
 
     // Methods decodes frame
     pearydata decodeFrame(const std::vector<uint32_t>& frame);

@@ -9,9 +9,11 @@ ENDIF(COMMAND CMAKE_POLICY)
 # Project name
 PROJECT(peary)
 
+# lock dir option must be available globally
+set(PEARY_LOCK_DIR "/var/lock" CACHE PATH "Path to lockfile directory")
+
 # Include peary cmake functions
 INCLUDE("cmake/peary.cmake")
-
 
 ###############################
 # Setup the build environment #
@@ -47,6 +49,9 @@ ENDIF("${isSystemDir}" STREQUAL "-1")
 
 ADD_DEFINITIONS(-std=c++14)
 INCLUDE(cmake/Platform.cmake)
+
+SET(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+FIND_PACKAGE(Threads REQUIRED)
 
 ########################################
 # Figure out the current peary version #
@@ -121,6 +126,7 @@ INCLUDE_DIRECTORIES(devices)
 
 # Always build main peary library;
 ADD_SUBDIRECTORY(peary)
+SET(PEARY_LIBRARIES ${PEARY_LIBRARIES} peary)
 
 # Include optional device support
 ADD_SUBDIRECTORY(devices)
@@ -128,9 +134,18 @@ ADD_SUBDIRECTORY(devices)
 # Add targets for Doxygen code reference and LaTeX User manual
 ADD_SUBDIRECTORY(doc)
 
-
 ################################################
 # Define build targets for sample applications #
 ################################################
 
 ADD_SUBDIRECTORY(exec)
+ADD_SUBDIRECTORY(etc) # pearyd service files
+
+###################
+# Install headers #
+###################
+OPTION(INSTALL_HEADERS "Install header files?" OFF)
+IF(INSTALL_HEADERS)
+  INSTALL(DIRECTORY peary DESTINATION include/peary )
+  INSTALL(DIRECTORY devices DESTINATION include/peary )
+ENDIF()

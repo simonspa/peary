@@ -426,40 +426,29 @@ bool getFrame() {
   LOG(DEBUG) << "getFrame()";
   std::vector<caribouDevice*> devs = manager->getDevices();
   for(auto dev : devs) {
-    if(dev->getName() == "CLICpix2") {
+    try {
+      // pearydata data;
+      std::vector<uint32_t> data;
       try {
-        // pearydata data;
-        std::vector<uint32_t> data;
-        try {
-          dev->command("triggerPatternGenerator", "1");
-          // Read the data:
-          data = dev->getRawData();
-        } catch(caribou::DataException& e) {
-          // Retrieval failed, retry once more before aborting:
-          LOG(WARNING) << e.what() << ", skipping frame.";
-          // mDelay(10);
-          // data = dev->getData();
-          dev->timestampsPatternGenerator(); // in case of readout error, clear timestamp fifo before going to next event
-          continue;
-        }
-        std::vector<uint64_t> timestamps = dev->timestampsPatternGenerator();
-        myfile << "===== " << framecounter << " =====\n";
-        for(const auto& timestamp : timestamps) {
-          myfile << (timestamp >> 48) << ":" << (timestamp & 0xffffffffffff) << "\n";
-        }
-        for(const auto& px : data) {
-          // myfile << px.first.first << "," << px.first.second << "," << (*px.second) << "\n";
-          myfile << px << "\n";
-        }
-        LOG(INFO) << framecounter << " | " << data.size() << " pixel responses";
-        framecounter++;
+        // Read the data:
+        data = dev->getRawData();
       } catch(caribou::DataException& e) {
-        dev->timestampsPatternGenerator(); // in case of readout error, clear timestamp fifo before going to next event
+        // Retrieval failed, retry once more before aborting:
+        LOG(WARNING) << e.what() << ", skipping frame.";
         continue;
-      } catch(caribou::caribouException& e) {
-        LOG(ERROR) << e.what();
-        return false;
       }
+      myfile << "===== " << framecounter << " =====\n";
+      for(const auto& px : data) {
+        // myfile << px.first.first << "," << px.first.second << "," << (*px.second) << "\n";
+        myfile << px << "\n";
+      }
+      LOG(INFO) << framecounter << " | " << data.size() << " pixel responses";
+      framecounter++;
+    } catch(caribou::DataException& e) {
+      continue;
+    } catch(caribou::caribouException& e) {
+      LOG(ERROR) << e.what();
+      return false;
     }
   }
 

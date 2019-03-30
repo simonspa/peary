@@ -1,5 +1,6 @@
 
 #include <cstdint>
+#include <cstdlib>
 #include <sys/file.h>
 
 #include "exceptions.hpp"
@@ -8,26 +9,30 @@
 
 bool caribou::check_flock(std::string filename) {
 
-  std::string file = "/var/lock/" + filename;
+  std::string file(PEARY_LOCK_DIR);
+  file.append("/");
+  file.append(filename);
   int fd = open(file.c_str(), O_RDWR | O_CREAT, 0666); // open or create lockfile
 
   if(flock(fd, LOCK_EX | LOCK_NB) == -1) {
     if(errno == EWOULDBLOCK) {
-      LOG(DEBUG) << "File " << file << "is locked.";
+      LOG(DEBUG) << "File " << file << " is locked.";
       return true;
     } else {
       throw caribouException("Error in checking file lock of " + file);
     }
   } else {
     flock(fd, LOCK_UN);
-    LOG(DEBUG) << "File " << file << "is unlocked.";
+    LOG(DEBUG) << "File " << file << " is unlocked.";
     return false;
   }
 }
 
 bool caribou::acquire_flock(std::string filename) {
 
-  std::string file = "/var/lock/" + filename;
+  std::string file(PEARY_LOCK_DIR);
+  file.append("/");
+  file.append(filename);
   int fd = open(file.c_str(), O_RDWR | O_CREAT, 0666); // open or create lockfile
 
   if(flock(fd, LOCK_EX | LOCK_NB) == -1) {
@@ -36,6 +41,19 @@ bool caribou::acquire_flock(std::string filename) {
   }
   LOG(DEBUG) << "Acquired lock on " << file;
   return true;
+}
+
+void caribou::make_directories(std::string path) {
+  // 2018-02-16 msmk:
+  // dear universe,
+  // please accept this humble hack.
+  // it is ugly and crude
+  // but I'm not in the mood
+  // and at some point i'll take it back.
+  int err = system(("mkdir -p " + path).c_str());
+  if(err) {
+    LOG(ERROR) << "Could not create directory '" << path << "'. error " << err;
+  }
 }
 
 uint8_t caribou::reverseByte(uint8_t n) {

@@ -403,6 +403,199 @@ namespace caribou {
     }
   }
 
+  template <typename T>
+  void caribouHAL<T>::configurePulser(unsigned channel_mask,
+                                      const bool ext_trigger,
+                                      const bool ext_trig_edge,
+                                      const bool idle_state) {
+    void* pulser_base = getMappedMemoryRW(CARIBOU_PULSER_BASE_ADDRESS, CARIBOU_PULSER_MAP_SIZE, CARIBOU_PULSER_MAP_MASK);
+
+    // use only 4 LSBs as a mask
+    channel_mask &= 0x0F;
+
+    // set register address
+    volatile uint32_t* pulserControl_reg =
+      reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + CARIBOU_PULSER_REG_CONTROL_OFFSET);
+
+    uint32_t pulserControl = *pulserControl_reg;
+
+    // select idle output state
+    channel_mask <<= 8;
+    if(idle_state) {
+      pulserControl |= (channel_mask);
+    } else {
+      pulserControl &= (~channel_mask);
+    }
+    // set/unset ext. triggering
+    channel_mask <<= 8;
+    if(ext_trigger) {
+      pulserControl |= (channel_mask);
+    } else {
+      pulserControl &= (~channel_mask);
+    }
+    // select ext. trigger edge
+    channel_mask <<= 4;
+    if(ext_trig_edge) {
+      pulserControl |= (channel_mask);
+    } else {
+      pulserControl &= (~channel_mask);
+    }
+
+    *pulserControl_reg = pulserControl;
+
+    return;
+  }
+
+  template <typename T> void caribouHAL<T>::startPulser(unsigned channel_mask) {
+    void* pulser_base = getMappedMemoryRW(CARIBOU_PULSER_BASE_ADDRESS, CARIBOU_PULSER_MAP_SIZE, CARIBOU_PULSER_MAP_MASK);
+
+    // use only 4 LSBs as a mask
+    channel_mask &= 0x0F;
+
+    // set register address
+    volatile uint32_t* pulserControl_reg =
+      reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + CARIBOU_PULSER_REG_CONTROL_OFFSET);
+
+    uint32_t pulserControl = *pulserControl_reg;
+
+    pulserControl |= (channel_mask);
+
+    *pulserControl_reg = pulserControl;
+
+    return;
+  }
+
+  template <typename T> void caribouHAL<T>::enablePulser(unsigned channel_mask) {
+    void* pulser_base = getMappedMemoryRW(CARIBOU_PULSER_BASE_ADDRESS, CARIBOU_PULSER_MAP_SIZE, CARIBOU_PULSER_MAP_MASK);
+
+    // use only 4 LSBs as a mask
+    channel_mask &= 0x0F;
+
+    // set register address
+    volatile uint32_t* pulserControl_reg =
+      reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + CARIBOU_PULSER_REG_CONTROL_OFFSET);
+
+    uint32_t pulserControl = *pulserControl_reg;
+
+    pulserControl &= ~(channel_mask << 4);
+
+    *pulserControl_reg = pulserControl;
+
+    return;
+  }
+
+  template <typename T> void caribouHAL<T>::disablePulser(unsigned channel_mask) {
+    void* pulser_base = getMappedMemoryRW(CARIBOU_PULSER_BASE_ADDRESS, CARIBOU_PULSER_MAP_SIZE, CARIBOU_PULSER_MAP_MASK);
+
+    // use only 4 LSBs as a mask
+    channel_mask &= 0x0F;
+
+    // set register address
+    volatile uint32_t* pulserControl_reg =
+      reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + CARIBOU_PULSER_REG_CONTROL_OFFSET);
+
+    uint32_t pulserControl = *pulserControl_reg;
+
+    pulserControl |= (channel_mask << 4);
+
+    *pulserControl_reg = pulserControl;
+
+    return;
+  }
+
+  template <typename T> uint32_t caribouHAL<T>::getPulserRunning() {
+    void* pulser_base = getMappedMemoryRO(CARIBOU_PULSER_BASE_ADDRESS, CARIBOU_PULSER_MAP_SIZE, CARIBOU_PULSER_MAP_MASK);
+
+    // set register address
+    volatile uint32_t* pulserStatus_reg =
+      reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + CARIBOU_PULSER_REG_STATUS_OFFSET);
+
+    return ((*pulserStatus_reg) & 0x0F);
+  }
+
+  template <typename T> uint32_t caribouHAL<T>::getPulseCount(const uint32_t channel) {
+    void* pulser_base = getMappedMemoryRO(CARIBOU_PULSER_BASE_ADDRESS, CARIBOU_PULSER_MAP_SIZE, CARIBOU_PULSER_MAP_MASK);
+
+    // check for valid channel range 1-4
+    if(channel > 4 || channel < 1) {
+      throw ConfigInvalid("There is no channel " + std::to_string(channel) + " available. The valid range is 1-4.");
+    }
+
+    // set register address
+    volatile uint32_t* pulseCount_reg = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) +
+                                                                             CARIBOU_PULSER_REG_PULSE_COUNT_OFFSET +
+                                                                             (CARIBOU_PULSER_CHANNEL_OFFSET * channel));
+
+    return (*pulseCount_reg);
+  }
+
+  template <typename T>
+  void caribouHAL<T>::configurePulseParameters(const unsigned channel_mask,
+                                               const uint32_t periods,
+                                               const uint32_t time_active,
+                                               const uint32_t time_idle,
+                                               const double voltage) {
+    void* pulser_base = getMappedMemoryRW(CARIBOU_PULSER_BASE_ADDRESS, CARIBOU_PULSER_MAP_SIZE, CARIBOU_PULSER_MAP_MASK);
+
+    // set register addresses
+    volatile uint32_t* pulserChPeriods_reg =
+      reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + CARIBOU_PULSER_REG_PERIODS_OFFSET);
+    volatile uint32_t* pulserChTimeActive_reg = reinterpret_cast<volatile uint32_t*>(
+      reinterpret_cast<std::intptr_t>(pulser_base) + CARIBOU_PULSER_REG_TIME_ACTIVE_OFFSET);
+    volatile uint32_t* pulserChTimeIdle_reg = reinterpret_cast<volatile uint32_t*>(
+      reinterpret_cast<std::intptr_t>(pulser_base) + CARIBOU_PULSER_REG_TIME_IDLE_OFFSET);
+
+    uint32_t channel = 1;
+    // for all 4 channels
+    while(1) {
+      // apply the settings only for channels enabled in the mask, skip others
+      if(!(channel_mask & channel)) {
+        continue;
+      }
+
+      switch(channel) {
+      case 0b0001:
+        setBiasRegulator(INJ_1, voltage);
+        powerBiasRegulator(INJ_1, true);
+        break;
+      case 0b0010:
+        setBiasRegulator(INJ_2, voltage);
+        powerBiasRegulator(INJ_2, true);
+        break;
+      case 0b0100:
+        setBiasRegulator(INJ_3, voltage);
+        powerBiasRegulator(INJ_3, true);
+        break;
+      case 0b1000:
+        setBiasRegulator(INJ_4, voltage);
+        powerBiasRegulator(INJ_4, true);
+        break;
+      default:
+        throw FirmwareException("Something went terribly wrong in caribouHAL::configurePulseParameters() and the function "
+                                "reached a state where it should not be.");
+      }
+
+      *pulserChPeriods_reg = periods;
+      *pulserChTimeActive_reg = time_active;
+      *pulserChTimeIdle_reg = time_idle;
+
+      // go to next channel
+      channel <<= 1;
+      // check if we are still in the range of available channels. If not, we are done.
+      if(!(channel & 0x0F)) {
+        return;
+      }
+
+      // shift pointers to all registers to the next channel
+      pulserChPeriods_reg = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulserChPeriods_reg) +
+                                                                 CARIBOU_PULSER_CHANNEL_OFFSET);
+      pulserChTimeActive_reg = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulserChTimeActive_reg) +
+                                                                    CARIBOU_PULSER_CHANNEL_OFFSET);
+      pulserChTimeIdle_reg = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulserChTimeIdle_reg) +
+                                                                  CARIBOU_PULSER_CHANNEL_OFFSET);
+    }
+  }
+
   template <typename T> void caribouHAL<T>::setCurrentMonitor(const uint8_t device, const double maxExpectedCurrent) {
     LOG(DEBUG) << "Setting maxExpectedCurrent " << maxExpectedCurrent << "A "
                << "on INA226 at " << to_hex_string(device);

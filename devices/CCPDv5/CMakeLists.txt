@@ -1,11 +1,11 @@
-PEARY_ENABLE_DEFAULT(ON)
+PEARY_ENABLE_DEFAULT(OFF)
 
 # Define device and return the generated name as DEVICE_NAME
 PEARY_DEVICE(DEVICE_NAME)
 
 # Add source files to library
 PEARY_DEVICE_SOURCES(${DEVICE_NAME}
-	ExampleDevice.cpp
+    CCPDv5Device.cpp
 )
 
 # Provide standard install target
