@@ -262,8 +262,10 @@ namespace caribou {
       auto& command = it->first;
       ++it;
       if(command.find(text) != std::string::npos) {
-        char* completion = new char[command.size()];
-        strcpy(completion, command.c_str());
+        size_t length = command.size();
+        char* completion = new char[length + 1];
+        command.copy(completion, length);
+        completion[length] = '\0';
         return completion;
       }
     }
