@@ -2370,7 +2370,7 @@ void ATLASPixDevice::resetFIFO() {
 }
 
 std::string ATLASPixDevice::getName() {
-  return DEVICE_NAME;
+  return PEARY_DEVICE_NAME + _config.Get<std::string>("matrix", "");
 }
 
 void ATLASPixDevice::powerUp() {
