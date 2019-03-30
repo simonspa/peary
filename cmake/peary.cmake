@@ -15,13 +15,13 @@ MACRO(peary_device name)
     # Build all devices by default if not specified otherwise
     OPTION(BUILD_${_peary_device_dir} "Build device in directory ${_peary_device_dir}?" ON)
 
+    # Put message
+    MESSAGE(STATUS "Building device " ${BUILD_${_peary_device_dir}} "\t- " ${_peary_device_dir})
+
     # Quit the file if not building this file or all devices
     IF(NOT (BUILD_${_peary_device_dir} OR BUILD_ALL_DEVICES))
         RETURN()
     ENDIF()
-
-    # Put message
-    MESSAGE( STATUS "Building device: " ${_peary_device_dir} )
 
     # Prepend with the peary device prefix to create the name of the device
     SET(${name} "PearyDevice${_peary_device_dir}")

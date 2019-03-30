@@ -29,20 +29,20 @@ SET(LIB_SOURCE_FILES
 
 IF(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
   add_definitions(-DYOCTO_COMPILATION)
-ENDIF(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
+ENDIF()
 
 IF(INTERFACE_I2C)
   # add I2C source files
   SET(LIB_SOURCE_FILES ${LIB_SOURCE_FILES}
     "interfaces/i2c.cpp"
     )
-  MESSAGE(STATUS "Building Caribou I2C interface.")
-ELSE(INTERFACE_I2C)
+  MESSAGE(STATUS "Caribou Interface I2C:\tON")
+ELSE()
   SET(LIB_SOURCE_FILES ${LIB_SOURCE_FILES}
     "interfaces/emulators/i2c.cpp"
     )
-  MESSAGE(STATUS "Building emulator for Caribou I2C interface.")
-ENDIF(INTERFACE_I2C)
+  MESSAGE(STATUS "Caribou Interface I2C:\t(emulated)")
+ENDIF()
 
 IF(INTERFACE_SPI_CLICpix2)
   # Also build SPI since it depends on it:
@@ -51,34 +51,36 @@ IF(INTERFACE_SPI_CLICpix2)
   SET(LIB_SOURCE_FILES ${LIB_SOURCE_FILES}
     "interfaces/spi_CLICpix2.cpp"
     )
-  MESSAGE(STATUS "Building Caribou SPI CLICpix2 interface.")
-ELSE(INTERFACE_SPI_CLICpix2)
+  MESSAGE(STATUS "Caribou Interface SPI CPx2:\tON")
+ELSE()
   SET(LIB_SOURCE_FILES ${LIB_SOURCE_FILES}
     "interfaces/emulators/spi_CLICpix2.cpp"
     )
-  MESSAGE(STATUS "Building emulator for Caribou SPI CLICpix2 interface.")
-ENDIF(INTERFACE_SPI_CLICpix2)
+  MESSAGE(STATUS "Caribou Interface SPI CPx2:\t(emulated)")
+ENDIF()
 
 IF(INTERFACE_SPI)
   # add SPI source files
   SET(LIB_SOURCE_FILES ${LIB_SOURCE_FILES}
     "interfaces/spi.cpp"
     )
-  MESSAGE(STATUS "Building Caribou SPI interface.")
-ELSE(INTERFACE_SPI)
+  MESSAGE(STATUS "Caribou Interface SPI:\tON")
+ELSE()
   SET(LIB_SOURCE_FILES ${LIB_SOURCE_FILES}
     "interfaces/emulators/spi.cpp"
     )
-  MESSAGE(STATUS "Building emulator for Caribou SPI interface.")
-ENDIF(INTERFACE_SPI)
+  MESSAGE(STATUS "Caribou Interface SPI:\t(emulated)")
+ENDIF()
 
 IF(INTERFACE_IPSOCK)
   # add IP/Socket source files
   SET(LIB_SOURCE_FILES ${LIB_SOURCE_FILES}
     "interfaces/ipsocket.cpp"
     )
-  MESSAGE(STATUS "Building Caribou IP/Socket interface.")
-ENDIF(INTERFACE_IPSOCK)
+  MESSAGE(STATUS "Caribou Interface IP/Socket:\tON")
+ELSE()
+  MESSAGE(STATUS "Caribou Interface IP/Socket:\tOFF")
+ENDIF()
 
 # Loopback interface can be always built
 IF(INTERFACE_LOOP)
@@ -86,8 +88,10 @@ IF(INTERFACE_LOOP)
   SET(LIB_SOURCE_FILES ${LIB_SOURCE_FILES}
     "interfaces/loopback.cpp"
     )
-  MESSAGE(STATUS "Building Caribou Loopback interface.")
-ENDIF(INTERFACE_LOOP)
+  MESSAGE(STATUS "Caribou Interface Loopback:\tON")
+ELSE()
+  MESSAGE(STATUS "Caribou Interface Loopback:\tOFF")
+ENDIF()
 
 ADD_LIBRARY(${PROJECT_NAME} SHARED ${LIB_SOURCE_FILES})
 TARGET_LINK_LIBRARIES(${PROJECT_NAME} PUBLIC ${CMAKE_DL_LIBS})
