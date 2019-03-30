@@ -5,6 +5,12 @@ edit_uri: edit/master/doc/usermanual/
 docs_dir: doc/usermanual
 theme: readthedocs
 
+markdown_extensions:
+    - codehilite
+    - fenced_code
+    - toc:
+        permalink: True
+
 pages:
     - Introduction: index.md
     - Executables: exec.md
