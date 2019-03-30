@@ -53,7 +53,7 @@ Create the header or provide the alternative class name as first argument")
     TARGET_INCLUDE_DIRECTORIES(${${name}} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
     # Set the special header flags and add the special dynamic implementation file
-    TARGET_COMPILE_DEFINITIONS(${${name}} PRIVATE PEARY_DEVICE_NAME=${_peary_device_class})
+    TARGET_COMPILE_DEFINITIONS(${${name}} PRIVATE PEARY_DEVICE_CLASS=${_peary_device_class})
     TARGET_COMPILE_DEFINITIONS(${${name}} PRIVATE DEVICE_NAME="${_peary_device_class}")
     TARGET_COMPILE_DEFINITIONS(${${name}} PRIVATE PEARY_DEVICE_HEADER="${_peary_device_class}.hpp")
 
