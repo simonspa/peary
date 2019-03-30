@@ -26,6 +26,8 @@ namespace caribou {
     static int verbosity(const std::vector<std::string>& input);
     static int delay(const std::vector<std::string>& input);
 
+    static int getName(const std::vector<std::string>& input);
+    static int getType(const std::vector<std::string>& input);
     static int version(const std::vector<std::string>& input);
     static int configure(const std::vector<std::string>& input);
     static int reset(const std::vector<std::string>& input);

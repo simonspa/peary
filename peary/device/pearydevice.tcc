@@ -26,6 +26,8 @@ namespace caribou {
 
   template <typename T> pearyDevice<T>::~pearyDevice() { delete _hal; }
 
+  template <typename T> std::string pearyDevice<T>::getType() { return PEARY_DEVICE_NAME; }
+
   template <typename T> std::string pearyDevice<T>::getFirmwareVersion() { return _hal->getFirmwareVersion(); }
 
   template <typename T> uint8_t pearyDevice<T>::getCaRBoardID() { return _hal->getCaRBoardID(); }

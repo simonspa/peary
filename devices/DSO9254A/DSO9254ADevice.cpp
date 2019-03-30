@@ -74,7 +74,3 @@ pearydata DSO9254ADevice::getData() {
   // return values;
   return pearydata();
 }
-
-std::string DSO9254ADevice::getName() {
-  return DEVICE_NAME;
-}

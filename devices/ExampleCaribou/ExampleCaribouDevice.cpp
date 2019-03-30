@@ -20,8 +20,8 @@ std::string ExampleCaribouDevice::getFirmwareVersion() {
   return "42.23alpha";
 }
 
-std::string ExampleCaribouDevice::getName() {
-  return DEVICE_NAME;
+std::string ExampleCaribouDevice::getType() {
+  return PEARY_DEVICE_NAME;
 }
 
 void ExampleCaribouDevice::powerOn() {

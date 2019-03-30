@@ -19,8 +19,6 @@ namespace caribou {
     CCPDv5Device(const caribou::Configuration config);
     ~CCPDv5Device();
 
-    std::string getName();
-
     /** Initializer function for CCPDV5
      */
     void configure();

@@ -31,10 +31,6 @@ namespace caribou {
     DSO9254ADevice(const caribou::Configuration config);
     ~DSO9254ADevice();
 
-    /** Return human-readable name of this device
-     */
-    std::string getName();
-
     void send(std::string command);
     std::string query(const std::string query);
 

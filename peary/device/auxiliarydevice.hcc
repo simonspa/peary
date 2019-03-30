@@ -31,7 +31,12 @@ namespace caribou {
 
     /** Return the human-readable device name
      */
-    virtual std::string getName() = 0;
+    virtual std::string getName() { return getType(); };
+
+    /** Return the human-readable device type
+     */
+    std::string getType();
+
     virtual std::string getFirmwareVersion() { return std::string(); };
 
     virtual std::vector<uint32_t> getRawData() { return std::vector<uint32_t>(); };

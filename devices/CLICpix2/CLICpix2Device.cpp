@@ -19,10 +19,6 @@
 using namespace caribou;
 using namespace clicpix2_utils;
 
-std::string CLICpix2Device::getName() {
-  return DEVICE_NAME;
-}
-
 CLICpix2Device::CLICpix2Device(const caribou::Configuration config)
     : pearyDevice(config, std::string(DEFAULT_DEVICEPATH)), pg_total_length(0) {
 

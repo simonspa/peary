@@ -104,10 +104,6 @@ C3PDDevice::~C3PDDevice() {
   powerOff();
 }
 
-std::string C3PDDevice::getName() {
-  return DEVICE_NAME;
-}
-
 void C3PDDevice::powerUp() {
   LOG(INFO) << "Powering up";
 

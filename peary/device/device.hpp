@@ -52,6 +52,7 @@ namespace caribou {
     /** Return the human-readable device name
      */
     virtual std::string getName() = 0;
+    virtual std::string getType() = 0;
 
     /** Turn on the power supply for the attached device
      */

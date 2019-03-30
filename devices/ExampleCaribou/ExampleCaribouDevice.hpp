@@ -24,7 +24,8 @@ namespace caribou {
     ~ExampleCaribouDevice();
 
     std::string getFirmwareVersion();
-    std::string getName();
+    std::string getType();
+    std::string getName() { return getType(); }
 
     // Controll the device
     void reset(){};

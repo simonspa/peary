@@ -20,8 +20,6 @@ namespace caribou {
     C3PDDevice(const caribou::Configuration config);
     ~C3PDDevice();
 
-    std::string getName();
-
     /** Initializer function for C3PD
      */
     void configure();

@@ -34,10 +34,6 @@ CCPDv5Device::~CCPDv5Device() {
   powerOff();
 }
 
-std::string CCPDv5Device::getName() {
-  return DEVICE_NAME;
-}
-
 void CCPDv5Device::powerUp() {
   LOG(INFO) << ": Powering up CCPDv5Device";
 }
