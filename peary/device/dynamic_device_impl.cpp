@@ -7,7 +7,7 @@
  * - DEVICE_HEADER: name of the header defining the device
  */
 
-#ifndef PEARY_DEVICE_NAME
+#ifndef PEARY_DEVICE_CLASS
 #error "This header should only be automatically included during the build"
 #endif
 
@@ -33,7 +33,7 @@ namespace caribou {
    */
   caribouDevice* peary_device_generator(const Configuration config);
   caribouDevice* peary_device_generator(const Configuration config) {
-    auto device = new PEARY_DEVICE_NAME(config); // NOLINT
+    auto device = new PEARY_DEVICE_CLASS(config); // NOLINT
     return static_cast<caribouDevice*>(device);
   }
   }
