@@ -31,8 +31,6 @@ namespace caribou {
     CLICpix2Device(const caribou::Configuration config);
     ~CLICpix2Device();
 
-    std::string getName();
-
     /** Initializer function for CLICpix2
      */
     void configure();
