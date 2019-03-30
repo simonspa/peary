@@ -59,7 +59,7 @@ CLICpix2Device::CLICpix2Device(const caribou::Configuration config)
 }
 
 void CLICpix2Device::configure() {
-  LOG(INFO) << "Configuring " << DEVICE_NAME;
+  LOG(INFO) << "Configuring";
   configureClock(_config.Get<bool>("clock_internal", false));
   reset();
   mDelay(10);
@@ -93,7 +93,7 @@ void CLICpix2Device::configure() {
 }
 
 void CLICpix2Device::reset() {
-  LOG(DEBUG) << "Resetting " << DEVICE_NAME;
+  LOG(DEBUG) << "Resetting";
   volatile uint32_t* control_reg = reinterpret_cast<volatile uint32_t*>(
     reinterpret_cast<std::intptr_t>(
       _hal->getMappedMemoryRW(CLICPIX2_CONTROL_BASE_ADDRESS, CLICPIX2_CONTROL_MAP_SIZE, CLICPIX2_CONTROL_MAP_MASK)) +
@@ -105,7 +105,7 @@ void CLICpix2Device::reset() {
 
 CLICpix2Device::~CLICpix2Device() {
 
-  LOG(INFO) << DEVICE_NAME << ": Shutdown, delete device.";
+  LOG(INFO) << "Shutdown, delete device.";
   powerOff();
 }
 
@@ -158,7 +158,7 @@ void CLICpix2Device::setSpecialRegister(std::string name, uint32_t value) {
 }
 
 void CLICpix2Device::powerUp() {
-  LOG(INFO) << DEVICE_NAME << ": Powering up CLICpix2";
+  LOG(INFO) << "Powering up";
 
   LOG(DEBUG) << " CMLBUFFERS_VDD";
   this->setVoltage("cmlbuffers_vdd",
@@ -197,7 +197,7 @@ void CLICpix2Device::powerUp() {
 }
 
 void CLICpix2Device::powerDown() {
-  LOG(INFO) << DEVICE_NAME << ": Power off CLICpix2";
+  LOG(INFO) << "Power off";
 
   LOG(DEBUG) << "Power off CML_IREF";
   this->switchOff("cml_iref");
@@ -438,11 +438,11 @@ void CLICpix2Device::configureClock(bool internal) {
 
   // Check of we should configure for external or internal clock, default to external:
   if(internal) {
-    LOG(DEBUG) << DEVICE_NAME << ": Configure internal clock source, free running, not locking";
+    LOG(DEBUG) << "Configure internal clock source, free running, not locking";
     _hal->configureSI5345((SI5345_REG_T const* const)si5345_revb_registers_free, SI5345_REVB_REG_CONFIG_NUM_REGS_FREE);
     mDelay(100); // let the PLL lock
   } else {
-    LOG(DEBUG) << DEVICE_NAME << ": Configure external clock source, locked to TLU input clock";
+    LOG(DEBUG) << "Configure external clock source, locked to TLU input clock";
     _hal->configureSI5345((SI5345_REG_T const* const)si5345_revb_registers, SI5345_REVB_REG_CONFIG_NUM_REGS);
     LOG(DEBUG) << "Waiting for clock to lock...";
 
@@ -457,7 +457,7 @@ void CLICpix2Device::configureClock(bool internal) {
 }
 
 void CLICpix2Device::powerStatusLog() {
-  LOG(INFO) << DEVICE_NAME << " power status:";
+  LOG(INFO) << "Power status:";
 
   LOG(INFO) << "VDDA:";
   LOG(INFO) << "\tBus voltage: " << this->getVoltage("vdda") << "V";
@@ -486,7 +486,7 @@ void CLICpix2Device::powerStatusLog() {
 }
 
 void CLICpix2Device::exploreInterface() {
-  LOG(INFO) << DEVICE_NAME << " - Exploring interface capabilities ...";
+  LOG(INFO) << "Exploring interface capabilities...";
 
   std::vector<std::pair<uint8_t, uint8_t>> pairvec;
   uint8_t defaultValues[] = {30,  50, 80,  90,  64, 136, 133, 133, 133, 133, 30, 50, 90, 0,
@@ -499,7 +499,7 @@ void CLICpix2Device::exploreInterface() {
   for(unsigned int i = 0; i < default_rx.size(); i++)
     if(default_rx[i].second != defaultValues[i])
       throw DataCorrupt("Default register vaules mismatch");
-  LOG(INFO) << DEVICE_NAME << "Success readout of default values of registers (addresses range 0x0a - 0x3E)";
+  LOG(INFO) << "Success readout of default values of registers (addresses range 0x0a - 0x3E)";
 
   std::vector<std::pair<uint8_t, uint8_t>> rx = _hal->send(pairvec);
   for(unsigned int i = 0; i < rx.size(); i++)
@@ -512,9 +512,8 @@ void CLICpix2Device::exploreInterface() {
     pairvec.push_back(std::make_pair(i, default_rx[y++].second));
   }
   _hal->send(pairvec);
-  LOG(INFO) << DEVICE_NAME << "Reverting the default values of registers (addresses range 0x0a - 0x3E)";
-
-  LOG(INFO) << DEVICE_NAME << " - Exploring interface capabilities ... Done";
+  LOG(INFO) << "Reverting the default values of registers (addresses range 0x0a - 0x3E)";
+  LOG(INFO) << "Exploring interface capabilities... Done";
 }
 
 void CLICpix2Device::daqStart() {
@@ -528,7 +527,7 @@ pearydata CLICpix2Device::decodeFrame(const std::vector<uint32_t>& frame) {
 
   clicpix2_frameDecoder decoder((bool)comp, (bool)sp_comp, pixelsConfig);
   decoder.decode(frame);
-  LOG(DEBUG) << DEVICE_NAME << "Decoded frame [row][column]:\n" << decoder;
+  LOG(DEBUG) << "Decoded frame [row][column]:\n" << decoder;
   return decoder.getZerosuppressedFrame();
 }
 
@@ -538,7 +537,7 @@ pearydata CLICpix2Device::getData() {
 
 std::vector<uint32_t> CLICpix2Device::getFrame() {
 
-  LOG(DEBUG) << DEVICE_NAME << " frame readout requested";
+  LOG(DEBUG) << "Frame readout requested";
   this->setRegister("readout", 0);
   std::vector<uint32_t> frame;
 
@@ -562,7 +561,7 @@ std::vector<uint32_t> CLICpix2Device::getFrame() {
     frame.emplace_back(*(
       reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(receiver_base) + CLICPIX2_RECEIVER_FIFO_OFFSET)));
   }
-  LOG(DEBUG) << DEVICE_NAME << " Read raw SerDes data:\n" << listVector(frame, ", ", true);
+  LOG(DEBUG) << "Read raw SerDes data:\n" << listVector(frame, ", ", true);
   return frame;
 }
 
@@ -570,7 +569,7 @@ std::vector<uint32_t> CLICpix2Device::getRawData() {
   // Trigger the pattern generator to open the shutter and acquire one frame:
   triggerPatternGenerator(true);
 
-  LOG(DEBUG) << DEVICE_NAME << " Preparing raw data packet";
+  LOG(DEBUG) << "Preparing raw data packet";
   std::vector<uint32_t> rawdata;
 
   // Get the timestamps:
@@ -584,7 +583,7 @@ std::vector<uint32_t> CLICpix2Device::getRawData() {
   rawdata.insert(rawdata.end(), timestamps.begin(), timestamps.end());
   rawdata.insert(rawdata.end(), frame.begin(), frame.end());
 
-  LOG(DEBUG) << DEVICE_NAME << " Raw data packet with " << rawdata.size() << " words ready";
+  LOG(DEBUG) << "Raw data packet with " << rawdata.size() << " words ready";
   return rawdata;
 }
 
@@ -596,7 +595,7 @@ void CLICpix2Device::clearTimestamps() {
 std::vector<uint32_t> CLICpix2Device::getTimestamps() {
 
   std::vector<uint32_t> timestamps;
-  LOG(DEBUG) << DEVICE_NAME << " Requesting timestamps";
+  LOG(DEBUG) << "Requesting timestamps";
 
   void* control_base =
     _hal->getMappedMemoryRW(CLICPIX2_CONTROL_BASE_ADDRESS, CLICPIX2_CONTROL_MAP_SIZE, CLICPIX2_CONTROL_MAP_MASK);
@@ -608,7 +607,7 @@ std::vector<uint32_t> CLICpix2Device::getTimestamps() {
 
   // dummy readout
   if((*timestamp_msb & 0x80000000) != 0) {
-    LOG(WARNING) << DEVICE_NAME << " Timestamps FIFO is empty";
+    LOG(WARNING) << "Timestamps FIFO is empty";
     return timestamps;
   }
 
@@ -625,8 +624,7 @@ std::vector<uint32_t> CLICpix2Device::getTimestamps() {
     timestamps.push_back(ts_lsb);
     LOG(DEBUG) << ts_msb << " | " << ts_lsb << " = " << ((static_cast<uint64_t>(ts_msb) << 32) | ts_lsb);
   } while(!(ts_msb & 0x80000000));
-  LOG(DEBUG) << DEVICE_NAME << " Received " << timestamps.size() / 2
-             << " timestamps: " << listVector(timestamps, ",", false);
+  LOG(DEBUG) << "Received " << timestamps.size() / 2 << " timestamps: " << listVector(timestamps, ",", false);
 
   return timestamps;
 }
