@@ -241,14 +241,22 @@ namespace caribou {
  */
 #define IFLOG(level) if(caribou::LogLevel::level <= caribou::Log::getReportingLevel() && !caribou::Log::getStreams().empty())
 
-/**
- * @brief Create a logging stream if the reporting level is high enough
- * @param level The log level of the stream
- */
-#define LOG(level)                                                                                                          \
+#define LOGGING(level)                                                                                                      \
   if(caribou::LogLevel::level <= caribou::Log::getReportingLevel() && !caribou::Log::getStreams().empty())                  \
   caribou::Log().getStream(                                                                                                 \
     caribou::LogLevel::level, __FILE_NAME__, std::string(static_cast<const char*>(__func__)), __LINE__)
+
+  /**
+   * @brief Create a logging stream if the reporting level is high enough
+   * @param level The log level of the stream
+   */
+#ifdef DEVICE_NAME
+#define LOG(level)                                                                                                          \
+  caribou::Log::setSection(DEVICE_NAME);                                                                                    \
+  LOGGING(level)
+#else
+#define LOG(level) LOGGING(level)
+#endif
 
 /**
  * @brief Create a logging stream that overwrites the line if the previous message has the same identifier
