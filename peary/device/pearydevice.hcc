@@ -164,6 +164,10 @@ namespace caribou {
     // If no data available, throw caribou::NoDataAvailable exception instead of returning empty vector!
     // Otherwise synchronization of event-based detectors impossible
 
+    void setMemory(std::string name, size_t offset, uint32_t value);
+    void setMemory(std::string name, uint32_t value);
+    uint32_t getMemory(std::string name);
+
   protected:
     /** Instance of the Caribou hardware abstraction layer library
      *
@@ -186,6 +190,10 @@ namespace caribou {
     /** Periphery dictionary to access CaR components:
      */
     caribou::component_dict _periphery;
+
+    /** Memory page dictionary to access FPGA registers:
+     */
+    caribou::memory_dict _memory;
 
   private:
     /** State indicating powering of the device
