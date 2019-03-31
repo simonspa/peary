@@ -194,22 +194,35 @@ namespace caribou {
      */
     virtual void switchOff(std::string name) = 0;
 
+    /**
+     * @brief Configure CaR current source
+     * @param name     Name of the current source
+     * @param current  Current to be set in A
+     * @param polarity Polarity of the source, true: PUSH, false: PULL
+     */
     virtual void setCurrent(std::string name, int current, bool polarity) = 0;
+
     virtual double getVoltage(std::string name) = 0;
     virtual double getCurrent(std::string name) = 0;
     virtual double getPower(std::string name) = 0;
 
-    // virtual double getTemperature();
-
-    /** Read slow-ADC value by name of the input signal as defined by the device
+    /**
+     * @brief Read ADC voltage value
      *
-     *  Returns value in SI Volts
+     * The input is identified by its name as defined by the device
+     *
+     * @returns Samples voltage in units of V
+     * @throws ConfigInvalid if the signal name is invalid
      */
     virtual double getADC(std::string name) = 0;
 
-    /** Read slow-ADC value by the input channel number of the ADC device
+    /**
+     * @brief Read ADC voltage value
      *
-     *  Returns value in SI Volts
+     * The input is identified by the channel number of the ADC chip
+     *
+     * @returns Samples voltage in units of V
+     * @throws ConfigInvalid if the channel number does not exist
      */
     virtual double getADC(uint8_t channel) = 0;
 
