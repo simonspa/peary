@@ -24,7 +24,7 @@ iface_mem::iface_mem(std::string const& device_path) : Interface(device_path), _
 iface_mem::~iface_mem() {
   // Unmap all mapped memory pages:
   for(auto& mem : _mappedMemory) {
-    LOG(DEBUG) << "Unmapping memory at " << std::hex << mem.first.getBaseAddress() << std::dec;
+    LOG(TRACE) << "Unmapping memory at " << std::hex << mem.first.getBaseAddress() << std::dec;
     if(munmap(mem.second, mem.first.getSize()) == -1) {
       LOG(FATAL) << "Can't unmap memory from user space.";
     }
@@ -34,6 +34,8 @@ iface_mem::~iface_mem() {
 }
 
 std::pair<size_t, uint32_t> iface_mem::write(const memory_map& mem, const std::pair<size_t, uint32_t>& dest) {
+  LOG(TRACE) << "Writing to mapped memory at " << std::hex << mem.getBaseAddress() << ", offset " << dest.first << std::dec
+             << ": " << dest.second;
   volatile uint32_t* reg =
     reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(mapMemory(mem)) + mem.getOffset() + dest.first);
   *reg = dest.second;
@@ -41,6 +43,7 @@ std::pair<size_t, uint32_t> iface_mem::write(const memory_map& mem, const std::p
 }
 
 uint32_t iface_mem::read(const memory_map& mem, const size_t offset) {
+  LOG(TRACE) << "Reading from mapped memory at " << std::hex << mem.getBaseAddress() << ", offset " << offset << std::dec;
   volatile uint32_t* reg =
     reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(mapMemory(mem)) + mem.getOffset() + offset);
   uint32_t value = *reg;
@@ -58,13 +61,13 @@ std::vector<uint32_t> iface_mem::read(const memory_map& mem, const size_t offset
 void* iface_mem::mapMemory(const memory_map& page) {
 
   // Check if this memory page is already mapped and return the pointer:
-  LOG(DEBUG) << "Returning mapped memory at " << std::hex << page.getBaseAddress() << std::dec;
+  LOG(TRACE) << "Returning mapped memory at " << std::hex << page.getBaseAddress() << std::dec;
   try {
     return _mappedMemory.at(page);
   }
   // Otherwise newly map it and return the reference:
   catch(const std::out_of_range& oor) {
-    LOG(DEBUG) << "Memory was not yet mapped, mapping...";
+    LOG(TRACE) << "Memory was not yet mapped, mapping...";
     // Map one page of memory into user space such that the device is in that page, but it may not
     // be at the start of the page.
     void* map_base = mmap(0, page.getSize(), page.getFlags(), MAP_SHARED, _memfd, page.getBaseAddress() & ~page.getMask());
