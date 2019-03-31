@@ -290,6 +290,10 @@ namespace caribou {
     _hal->writeMemory(_memory.get(name), value);
   }
 
+  template <typename T> uint32_t pearyDevice<T>::getMemory(std::string name, size_t offset) {
+    return _hal->readMemory(_memory.get(name), offset);
+  }
+
   template <typename T> uint32_t pearyDevice<T>::getMemory(std::string name) { return _hal->readMemory(_memory.get(name)); }
 
 } // namespace caribou
