@@ -21,7 +21,7 @@ std::pair<size_t, uint32_t> iface_mem::write(const memory_map& mem, const std::p
   return std::pair<size_t, uint32_t>();
 }
 
-uint32_t iface_mem::read(const memory_map& mem, const size_t offset) {
+uint32_t iface_mem::readWord(const memory_map& mem, const size_t offset) {
   LOG(TRACE) << "Reading from mapped memory at " << std::hex << mem.getBaseAddress() << ", offset " << offset << std::dec;
   return 0;
 }
@@ -29,7 +29,7 @@ uint32_t iface_mem::read(const memory_map& mem, const size_t offset) {
 std::vector<uint32_t> iface_mem::read(const memory_map& mem, const size_t offset, const unsigned int n) {
   std::vector<uint32_t> values;
   for(unsigned int i = 0; i < n; i++) {
-    values.push_back(this->read(mem, offset));
+    values.push_back(this->readWord(mem, offset));
   }
   return values;
 }

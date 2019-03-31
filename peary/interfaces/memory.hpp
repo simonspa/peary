@@ -40,7 +40,7 @@ namespace caribou {
   private:
     std::pair<size_t, uint32_t> write(const memory_map&, const std::pair<size_t, uint32_t>&);
 
-    uint32_t read(const memory_map&, const size_t);
+    uint32_t readWord(const memory_map&, const size_t);
     std::vector<uint32_t> read(const memory_map&, const size_t, const unsigned int);
 
     void* mapMemory(const memory_map&);

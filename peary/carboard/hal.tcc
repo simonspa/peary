@@ -32,7 +32,7 @@ namespace caribou {
 
   template <typename T> uint32_t caribouHAL<T>::readMemory(memory_map mem, size_t offset) {
     iface_mem& imem = interface_manager::getInterface<iface_mem>(MEM_PATH);
-    return imem.read(mem, offset);
+    return imem.read(mem, offset, 1).front();
   }
 
   template <typename T> std::string caribouHAL<T>::getFirmwareVersion() {
