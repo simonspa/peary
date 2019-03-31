@@ -84,6 +84,7 @@ namespace caribou {
 
     void writeMemory(memory_map mem, size_t offset, uint32_t value);
     void writeMemory(memory_map mem, uint32_t value);
+    uint32_t readMemory(memory_map mem, size_t offset);
     uint32_t readMemory(memory_map mem);
 
     /** Read the temperature from the TMP101 device

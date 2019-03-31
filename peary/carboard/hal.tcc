@@ -39,9 +39,11 @@ namespace caribou {
     *reg = value;
   }
 
-  template <typename T> uint32_t caribouHAL<T>::readMemory(memory_map mem) {
+  template <typename T> uint32_t caribouHAL<T>::readMemory(memory_map mem) { return readMemory(mem, 0); }
+
+  template <typename T> uint32_t caribouHAL<T>::readMemory(memory_map mem, size_t offset) {
     volatile uint32_t* reg =
-      reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(mapMemory(mem)) + mem.getOffset());
+      reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(mapMemory(mem)) + mem.getOffset() + offset);
     uint32_t value = *reg;
     return value;
   }
