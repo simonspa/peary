@@ -2,10 +2,8 @@
 #define CARIBOU_HAL_H
 
 #include <cstdint>
-#include <fcntl.h>
 #include <map>
 #include <string>
-#include <sys/mman.h>
 #include <tuple>
 #include <vector>
 

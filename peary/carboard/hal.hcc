@@ -76,12 +76,6 @@ namespace caribou {
      */
     std::vector<uint8_t> read(uint8_t address, uint8_t length);
 
-    /** Provide access to memory-mapped device
-     *  @returns void pointer to memory
-     */
-    void* getMappedMemoryRO(std::intptr_t base_address, std::size_t size, std::size_t mask);
-    void* getMappedMemoryRW(std::intptr_t base_address, std::size_t size, std::size_t mask);
-
     void writeMemory(memory_map mem, size_t offset, uint32_t value);
     void writeMemory(memory_map mem, uint32_t value);
     uint32_t readMemory(memory_map mem, size_t offset);
@@ -180,28 +174,7 @@ namespace caribou {
     double readSlowADC(const SLOW_ADC_CHANNEL_T channel);
 
   private:
-    class mappedMem {
-    public:
-      mappedMem(std::intptr_t b, std::size_t s, std::size_t m, int f) : base_address(b), size(s), mask(m), flags(f){};
-      std::intptr_t base_address;
-      std::size_t size;
-      std::size_t mask;
-      int flags;
-
-      bool operator<(const mappedMem& other) const {
-        if(base_address == other.base_address) {
-          if(size == other.size) {
-            if(mask == other.mask) {
-              return flags < other.flags;
-            }
-            return mask < other.mask;
-          }
-          return size < other.size;
-        }
-        return base_address < other.base_address;
-      }
-    };
-
+    // Access to FPGA memory mapped registers
     memory_map reg_firmware{CARIBOU_CONTROL_BASE_ADDRESS,
                             CARIBOU_FIRMWARE_VERSION_OFFSET,
                             CARIBOU_CONTROL_MAP_SIZE,
@@ -239,13 +212,6 @@ namespace caribou {
                                 CARIBOU_PULSER_MAP_SIZE,
                                 CARIBOU_PULSER_MAP_MASK,
                                 PROT_READ | PROT_WRITE};
-
-    // Access to FPGA memory mapped registers
-    int _memfd;
-    std::map<mappedMem, void*> _mappedMemory;
-
-    void* mapMemory(std::intptr_t base_address, std::size_t size, std::size_t mask, int flags);
-    void* mapMemory(memory_map mem);
 
     // It's not possible to power on/off DCDC converter by software
     void setDCDCConverter(const DCDC_CONVERTER_T converter, const double voltage);
