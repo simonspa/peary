@@ -31,6 +31,25 @@ namespace caribou {
     return mapMemory(base_address, size, mask, PROT_READ | PROT_WRITE);
   }
 
+  template <typename T> void caribouHAL<T>::writeMemory(memory_map mem, uint32_t value) { writeMemory(mem, 0, value); }
+
+  template <typename T> void caribouHAL<T>::writeMemory(memory_map mem, size_t offset, uint32_t value) {
+    volatile uint32_t* reg =
+      reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(mapMemory(mem)) + mem.getOffset() + offset);
+    *reg = value;
+  }
+
+  template <typename T> uint32_t caribouHAL<T>::readMemory(memory_map mem) {
+    volatile uint32_t* reg =
+      reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(mapMemory(mem)) + mem.getOffset());
+    uint32_t value = *reg;
+    return value;
+  }
+
+  template <typename T> void* caribouHAL<T>::mapMemory(memory_map mem) {
+    return mapMemory(mem.getBaseAddress(), mem.getSize(), mem.getMask(), mem.getFlags());
+  }
+
   template <typename T>
   void* caribouHAL<T>::mapMemory(std::intptr_t base_address, std::size_t size, std::size_t mask, int flags) {
 

@@ -82,6 +82,10 @@ namespace caribou {
     void* getMappedMemoryRO(std::intptr_t base_address, std::size_t size, std::size_t mask);
     void* getMappedMemoryRW(std::intptr_t base_address, std::size_t size, std::size_t mask);
 
+    void writeMemory(memory_map mem, size_t offset, uint32_t value);
+    void writeMemory(memory_map mem, uint32_t value);
+    uint32_t readMemory(memory_map mem);
+
     /** Read the temperature from the TMP101 device
      *
      *  Returns temperature in degree Celsius with a precision of 0.0625degC
@@ -202,6 +206,7 @@ namespace caribou {
     std::map<mappedMem, void*> _mappedMemory;
 
     void* mapMemory(std::intptr_t base_address, std::size_t size, std::size_t mask, int flags);
+    void* mapMemory(memory_map mem);
 
     // It's not possible to power on/off DCDC converter by software
     void setDCDCConverter(const DCDC_CONVERTER_T converter, const double voltage);
