@@ -130,6 +130,9 @@ namespace caribou {
       {"counter_base",                                                                                                      \
        memory_map(                                                                                                          \
          ATLASPix_COUNTER_BASE_ADDRESS, 0x0, ATLASPix_COUNTER_MAP_SIZE, ATLASPix_COUNTER_MASK, PROT_READ | PROT_WRITE)},    \
+      {"pulser_base",                                                                                                       \
+       memory_map(                                                                                                          \
+         ATLASPix_PULSER_BASE_ADDRESS, 0x0, ATLASPix_PULSER_MAP_SIZE, ATLASPix_PULSER_MASK, PROT_READ | PROT_WRITE)},       \
   }
 
 // clang-format off

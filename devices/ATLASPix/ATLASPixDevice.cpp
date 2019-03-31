@@ -170,21 +170,12 @@ ATLASPixDevice::ATLASPixDevice(const caribou::Configuration config)
   _periphery.add("VDDRam", PWR_OUT_1);
   _periphery.add("VDDHigh", PWR_OUT_6);
 
-  void* pulser_base = _hal->getMappedMemoryRW(ATLASPix_PULSER_BASE_ADDRESS, ATLASPix_PULSER_MAP_SIZE, ATLASPix_PULSER_MASK);
-  volatile uint32_t* inj_flag = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x0);
-  volatile uint32_t* pulse_count = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x4);
-  volatile uint32_t* high_cnt = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x8);
-  volatile uint32_t* low_cnt = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0xC);
-  volatile uint32_t* output_enable =
-    reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x10);
-  volatile uint32_t* rst = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x14);
-
-  *inj_flag = 0x0;
-  *pulse_count = 0x0;
-  *high_cnt = 0x0;
-  *low_cnt = 0x0;
-  *output_enable = 0xFFFFFFFF;
-  *rst = 0x1;
+  setMemory("pulser_base", 0x0, 0x0);         // inj_flag
+  setMemory("pulser_base", 0x4, 0x0);         // pulse_count
+  setMemory("pulser_base", 0x8, 0x0);         // high_cnt
+  setMemory("pulser_base", 0xC, 0x0);         // low_cnt
+  setMemory("pulser_base", 0x10, 0xFFFFFFFF); // output_enable
+  setMemory("pulser_base", 0x14, 0x1);        // rst
 
   // enable data taking
   _daqContinue.test_and_set();
@@ -464,11 +455,7 @@ void ATLASPixDevice::setSpecialRegister(std::string name, uint32_t value) {
 
     } else if(name == "trigger_injection") {
       trigger_injection = value;
-      void* pulser_base =
-        _hal->getMappedMemoryRW(ATLASPix_PULSER_BASE_ADDRESS, ATLASPix_PULSER_MAP_SIZE, ATLASPix_PULSER_MASK);
-      volatile uint32_t* triggerinj =
-        reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x18);
-      *triggerinj = value;
+      setMemory("pulser_base", 0x18, value); // triggerinj
 
     } else if(name == "gray_decode") {
 
@@ -591,14 +578,12 @@ void ATLASPixDevice::ProgramSR(const ATLASPixMatrix& matrix) {
 
 void ATLASPixDevice::resetPulser() {
 
-  void* pulser_base = _hal->getMappedMemoryRW(ATLASPix_PULSER_BASE_ADDRESS, ATLASPix_PULSER_MAP_SIZE, ATLASPix_PULSER_MASK);
-  volatile uint32_t* rst = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x14);
   usleep(1);
-  *rst = 0x0;
+  setMemory("pulser_base", 0x14, 0x0); // rst
   usleep(1);
-  *rst = 0x1;
+  setMemory("pulser_base", 0x14, 0x1); // rst
   usleep(1);
-  *rst = 0x0;
+  setMemory("pulser_base", 0x14, 0x0); // rst
 }
 
 void ATLASPixDevice::setPulse(
@@ -614,32 +599,19 @@ void ATLASPixDevice::setPulse(
   _hal->setBiasRegulator(INJ_4, voltage);
   _hal->powerBiasRegulator(INJ_4, true);
 
-  void* pulser_base = _hal->getMappedMemoryRW(ATLASPix_PULSER_BASE_ADDRESS, ATLASPix_PULSER_MAP_SIZE, ATLASPix_PULSER_MASK);
-
-  // volatile uint32_t* inj_flag = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x0);
-  volatile uint32_t* pulse_count = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x4);
-  volatile uint32_t* high_cnt = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x8);
-  volatile uint32_t* low_cnt = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0xC);
-  volatile uint32_t* output_enable =
-    reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x10);
-  // volatile uint32_t* rst = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x14);
-
-  *pulse_count = npulse;
-  *high_cnt = n_up;
-  *low_cnt = n_down;
-  *output_enable = 0xFFFFF; // matrix.PulserMask;
+  setMemory("pulser_base", 0x4, npulse);   // pulse_count
+  setMemory("pulser_base", 0x8, n_up);     // high_cnt
+  setMemory("pulser_base", 0xC, n_down);   // low_cnt
+  setMemory("pulser_base", 0x10, 0xFFFFF); // output_enable  // matrix.PulserMask;
 
   this->pulse_width = std::ceil(((npulse * n_up + npulse * n_down) * (1.0 / 160.0e6)) / 1e-6) + 10;
 }
 
 void ATLASPixDevice::sendPulse() {
 
-  void* pulser_base = _hal->getMappedMemoryRW(ATLASPix_PULSER_BASE_ADDRESS, ATLASPix_PULSER_MAP_SIZE, ATLASPix_PULSER_MASK);
-  volatile uint32_t* inj_flag = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x0);
-
-  *inj_flag = 0x1;
+  setMemory("pulser_base", 0x0, 0x1); // inj_flag
   usleep(this->pulse_width);
-  *inj_flag = 0x0;
+  setMemory("pulser_base", 0x0, 0x0); // inj_flag
 }
 
 void ATLASPixDevice::resetCounters() {
