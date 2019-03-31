@@ -94,6 +94,46 @@ namespace caribou {
 //  const std::size_t ATLASPix_RAM_reg_limit_MASK = 0xFFFFFFFF;
 //  const std::size_t ATLASPix_RAM_shift_limit_MASK = 0xFFFFFFFF;
 
+// clang-format on
+#define ATLASPix_MEMORY                                                                                                     \
+  {                                                                                                                         \
+    {"data",                                                                                                                \
+     memory_map(                                                                                                            \
+       ATLASPix_READOUT_BASE_ADDRESS, 0x0, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK, PROT_READ | PROT_WRITE)},      \
+      {"fifo_status",                                                                                                       \
+       memory_map(                                                                                                          \
+         ATLASPix_READOUT_BASE_ADDRESS, 0x4, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK, PROT_READ | PROT_WRITE)},    \
+      {"fifo_config",                                                                                                       \
+       memory_map(                                                                                                          \
+         ATLASPix_READOUT_BASE_ADDRESS, 0x8, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK, PROT_READ | PROT_WRITE)},    \
+      {"config2",                                                                                                           \
+       memory_map(                                                                                                          \
+         ATLASPix_READOUT_BASE_ADDRESS, 0xC, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK, PROT_READ | PROT_WRITE)},    \
+      {"trg_cnt",                                                                                                           \
+       memory_map(                                                                                                          \
+         ATLASPix_READOUT_BASE_ADDRESS, 0x18, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK, PROT_READ | PROT_WRITE)},   \
+      {"ram_base",                                                                                                          \
+       memory_map(ATLASPix_CONTROL_BASE_ADDRESS,                                                                            \
+                  0x0,                                                                                                      \
+                  ATLASPix_CONTROL_MAP_SIZE,                                                                                \
+                  ATLASPix_RAM_address_MASK,                                                                                \
+                  PROT_READ | PROT_WRITE)},                                                                                 \
+      {"readout_fsm",                                                                                                       \
+       memory_map(                                                                                                          \
+         ATLASPix_READOUT_BASE_ADDRESS, 0x10, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK, PROT_READ | PROT_WRITE)},   \
+      {"cnt_rst",                                                                                                           \
+       memory_map(                                                                                                          \
+         ATLASPix_COUNTER_BASE_ADDRESS, 0x10, ATLASPix_COUNTER_MAP_SIZE, ATLASPix_COUNTER_MASK, PROT_READ | PROT_WRITE)},   \
+      {"global_reset",                                                                                                      \
+       memory_map(                                                                                                          \
+         ATLASPix_COUNTER_BASE_ADDRESS, 0x14, ATLASPix_COUNTER_MAP_SIZE, ATLASPix_COUNTER_MASK, PROT_READ | PROT_WRITE)},   \
+      {"counter_base",                                                                                                      \
+       memory_map(                                                                                                          \
+         ATLASPix_COUNTER_BASE_ADDRESS, 0x0, ATLASPix_COUNTER_MAP_SIZE, ATLASPix_COUNTER_MASK, PROT_READ | PROT_WRITE)},    \
+  }
+
+// clang-format off
+
 /** Dictionary for register address/name lookup for ATLASPix
  */
 #define ATLASPix_REGISTERS				\
