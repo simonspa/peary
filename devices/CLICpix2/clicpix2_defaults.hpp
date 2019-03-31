@@ -65,7 +65,7 @@ namespace caribou {
                   CLICPIX2_CONTROL_MAP_SIZE,                                                                                \
                   CLICPIX2_CONTROL_MAP_MASK,                                                                                \
                   PROT_READ | PROT_WRITE)},                                                                                 \
-      {"wave_evens",                                                                                                        \
+      {"wave_events",                                                                                                       \
        memory_map(CLICPIX2_CONTROL_BASE_ADDRESS,                                                                            \
                   CLICPIX2_WAVE_EVENTS_OFFSET,                                                                              \
                   CLICPIX2_CONTROL_MAP_SIZE,                                                                                \
