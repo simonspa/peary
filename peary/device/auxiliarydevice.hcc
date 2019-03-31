@@ -53,11 +53,11 @@ namespace caribou {
     };
 
     virtual void setVoltage(std::string, double, double){};
-    virtual void setBias(std::string, double){};
-    virtual void setInjectionBias(std::string, double){};
+
     virtual void switchOn(std::string){};
     virtual void switchOff(std::string){};
     virtual void setCurrent(std::string, int, bool){};
+
     virtual double getVoltage(std::string) { return double(); };
     virtual double getCurrent(std::string) { return double(); };
     virtual double getPower(std::string) { return double(); };

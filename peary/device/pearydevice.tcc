@@ -67,6 +67,9 @@ namespace caribou {
     } else if(std::dynamic_pointer_cast<BIAS_REGULATOR_T>(ptr)) {
       // Bias regulators
       _hal->setBiasRegulator(*std::dynamic_pointer_cast<BIAS_REGULATOR_T>(ptr), voltage);
+    } else if(std::dynamic_pointer_cast<INJBIAS_REGULATOR_T>(ptr)) {
+      // Injection bias regulators
+      // FIXME
     } // Send command to voltage regulators via HAL
   }
 
@@ -141,8 +144,6 @@ namespace caribou {
     // Read slow ADC
     return _hal->readSlowADC(*ptr);
   }
-
-  template <typename T> void pearyDevice<T>::setInjectionBias(std::string, double) {}
 
   template <typename T> void pearyDevice<T>::setCurrent(std::string name, int current, bool polarity) {
 

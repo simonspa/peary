@@ -164,18 +164,34 @@ namespace caribou {
      */
     virtual void reset() = 0;
 
-    // Voltage regulators
-
-    // To set supply voltages, same question as above: how to define voltage names?
-    // Separate functions to set target voltage and activate?
-    // Purely virtual?
-    // Do they need to be virtual? Maybe implement in baseclass (always same for CaR)
-    // and only look up correct regulator according to name from child class dictionary?
+    /**
+     * @brief Set voltage and current limit on CaR components
+     *
+     * This method allows to configure voltage regulators, bias voltages and injection pulser voltages
+     * @param name         Name of the component
+     * @param voltage      Voltage to be set in V
+     * @param currentlimit Optional current limit to set in A, not used by all components
+     */
     virtual void setVoltage(std::string name, double voltage, double currentlimit = 3) = 0;
-    virtual void setBias(std::string name, double voltage) = 0;
-    virtual void setInjectionBias(std::string name, double voltage) = 0;
 
+    /**
+     * @brief Switch on the given CaR resource
+     *
+     * This method allows to switch on individual resources on the CaR board such as power supplied or biad voltages. The
+     * resource is identified by its human-readable name and has to be registered by the device in the periphery dictionary
+     *
+     * @param name Name of the resource
+     */
     virtual void switchOn(std::string name) = 0;
+
+    /**
+     * @brief Switch off the given CaR resource
+     *
+     * This method allows to switch off individual resources on the CaR board. The resource is identified by its
+     * human-readable name and has to be registered by the device in the periphery dictionary.
+     *
+     * @param name Name of the resource
+     */
     virtual void switchOff(std::string name) = 0;
 
     virtual void setCurrent(std::string name, int current, bool polarity) = 0;
