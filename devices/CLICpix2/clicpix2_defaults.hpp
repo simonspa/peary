@@ -51,6 +51,52 @@ namespace caribou {
   const std::size_t CLICPIX2_CONTROL_MAP_SIZE = 4096;
   const std::size_t CLICPIX2_CONTROL_MAP_MASK = CLICPIX2_CONTROL_MAP_SIZE - 1;
 
+#define CLICPIX2_MEMORY                                                                                                     \
+  {                                                                                                                         \
+    {"reset",                                                                                                               \
+     memory_map(CLICPIX2_CONTROL_BASE_ADDRESS,                                                                              \
+                CLICPIX2_RESET_OFFSET,                                                                                      \
+                CLICPIX2_CONTROL_MAP_SIZE,                                                                                  \
+                CLICPIX2_CONTROL_MAP_MASK,                                                                                  \
+                PROT_READ | PROT_WRITE)},                                                                                   \
+      {"wave_control",                                                                                                      \
+       memory_map(CLICPIX2_CONTROL_BASE_ADDRESS,                                                                            \
+                  CLICPIX2_WAVE_CONTROL_OFFSET,                                                                             \
+                  CLICPIX2_CONTROL_MAP_SIZE,                                                                                \
+                  CLICPIX2_CONTROL_MAP_MASK,                                                                                \
+                  PROT_READ | PROT_WRITE)},                                                                                 \
+      {"wave_evens",                                                                                                        \
+       memory_map(CLICPIX2_CONTROL_BASE_ADDRESS,                                                                            \
+                  CLICPIX2_WAVE_EVENTS_OFFSET,                                                                              \
+                  CLICPIX2_CONTROL_MAP_SIZE,                                                                                \
+                  CLICPIX2_CONTROL_MAP_MASK,                                                                                \
+                  PROT_READ | PROT_WRITE)},                                                                                 \
+      {"frame_size",                                                                                                        \
+       memory_map(CLICPIX2_RECEIVER_BASE_ADDRESS,                                                                           \
+                  CLICPIX2_RECEIVER_COUNTER_OFFSET,                                                                         \
+                  CLICPIX2_RECEIVER_MAP_SIZE,                                                                               \
+                  CLICPIX2_RECEIVER_MAP_MASK,                                                                               \
+                  PROT_READ)},                                                                                              \
+      {"frame",                                                                                                             \
+       memory_map(CLICPIX2_RECEIVER_BASE_ADDRESS,                                                                           \
+                  CLICPIX2_RECEIVER_FIFO_OFFSET,                                                                            \
+                  CLICPIX2_RECEIVER_MAP_SIZE,                                                                               \
+                  CLICPIX2_RECEIVER_MAP_MASK,                                                                               \
+                  PROT_READ)},                                                                                              \
+      {"timestamp_lsb",                                                                                                     \
+       memory_map(CLICPIX2_CONTROL_BASE_ADDRESS,                                                                            \
+                  CLICPIX2_TIMESTAMPS_LSB_OFFSET,                                                                           \
+                  CLICPIX2_CONTROL_MAP_SIZE,                                                                                \
+                  CLICPIX2_CONTROL_MAP_MASK,                                                                                \
+                  PROT_READ | PROT_WRITE)},                                                                                 \
+      {"timestamp_msb",                                                                                                     \
+       memory_map(CLICPIX2_CONTROL_BASE_ADDRESS,                                                                            \
+                  CLICPIX2_TIMESTAMPS_MSB_OFFSET,                                                                           \
+                  CLICPIX2_CONTROL_MAP_SIZE,                                                                                \
+                  CLICPIX2_CONTROL_MAP_MASK,                                                                                \
+                  PROT_READ | PROT_WRITE)},                                                                                 \
+  }
+
 // clang-format off
 #define CLICPIX2_REGISTERS						\
   {									\
