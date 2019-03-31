@@ -262,12 +262,26 @@ namespace caribou {
   public:
     memory_map(std::intptr_t base_address, std::intptr_t offset, std::size_t size, std::size_t mask, int flags = PROT_READ)
         : _base_address(base_address), _offset(offset), _size(size), _mask(mask), _flags(flags){};
-    std::intptr_t getBaseAddress() { return _base_address; }
-    std::intptr_t getOffset() { return _offset; }
-    std::size_t getSize() { return _size; }
-    std::size_t getMask() { return _mask; }
-    int getFlags() { return _flags; }
-    bool writable() { return _flags & PROT_WRITE; }
+    std::intptr_t getBaseAddress() const { return _base_address; }
+    std::intptr_t getOffset() const { return _offset; }
+    std::size_t getSize() const { return _size; }
+    std::size_t getMask() const { return _mask; }
+    int getFlags() const { return _flags; }
+    bool writable() const { return _flags & PROT_WRITE; }
+
+    // Compare memory pages, ingoring the offset
+    bool operator<(const memory_map& other) const {
+      if(_base_address == other.getBaseAddress()) {
+        if(_size == other.getSize()) {
+          if(_mask == other.getMask()) {
+            return _flags < other.getFlags();
+          }
+          return _mask < other.getMask();
+        }
+        return _size < other.getSize();
+      }
+      return _base_address < other.getBaseAddress();
+    }
 
   private:
     std::intptr_t _base_address;
