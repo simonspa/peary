@@ -23,6 +23,7 @@
 
 #include "i2c.hpp"
 #include "loopback.hpp"
+#include "memory.hpp"
 #include "spi.hpp"
 #include "spi_CLICpix2.hpp"
 
