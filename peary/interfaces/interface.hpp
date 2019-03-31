@@ -75,6 +75,11 @@ namespace caribou {
     };
 
     // Read number of data words form a register of the given device
+    virtual DATA_T read(const ADDRESS_T&, const REG_T) {
+      throw CommunicationError("Functionality not provided by this interface");
+    };
+
+    // Read number of data words form a register of the given device
     virtual std::vector<DATA_T> read(const ADDRESS_T&, const REG_T, const unsigned int = 1) {
       throw CommunicationError("Functionality not provided by this interface");
     };
