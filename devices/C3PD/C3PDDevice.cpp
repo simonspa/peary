@@ -28,12 +28,9 @@ C3PDDevice::C3PDDevice(const caribou::Configuration config)
   _registers.add(C3PD_REGISTERS);
 
   // Map C3PD control
-  void* control_base = _hal->getMappedMemoryRW(C3PD_CONTROL_BASE_ADDRESS, C3PD_CONTROL_MAP_SIZE, C3PD_CONTROL_MAP_MASK);
+  _memory.add(C3PD_MEMORY);
 
-  // set default C3PD control
-  volatile uint32_t* control_reg =
-    reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + C3PD_RESET_OFFSET);
-  *control_reg = 0; // keep C3PD in reset state
+  setMemory("reset", 0); // keep C3PD in reset state
 }
 
 void C3PDDevice::configure() {
@@ -91,12 +88,11 @@ void C3PDDevice::configureMatrix(std::string filename) {
 void C3PDDevice::reset() {
   LOG(DEBUG) << "Resetting";
 
-  void* control_base = _hal->getMappedMemoryRW(C3PD_CONTROL_BASE_ADDRESS, C3PD_CONTROL_MAP_SIZE, C3PD_CONTROL_MAP_MASK);
-  volatile uint32_t* control_reg =
-    reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + C3PD_RESET_OFFSET);
-  *control_reg &= ~(C3PD_CONTROL_RESET_MASK); // assert reset
+  // assert reset:
+  setMemory("reset", getMemory("reset") & ~(C3PD_CONTROL_RESET_MASK));
   usleep(1);
-  *control_reg |= C3PD_CONTROL_RESET_MASK; // deny reset
+  // deny reset:
+  setMemory("reset", getMemory("reset") | C3PD_CONTROL_RESET_MASK);
 }
 
 C3PDDevice::~C3PDDevice() {
