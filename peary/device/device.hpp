@@ -16,88 +16,151 @@
 
 namespace caribou {
 
-  /** Abstract Caribou Device class definition
+  /**
+   * @brief Abstract Caribou Device class definition
    *
-   *  this is the central device class from which all device implementations inherit.
-   *
-   *  Some basic functionality is defined via purely virtual member functions which
-   *  have to be implemented by every device instance. This enables the possibility
-   *  of interfacing the devices independently via the common set of function alls, e.g.,
-   *  from a GUI or a commandline interface.
+   * This is the central device class from which all device implementations inherit. Some basic functionality is defined via
+   * purely virtual member functions which have to be implemented by every device instance. This enables the possibility of
+   * interfacing the devices independently via the common set of function alls, e.g., from a GUI or a commandline interface.
    */
   class caribouDevice {
 
   public:
-    /** Default constructor for Caribou devices
-     *
+    /**
+     * @brief Default constructor for Caribou devices
+     * @param caribou::Configuration Configuration object
      */
     caribouDevice(const caribou::Configuration);
 
-    /** Default destructor for Caribou devices
+    /**
+     * @brief Default destructor for Caribou devices
      */
     virtual ~caribouDevice(){};
 
-    /** Indicator flag for managed devices
+    /**
+     * @brief Indicator flag for managed devices
+     * @return True if managed, false if unmanaged
      */
     bool isManaged() { return managedDevice; };
 
-    /** Return the software version string for reference
+    /**
+     * @brief Return the software version string for reference
+     * @brief Peary software version string
      */
     std::string getVersion();
 
-    /** Return the firmware version
+    /**
+     * @brief Return the version string of the firmware currently loaded
+     * @return Firmware version string
      */
     virtual std::string getFirmwareVersion() = 0;
 
-    /** Return the human-readable device name
+    /**
+     * @brief Return the human-readable device name (full qualifier)
+     * @return Device name
      */
     virtual std::string getName() = 0;
+
+    /**
+     * @brief Return the device type, derived from the class name
+     * @return Device type
+     */
     virtual std::string getType() = 0;
 
-    /** Turn on the power supply for the attached device
+    /**
+     * @brief Turn on all registered power supplies for the device
      */
     virtual void powerOn() = 0;
 
-    /** Turn off power for the attached device
+    /**
+     * @brief Turn off all registered power supplies for the device
      */
     virtual void powerOff() = 0;
 
-    /** Start the data acquisition
+    /**
+     * @brief Start data acquisition mode
      */
     virtual void daqStart() = 0;
 
-    /** Stop the data acquisition
+    /**
+     * @brief Stop data acquisition mode
      */
     virtual void daqStop() = 0;
 
-    /** Get data methods. Can return raw or decoded data **/
+    /**
+     * @brief Retrieve raw data from the device.
+     *
+     * This data is a vector of 32bit integers of undecoded detector response. Peary does not make any assumption on the
+     * content or structure, and special decoders have to be provided in order to decode and interpret this data. This is the
+     * method to be used by integrated data acquisition systems such as EUDAQ to retrieve data from the attached detector
+     * without the requirement of knowing which exact device it is.
+     *
+     * @return Raw detector data
+     */
     virtual std::vector<uint32_t> getRawData() = 0;
+
+    /**
+     * @brief Retrieve decoded data from the device.
+     *
+     * This method is designed for immediate quality checks of the data. Each device has to implement a decoder to translate
+     * their own data into a readable format. For this propose, the caribou::pearydata data type is used, which is a map of
+     * pixel coordinates and unique pointers to pixel objects. These pixel objects can be overloaded by the device to store
+     * relevant information. The method can also be used to e.g. write decoded data directly into an ASCII file.
+     *
+     * @return Decoded detector data
+     */
     virtual pearydata getData() = 0;
 
-    /** Initialize the device (ex.set the required clock otuputs etc.).
-     *  Function to configure the Caribou device by setting all DACs to the values
-     *  provided via the initial configuration object
+    /**
+     * @brief Configure the device
+     *
+     * Initialize the device (ex.set the required clock otuputs etc.). This function is part of the standard "booting"
+     * sequence for any device and should be called by programs using the Peary library for cdevice communication. Among
+     * other settings, it configures the with all DACs to the values provided via the initial configuration object passed to
+     * the device constructor.
      */
     virtual void configure() = 0;
 
-    // Controlling the device
-
-    /** Set register on the device
-     *
-     *  The register is identified by its human-readable name, the value is
-     *  automatically casted to the register data type (e.g. 8-bit)
-     */
+    /**
+    * @brief Set register on the device
+    *
+    * The register is identified by its human-readable name using the register dictionary, its value is automatically casted
+    * to the register data type (e.g. 8-bit). The device has to provide a list of valid register names.
+    *
+    * @param name  Name of the register
+    * @param value Value to be programmed
+    * @throws ConfigInvalid if the register name is not valid
+    * @throws RegisterTypeMismatch if the register is not writable
+    * @throws CommunicationError if the device could not be contacted
+    */
     virtual void setRegister(std::string name, uint32_t value) = 0;
 
-    /** Get register from the device
+    /**
+     * @brief Get register from the device
      *
-     *  Retrieve content of specified register from the device. The register
-     *  is identified by its human-readable name.
+     * Retrieve content of specified register from the device. The register is identified by its human-readable name via the
+     * register dictionary.
+     *
+     * @param  name Name of the register
+     * @return      Value of the register
+     * @throws ConfigInvalid if the register name is not valid
+     * @throws RegisterTypeMismatch if the register is not readable
+     * @throws CommunicationError if the device could not be contacted
      */
     virtual uint32_t getRegister(std::string name) = 0;
+
+    /**
+     * @brief Get list of all readable registers with their current values
+     *
+     * This method internally calls device::getRegister for every known register of the device. Only readable registers are
+     * returned and no exception is thrown when attempting to read write-only registers.
+     *
+     * @returns Vector with pairs of register name and value
+     */
     virtual std::vector<std::pair<std::string, uint32_t>> getRegisters() = 0;
 
-    /** Sending reset signal to the device
+    /**
+     * @brief Send reset signal to the device
      */
     virtual void reset() = 0;
 
