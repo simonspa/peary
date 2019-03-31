@@ -48,13 +48,9 @@ CLICpix2Device::CLICpix2Device(const caribou::Configuration config)
 
   // Add memory pages to the dictionary:
   _memory.add(CLICPIX2_MEMORY);
+
   // set default CLICpix2 control
-  memory_map reg_control(CLICPIX2_CONTROL_BASE_ADDRESS,
-                         CLICPIX2_RESET_OFFSET,
-                         CLICPIX2_CONTROL_MAP_SIZE,
-                         CLICPIX2_CONTROL_MAP_MASK,
-                         PROT_READ | PROT_WRITE);
-  _hal->writeMemory(reg_control, 0);
+  setMemory("reset", 0);
 }
 
 void CLICpix2Device::configure() {
@@ -93,17 +89,12 @@ void CLICpix2Device::configure() {
 
 void CLICpix2Device::reset() {
   LOG(DEBUG) << "Resetting";
-  memory_map reg_control(CLICPIX2_CONTROL_BASE_ADDRESS,
-                         CLICPIX2_RESET_OFFSET,
-                         CLICPIX2_CONTROL_MAP_SIZE,
-                         CLICPIX2_CONTROL_MAP_MASK,
-                         PROT_READ | PROT_WRITE);
 
   // assert reset:
-  _hal->writeMemory(reg_control, _hal->readMemory(reg_control) & ~(CLICPIX2_CONTROL_RESET_MASK));
+  setMemory("reset", getMemory("reset") & ~(CLICPIX2_CONTROL_RESET_MASK));
   usleep(1);
   // deny reset:
-  _hal->writeMemory(reg_control, _hal->readMemory(reg_control) | CLICPIX2_CONTROL_RESET_MASK);
+  setMemory("reset", getMemory("reset") | CLICPIX2_CONTROL_RESET_MASK);
 }
 
 CLICpix2Device::~CLICpix2Device() {
@@ -298,15 +289,8 @@ void CLICpix2Device::triggerPatternGenerator(bool sleep) {
   LOG(DEBUG) << "Triggering pattern generator once.";
 
   // Write into enable register of pattern generator:
-  memory_map wave_control(CLICPIX2_CONTROL_BASE_ADDRESS,
-                          CLICPIX2_WAVE_CONTROL_OFFSET,
-                          CLICPIX2_CONTROL_MAP_SIZE,
-                          CLICPIX2_CONTROL_MAP_MASK,
-                          PROT_READ | PROT_WRITE);
-
-  // Toggle on:
-  _hal->writeMemory(wave_control, _hal->readMemory(wave_control) & ~(CLICPIX2_CONTROL_WAVE_GENERATOR_ENABLE_MASK));
-  _hal->writeMemory(wave_control, _hal->readMemory(wave_control) | CLICPIX2_CONTROL_WAVE_GENERATOR_ENABLE_MASK);
+  setMemory("wave_control", getMemory("wave_control") & ~(CLICPIX2_CONTROL_WAVE_GENERATOR_ENABLE_MASK));
+  setMemory("wave_control", getMemory("wave_control") | CLICPIX2_CONTROL_WAVE_GENERATOR_ENABLE_MASK);
 
   // Wait for its length before returning:
   if(sleep)
@@ -364,23 +348,10 @@ void CLICpix2Device::configurePatternGenerator(std::string filename) {
     throw ConfigInvalid("Pattern generator too long");
   }
 
-  memory_map wave_control(CLICPIX2_CONTROL_BASE_ADDRESS,
-                          CLICPIX2_WAVE_CONTROL_OFFSET,
-                          CLICPIX2_CONTROL_MAP_SIZE,
-                          CLICPIX2_CONTROL_MAP_MASK,
-                          PROT_READ | PROT_WRITE);
-
   // Switch loop mode off:
-  _hal->writeMemory(wave_control, _hal->readMemory(wave_control) & ~(CLICPIX2_CONTROL_WAVE_GENERATOR_LOOP_MODE_MASK));
-
-  memory_map wave_events(CLICPIX2_CONTROL_BASE_ADDRESS,
-                         CLICPIX2_WAVE_EVENTS_OFFSET,
-                         CLICPIX2_CONTROL_MAP_SIZE,
-                         CLICPIX2_CONTROL_MAP_MASK,
-                         PROT_READ | PROT_WRITE);
-
+  setMemory("wave_control", getMemory("wave_control") & ~(CLICPIX2_CONTROL_WAVE_GENERATOR_LOOP_MODE_MASK));
   for(size_t reg = 0; reg < patterns.size(); reg++) {
-    _hal->writeMemory(wave_events, (reg << 2), patterns.at(reg));
+    setMemory("wave_events", (reg << 2), patterns.at(reg));
   }
   LOG(DEBUG) << "Done configuring pattern generator.";
 }
@@ -550,29 +521,18 @@ std::vector<uint32_t> CLICpix2Device::getFrame() {
   this->setRegister("readout", 0);
   std::vector<uint32_t> frame;
 
-  memory_map frame_size_reg(CLICPIX2_RECEIVER_BASE_ADDRESS,
-                            CLICPIX2_RECEIVER_COUNTER_OFFSET,
-                            CLICPIX2_RECEIVER_MAP_SIZE,
-                            CLICPIX2_RECEIVER_MAP_MASK,
-                            PROT_READ);
-  memory_map frame_reg(CLICPIX2_RECEIVER_BASE_ADDRESS,
-                       CLICPIX2_RECEIVER_FIFO_OFFSET,
-                       CLICPIX2_RECEIVER_MAP_SIZE,
-                       CLICPIX2_RECEIVER_MAP_MASK,
-                       PROT_READ);
-
   // Poll data until frameSize doesn't change anymore
-  unsigned int frameSize = _hal->readMemory(frame_size_reg);
+  unsigned int frameSize = getMemory("frame_size");
   unsigned int frameSize_previous;
   do {
     frameSize_previous = frameSize;
     usleep(100);
-    frameSize = _hal->readMemory(frame_size_reg);
+    frameSize = getMemory("frame_size");
   } while(frameSize != frameSize_previous);
 
   frame.reserve(frameSize);
   for(unsigned int i = 0; i < frameSize; ++i) {
-    frame.emplace_back(_hal->readMemory(frame_reg));
+    frame.emplace_back(getMemory("frame"));
   }
   LOG(DEBUG) << "Read raw SerDes data:\n" << listVector(frame, ", ", true);
   return frame;
@@ -610,19 +570,8 @@ std::vector<uint32_t> CLICpix2Device::getTimestamps() {
   std::vector<uint32_t> timestamps;
   LOG(DEBUG) << "Requesting timestamps";
 
-  memory_map timestamp_lsb(CLICPIX2_CONTROL_BASE_ADDRESS,
-                           CLICPIX2_TIMESTAMPS_LSB_OFFSET,
-                           CLICPIX2_CONTROL_MAP_SIZE,
-                           CLICPIX2_CONTROL_MAP_MASK,
-                           PROT_READ | PROT_WRITE);
-  memory_map timestamp_msb(CLICPIX2_CONTROL_BASE_ADDRESS,
-                           CLICPIX2_TIMESTAMPS_MSB_OFFSET,
-                           CLICPIX2_CONTROL_MAP_SIZE,
-                           CLICPIX2_CONTROL_MAP_MASK,
-                           PROT_READ | PROT_WRITE);
-
   // dummy readout
-  if((_hal->readMemory(timestamp_msb) & 0x80000000) != 0) {
+  if((getMemory("timestamp_msb") & 0x80000000) != 0) {
     LOG(WARNING) << "Timestamps FIFO is empty";
     return timestamps;
   }
@@ -631,10 +580,10 @@ std::vector<uint32_t> CLICpix2Device::getTimestamps() {
   uint32_t ts_msb;
   do {
     // Read LSB
-    ts_lsb = _hal->readMemory(timestamp_lsb);
+    ts_lsb = getMemory("timestamp_lsb");
 
     // Read MSB and remove top header bits
-    ts_msb = _hal->readMemory(timestamp_msb);
+    ts_msb = getMemory("timestamp_msb");
 
     timestamps.push_back(ts_msb & 0x7ffff);
     timestamps.push_back(ts_lsb);
