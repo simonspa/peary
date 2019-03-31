@@ -9,6 +9,7 @@
 #include <map>
 #include <memory>
 #include <strings.h>
+#include <sys/mman.h>
 #include <tuple>
 
 namespace caribou {
@@ -257,6 +258,24 @@ namespace caribou {
   // MISSING
   // fast ADC: ADC_IN_XY
 
+  class memory_map {
+  public:
+    memory_map(std::intptr_t base_address, std::intptr_t offset, std::size_t size, std::size_t mask, int flags = PROT_READ)
+        : _base_address(base_address), _offset(offset), _size(size), _mask(mask), _flags(flags){};
+    std::intptr_t getBaseAddress() { return _base_address; }
+    std::intptr_t getOffset() { return _offset; }
+    std::size_t getSize() { return _size; }
+    std::size_t getMask() { return _mask; }
+    int getFlags() { return _flags; }
+    bool writable() { return _flags & PROT_WRITE; }
+
+  private:
+    std::intptr_t _base_address;
+    std::intptr_t _offset;
+    std::size_t _size;
+    std::size_t _mask;
+    int _flags;
+  };
 } // namespace caribou
 
 #endif /* CARIBOU_DATATYPES_H */
