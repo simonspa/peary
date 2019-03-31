@@ -202,6 +202,44 @@ namespace caribou {
       }
     };
 
+    memory_map reg_firmware{CARIBOU_CONTROL_BASE_ADDRESS,
+                            CARIBOU_FIRMWARE_VERSION_OFFSET,
+                            CARIBOU_CONTROL_MAP_SIZE,
+                            CARIBOU_CONTROL_MAP_MASK,
+                            PROT_READ};
+
+    memory_map pulser_control{CARIBOU_PULSER_BASE_ADDRESS,
+                              CARIBOU_PULSER_REG_CONTROL_OFFSET,
+                              CARIBOU_PULSER_MAP_SIZE,
+                              CARIBOU_PULSER_MAP_MASK,
+                              PROT_READ | PROT_WRITE};
+
+    memory_map pulser_status{CARIBOU_PULSER_BASE_ADDRESS,
+                             CARIBOU_PULSER_REG_STATUS_OFFSET,
+                             CARIBOU_PULSER_MAP_SIZE,
+                             CARIBOU_PULSER_MAP_MASK,
+                             PROT_READ};
+    memory_map pulser_counts{CARIBOU_PULSER_BASE_ADDRESS,
+                             CARIBOU_PULSER_REG_PULSE_COUNT_OFFSET,
+                             CARIBOU_PULSER_MAP_SIZE,
+                             CARIBOU_PULSER_MAP_MASK,
+                             PROT_READ};
+    memory_map pulser_periods{CARIBOU_PULSER_BASE_ADDRESS,
+                              CARIBOU_PULSER_REG_PERIODS_OFFSET,
+                              CARIBOU_PULSER_MAP_SIZE,
+                              CARIBOU_PULSER_MAP_MASK,
+                              PROT_READ | PROT_WRITE};
+    memory_map pulser_time_active{CARIBOU_PULSER_BASE_ADDRESS,
+                                  CARIBOU_PULSER_REG_TIME_ACTIVE_OFFSET,
+                                  CARIBOU_PULSER_MAP_SIZE,
+                                  CARIBOU_PULSER_MAP_MASK,
+                                  PROT_READ | PROT_WRITE};
+    memory_map pulser_time_idle{CARIBOU_PULSER_BASE_ADDRESS,
+                                CARIBOU_PULSER_REG_TIME_IDLE_OFFSET,
+                                CARIBOU_PULSER_MAP_SIZE,
+                                CARIBOU_PULSER_MAP_MASK,
+                                PROT_READ | PROT_WRITE};
+
     // Access to FPGA memory mapped registers
     int _memfd;
     std::map<mappedMem, void*> _mappedMemory;
