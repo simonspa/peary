@@ -15,13 +15,13 @@ iface_mem::iface_mem(std::string const& device_path) : Interface(device_path), _
 
 iface_mem::~iface_mem() {}
 
-std::pair<size_t, uint32_t> iface_mem::write(const memory_map&, const std::pair<size_t, uint32_t>&) {
+std::pair<size_t, uint32_t> iface_mem::write(const memory_map& mem, const std::pair<size_t, uint32_t>& dest) {
   LOG(TRACE) << "Writing to mapped memory at " << std::hex << mem.getBaseAddress() << ", offset " << dest.first << std::dec
              << ": " << dest.second;
   return std::pair<size_t, uint32_t>();
 }
 
-uint32_t iface_mem::read(const memory_map&, const size_t) {
+uint32_t iface_mem::read(const memory_map& mem, const size_t offset) {
   LOG(TRACE) << "Reading from mapped memory at " << std::hex << mem.getBaseAddress() << ", offset " << offset << std::dec;
   return 0;
 }
