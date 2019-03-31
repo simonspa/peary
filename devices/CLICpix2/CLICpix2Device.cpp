@@ -277,7 +277,7 @@ void CLICpix2Device::configureMatrix(std::string filename) {
       if(++retry == retry_max) {
         throw CommunicationError("Matrix configuration failed");
       }
-      LOG(INFO) << "Retyring configuration.";
+      LOG(INFO) << "Repeating configuration attempt";
     }
   }
 
@@ -618,7 +618,8 @@ std::vector<uint32_t> CLICpix2Device::getTimestamps() {
 
     timestamps.push_back(ts_msb & 0x7ffff);
     timestamps.push_back(ts_lsb);
-    LOG(DEBUG) << ts_msb << " | " << ts_lsb << " = " << ((static_cast<uint64_t>(ts_msb) << 32) | ts_lsb);
+    LOG(DEBUG) << (ts_msb & 0x7ffff) << " | " << ts_lsb
+               << "\t= " << ((static_cast<uint64_t>(ts_msb & 0x7ffff) << 32) | ts_lsb);
   } while(!(ts_msb & 0x80000000));
   LOG(DEBUG) << "Received " << timestamps.size() / 2 << " timestamps: " << listVector(timestamps, ",", false);
 
