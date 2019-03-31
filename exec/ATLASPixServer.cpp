@@ -359,7 +359,7 @@ int main(int argc, char* argv[]) {
       else if(cmd.find("setBias") != std::string::npos) {
         std::vector<std::string> words = split(cmd, ' ');
         double value = std::stof(words[2]);
-        devM1->setBias(words[1], value);
+        devM1->setVoltage(words[1], value);
         std::cout << "Setting Bias " << words[1] << " to " << value << std::endl;
         // memset(buffer, 0, sizeof buffer);
         strcpy(buffer, "[ATLASPixServer] Setting a bias\n");

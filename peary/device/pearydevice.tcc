@@ -67,7 +67,9 @@ namespace caribou {
     } else if(std::dynamic_pointer_cast<BIAS_REGULATOR_T>(ptr)) {
       // Bias regulators
       _hal->setBiasRegulator(*std::dynamic_pointer_cast<BIAS_REGULATOR_T>(ptr), voltage);
-    } // Send command to voltage regulators via HAL
+    } else {
+      throw ConfigInvalid("HAL does not provide a voltage configurator for this component.");
+    }
   }
 
   template <typename T> void pearyDevice<T>::switchPeripheryComponent(std::string name, bool enable) {
@@ -141,8 +143,6 @@ namespace caribou {
     // Read slow ADC
     return _hal->readSlowADC(*ptr);
   }
-
-  template <typename T> void pearyDevice<T>::setInjectionBias(std::string, double) {}
 
   template <typename T> void pearyDevice<T>::setCurrent(std::string name, int current, bool polarity) {
 

@@ -357,7 +357,7 @@ int pearycli::setVoltage(const std::vector<std::string>& input) {
 int pearycli::setBias(const std::vector<std::string>& input) {
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(3)));
-    dev->setBias(input.at(1), std::stod(input.at(2)));
+    dev->setVoltage(input.at(1), std::stod(input.at(2)));
   } catch(caribou::caribouException& e) {
     LOG(ERROR) << e.what();
     return ReturnCode::Error;

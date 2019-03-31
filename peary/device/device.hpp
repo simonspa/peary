@@ -164,36 +164,65 @@ namespace caribou {
      */
     virtual void reset() = 0;
 
-    // Voltage regulators
-
-    // To set supply voltages, same question as above: how to define voltage names?
-    // Separate functions to set target voltage and activate?
-    // Purely virtual?
-    // Do they need to be virtual? Maybe implement in baseclass (always same for CaR)
-    // and only look up correct regulator according to name from child class dictionary?
+    /**
+     * @brief Set voltage and current limit on CaR components
+     *
+     * This method allows to configure voltage regulators, bias voltages and injection pulser voltages
+     * @param name         Name of the component
+     * @param voltage      Voltage to be set in V
+     * @param currentlimit Optional current limit to set in A, not used by all components
+     */
     virtual void setVoltage(std::string name, double voltage, double currentlimit = 3) = 0;
-    virtual void setBias(std::string name, double voltage) = 0;
-    virtual void setInjectionBias(std::string name, double voltage) = 0;
 
+    /**
+     * @brief Switch on the given CaR resource
+     *
+     * This method allows to switch on individual resources on the CaR board such as power supplied or biad voltages. The
+     * resource is identified by its human-readable name and has to be registered by the device in the periphery dictionary
+     *
+     * @param name Name of the resource
+     */
     virtual void switchOn(std::string name) = 0;
+
+    /**
+     * @brief Switch off the given CaR resource
+     *
+     * This method allows to switch off individual resources on the CaR board. The resource is identified by its
+     * human-readable name and has to be registered by the device in the periphery dictionary.
+     *
+     * @param name Name of the resource
+     */
     virtual void switchOff(std::string name) = 0;
 
+    /**
+     * @brief Configure CaR current source
+     * @param name     Name of the current source
+     * @param current  Current to be set in A
+     * @param polarity Polarity of the source, true: PUSH, false: PULL
+     */
     virtual void setCurrent(std::string name, int current, bool polarity) = 0;
+
     virtual double getVoltage(std::string name) = 0;
     virtual double getCurrent(std::string name) = 0;
     virtual double getPower(std::string name) = 0;
 
-    // virtual double getTemperature();
-
-    /** Read slow-ADC value by name of the input signal as defined by the device
+    /**
+     * @brief Read ADC voltage value
      *
-     *  Returns value in SI Volts
+     * The input is identified by its name as defined by the device
+     *
+     * @returns Samples voltage in units of V
+     * @throws ConfigInvalid if the signal name is invalid
      */
     virtual double getADC(std::string name) = 0;
 
-    /** Read slow-ADC value by the input channel number of the ADC device
+    /**
+     * @brief Read ADC voltage value
      *
-     *  Returns value in SI Volts
+     * The input is identified by the channel number of the ADC chip
+     *
+     * @returns Samples voltage in units of V
+     * @throws ConfigInvalid if the channel number does not exist
      */
     virtual double getADC(uint8_t channel) = 0;
 
