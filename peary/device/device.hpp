@@ -197,43 +197,41 @@ namespace caribou {
      */
     virtual double getADC(uint8_t channel) = 0;
 
-    // CaR CMOS signals
-    // void enableSignal();
-    // void disableSignal();
-
-    // Retrieving data
-
-    // Two types:
-    //  * trigger based: "events" are returned
-    //  * shutter based: "frames" are returned
-    // Both contain pixel(s), timestamp(s)
-    // virtual std::vector<caribou::event> getData();
-    // If no data available, throw caribou::NoDataAvailable exception instead of returning empty vector!
-    // Otherwise synchronization of event-based detectors impossible
-
-    /** Retrieve vector of all available commands for this device
+    /**
+     * @brief Retrieve list of all available device-specifiv commands
+     * @return List of available commands as pair of command name and number of expected arguments
      */
     std::vector<std::pair<std::string, std::size_t>> list_commands();
 
-    /** Call command for this device for this device
+    /**
+     * @brief Call device-specific command with a list of arguments
      *
-     *   @throws ConfigInvalid if command is not found or arguments do not match
+     * @return String containing the return value of the command
+     * @throws ConfigInvalid if command is not found or number of arguments does not match
      */
     std::string command(const std::string& name, const std::vector<std::string>& args = std::vector<std::string>());
+
+    /**
+     * @brief Call device-specific command with a single argument
+     *
+     * @return String containing the return value of the command
+     */
     std::string command(const std::string& name, const std::string& arg);
 
   protected:
-    /** Command dispatcher for this device
+    /**
+     * @brief Command dispatcher for this device
      *
-     *  Allows to register commands and calls to be routed to child class member functions. This member is protected and
-     *  derived classes have direct access to it in order to register their own commands.
+     * Allows to register commands and calls to be routed to child class member functions. This member is protected and
+     * derived classes have direct access to it in order to register their own commands.
      */
     caribou::Dispatcher _dispatcher;
 
   private:
-    /** Private static status flag if devices are managed
+    /**
+     * @brief Private static status flag if devices are managed
      *
-     *  This is used by the caribou::pearyDevice class to check for other running devices
+     * This is used by the caribou::pearyDevice class to check for other running devices
      */
     static bool managedDevice;
 
