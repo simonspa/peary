@@ -42,7 +42,6 @@ namespace caribou {
     // Return register config for the name in question:
     T get(std::string name) const {
       std::transform(name.begin(), name.end(), name.begin(), ::tolower);
-      LOG(TRACE) << "Requested object";
       try {
         return (*_elements.at(name));
       } catch(...) {
@@ -56,7 +55,6 @@ namespace caribou {
         std::transform(name.begin(), name.end(), name.begin(), ::tolower);
         std::shared_ptr<T> ptr = _elements.at(name);
         if(std::dynamic_pointer_cast<C>(ptr)) {
-          LOG(TRACE) << "Requested pointer";
           return std::dynamic_pointer_cast<C>(ptr);
         } else {
           throw ConfigInvalid(_title + " cannot be cast");
