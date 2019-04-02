@@ -20,7 +20,7 @@ namespace caribou {
   template <typename T>
   pearyDevice<T>::pearyDevice(const caribou::Configuration config, std::string devpath, uint32_t devaddr)
       : caribouDevice(config), _hal(nullptr), _config(config), _registers("Registers"), _periphery("Component"),
-        _is_powered(false), _is_configured(false) {
+        _memory("Memory page"), _is_powered(false), _is_configured(false) {
 
     _hal = new caribouHAL<T>(_config.Get("devicepath", devpath), _config.Get("deviceaddress", devaddr));
   }

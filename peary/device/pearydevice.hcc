@@ -195,7 +195,7 @@ namespace caribou {
 
     /** Memory page dictionary to access FPGA registers:
      */
-    caribou::memory_dict _memory;
+    caribou::dictionary<memory_map> _memory;
 
   private:
     /** State indicating powering of the device
