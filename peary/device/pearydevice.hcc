@@ -175,7 +175,7 @@ namespace caribou {
 
     /** Register dictionary for the devices:
      */
-    caribou::register_dict<typename T::reg_type, typename T::data_type> _registers;
+    caribou::dictionary<register_t<typename T::reg_type, typename T::data_type>> _registers;
 
     /** Register cache
      */
@@ -183,7 +183,7 @@ namespace caribou {
 
     /** Periphery dictionary to access CaR components:
      */
-    caribou::component_dict _periphery;
+    caribou::dictionary<component_t> _periphery;
 
   private:
     /** State indicating powering of the device
