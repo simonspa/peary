@@ -76,11 +76,10 @@ namespace caribou {
      */
     std::vector<uint8_t> read(uint8_t address, uint8_t length);
 
-    /** Provide access to memory-mapped device
-     *  @returns void pointer to memory
-     */
-    void* getMappedMemoryRO(std::intptr_t base_address, std::size_t size, std::size_t mask);
-    void* getMappedMemoryRW(std::intptr_t base_address, std::size_t size, std::size_t mask);
+    void writeMemory(memory_map mem, size_t offset, uint32_t value);
+    void writeMemory(memory_map mem, uint32_t value);
+    uint32_t readMemory(memory_map mem, size_t offset);
+    uint32_t readMemory(memory_map mem);
 
     /** Read the temperature from the TMP101 device
      *
@@ -175,33 +174,44 @@ namespace caribou {
     double readSlowADC(const SLOW_ADC_CHANNEL_T channel);
 
   private:
-    class mappedMem {
-    public:
-      mappedMem(std::intptr_t b, std::size_t s, std::size_t m, int f) : base_address(b), size(s), mask(m), flags(f){};
-      std::intptr_t base_address;
-      std::size_t size;
-      std::size_t mask;
-      int flags;
-
-      bool operator<(const mappedMem& other) const {
-        if(base_address == other.base_address) {
-          if(size == other.size) {
-            if(mask == other.mask) {
-              return flags < other.flags;
-            }
-            return mask < other.mask;
-          }
-          return size < other.size;
-        }
-        return base_address < other.base_address;
-      }
-    };
-
     // Access to FPGA memory mapped registers
-    int _memfd;
-    std::map<mappedMem, void*> _mappedMemory;
+    memory_map reg_firmware{CARIBOU_CONTROL_BASE_ADDRESS,
+                            CARIBOU_FIRMWARE_VERSION_OFFSET,
+                            CARIBOU_CONTROL_MAP_SIZE,
+                            CARIBOU_CONTROL_MAP_MASK,
+                            PROT_READ};
 
-    void* mapMemory(std::intptr_t base_address, std::size_t size, std::size_t mask, int flags);
+    memory_map pulser_control{CARIBOU_PULSER_BASE_ADDRESS,
+                              CARIBOU_PULSER_REG_CONTROL_OFFSET,
+                              CARIBOU_PULSER_MAP_SIZE,
+                              CARIBOU_PULSER_MAP_MASK,
+                              PROT_READ | PROT_WRITE};
+
+    memory_map pulser_status{CARIBOU_PULSER_BASE_ADDRESS,
+                             CARIBOU_PULSER_REG_STATUS_OFFSET,
+                             CARIBOU_PULSER_MAP_SIZE,
+                             CARIBOU_PULSER_MAP_MASK,
+                             PROT_READ};
+    memory_map pulser_counts{CARIBOU_PULSER_BASE_ADDRESS,
+                             CARIBOU_PULSER_REG_PULSE_COUNT_OFFSET,
+                             CARIBOU_PULSER_MAP_SIZE,
+                             CARIBOU_PULSER_MAP_MASK,
+                             PROT_READ};
+    memory_map pulser_periods{CARIBOU_PULSER_BASE_ADDRESS,
+                              CARIBOU_PULSER_REG_PERIODS_OFFSET,
+                              CARIBOU_PULSER_MAP_SIZE,
+                              CARIBOU_PULSER_MAP_MASK,
+                              PROT_READ | PROT_WRITE};
+    memory_map pulser_time_active{CARIBOU_PULSER_BASE_ADDRESS,
+                                  CARIBOU_PULSER_REG_TIME_ACTIVE_OFFSET,
+                                  CARIBOU_PULSER_MAP_SIZE,
+                                  CARIBOU_PULSER_MAP_MASK,
+                                  PROT_READ | PROT_WRITE};
+    memory_map pulser_time_idle{CARIBOU_PULSER_BASE_ADDRESS,
+                                CARIBOU_PULSER_REG_TIME_IDLE_OFFSET,
+                                CARIBOU_PULSER_MAP_SIZE,
+                                CARIBOU_PULSER_MAP_MASK,
+                                PROT_READ | PROT_WRITE};
 
     // It's not possible to power on/off DCDC converter by software
     void setDCDCConverter(const DCDC_CONVERTER_T converter, const double voltage);

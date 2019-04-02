@@ -2,10 +2,8 @@
 #define CARIBOU_HAL_H
 
 #include <cstdint>
-#include <fcntl.h>
 #include <map>
 #include <string>
-#include <sys/mman.h>
 #include <tuple>
 #include <vector>
 
@@ -23,6 +21,7 @@
 
 #include "i2c.hpp"
 #include "loopback.hpp"
+#include "memory.hpp"
 #include "spi.hpp"
 #include "spi_CLICpix2.hpp"
 

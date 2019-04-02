@@ -9,6 +9,7 @@
 #include <map>
 #include <memory>
 #include <strings.h>
+#include <sys/mman.h>
 #include <tuple>
 
 namespace caribou {
@@ -257,6 +258,38 @@ namespace caribou {
   // MISSING
   // fast ADC: ADC_IN_XY
 
+  class memory_map {
+  public:
+    memory_map(std::intptr_t base_address, std::intptr_t offset, std::size_t size, std::size_t mask, int flags = PROT_READ)
+        : _base_address(base_address), _offset(offset), _size(size), _mask(mask), _flags(flags){};
+    std::intptr_t getBaseAddress() const { return _base_address; }
+    std::intptr_t getOffset() const { return _offset; }
+    std::size_t getSize() const { return _size; }
+    std::size_t getMask() const { return _mask; }
+    int getFlags() const { return _flags; }
+    bool writable() const { return _flags & PROT_WRITE; }
+
+    // Compare memory pages, ingoring the offset
+    bool operator<(const memory_map& other) const {
+      if(_base_address == other.getBaseAddress()) {
+        if(_size == other.getSize()) {
+          if(_mask == other.getMask()) {
+            return _flags < other.getFlags();
+          }
+          return _mask < other.getMask();
+        }
+        return _size < other.getSize();
+      }
+      return _base_address < other.getBaseAddress();
+    }
+
+  private:
+    std::intptr_t _base_address;
+    std::intptr_t _offset;
+    std::size_t _size;
+    std::size_t _mask;
+    int _flags;
+  };
 } // namespace caribou
 
 #endif /* CARIBOU_DATATYPES_H */

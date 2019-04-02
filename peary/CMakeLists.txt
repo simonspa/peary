@@ -12,6 +12,8 @@ OPTION(INTERFACE_SPI_CLICpix2 "Build Caribou SPI CLICpix2 interface?" ON)
 OPTION(INTERFACE_IPSOCK "Build Caribou IP/Socket interface?" ON)
 # Build flag for dummy loopback interface implementation:
 OPTION(INTERFACE_LOOP "Build Caribou Loopback interface?" ON)
+# Build flag for memory access interface implementation:
+OPTION(INTERFACE_MEM "Build Caribou Memory interface?" ON)
 
 SET(LIB_SOURCE_FILES
   # device manager
@@ -91,6 +93,19 @@ IF(INTERFACE_LOOP)
   MESSAGE(STATUS "Caribou Interface Loopback:\tON")
 ELSE()
   MESSAGE(STATUS "Caribou Interface Loopback:\tOFF")
+ENDIF()
+
+IF(INTERFACE_MEM)
+  # add MEM source files
+  SET(LIB_SOURCE_FILES ${LIB_SOURCE_FILES}
+    "interfaces/memory.cpp"
+    )
+  MESSAGE(STATUS "Caribou Interface MEM:\tON")
+ELSE()
+  SET(LIB_SOURCE_FILES ${LIB_SOURCE_FILES}
+    "interfaces/emulators/memory.cpp"
+    )
+  MESSAGE(STATUS "Caribou Interface MEM:\t(emulated)")
 ENDIF()
 
 ADD_LIBRARY(${PROJECT_NAME} SHARED ${LIB_SOURCE_FILES})
