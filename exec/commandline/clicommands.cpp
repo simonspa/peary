@@ -20,6 +20,8 @@ pearycli::pearycli() : Console("# ") {
   registerCommand(
     "listCommands", listCommands, "list available device-specific commands for selected device", 1, "DEVICE_ID");
 
+  registerCommand("listRegisters", listRegisters, "list available registers for selected device", 1, "DEVICE_ID");
+
   registerCommand("getName", getName, "Print device name", 1, "DEVICE_ID");
   registerCommand("getType", getType, "Print device type", 1, "DEVICE_ID");
   registerCommand("version", version, "Print software and firmware version of the selected device", 1, "DEVICE_ID");
@@ -257,6 +259,23 @@ int pearycli::listCommands(const std::vector<std::string>& input) {
     std::cout << "List of commands available for device ID " << input.at(1) << " - " << dev->getName() << ":" << std::endl;
     for(auto& cmd : dev->listCommands()) {
       std::cout << "\t" << cmd.first << " (args: " << cmd.second << ")" << std::endl;
+    }
+  } catch(caribou::caribouException& e) {
+    LOG(ERROR) << e.what();
+    return ReturnCode::Error;
+  }
+  return ReturnCode::Ok;
+}
+
+int pearycli::listRegisters(const std::vector<std::string>& input) {
+
+  try {
+    caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
+    auto registers = dev->listRegisters();
+    std::cout << registers.size() << " registers available for device ID " << input.at(1) << " - " << dev->getName() << ":"
+              << std::endl;
+    for(auto& cmd : registers) {
+      std::cout << "\t" << cmd << std::endl;
     }
   } catch(caribou::caribouException& e) {
     LOG(ERROR) << e.what();
