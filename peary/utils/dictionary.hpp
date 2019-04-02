@@ -15,89 +15,77 @@
 
 namespace caribou {
 
-  template <typename T1, typename T2> class register_dict {
+  /**
+  * @brief Dictionary class for storing elements for lookup
+  */
+  template <class T> class dictionary {
   public:
-    register_dict(){};
-    virtual ~register_dict(){};
+    dictionary(const std::string& title) : _title(title){};
+    virtual ~dictionary(){};
 
-    // Register new component alias:
-    void add(std::string name, const register_t<T1, T2> reg) {
+    // Register new element:
+    template <class C> void add(std::string name, const C elem) {
       std::transform(name.begin(), name.end(), name.begin(), ::tolower);
-      regs.insert(std::make_pair(name, reg));
+      auto ptr = std::make_shared<C>(elem);
+      try {
+        _elements.insert(std::make_pair(name, std::dynamic_pointer_cast<T>(ptr)));
+      } catch(...) {
+        throw ConfigInvalid("Cannot insert " + _title + " with name \"" + name + "\" into dictionary");
+      }
     }
 
-    void add(const std::vector<std::pair<std::string, register_t<T1, T2>>> reg) {
-      for(auto i : reg)
+    void add(const std::vector<std::pair<std::string, T>> elements) {
+      for(auto i : elements)
         add(i.first, i.second);
     }
 
     // Return register config for the name in question:
-    register_t<T1, T2> get(std::string name) const {
+    T get(std::string name) const {
       std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+      LOG(TRACE) << "Requested object";
       try {
-        return regs.at(name);
+        return (*_elements.at(name));
       } catch(...) {
-        throw ConfigInvalid("Register name \"" + name + "\" unknown");
+        throw ConfigInvalid(_title + " name \"" + name + "\" unknown");
+      }
+    }
+
+    // Return shared pointer to component config for the name in question:
+    template <typename C> std::shared_ptr<C> get(std::string name) const {
+      try {
+        std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+        std::shared_ptr<T> ptr = _elements.at(name);
+        if(std::dynamic_pointer_cast<C>(ptr)) {
+          LOG(TRACE) << "Requested pointer";
+          return std::dynamic_pointer_cast<C>(ptr);
+        } else {
+          throw ConfigInvalid(_title + " cannot be cast");
+        }
+      } catch(...) {
+        throw ConfigInvalid(_title + " name \"" + name + "\" unknown");
       }
     }
 
     // Check if register entry exists
     bool has(std::string name) const {
       std::transform(name.begin(), name.end(), name.begin(), ::tolower);
-      return !(regs.find(name) == regs.end());
+      return !(_elements.find(name) == _elements.end());
     }
 
     // Return all register names:
     std::vector<std::string> getNames() const {
       std::vector<std::string> names;
-      for(auto reg : regs) {
-        names.push_back(reg.first);
+      for(auto element : _elements) {
+        names.push_back(element.first);
       }
       return names;
     }
 
   private:
     /** Map fo human-readable names for periphery components
-     */
-    std::map<std::string, register_t<T1, T2>> regs;
-  };
-
-  class component_dict {
-  public:
-    component_dict(){};
-    virtual ~component_dict(){};
-
-    // Register new component alias:
-    template <typename T> void add(std::string name, T ptr) {
-      std::transform(name.begin(), name.end(), name.begin(), ::tolower);
-      comps.insert(std::make_pair(name, std::make_shared<T>(ptr)));
-    }
-
-    // Return shared pointer to component config for the name in question:
-    template <typename T> std::shared_ptr<T> get(std::string name) const {
-      try {
-        std::transform(name.begin(), name.end(), name.begin(), ::tolower);
-        std::shared_ptr<component_t> ptr = comps.at(name);
-        if(std::dynamic_pointer_cast<T>(ptr)) {
-          return std::dynamic_pointer_cast<T>(ptr);
-        } else {
-          throw ConfigInvalid("Component cannot be cast");
-        }
-      } catch(...) {
-        throw ConfigInvalid("Component name \"" + name + "\" unknown");
-      }
-    }
-
-    // Check if register entry exists
-    bool has(std::string name) const {
-      std::transform(name.begin(), name.end(), name.begin(), ::tolower);
-      return !(comps.find(name) == comps.end());
-    }
-
-  private:
-    /** Map fo human-readable names for periphery components
-     */
-    std::map<std::string, std::shared_ptr<component_t>> comps;
+    */
+    std::map<std::string, std::shared_ptr<T>> _elements;
+    std::string _title;
   };
 
 } // namespace caribou
