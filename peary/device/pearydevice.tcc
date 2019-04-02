@@ -299,6 +299,32 @@ namespace caribou {
 
   template <typename T> std::vector<std::string> pearyDevice<T>::listRegisters() { return _registers.getNames(); }
 
+  template <typename T> std::vector<std::pair<std::string, std::string>> pearyDevice<T>::listComponents() {
+    std::vector<std::pair<std::string, std::string>> component_list;
+    auto component_names = _periphery.getNames();
+    for(const auto& name : component_names) {
+      std::shared_ptr<component_t> ptr = _periphery.get<component_t>(name);
+      std::string type;
+      if(std::dynamic_pointer_cast<VOLTAGE_REGULATOR_T>(ptr)) {
+        type = "voltage_reg";
+      } else if(std::dynamic_pointer_cast<BIAS_REGULATOR_T>(ptr)) {
+        type = "bias_reg";
+      } else if(std::dynamic_pointer_cast<CURRENT_SOURCE_T>(ptr)) {
+        type = "current_reg";
+      } else if(std::dynamic_pointer_cast<DCDC_CONVERTER_T>(ptr)) {
+        type = "dcdc_conv";
+      } else if(std::dynamic_pointer_cast<SLOW_ADC_CHANNEL_T>(ptr)) {
+        type = "adc_channel";
+      } else if(std::dynamic_pointer_cast<INJBIAS_REGULATOR_T>(ptr)) {
+        type = "injection_bias";
+      } else {
+        type = "UNKNOWN";
+      }
+      component_list.emplace_back(name, type);
+    }
+    return component_list;
+  };
+
 } // namespace caribou
 
 #endif /* CARIBOU_MIDDLEWARE_IMPL */

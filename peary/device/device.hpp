@@ -233,6 +233,12 @@ namespace caribou {
     virtual std::vector<std::string> listRegisters() = 0;
 
     /**
+     * @brief List all periphery components and their types registered by this device
+     * @return Vector with pairs of component name and component type
+     */
+    virtual std::vector<std::pair<std::string, std::string>> listComponents() = 0;
+
+    /**
      * @brief Retrieve list of all available device-specifiv commands
      * @return List of available commands as pair of command name and number of expected arguments
      */
