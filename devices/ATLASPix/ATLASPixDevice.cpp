@@ -258,7 +258,11 @@ void ATLASPixDevice::SetMatrix(std::string matrix) {
 
   } else {
     LOG(ERROR) << "Unknown matrix flavor '" << matrix << "'";
+    return;
   }
+
+  // Update name in the confiuration
+  _config.Set("matrix", matrix);
 }
 
 void ATLASPixDevice::SetScanningMask(uint32_t mx, uint32_t my) {
@@ -2196,7 +2200,7 @@ void ATLASPixDevice::resetFIFO() {
 }
 
 std::string ATLASPixDevice::getName() {
-  return PEARY_DEVICE_NAME + _config.Get<std::string>("matrix", "");
+  return PEARY_DEVICE_NAME + _config.Get<std::string>("matrix", "<>");
 }
 
 void ATLASPixDevice::powerUp() {

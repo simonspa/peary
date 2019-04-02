@@ -41,6 +41,10 @@ namespace caribou {
     void setRegister(std::string, uint32_t){};
     uint32_t getRegister(std::string) { return 0u; };
     std::vector<std::pair<std::string, uint32_t>> getRegisters();
+    std::vector<std::string> listRegisters() { return std::vector<std::string>(); }
+    std::vector<std::pair<std::string, std::string>> listComponents() {
+      return std::vector<std::pair<std::string, std::string>>();
+    }
     // Voltage regulators and current sources
     void setVoltage(std::string, double, double){};
     void setBias(std::string, double){};

@@ -19,7 +19,8 @@ namespace caribou {
 
   template <typename T>
   pearyDevice<T>::pearyDevice(const caribou::Configuration config, std::string devpath, uint32_t devaddr)
-      : caribouDevice(config), _hal(nullptr), _config(config), _is_powered(false), _is_configured(false) {
+      : caribouDevice(config), _hal(nullptr), _config(config), _registers("Registers"), _periphery("Component"),
+        _memory("Memory page"), _is_powered(false), _is_configured(false) {
 
     _hal = new caribouHAL<T>(_config.Get("devicepath", devpath), _config.Get("deviceaddress", devaddr));
   }
@@ -68,7 +69,7 @@ namespace caribou {
       // Bias regulators
       _hal->setBiasRegulator(*std::dynamic_pointer_cast<BIAS_REGULATOR_T>(ptr), voltage);
     } else {
-      throw ConfigInvalid("HAL does not provide a voltage configurator for this component.");
+      throw ConfigInvalid("HAL does not provide a voltage configurator for component \"" + name + "\"");
     }
   }
 
@@ -89,7 +90,7 @@ namespace caribou {
       // Current sources
       _hal->powerCurrentSource(*std::dynamic_pointer_cast<CURRENT_SOURCE_T>(ptr), enable);
     } else {
-      throw ConfigInvalid("HAL does not provide a switch for this component.");
+      throw ConfigInvalid("HAL does not provide a switch for component \"" + name + "\"");
     }
   }
 
@@ -295,6 +296,34 @@ namespace caribou {
   }
 
   template <typename T> uint32_t pearyDevice<T>::getMemory(std::string name) { return _hal->readMemory(_memory.get(name)); }
+
+  template <typename T> std::vector<std::string> pearyDevice<T>::listRegisters() { return _registers.getNames(); }
+
+  template <typename T> std::vector<std::pair<std::string, std::string>> pearyDevice<T>::listComponents() {
+    std::vector<std::pair<std::string, std::string>> component_list;
+    auto component_names = _periphery.getNames();
+    for(const auto& name : component_names) {
+      std::shared_ptr<component_t> ptr = _periphery.get<component_t>(name);
+      std::string type;
+      if(std::dynamic_pointer_cast<VOLTAGE_REGULATOR_T>(ptr)) {
+        type = "voltage_reg";
+      } else if(std::dynamic_pointer_cast<BIAS_REGULATOR_T>(ptr)) {
+        type = "bias_reg";
+      } else if(std::dynamic_pointer_cast<CURRENT_SOURCE_T>(ptr)) {
+        type = "current_reg";
+      } else if(std::dynamic_pointer_cast<DCDC_CONVERTER_T>(ptr)) {
+        type = "dcdc_conv";
+      } else if(std::dynamic_pointer_cast<SLOW_ADC_CHANNEL_T>(ptr)) {
+        type = "adc_channel";
+      } else if(std::dynamic_pointer_cast<INJBIAS_REGULATOR_T>(ptr)) {
+        type = "injection_bias";
+      } else {
+        type = "UNKNOWN";
+      }
+      component_list.emplace_back(name, type);
+    }
+    return component_list;
+  };
 
 } // namespace caribou
 

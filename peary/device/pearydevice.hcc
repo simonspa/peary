@@ -138,6 +138,9 @@ namespace caribou {
      */
     double getADC(std::string name);
 
+    std::vector<std::string> listRegisters();
+    std::vector<std::pair<std::string, std::string>> listComponents();
+
     /** Read slow-ADC value by the input channel number of the ADC device
      *
      *  Returns value in SI Volts
@@ -180,7 +183,7 @@ namespace caribou {
 
     /** Register dictionary for the devices:
      */
-    caribou::register_dict<typename T::reg_type, typename T::data_type> _registers;
+    caribou::dictionary<register_t<typename T::reg_type, typename T::data_type>> _registers;
 
     /** Register cache
      */
@@ -188,11 +191,11 @@ namespace caribou {
 
     /** Periphery dictionary to access CaR components:
      */
-    caribou::component_dict _periphery;
+    caribou::dictionary<component_t> _periphery;
 
     /** Memory page dictionary to access FPGA registers:
      */
-    caribou::memory_dict _memory;
+    caribou::dictionary<memory_map> _memory;
 
   private:
     /** State indicating powering of the device

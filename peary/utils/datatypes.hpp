@@ -252,7 +252,10 @@ namespace caribou {
    *  - the corresponding DAC output pin
    *  - FIXME: INJ_CTRL_X signals from FPGA!
    */
-  typedef component_dac_t INJBIAS_REGULATOR_T;
+  class INJBIAS_REGULATOR_T : public component_dac_t {
+    INJBIAS_REGULATOR_T(std::string name, uint8_t dacaddr, uint8_t dacout) : component_dac_t(name, dacaddr, dacout){};
+    ~INJBIAS_REGULATOR_T(){};
+  };
 
   // FIXME
   // MISSING
