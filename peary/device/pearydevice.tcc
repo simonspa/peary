@@ -68,7 +68,7 @@ namespace caribou {
       // Bias regulators
       _hal->setBiasRegulator(*std::dynamic_pointer_cast<BIAS_REGULATOR_T>(ptr), voltage);
     } else {
-      throw ConfigInvalid("HAL does not provide a voltage configurator for this component.");
+      throw ConfigInvalid("HAL does not provide a voltage configurator for component \"" + name + "\"");
     }
   }
 
@@ -89,7 +89,7 @@ namespace caribou {
       // Current sources
       _hal->powerCurrentSource(*std::dynamic_pointer_cast<CURRENT_SOURCE_T>(ptr), enable);
     } else {
-      throw ConfigInvalid("HAL does not provide a switch for this component.");
+      throw ConfigInvalid("HAL does not provide a switch for component \"" + name + "\"");
     }
   }
 
