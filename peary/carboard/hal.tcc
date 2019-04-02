@@ -8,7 +8,7 @@ namespace caribou {
 
   template <typename T>
   caribouHAL<T>::caribouHAL(std::string device_path, uint32_t device_address)
-      : _memfd(-1), _devpath(device_path), _devaddress(device_address) {
+      : _devpath(device_path), _devaddress(device_address) {
 
     // Log the firmware
     LOG(STATUS) << getFirmwareVersion();
@@ -21,73 +21,32 @@ namespace caribou {
     }
   }
 
-  template <typename T>
-  void* caribouHAL<T>::getMappedMemoryRO(std::intptr_t base_address, std::size_t size, std::size_t mask) {
-    return mapMemory(base_address, size, mask, PROT_READ);
+  template <typename T> void caribouHAL<T>::writeMemory(memory_map mem, uint32_t value) { writeMemory(mem, 0, value); }
+
+  template <typename T> void caribouHAL<T>::writeMemory(memory_map mem, size_t offset, uint32_t value) {
+    iface_mem& imem = interface_manager::getInterface<iface_mem>(MEM_PATH);
+    imem.write(mem, std::make_pair(offset, value));
   }
 
-  template <typename T>
-  void* caribouHAL<T>::getMappedMemoryRW(std::intptr_t base_address, std::size_t size, std::size_t mask) {
-    return mapMemory(base_address, size, mask, PROT_READ | PROT_WRITE);
-  }
+  template <typename T> uint32_t caribouHAL<T>::readMemory(memory_map mem) { return readMemory(mem, 0); }
 
-  template <typename T>
-  void* caribouHAL<T>::mapMemory(std::intptr_t base_address, std::size_t size, std::size_t mask, int flags) {
-
-    // Check if we already have a file descriptor:
-    if(_memfd == -1) {
-      // Get access to FPGA memory mapped registers
-      _memfd = open(MEM_PATH, O_RDWR | O_SYNC);
-      // If we still don't have one, something went wrong:
-      if(_memfd == -1) {
-        throw DeviceException("Can't open /dev/mem.\n");
-      }
-    }
-
-    // Check if this memory page is already mapped and return the pointer:
-    mappedMem page = mappedMem(base_address, size, mask, flags);
-    LOG(DEBUG) << "Returning mapped memory at " << base_address;
-    try {
-      return _mappedMemory.at(page);
-    }
-    // Otherwise newly map it and return the reference:
-    catch(const std::out_of_range& oor) {
-      LOG(DEBUG) << "Memory was not yet mapped, mapping...";
-      // Map one page of memory into user space such that the device is in that page, but it may not
-      // be at the start of the page.
-      void* map_base = mmap(0, size, flags, MAP_SHARED, _memfd, base_address & ~mask);
-      if(map_base == (void*)-1) {
-        throw DeviceException("Can't map the memory to user space.\n");
-      }
-
-      // get the address of the device in user space which will be an offset from the base
-      // that was mapped as memory is mapped at the start of a page
-      void* base_pointer = reinterpret_cast<void*>(reinterpret_cast<std::intptr_t>(map_base) + (base_address & mask));
-
-      // Store the mapped memory, so we can unmap it later:
-      _mappedMemory[page] = base_pointer;
-      return base_pointer;
-    }
+  template <typename T> uint32_t caribouHAL<T>::readMemory(memory_map mem, size_t offset) {
+    iface_mem& imem = interface_manager::getInterface<iface_mem>(MEM_PATH);
+    return imem.read(mem, offset, 1).front();
   }
 
   template <typename T> std::string caribouHAL<T>::getFirmwareVersion() {
 
-    void* control_base = getMappedMemoryRW(CARIBOU_CONTROL_BASE_ADDRESS, CARIBOU_CONTROL_MAP_SIZE, CARIBOU_CONTROL_MAP_MASK);
-
-    // set default  Caribout control
-    volatile uint32_t* firmwareVersion_reg =
-      reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + CARIBOU_FIRMWARE_VERSION_OFFSET);
-
-    const uint32_t firwareVersion = *firmwareVersion_reg;
-    const uint8_t day = (firwareVersion >> 27) & 0x1F;
-    const uint8_t month = (firwareVersion >> 23) & 0xF;
-    const uint32_t year = 2000 + ((firwareVersion >> 17) & 0x3F);
-    const uint8_t hour = (firwareVersion >> 12) & 0x1F;
-    const uint8_t minute = (firwareVersion >> 6) & 0x3F;
-    const uint8_t second = firwareVersion & 0x3F;
+    const uint32_t firmwareVersion = readMemory(reg_firmware);
+    const uint8_t day = (firmwareVersion >> 27) & 0x1F;
+    const uint8_t month = (firmwareVersion >> 23) & 0xF;
+    const uint32_t year = 2000 + ((firmwareVersion >> 17) & 0x3F);
+    const uint8_t hour = (firmwareVersion >> 12) & 0x1F;
+    const uint8_t minute = (firmwareVersion >> 6) & 0x3F;
+    const uint8_t second = firmwareVersion & 0x3F;
 
     std::stringstream s;
-    s << "Firmware version: " << to_hex_string(firwareVersion) << " (" << static_cast<int>(day) << "/"
+    s << "Firmware version: " << to_hex_string(firmwareVersion) << " (" << static_cast<int>(day) << "/"
       << static_cast<int>(month) << "/" << static_cast<int>(year) << " " << static_cast<int>(hour) << ":"
       << static_cast<int>(minute) << ":" << static_cast<int>(second) << ")";
 
@@ -119,17 +78,7 @@ namespace caribou {
     caribou::caribouHALbase::generalResetDone = true;
   }
 
-  template <typename T> caribouHAL<T>::~caribouHAL() {
-    // Unmap all mapped memory pages:
-    for(auto& mem : _mappedMemory) {
-      LOG(DEBUG) << "Unmapping memory at " << mem.first.base_address;
-      if(munmap(mem.second, mem.first.size) == -1) {
-        LOG(FATAL) << "Can't unmap memory from user space.";
-      }
-    }
-
-    close(_memfd);
-  }
+  template <typename T> caribouHAL<T>::~caribouHAL() {}
 
   template <typename T> typename T::data_type caribouHAL<T>::send(const typename T::data_type& data) {
     return interface_manager::getInterface<T>(_devpath).write(_devaddress, data);
@@ -408,16 +357,9 @@ namespace caribou {
                                       const bool ext_trigger,
                                       const bool ext_trig_edge,
                                       const bool idle_state) {
-    void* pulser_base = getMappedMemoryRW(CARIBOU_PULSER_BASE_ADDRESS, CARIBOU_PULSER_MAP_SIZE, CARIBOU_PULSER_MAP_MASK);
-
     // use only 4 LSBs as a mask
     channel_mask &= 0x0F;
-
-    // set register address
-    volatile uint32_t* pulserControl_reg =
-      reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + CARIBOU_PULSER_REG_CONTROL_OFFSET);
-
-    uint32_t pulserControl = *pulserControl_reg;
+    uint32_t pulserControl = readMemory(pulser_control);
 
     // select idle output state
     channel_mask <<= 8;
@@ -441,92 +383,57 @@ namespace caribou {
       pulserControl &= (~channel_mask);
     }
 
-    *pulserControl_reg = pulserControl;
+    writeMemory(pulser_control, pulserControl);
 
     return;
   }
 
   template <typename T> void caribouHAL<T>::startPulser(unsigned channel_mask) {
-    void* pulser_base = getMappedMemoryRW(CARIBOU_PULSER_BASE_ADDRESS, CARIBOU_PULSER_MAP_SIZE, CARIBOU_PULSER_MAP_MASK);
 
     // use only 4 LSBs as a mask
     channel_mask &= 0x0F;
 
-    // set register address
-    volatile uint32_t* pulserControl_reg =
-      reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + CARIBOU_PULSER_REG_CONTROL_OFFSET);
-
-    uint32_t pulserControl = *pulserControl_reg;
-
+    uint32_t pulserControl = readMemory(pulser_control);
     pulserControl |= (channel_mask);
-
-    *pulserControl_reg = pulserControl;
+    writeMemory(pulser_control, pulserControl);
 
     return;
   }
 
   template <typename T> void caribouHAL<T>::enablePulser(unsigned channel_mask) {
-    void* pulser_base = getMappedMemoryRW(CARIBOU_PULSER_BASE_ADDRESS, CARIBOU_PULSER_MAP_SIZE, CARIBOU_PULSER_MAP_MASK);
 
     // use only 4 LSBs as a mask
     channel_mask &= 0x0F;
 
-    // set register address
-    volatile uint32_t* pulserControl_reg =
-      reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + CARIBOU_PULSER_REG_CONTROL_OFFSET);
-
-    uint32_t pulserControl = *pulserControl_reg;
-
+    uint32_t pulserControl = readMemory(pulser_control);
     pulserControl &= ~(channel_mask << 4);
-
-    *pulserControl_reg = pulserControl;
+    writeMemory(pulser_control, pulserControl);
 
     return;
   }
 
   template <typename T> void caribouHAL<T>::disablePulser(unsigned channel_mask) {
-    void* pulser_base = getMappedMemoryRW(CARIBOU_PULSER_BASE_ADDRESS, CARIBOU_PULSER_MAP_SIZE, CARIBOU_PULSER_MAP_MASK);
 
     // use only 4 LSBs as a mask
     channel_mask &= 0x0F;
 
-    // set register address
-    volatile uint32_t* pulserControl_reg =
-      reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + CARIBOU_PULSER_REG_CONTROL_OFFSET);
-
-    uint32_t pulserControl = *pulserControl_reg;
-
+    uint32_t pulserControl = readMemory(pulser_control);
     pulserControl |= (channel_mask << 4);
-
-    *pulserControl_reg = pulserControl;
+    writeMemory(pulser_control, pulserControl);
 
     return;
   }
 
-  template <typename T> uint32_t caribouHAL<T>::getPulserRunning() {
-    void* pulser_base = getMappedMemoryRO(CARIBOU_PULSER_BASE_ADDRESS, CARIBOU_PULSER_MAP_SIZE, CARIBOU_PULSER_MAP_MASK);
-
-    // set register address
-    volatile uint32_t* pulserStatus_reg =
-      reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + CARIBOU_PULSER_REG_STATUS_OFFSET);
-
-    return ((*pulserStatus_reg) & 0x0F);
-  }
+  template <typename T> uint32_t caribouHAL<T>::getPulserRunning() { return (readMemory(pulser_status) & 0x0F); }
 
   template <typename T> uint32_t caribouHAL<T>::getPulseCount(const uint32_t channel) {
-    void* pulser_base = getMappedMemoryRO(CARIBOU_PULSER_BASE_ADDRESS, CARIBOU_PULSER_MAP_SIZE, CARIBOU_PULSER_MAP_MASK);
 
     // check for valid channel range 1-4
     if(channel > 4 || channel < 1) {
       throw ConfigInvalid("There is no channel " + std::to_string(channel) + " available. The valid range is 1-4.");
     }
 
-    // set register address
-    volatile uint32_t* pulseCount_reg = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) +
-                                                                             CARIBOU_PULSER_REG_PULSE_COUNT_OFFSET +
-                                                                             (CARIBOU_PULSER_CHANNEL_OFFSET * channel));
-
-    return (*pulseCount_reg);
+    return readMemory(pulser_counts, (CARIBOU_PULSER_CHANNEL_OFFSET * channel));
   }
 
   template <typename T>
@@ -535,17 +442,9 @@ namespace caribou {
                                                const uint32_t time_active,
                                                const uint32_t time_idle,
                                                const double voltage) {
-    void* pulser_base = getMappedMemoryRW(CARIBOU_PULSER_BASE_ADDRESS, CARIBOU_PULSER_MAP_SIZE, CARIBOU_PULSER_MAP_MASK);
-
-    // set register addresses
-    volatile uint32_t* pulserChPeriods_reg =
-      reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + CARIBOU_PULSER_REG_PERIODS_OFFSET);
-    volatile uint32_t* pulserChTimeActive_reg = reinterpret_cast<volatile uint32_t*>(
-      reinterpret_cast<std::intptr_t>(pulser_base) + CARIBOU_PULSER_REG_TIME_ACTIVE_OFFSET);
-    volatile uint32_t* pulserChTimeIdle_reg = reinterpret_cast<volatile uint32_t*>(
-      reinterpret_cast<std::intptr_t>(pulser_base) + CARIBOU_PULSER_REG_TIME_IDLE_OFFSET);
 
     uint32_t channel = 1;
+    uint32_t channel_int = 1;
     // for all 4 channels
     while(1) {
       // apply the settings only for channels enabled in the mask, skip others
@@ -575,24 +474,17 @@ namespace caribou {
                                 "reached a state where it should not be.");
       }
 
-      *pulserChPeriods_reg = periods;
-      *pulserChTimeActive_reg = time_active;
-      *pulserChTimeIdle_reg = time_idle;
+      writeMemory(pulser_periods, channel_int * CARIBOU_PULSER_CHANNEL_OFFSET, periods);
+      writeMemory(pulser_time_active, channel_int * CARIBOU_PULSER_CHANNEL_OFFSET, time_active);
+      writeMemory(pulser_time_idle, channel_int * CARIBOU_PULSER_CHANNEL_OFFSET, time_idle);
 
       // go to next channel
       channel <<= 1;
+      channel_int++;
       // check if we are still in the range of available channels. If not, we are done.
       if(!(channel & 0x0F)) {
         return;
       }
-
-      // shift pointers to all registers to the next channel
-      pulserChPeriods_reg = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulserChPeriods_reg) +
-                                                                 CARIBOU_PULSER_CHANNEL_OFFSET);
-      pulserChTimeActive_reg = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulserChTimeActive_reg) +
-                                                                    CARIBOU_PULSER_CHANNEL_OFFSET);
-      pulserChTimeIdle_reg = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulserChTimeIdle_reg) +
-                                                                  CARIBOU_PULSER_CHANNEL_OFFSET);
     }
   }
 

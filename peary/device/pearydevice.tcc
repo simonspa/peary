@@ -283,6 +283,20 @@ namespace caribou {
     _is_configured = true;
   }
 
+  template <typename T> void pearyDevice<T>::setMemory(std::string name, size_t offset, uint32_t value) {
+    _hal->writeMemory(_memory.get(name), offset, value);
+  }
+
+  template <typename T> void pearyDevice<T>::setMemory(std::string name, uint32_t value) {
+    _hal->writeMemory(_memory.get(name), value);
+  }
+
+  template <typename T> uint32_t pearyDevice<T>::getMemory(std::string name, size_t offset) {
+    return _hal->readMemory(_memory.get(name), offset);
+  }
+
+  template <typename T> uint32_t pearyDevice<T>::getMemory(std::string name) { return _hal->readMemory(_memory.get(name)); }
+
   template <typename T> std::vector<std::string> pearyDevice<T>::listRegisters() { return _registers.getNames(); }
 
 } // namespace caribou

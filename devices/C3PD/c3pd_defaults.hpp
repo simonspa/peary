@@ -64,6 +64,16 @@ namespace caribou {
  *  C3PD_PIX3 -> (unconnected on CLICpix2 board)
  */
 
+#define C3PD_MEMORY                                                                                                         \
+  {                                                                                                                         \
+    {"reset",                                                                                                               \
+     memory_map(C3PD_CONTROL_BASE_ADDRESS,                                                                                  \
+                C3PD_RESET_OFFSET,                                                                                          \
+                C3PD_CONTROL_MAP_SIZE,                                                                                      \
+                C3PD_CONTROL_MAP_MASK,                                                                                      \
+                PROT_READ | PROT_WRITE)},                                                                                   \
+  }
+
 /** Dictionary for register address/name lookup for C3PD
  */
 // clang-format off

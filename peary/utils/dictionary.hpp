@@ -88,6 +88,53 @@ namespace caribou {
     std::string _title;
   };
 
+  class memory_dict {
+  public:
+    memory_dict(){};
+    virtual ~memory_dict(){};
+
+    // Register new memory map alias:
+    void add(std::string name, const memory_map mem_map) {
+      std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+      mem.insert(std::make_pair(name, mem_map));
+    }
+
+    void add(const std::vector<std::pair<std::string, memory_map>> mem_map) {
+      for(auto i : mem_map)
+        add(i.first, i.second);
+    }
+
+    // Return memory for the name in question:
+    memory_map get(std::string name) const {
+      std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+      try {
+        return mem.at(name);
+      } catch(...) {
+        throw ConfigInvalid("Memory map name \"" + name + "\" unknown");
+      }
+    }
+
+    // Check if memory entry exists
+    bool has(std::string name) const {
+      std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+      return !(mem.find(name) == mem.end());
+    }
+
+    // Return all memory map names:
+    std::vector<std::string> getNames() const {
+      std::vector<std::string> names;
+      for(auto reg : mem) {
+        names.push_back(reg.first);
+      }
+      return names;
+    }
+
+  private:
+    /** Map fo human-readable names for memory pages
+     */
+    std::map<std::string, memory_map> mem;
+  };
+
 } // namespace caribou
 
 #endif /* CARIBOU_DICT_H */

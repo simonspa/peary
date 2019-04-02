@@ -46,12 +46,11 @@ CLICpix2Device::CLICpix2Device(const caribou::Configuration config)
   // Add the register definitions to the dictionary for convenient lookup of names:
   _registers.add(CLICPIX2_REGISTERS);
 
+  // Add memory pages to the dictionary:
+  _memory.add(CLICPIX2_MEMORY);
+
   // set default CLICpix2 control
-  volatile uint32_t* control_reg = reinterpret_cast<volatile uint32_t*>(
-    reinterpret_cast<std::intptr_t>(
-      _hal->getMappedMemoryRW(CLICPIX2_CONTROL_BASE_ADDRESS, CLICPIX2_CONTROL_MAP_SIZE, CLICPIX2_CONTROL_MAP_MASK)) +
-    CLICPIX2_RESET_OFFSET);
-  *control_reg = 0; // keep CLICpix2 in reset state
+  setMemory("reset", 0);
 }
 
 void CLICpix2Device::configure() {
@@ -90,13 +89,12 @@ void CLICpix2Device::configure() {
 
 void CLICpix2Device::reset() {
   LOG(DEBUG) << "Resetting";
-  volatile uint32_t* control_reg = reinterpret_cast<volatile uint32_t*>(
-    reinterpret_cast<std::intptr_t>(
-      _hal->getMappedMemoryRW(CLICPIX2_CONTROL_BASE_ADDRESS, CLICPIX2_CONTROL_MAP_SIZE, CLICPIX2_CONTROL_MAP_MASK)) +
-    CLICPIX2_RESET_OFFSET);
-  *control_reg &= ~(CLICPIX2_CONTROL_RESET_MASK); // assert reset
+
+  // assert reset:
+  setMemory("reset", getMemory("reset") & ~(CLICPIX2_CONTROL_RESET_MASK));
   usleep(1);
-  *control_reg |= CLICPIX2_CONTROL_RESET_MASK; // deny reset
+  // deny reset:
+  setMemory("reset", getMemory("reset") | CLICPIX2_CONTROL_RESET_MASK);
 }
 
 CLICpix2Device::~CLICpix2Device() {
@@ -291,14 +289,8 @@ void CLICpix2Device::triggerPatternGenerator(bool sleep) {
   LOG(DEBUG) << "Triggering pattern generator once.";
 
   // Write into enable register of pattern generator:
-  volatile uint32_t* wave_control = reinterpret_cast<volatile uint32_t*>(
-    reinterpret_cast<std::intptr_t>(
-      _hal->getMappedMemoryRW(CLICPIX2_CONTROL_BASE_ADDRESS, CLICPIX2_CONTROL_MAP_SIZE, CLICPIX2_CONTROL_MAP_MASK)) +
-    CLICPIX2_WAVE_CONTROL_OFFSET);
-
-  // Toggle on:
-  *wave_control &= ~(CLICPIX2_CONTROL_WAVE_GENERATOR_ENABLE_MASK);
-  *wave_control |= CLICPIX2_CONTROL_WAVE_GENERATOR_ENABLE_MASK;
+  setMemory("wave_control", getMemory("wave_control") & ~(CLICPIX2_CONTROL_WAVE_GENERATOR_ENABLE_MASK));
+  setMemory("wave_control", getMemory("wave_control") | CLICPIX2_CONTROL_WAVE_GENERATOR_ENABLE_MASK);
 
   // Wait for its length before returning:
   if(sleep)
@@ -356,18 +348,10 @@ void CLICpix2Device::configurePatternGenerator(std::string filename) {
     throw ConfigInvalid("Pattern generator too long");
   }
 
-  void* control_base =
-    _hal->getMappedMemoryRW(CLICPIX2_CONTROL_BASE_ADDRESS, CLICPIX2_CONTROL_MAP_SIZE, CLICPIX2_CONTROL_MAP_MASK);
-  volatile uint32_t* wave_control =
-    reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + CLICPIX2_WAVE_CONTROL_OFFSET);
-
   // Switch loop mode off:
-  *wave_control &= ~(CLICPIX2_CONTROL_WAVE_GENERATOR_LOOP_MODE_MASK);
-
+  setMemory("wave_control", getMemory("wave_control") & ~(CLICPIX2_CONTROL_WAVE_GENERATOR_LOOP_MODE_MASK));
   for(size_t reg = 0; reg < patterns.size(); reg++) {
-    volatile uint32_t* wave_event = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) +
-                                                                         CLICPIX2_WAVE_EVENTS_OFFSET + (reg << 2));
-    *wave_event = patterns.at(reg);
+    setMemory("wave_events", (reg << 2), patterns.at(reg));
   }
   LOG(DEBUG) << "Done configuring pattern generator.";
 }
@@ -537,25 +521,18 @@ std::vector<uint32_t> CLICpix2Device::getFrame() {
   this->setRegister("readout", 0);
   std::vector<uint32_t> frame;
 
-  void* receiver_base =
-    _hal->getMappedMemoryRO(CLICPIX2_RECEIVER_BASE_ADDRESS, CLICPIX2_RECEIVER_MAP_SIZE, CLICPIX2_RECEIVER_MAP_MASK);
-
   // Poll data until frameSize doesn't change anymore
-  unsigned int frameSize, frameSize_previous;
-  frameSize = *(
-    reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(receiver_base) + CLICPIX2_RECEIVER_COUNTER_OFFSET));
+  unsigned int frameSize = getMemory("frame_size");
+  unsigned int frameSize_previous;
   do {
     frameSize_previous = frameSize;
     usleep(100);
-    frameSize = *(reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(receiver_base) +
-                                                       CLICPIX2_RECEIVER_COUNTER_OFFSET));
-
+    frameSize = getMemory("frame_size");
   } while(frameSize != frameSize_previous);
 
   frame.reserve(frameSize);
   for(unsigned int i = 0; i < frameSize; ++i) {
-    frame.emplace_back(*(
-      reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(receiver_base) + CLICPIX2_RECEIVER_FIFO_OFFSET)));
+    frame.emplace_back(getMemory("frame"));
   }
   LOG(DEBUG) << "Read raw SerDes data:\n" << listVector(frame, ", ", true);
   return frame;
@@ -593,16 +570,8 @@ std::vector<uint32_t> CLICpix2Device::getTimestamps() {
   std::vector<uint32_t> timestamps;
   LOG(DEBUG) << "Requesting timestamps";
 
-  void* control_base =
-    _hal->getMappedMemoryRW(CLICPIX2_CONTROL_BASE_ADDRESS, CLICPIX2_CONTROL_MAP_SIZE, CLICPIX2_CONTROL_MAP_MASK);
-  // Write into enable register of pattern generator:
-  volatile uint32_t* timestamp_lsb =
-    reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + CLICPIX2_TIMESTAMPS_LSB_OFFSET);
-  volatile uint32_t* timestamp_msb =
-    reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + CLICPIX2_TIMESTAMPS_MSB_OFFSET);
-
   // dummy readout
-  if((*timestamp_msb & 0x80000000) != 0) {
+  if((getMemory("timestamp_msb") & 0x80000000) != 0) {
     LOG(WARNING) << "Timestamps FIFO is empty";
     return timestamps;
   }
@@ -611,10 +580,10 @@ std::vector<uint32_t> CLICpix2Device::getTimestamps() {
   uint32_t ts_msb;
   do {
     // Read LSB
-    ts_lsb = *timestamp_lsb;
+    ts_lsb = getMemory("timestamp_lsb");
 
     // Read MSB and remove top header bits
-    ts_msb = *timestamp_msb;
+    ts_msb = getMemory("timestamp_msb");
 
     timestamps.push_back(ts_msb & 0x7ffff);
     timestamps.push_back(ts_lsb);

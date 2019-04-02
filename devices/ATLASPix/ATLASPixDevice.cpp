@@ -160,6 +160,8 @@ ATLASPixDevice::ATLASPixDevice(const caribou::Configuration config)
 
   _registers.add(ATLASPix_REGISTERS);
 
+  _memory.add(ATLASPix_MEMORY);
+
   // Always set up common periphery for all matrices:
   _periphery.add("VDDD", PWR_OUT_4);
   _periphery.add("VDDA", PWR_OUT_3);
@@ -168,21 +170,12 @@ ATLASPixDevice::ATLASPixDevice(const caribou::Configuration config)
   _periphery.add("VDDRam", PWR_OUT_1);
   _periphery.add("VDDHigh", PWR_OUT_6);
 
-  void* pulser_base = _hal->getMappedMemoryRW(ATLASPix_PULSER_BASE_ADDRESS, ATLASPix_PULSER_MAP_SIZE, ATLASPix_PULSER_MASK);
-  volatile uint32_t* inj_flag = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x0);
-  volatile uint32_t* pulse_count = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x4);
-  volatile uint32_t* high_cnt = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x8);
-  volatile uint32_t* low_cnt = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0xC);
-  volatile uint32_t* output_enable =
-    reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x10);
-  volatile uint32_t* rst = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x14);
-
-  *inj_flag = 0x0;
-  *pulse_count = 0x0;
-  *high_cnt = 0x0;
-  *low_cnt = 0x0;
-  *output_enable = 0xFFFFFFFF;
-  *rst = 0x1;
+  setMemory("pulser_base", 0x0, 0x0);         // inj_flag
+  setMemory("pulser_base", 0x4, 0x0);         // pulse_count
+  setMemory("pulser_base", 0x8, 0x0);         // high_cnt
+  setMemory("pulser_base", 0xC, 0x0);         // low_cnt
+  setMemory("pulser_base", 0x10, 0xFFFFFFFF); // output_enable
+  setMemory("pulser_base", 0x14, 0x1);        // rst
 
   // enable data taking
   _daqContinue.test_and_set();
@@ -408,18 +401,9 @@ void ATLASPixDevice::setSpecialRegister(std::string name, uint32_t value) {
 
       this->ro_enable = value;
 
-      void* readout_base =
-        _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
-
-      // volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
-      // volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base)
-      // + 0x4);
-      volatile uint32_t* fifo_config =
-        reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
-      // volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
-      // volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
-
-      *fifo_config = (*fifo_config & 0xFFFFFFFE) + ((value)&0b1);
+      uint32_t fifo_config = getMemory("fifo_config");
+      fifo_config = (fifo_config & 0xFFFFFFFE) + ((value)&0b1);
+      setMemory("fifo_config", fifo_config);
       //    if(value == 1) {
       //      this->resetCounters();
       //    }
@@ -427,132 +411,87 @@ void ATLASPixDevice::setSpecialRegister(std::string name, uint32_t value) {
     } else if(name == "trigger_enable") {
 
       trigger_enable = value;
-      void* readout_base =
-        _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
-      volatile uint32_t* fifo_config =
-        reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
 
-      *fifo_config = (*fifo_config & 0xFFFD) + ((value << 1) & 0b10);
+      uint32_t fifo_config = getMemory("fifo_config");
+      fifo_config = (fifo_config & 0xFFFD) + ((value << 1) & 0b10);
+      setMemory("fifo_config", fifo_config);
 
     } else if(name == "edge_sel") {
 
       edge_sel = value;
-      void* readout_base =
-        _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
-
-      volatile uint32_t* fifo_config =
-        reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
-      *fifo_config = (*fifo_config & 0xFFFFFFFB) + ((value << 2) & 0b0100);
-
+      uint32_t fifo_config = getMemory("fifo_config");
+      fifo_config = (fifo_config & 0xFFFFFFFB) + ((value << 2) & 0b0100);
+      setMemory("fifo_config", fifo_config);
     }
 
     else if(name == "busy_when_armed") {
 
       busy_when_armed = value;
-
-      void* readout_base =
-        _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
-
-      volatile uint32_t* fifo_config =
-        reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
-      *fifo_config = (*fifo_config & 0xFFFFFFF7) + ((value << 3) & 0b1000);
+      uint32_t fifo_config = getMemory("fifo_config");
+      fifo_config = (fifo_config & 0xFFFFFFF7) + ((value << 3) & 0b1000);
+      setMemory("fifo_config", fifo_config);
     }
 
     else if(name == "armduration") {
 
       armduration = value;
-      void* readout_base =
-        _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
-
-      // volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
-      // volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base)
-      // + 0x4); volatile uint32_t* fifo_config = reinterpret_cast<volatile
-      // uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8); volatile uint32_t* leds = reinterpret_cast<volatile
-      // uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
-      volatile uint32_t* config2 = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
-
-      *config2 = ((value)&0xFFFFFF);
+      setMemory("config2", (value)&0xFFFFFF);
 
     } else if(name == "trigger_always_armed") {
 
       trigger_always_armed = value;
-      void* readout_base =
-        _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
 
-      // volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
-      // volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base)
-      // + 0x4); volatile uint32_t* fifo_config = reinterpret_cast<volatile
-      // uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8); volatile uint32_t* leds = reinterpret_cast<volatile
-      // uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
-      volatile uint32_t* fifo_config =
-        reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
-
-      *fifo_config = (*fifo_config & 0xFFFFFFBF) + ((value << 6) & 0b1000000);
-
+      uint32_t fifo_config = getMemory("fifo_config");
+      fifo_config = (fifo_config & 0xFFFFFFBF) + ((value << 6) & 0b1000000);
+      setMemory("fifo_config", fifo_config);
     }
 
     else if(name == "t0_enable") {
       t0_enable = value;
-      void* readout_base =
-        _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
 
-      // volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
-      // volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base)
-      // + 0x4); volatile uint32_t* fifo_config = reinterpret_cast<volatile
-      // uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8); volatile uint32_t* leds = reinterpret_cast<volatile
-      // uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
-      volatile uint32_t* fifo_config =
-        reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
-
-      *fifo_config = (*fifo_config & 0xFFFFFF7F) + ((value << 7) & 0b10000000);
+      uint32_t fifo_config = getMemory("fifo_config");
+      fifo_config = (fifo_config & 0xFFFFFF7F) + ((value << 7) & 0b10000000);
+      setMemory("fifo_config", fifo_config);
 
     } else if(name == "trigger_injection") {
       trigger_injection = value;
-      void* pulser_base =
-        _hal->getMappedMemoryRW(ATLASPix_PULSER_BASE_ADDRESS, ATLASPix_PULSER_MAP_SIZE, ATLASPix_PULSER_MASK);
-      volatile uint32_t* triggerinj =
-        reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x18);
-      *triggerinj = value;
+      setMemory("pulser_base", 0x18, value); // triggerinj
 
     } else if(name == "gray_decode") {
 
       gray_decode = value;
-      void* readout_base =
-        _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
-      volatile uint32_t* fifo_config =
-        reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
-      *fifo_config = (*fifo_config & 0xFBFF) + ((value << 10) & 0b010000000000);
+      uint32_t fifo_config = getMemory("fifo_config");
+      fifo_config = (fifo_config & 0xFBFF) + ((value << 10) & 0b010000000000);
+      setMemory("fifo_config", fifo_config);
+
       gray_decoding_state = value;
 
     }
     /*
       else if(name == "ext_clk") {
 
-            void* readout_base =
-              _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
-            volatile uint32_t* fifo_config =
-              reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
-            *fifo_config = (*fifo_config & 0xFDFF) + ((value << 9) & 0b001000000000);
+      uint32_t fifo_config = getMemory("fifo_config");
+      fifo_config = (fifo_config & 0xFDFF) + ((value << 9) & 0b001000000000);
+      setMemory("fifo_config", fifo_config);
           }
     */
     else if(name == "send_fpga_ts") {
       send_fpga_ts = value;
-      void* readout_base =
-        _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
-      volatile uint32_t* fifo_config =
-        reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
-      *fifo_config = (*fifo_config & 0xF7FF) + ((value << 11) & 0b100000000000);
+
+      uint32_t fifo_config = getMemory("fifo_config");
+      fifo_config = (fifo_config & 0xF7FF) + ((value << 11) & 0b100000000000);
+      setMemory("fifo_config", fifo_config);
+
     } else if(name == "filter_hp") {
       filter_hp = value;
     } else if(name == "hw_masking") {
       HW_masking = value;
     } else if(name == "t0_out_periodic") {
 
-      void* readout_base =
-        _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
-      volatile uint32_t* fifo_config =
-        reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
-      *fifo_config = (*fifo_config & 0xEFFF) + ((value << 12) & 0b1000000000000);
+      uint32_t fifo_config = getMemory("fifo_config");
+      fifo_config = (fifo_config & 0xEFFF) + ((value << 12) & 0b1000000000000);
+      setMemory("fifo_config", fifo_config);
+
     } else if(name == "blpix") {
       double dval = static_cast<double>(value) / 1000;
       theMatrix.BLPix = dval;
@@ -605,67 +544,46 @@ void ATLASPixDevice::configureClock() {
 void ATLASPixDevice::ProgramSR(const ATLASPixMatrix& matrix) {
 
   auto words = matrix.encodeShiftRegister();
+  setMemory("ram_base", 0x14, 0);
 
-  void* control_base =
-    _hal->getMappedMemoryRW(ATLASPix_CONTROL_BASE_ADDRESS, ATLASPix_CONTROL_MAP_SIZE, ATLASPix_RAM_address_MASK);
-  volatile uint32_t* RAM_address = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + 0x0);
-  volatile uint32_t* RAM_content = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + 0x4);
-  volatile uint32_t* RAM_write_enable =
-    reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + 0x8);
-  volatile uint32_t* RAM_reg_limit =
-    reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + 0xC);
-  volatile uint32_t* RAM_shift_limit =
-    reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + 0x10);
-  volatile uint32_t* Config_flag =
-    reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + 0x14);
-  // volatile uint32_t* global_reset = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) +
-  // 0x18);
-  volatile uint32_t* output_enable =
-    reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(control_base) + 0x1C);
-
-  *Config_flag = 0;
-
-  *RAM_reg_limit = matrix.nSRbuffer;
-  *RAM_shift_limit = matrix.extraBits;
+  setMemory("ram_base", 0xC, matrix.nSRbuffer);
+  setMemory("ram_base", 0x10, matrix.extraBits);
 
   for(uint32_t i = 0; i <= matrix.nSRbuffer; i++) {
     uint32_t word = words[i];
-    *RAM_address = i;
-    *RAM_content = word;
+    setMemory("ram_base", i);
+    setMemory("ram_base", 0x4, word);
     usleep(10);
-    *RAM_write_enable = 0x1;
+    setMemory("ram_base", 0x8, 0x1);
     usleep(10);
-    *RAM_write_enable = 0x0;
+    setMemory("ram_base", 0x8, 0x0);
   };
 
   usleep(100);
-  *output_enable = matrix.SRmask;
+  setMemory("ram_base", 0x1C, matrix.SRmask);
   usleep(100);
-  *Config_flag = 0x1;
+  setMemory("ram_base", 0x14, 1);
   //  usleep(300000);
   //  *Config_flag = 0;
   //  *output_enable = 0x0;
   //  usleep(100);
 
   // Sync RO state machine ckdivend with the one in the chip
-  void* readout_base =
-    _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
-  volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
-  *ro = (*ro & 0xFFFFFF00) + (matrix.CurrentDACConfig->GetParameter("ckdivend") & 0xFF);
+  uint32_t ro = getMemory("readout_fsm");
+  ro = (ro & 0xFFFFFF00) + (matrix.CurrentDACConfig->GetParameter("ckdivend") & 0xFF);
+  setMemory("readout_fsm", ro);
 }
 
 // Injection and pulser
 
 void ATLASPixDevice::resetPulser() {
 
-  void* pulser_base = _hal->getMappedMemoryRW(ATLASPix_PULSER_BASE_ADDRESS, ATLASPix_PULSER_MAP_SIZE, ATLASPix_PULSER_MASK);
-  volatile uint32_t* rst = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x14);
   usleep(1);
-  *rst = 0x0;
+  setMemory("pulser_base", 0x14, 0x0); // rst
   usleep(1);
-  *rst = 0x1;
+  setMemory("pulser_base", 0x14, 0x1); // rst
   usleep(1);
-  *rst = 0x0;
+  setMemory("pulser_base", 0x14, 0x0); // rst
 }
 
 void ATLASPixDevice::setPulse(
@@ -681,79 +599,53 @@ void ATLASPixDevice::setPulse(
   _hal->setBiasRegulator(INJ_4, voltage);
   _hal->powerBiasRegulator(INJ_4, true);
 
-  void* pulser_base = _hal->getMappedMemoryRW(ATLASPix_PULSER_BASE_ADDRESS, ATLASPix_PULSER_MAP_SIZE, ATLASPix_PULSER_MASK);
-
-  // volatile uint32_t* inj_flag = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x0);
-  volatile uint32_t* pulse_count = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x4);
-  volatile uint32_t* high_cnt = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x8);
-  volatile uint32_t* low_cnt = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0xC);
-  volatile uint32_t* output_enable =
-    reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x10);
-  // volatile uint32_t* rst = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x14);
-
-  *pulse_count = npulse;
-  *high_cnt = n_up;
-  *low_cnt = n_down;
-  *output_enable = 0xFFFFF; // matrix.PulserMask;
+  setMemory("pulser_base", 0x4, npulse);   // pulse_count
+  setMemory("pulser_base", 0x8, n_up);     // high_cnt
+  setMemory("pulser_base", 0xC, n_down);   // low_cnt
+  setMemory("pulser_base", 0x10, 0xFFFFF); // output_enable  // matrix.PulserMask;
 
   this->pulse_width = std::ceil(((npulse * n_up + npulse * n_down) * (1.0 / 160.0e6)) / 1e-6) + 10;
 }
 
 void ATLASPixDevice::sendPulse() {
 
-  void* pulser_base = _hal->getMappedMemoryRW(ATLASPix_PULSER_BASE_ADDRESS, ATLASPix_PULSER_MAP_SIZE, ATLASPix_PULSER_MASK);
-  volatile uint32_t* inj_flag = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(pulser_base) + 0x0);
-
-  *inj_flag = 0x1;
+  setMemory("pulser_base", 0x0, 0x1); // inj_flag
   usleep(this->pulse_width);
-  *inj_flag = 0x0;
+  setMemory("pulser_base", 0x0, 0x0); // inj_flag
 }
 
 void ATLASPixDevice::resetCounters() {
 
-  void* counter_base =
-    _hal->getMappedMemoryRW(ATLASPix_COUNTER_BASE_ADDRESS, ATLASPix_COUNTER_MAP_SIZE, ATLASPix_COUNTER_MASK);
-
-  volatile uint32_t* cnt_rst = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(counter_base) + 0x10);
-  volatile uint32_t* global_reset =
-    reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(counter_base) + 0x14);
-
-  *global_reset = 0x0;
+  setMemory("global_reset", 0x0);
   usleep(10);
-  *global_reset = 0x1;
+  setMemory("global_reset", 0x1);
   usleep(10);
-  *global_reset = 0x0;
+  setMemory("global_reset", 0x0);
 
   usleep(10);
-  *cnt_rst = 0x0;
+  setMemory("cnt_rst", 0x0);
   usleep(1);
-  *cnt_rst = 0x1;
+  setMemory("cnt_rst", 0x1);
   usleep(1);
-  *cnt_rst = 0x0;
+  setMemory("cnt_rst", 0x0);
 }
 
 int ATLASPixDevice::readCounter(int i) {
-  void* counter_base =
-    _hal->getMappedMemoryRW(ATLASPix_COUNTER_BASE_ADDRESS, ATLASPix_COUNTER_MAP_SIZE, ATLASPix_COUNTER_MASK);
 
   int value = 0;
   switch(i) {
   case 0: {
-    volatile uint32_t* cnt_value = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(counter_base) + 0x0);
-    value = *cnt_value;
+    value = getMemory("counter_base", 0x0);
   } break;
   case 1: {
-    volatile uint32_t* cnt_value = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(counter_base) + 0x4);
-    value = *cnt_value;
+    value = getMemory("counter_base", 0x4);
   } break;
   case 2: {
-    volatile uint32_t* cnt_value = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(counter_base) + 0x8);
-    value = *cnt_value;
+    value = getMemory("counter_base", 0x8);
     break;
   }
   case 3: {
-    volatile uint32_t* cnt_value = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(counter_base) + 0xC);
-    value = *cnt_value;
+    value = getMemory("counter_base", 0xC);
     break;
   }
   default: {
@@ -766,27 +658,21 @@ int ATLASPixDevice::readCounter(int i) {
 }
 
 int ATLASPixDevice::readCounter(ATLASPixMatrix& matrix) {
-  void* counter_base =
-    _hal->getMappedMemoryRW(ATLASPix_COUNTER_BASE_ADDRESS, ATLASPix_COUNTER_MAP_SIZE, ATLASPix_COUNTER_MASK);
 
   int value = 0;
   switch(matrix.counter) {
   case 0: {
-    volatile uint32_t* cnt_value = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(counter_base) + 0x0);
-    value = *cnt_value;
+    value = getMemory("counter_base", 0x0);
   } break;
   case 1: {
-    volatile uint32_t* cnt_value = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(counter_base) + 0x4);
-    value = *cnt_value;
+    value = getMemory("counter_base", 0x4);
   } break;
   case 2: {
-    volatile uint32_t* cnt_value = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(counter_base) + 0x8);
-    value = *cnt_value;
+    value = getMemory("counter_base", 0x8);
     break;
   }
   case 3: {
-    volatile uint32_t* cnt_value = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(counter_base) + 0xC);
-    value = *cnt_value;
+    value = getMemory("counter_base", 0xC);
     break;
   }
   default: {
@@ -1508,11 +1394,7 @@ void ATLASPixDevice::MeasureTOT(double vmin, double vmax, uint32_t npulses, uint
 }
 
 void ATLASPixDevice::isLocked() {
-  void* readout_base =
-    _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
-  volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x4);
-
-  if((*fifo_status >> 5) & 0b1) {
+  if((getMemory("fifo_status") >> 5) & 0b1) {
     std::cout << "yes" << std::endl;
   } else {
     std::cout << "no" << std::endl;
@@ -1520,10 +1402,7 @@ void ATLASPixDevice::isLocked() {
 }
 
 uint32_t ATLASPixDevice::getTriggerCounter() {
-  void* readout_base =
-    _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
-  volatile uint32_t* trg_cnt = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x18);
-  return *trg_cnt;
+  return getMemory("trg_cnt");
 }
 
 void ATLASPixDevice::getTriggerCount() {
@@ -1537,16 +1416,12 @@ std::vector<uint32_t> ATLASPixDevice::getRawData() {
     throw NoDataAvailable();
   }
 
-  void* readout_base =
-    _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
-  volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
-
   uint32_t dataRead;
   std::vector<uint32_t> rawDataVec;
 
   // if a filter for WEIRD_DATA is set and the data has a WEIRD_DATA header read next data.
   do {
-    dataRead = static_cast<uint32_t>(*data);
+    dataRead = getMemory("data");
   } while((filter_weird_data && (dataRead >> 24 == 0b00000100)));
 
   // if there was data, store data to return vector
@@ -1557,11 +1432,6 @@ std::vector<uint32_t> ATLASPixDevice::getRawData() {
 }
 
 pearydata ATLASPixDevice::getDataBin() {
-
-  void* readout_base =
-    _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
-
-  volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
 
   make_directories(_output_directory);
   // write actual configuration
@@ -1583,7 +1453,7 @@ pearydata ATLASPixDevice::getDataBin() {
       break;
     }
     // check for new data in fifo
-    d1 = static_cast<uint32_t>(*data);
+    d1 = getMemory("data");
     if((d1 == 0) || (filter_weird_data && (d1 >> 24 == 0b00000100))) {
       continue;
     } else {
@@ -1599,16 +1469,6 @@ pearydata ATLASPixDevice::getDataBin() {
 }
 
 pearydata ATLASPixDevice::getData() {
-
-  void* readout_base =
-    _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
-
-  volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
-  volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x4);
-  // volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) +
-  // 0x8);
-  // volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
-  // volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
 
   make_directories(_output_directory);
   std::ofstream disk;
@@ -1628,11 +1488,11 @@ pearydata ATLASPixDevice::getData() {
     if(!this->_daqContinue.test_and_set())
       break;
     // check for new data in fifo
-    if((*fifo_status & 0x1) == 0) {
+    if((getMemory("fifo_status") & 0x1) == 0) {
       continue;
     }
 
-    uint32_t d1 = static_cast<uint32_t>(*data);
+    uint32_t d1 = getMemory("data");
 
     // HIT data of bit 31 is = 1
     if((d1 >> 31) == 1) {
@@ -1718,16 +1578,6 @@ pearydata ATLASPixDevice::getData() {
 
 pearydata ATLASPixDevice::getDataTO(int /* maskx */, int /* masky */) {
 
-  void* readout_base =
-    _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
-
-  volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
-  volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x4);
-  // volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) +
-  // 0x8);
-  // volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
-  // volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
-
   make_directories(_output_directory);
   std::ofstream disk;
   disk.open(_output_directory + "/data.txt", std::ios::out);
@@ -1750,7 +1600,7 @@ pearydata ATLASPixDevice::getDataTO(int /* maskx */, int /* masky */) {
     }
 
     // Check for new data in FIFO
-    if((*fifo_status & 0x1) == 0) {
+    if((getMemory("fifo_status") & 0x1) == 0) {
       // wait a microsecond and keep track of it
       usleep(1);
       tocnt += 1;
@@ -1773,7 +1623,7 @@ pearydata ATLASPixDevice::getDataTO(int /* maskx */, int /* masky */) {
       break;
     }
 
-    uint32_t d1 = static_cast<uint32_t>(*data);
+    uint32_t d1 = getMemory("data");
     // std::cout << std::bitset<32>(d1) << std::endl;
 
     // HIT data of bit 31 is = 1
@@ -1848,21 +1698,6 @@ pearydata ATLASPixDevice::getDataTO(int /* maskx */, int /* masky */) {
 
 std::vector<pixelhit> ATLASPixDevice::getDataTOvector(uint32_t /* timeout */, bool /* noisescan */) {
 
-  void* readout_base =
-    _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
-
-  volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
-  volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x4);
-  // volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) +
-  // 0x8);
-  // volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
-  // volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
-
-  //  make_directories(_output_directory);
-  //  std::ofstream disk;
-  //  disk.open(_output_directory + "/data.txt", std::ios::out);
-  //  disk << "X:	Y:	   TS1:	   TS2:		FPGA_TS:   SyncedCNT:   TR_CNT:	ATPBinCounter:   ATPGreyCounter:	" << std::endl;
-
   uint64_t fpga_ts = 0;
   uint32_t TrCNT = 0;
 
@@ -1878,7 +1713,7 @@ std::vector<pixelhit> ATLASPixDevice::getDataTOvector(uint32_t /* timeout */, bo
       break;
     // check for new first half-word or restart loop
 
-    if((*fifo_status & 0x1) == 0) {
+    if((getMemory("fifo_status") & 0x1) == 0) {
       usleep(1);
       tocnt += 1;
       if(tocnt == Tuning_timeout) {
@@ -1893,7 +1728,7 @@ std::vector<pixelhit> ATLASPixDevice::getDataTOvector(uint32_t /* timeout */, bo
       break;
     }
 
-    uint32_t d1 = static_cast<uint32_t>(*data);
+    uint32_t d1 = getMemory("data");
 
     // HIT data of bit 31 is = 1
     pixelhit hit = decodeHit(d1, theMatrix.CurrentDACConfig->GetParameter("ckdivend2"), gray_decoding_state);
@@ -1952,21 +1787,6 @@ std::vector<pixelhit> ATLASPixDevice::getDataTOvector(uint32_t /* timeout */, bo
 
 std::vector<pixelhit> ATLASPixDevice::getDataTimer(uint32_t timeout, bool to_nodata) {
 
-  void* readout_base =
-    _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
-
-  volatile uint32_t* data = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x0);
-  volatile uint32_t* fifo_status = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x4);
-  // volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) +
-  // 0x8);
-  // volatile uint32_t* leds = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0xC);
-  // volatile uint32_t* ro = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x10);
-
-  //  make_directories(_output_directory);
-  //  std::ofstream disk;
-  //  disk.open(_output_directory + "/data.txt", std::ios::out);
-  //  disk << "X:	Y:	   TS1:	   TS2:		FPGA_TS:   SyncedCNT:   TR_CNT:	ATPBinCounter:   ATPGreyCounter:	" << std::endl;
-
   uint64_t fpga_ts = 0;
   uint32_t TrCNT = 0;
 
@@ -1989,7 +1809,7 @@ std::vector<pixelhit> ATLASPixDevice::getDataTimer(uint32_t timeout, bool to_nod
     }
     // check for new first half-word or restart loop
 
-    if((*fifo_status & 0x1) == 0) {
+    if((getMemory("fifo_status") & 0x1) == 0) {
       usleep(1);
       tocnt += 1;
       if(tocnt == Tuning_timeout && to_nodata) {
@@ -2000,7 +1820,7 @@ std::vector<pixelhit> ATLASPixDevice::getDataTimer(uint32_t timeout, bool to_nod
       }
     }
 
-    uint32_t d1 = static_cast<uint32_t>(*data);
+    uint32_t d1 = getMemory("data");
     // std::cout << std::bitset<32>(d1) << std::endl;
 
     // HIT data of bit 31 is = 1
@@ -2343,13 +2163,15 @@ void ATLASPixDevice::reset() {
   theMatrix.CurrentDACConfig->SetParameter("RO_res_n", 0);
   this->ProgramSR(theMatrix);
 
-  void* readout_base =
-    _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
-  volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
+  uint32_t fifo_config = getMemory("fifo_config");
+  fifo_config = (fifo_config & 0xFFFFFFEF) + 0b10000;
+  setMemory("fifo_config", fifo_config);
 
-  *fifo_config = (*fifo_config & 0xFFFFFFEF) + 0b10000;
   usleep(50);
-  *fifo_config = (*fifo_config & 0xFFFFFFEF) + 0b00000;
+
+  fifo_config = getMemory("fifo_config");
+  fifo_config = (fifo_config & 0xFFFFFFEF) + 0b00000;
+  setMemory("fifo_config", fifo_config);
 
   usleep(100);
 
@@ -2360,13 +2182,17 @@ void ATLASPixDevice::reset() {
 void ATLASPixDevice::resetFIFO() {
   LOG(INFO) << "Resetting FIFO";
 
-  void* readout_base =
-    _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
-  volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
+  uint32_t fifo_config = getMemory("fifo_config");
+  fifo_config = (fifo_config & 0xFFFFFFEF) + 0b10000;
+  setMemory("fifo_config", fifo_config);
 
-  *fifo_config = (*fifo_config & 0xFFFFFFEF) + 0b10000;
   usleep(50);
-  *fifo_config = (*fifo_config & 0xFFFFFFEF) + 0b00000;
+
+  fifo_config = getMemory("fifo_config");
+  fifo_config = (fifo_config & 0xFFFFFFEF) + 0b00000;
+  setMemory("fifo_config", fifo_config);
+
+  usleep(100);
 }
 
 std::string ATLASPixDevice::getName() {
@@ -2495,10 +2321,6 @@ void ATLASPixDevice::daqStart() {
     return;
   }
 
-  void* readout_base =
-    _hal->getMappedMemoryRW(ATLASPix_READOUT_BASE_ADDRESS, ATLASPix_READOUT_MAP_SIZE, ATLASPix_READOUT_MASK);
-  volatile uint32_t* fifo_config = reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(readout_base) + 0x8);
-
   if(_daqThread.joinable()) {
     LOG(WARNING) << "DAQ thread is already running";
     return;
@@ -2506,9 +2328,15 @@ void ATLASPixDevice::daqStart() {
 
   daqRunning = true;
 
-  *fifo_config = (*fifo_config & 0xFFFFFFEF) + 0b10000;
+  uint32_t fifo_config = getMemory("fifo_config");
+  fifo_config = (fifo_config & 0xFFFFFFEF) + 0b10000;
+  setMemory("fifo_config", fifo_config);
+
   usleep(50);
-  *fifo_config = (*fifo_config & 0xFFFFFFEF) + 0b00000;
+
+  fifo_config = getMemory("fifo_config");
+  fifo_config = (fifo_config & 0xFFFFFFEF) + 0b00000;
+  setMemory("fifo_config", fifo_config);
 
   // arm the stop flag and start running
   this->resetCounters();
