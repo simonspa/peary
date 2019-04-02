@@ -138,6 +138,8 @@ namespace caribou {
      */
     double getADC(std::string name);
 
+    std::vector<std::string> listRegisters();
+
     /** Read slow-ADC value by the input channel number of the ADC device
      *
      *  Returns value in SI Volts

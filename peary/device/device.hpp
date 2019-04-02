@@ -227,6 +227,12 @@ namespace caribou {
     virtual double getADC(uint8_t channel) = 0;
 
     /**
+     * @brief List all registers known to this device
+     * @return Vector with names of all available registers
+     */
+    virtual std::vector<std::string> listRegisters() = 0;
+
+    /**
      * @brief Retrieve list of all available device-specifiv commands
      * @return List of available commands as pair of command name and number of expected arguments
      */

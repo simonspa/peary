@@ -51,6 +51,7 @@ namespace caribou {
     virtual std::vector<std::pair<std::string, uint32_t>> getRegisters() {
       return std::vector<std::pair<std::string, uint32_t>>();
     };
+    virtual std::vector<std::string> listRegisters() { return std::vector<std::string>(); }
 
     virtual void setVoltage(std::string, double, double){};
 

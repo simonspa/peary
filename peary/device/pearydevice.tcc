@@ -283,6 +283,8 @@ namespace caribou {
     _is_configured = true;
   }
 
+  template <typename T> std::vector<std::string> pearyDevice<T>::listRegisters() { return _registers.getNames(); }
+
 } // namespace caribou
 
 #endif /* CARIBOU_MIDDLEWARE_IMPL */
