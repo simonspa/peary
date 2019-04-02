@@ -18,7 +18,7 @@ pearycli::pearycli() : Console("# ") {
   registerCommand("delay", delay, "Adds a delay in Milliseconds", 1, "DELAY_MS");
 
   registerCommand(
-    "list_commands", list_commands, "list available device-specific commands for selected device", 1, "DEVICE_ID");
+    "listCommands", listCommands, "list available device-specific commands for selected device", 1, "DEVICE_ID");
 
   registerCommand("getName", getName, "Print device name", 1, "DEVICE_ID");
   registerCommand("getType", getType, "Print device type", 1, "DEVICE_ID");
@@ -142,7 +142,7 @@ void pearycli::listUnregisteredCommands() {
     std::vector<caribouDevice*> devs = manager->getDevices();
     for(auto d : devs) {
       std::cout << "ID " << i << " - " << d->getName() << ":" << std::endl;
-      for(auto& cmd : d->list_commands()) {
+      for(auto& cmd : d->listCommands()) {
         std::cout << "\t" << cmd.first << std::endl;
       }
       i++;
@@ -158,7 +158,7 @@ int pearycli::unregisteredCommand(const std::vector<std::string>& input) {
       throw caribouException("No device ID provided");
     caribouDevice* dev = manager->getDevice(std::stoi(input.back()));
 
-    auto commands = dev->list_commands();
+    auto commands = dev->listCommands();
 
     auto value = input.front();
     auto cmd = std::find_if(commands.begin(), commands.end(), [&value](std::pair<std::string, std::size_t> const& elem) {
@@ -250,12 +250,12 @@ int pearycli::delay(const std::vector<std::string>& input) {
   return ReturnCode::Ok;
 }
 
-int pearycli::list_commands(const std::vector<std::string>& input) {
+int pearycli::listCommands(const std::vector<std::string>& input) {
 
   try {
     caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
     std::cout << "List of commands available for device ID " << input.at(1) << " - " << dev->getName() << ":" << std::endl;
-    for(auto& cmd : dev->list_commands()) {
+    for(auto& cmd : dev->listCommands()) {
       std::cout << "\t" << cmd.first << " (args: " << cmd.second << ")" << std::endl;
     }
   } catch(caribou::caribouException& e) {

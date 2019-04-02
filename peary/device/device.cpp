@@ -31,7 +31,7 @@ std::string caribouDevice::getVersion() {
   return std::string(PACKAGE_STRING);
 }
 
-std::vector<std::pair<std::string, std::size_t>> caribouDevice::list_commands() {
+std::vector<std::pair<std::string, std::size_t>> caribouDevice::listCommands() {
   return _dispatcher.commands();
 }
 

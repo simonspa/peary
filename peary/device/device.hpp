@@ -230,7 +230,7 @@ namespace caribou {
      * @brief Retrieve list of all available device-specifiv commands
      * @return List of available commands as pair of command name and number of expected arguments
      */
-    std::vector<std::pair<std::string, std::size_t>> list_commands();
+    std::vector<std::pair<std::string, std::size_t>> listCommands();
 
     /**
      * @brief Call device-specific command with a list of arguments
