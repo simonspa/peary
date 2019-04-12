@@ -7,7 +7,7 @@
 
 #include "Device.hpp"
 #include "configuration.hpp"
-#include "interface.hpp"
+#include "Interface.hpp"
 #include "InterfaceManager.hpp"
 
 #include <string>

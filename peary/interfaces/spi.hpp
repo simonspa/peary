@@ -8,7 +8,7 @@
 
 #include "InterfaceManager.hpp"
 #include "exceptions.hpp"
-#include "interface.hpp"
+#include "Interface.hpp"
 
 namespace caribou {
 

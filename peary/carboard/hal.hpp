@@ -8,7 +8,7 @@
 #include <vector>
 
 #include "InterfaceManager.hpp"
-#include "interface.hpp"
+#include "Interface.hpp"
 
 #include "carboard.hpp"
 #include "constants.hpp"
@@ -17,7 +17,7 @@
 #include "utils.hpp"
 
 #include "InterfaceManager.hpp"
-#include "interface.hpp"
+#include "Interface.hpp"
 
 #include "i2c.hpp"
 #include "loopback.hpp"

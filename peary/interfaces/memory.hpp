@@ -12,7 +12,7 @@
 #include "InterfaceManager.hpp"
 #include "datatypes.hpp"
 #include "exceptions.hpp"
-#include "interface.hpp"
+#include "Interface.hpp"
 
 namespace caribou {
 

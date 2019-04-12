@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#include "interface.hpp"
+#include "Interface.hpp"
 
 namespace caribou {
 
