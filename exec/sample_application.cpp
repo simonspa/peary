@@ -1,8 +1,8 @@
 #include <fstream>
 #include <iostream>
 
-#include "configuration.hpp"
 #include "DeviceManager.hpp"
+#include "configuration.hpp"
 #include "exceptions.hpp"
 #include "log.hpp"
 

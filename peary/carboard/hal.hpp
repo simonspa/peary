@@ -7,8 +7,8 @@
 #include <tuple>
 #include <vector>
 
-#include "interface.hpp"
 #include "InterfaceManager.hpp"
+#include "interface.hpp"
 
 #include "carboard.hpp"
 #include "constants.hpp"
@@ -16,8 +16,8 @@
 #include "log.hpp"
 #include "utils.hpp"
 
-#include "interface.hpp"
 #include "InterfaceManager.hpp"
+#include "interface.hpp"
 
 #include "i2c.hpp"
 #include "loopback.hpp"

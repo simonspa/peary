@@ -15,8 +15,8 @@
 #include <sys/uio.h>
 #include <unistd.h>
 
-#include "configuration.hpp"
 #include "DeviceManager.hpp"
+#include "configuration.hpp"
 #include "exceptions.hpp"
 #include "log.hpp"
 

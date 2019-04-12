@@ -6,8 +6,8 @@
 #define PEARY_CLI_H
 
 #include "Console.hpp"
-#include "configuration.hpp"
 #include "DeviceManager.hpp"
+#include "configuration.hpp"
 
 #include <vector>
 

@@ -7,8 +7,8 @@
 #include <tuple>
 #include <vector>
 
-#include "interface.hpp"
 #include "InterfaceManager.hpp"
+#include "interface.hpp"
 
 namespace caribou {
 

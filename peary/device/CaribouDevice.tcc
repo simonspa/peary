@@ -325,7 +325,7 @@ namespace caribou {
       component_list.emplace_back(name, type);
     }
     return component_list;
-  };
+  }
 
 } // namespace caribou
 
