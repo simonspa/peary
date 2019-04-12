@@ -13,7 +13,7 @@ namespace caribou {
     // Log the firmware
     LOG(STATUS) << getFirmwareVersion();
 
-    T& dev_iface = interface_manager::getInterface<T>(_devpath);
+    T& dev_iface = InterfaceManager::getInterface<T>(_devpath);
     LOG(DEBUG) << "Prepared HAL for accessing device with interface at " << dev_iface.devicePath();
 
     if(!caribou::caribouHALbase::generalResetDone) { // CaR board needs to be reset
@@ -24,14 +24,14 @@ namespace caribou {
   template <typename T> void caribouHAL<T>::writeMemory(memory_map mem, uint32_t value) { writeMemory(mem, 0, value); }
 
   template <typename T> void caribouHAL<T>::writeMemory(memory_map mem, size_t offset, uint32_t value) {
-    iface_mem& imem = interface_manager::getInterface<iface_mem>(MEM_PATH);
+    iface_mem& imem = InterfaceManager::getInterface<iface_mem>(MEM_PATH);
     imem.write(mem, std::make_pair(offset, value));
   }
 
   template <typename T> uint32_t caribouHAL<T>::readMemory(memory_map mem) { return readMemory(mem, 0); }
 
   template <typename T> uint32_t caribouHAL<T>::readMemory(memory_map mem, size_t offset) {
-    iface_mem& imem = interface_manager::getInterface<iface_mem>(MEM_PATH);
+    iface_mem& imem = InterfaceManager::getInterface<iface_mem>(MEM_PATH);
     return imem.read(mem, offset, 1).front();
   }
 
@@ -56,7 +56,7 @@ namespace caribou {
   template <typename T> void caribouHAL<T>::generalReset() {
     // Disable all Voltage Regulators
     LOG(DEBUG) << "Disabling all Voltage regulators";
-    iface_i2c& i2c0 = interface_manager::getInterface<iface_i2c>(BUS_I2C0);
+    iface_i2c& i2c0 = InterfaceManager::getInterface<iface_i2c>(BUS_I2C0);
     i2c0.write(ADDR_IOEXP, 0x2, {0x00, 0x00}); // disable all bits of Port 1-2 (internal register)
     i2c0.write(ADDR_IOEXP, 0x6, {0x00, 0x00}); // set all bits of Port 1-2 in output mode
 
@@ -81,39 +81,39 @@ namespace caribou {
   template <typename T> caribouHAL<T>::~caribouHAL() {}
 
   template <typename T> typename T::data_type caribouHAL<T>::send(const typename T::data_type& data) {
-    return interface_manager::getInterface<T>(_devpath).write(_devaddress, data);
+    return InterfaceManager::getInterface<T>(_devpath).write(_devaddress, data);
   }
 
   template <typename T>
   std::vector<typename T::data_type> caribouHAL<T>::send(const std::vector<typename T::data_type>& data) {
-    return interface_manager::getInterface<T>(_devpath).write(_devaddress, data);
+    return InterfaceManager::getInterface<T>(_devpath).write(_devaddress, data);
   }
 
   template <typename T>
   std::pair<typename T::reg_type, typename T::data_type>
   caribouHAL<T>::send(const std::pair<typename T::reg_type, typename T::data_type>& data) {
-    return interface_manager::getInterface<T>(_devpath).write(_devaddress, data);
+    return InterfaceManager::getInterface<T>(_devpath).write(_devaddress, data);
   }
 
   template <typename T>
   std::vector<typename T::data_type> caribouHAL<T>::send(const typename T::reg_type& reg,
                                                          const std::vector<typename T::data_type>& data) {
-    return interface_manager::getInterface<T>(_devpath).write(_devaddress, reg, data);
+    return InterfaceManager::getInterface<T>(_devpath).write(_devaddress, reg, data);
   }
 
   template <typename T>
   std::vector<std::pair<typename T::reg_type, typename T::data_type>>
   caribouHAL<T>::send(const std::vector<std::pair<typename T::reg_type, typename T::data_type>>& data) {
-    return interface_manager::getInterface<T>(_devpath).write(_devaddress, data);
+    return InterfaceManager::getInterface<T>(_devpath).write(_devaddress, data);
   }
 
   template <typename T> std::vector<typename T::data_type> caribouHAL<T>::receive(const unsigned int length) {
-    return interface_manager::getInterface<T>(_devpath).read(_devaddress, length);
+    return InterfaceManager::getInterface<T>(_devpath).read(_devaddress, length);
   }
 
   template <typename T>
   std::vector<typename T::data_type> caribouHAL<T>::receive(const typename T::reg_type reg, const unsigned int length) {
-    return interface_manager::getInterface<T>(_devpath).read(_devaddress, reg, length);
+    return InterfaceManager::getInterface<T>(_devpath).read(_devaddress, reg, length);
   }
 
   template <typename T> uint32_t caribouHAL<T>::getFirmwareRegister(uint16_t) {
@@ -123,7 +123,7 @@ namespace caribou {
   template <typename T> uint8_t caribouHAL<T>::getCaRBoardID() {
 
     LOG(DEBUG) << "Reading board ID from CaR EEPROM";
-    iface_i2c& myi2c = interface_manager::getInterface<iface_i2c>(BUS_I2C0);
+    iface_i2c& myi2c = InterfaceManager::getInterface<iface_i2c>(BUS_I2C0);
 
     // Read one word from memory address on the EEPROM:
     // FIXME register address not set!
@@ -140,7 +140,7 @@ namespace caribou {
     // Negative numbers are represented in binary twos complement format.
 
     LOG(DEBUG) << "Reading temperature from TMP101";
-    iface_i2c& myi2c = interface_manager::getInterface<iface_i2c>(BUS_I2C0);
+    iface_i2c& myi2c = InterfaceManager::getInterface<iface_i2c>(BUS_I2C0);
 
     // Read the two temperature bytes from the TMP101:
     std::vector<uint8_t> data = myi2c.read(ADDR_TEMP, REG_TEMP_TEMP, 2);
@@ -203,7 +203,7 @@ namespace caribou {
 
   template <typename T> void caribouHAL<T>::powerVoltageRegulator(const VOLTAGE_REGULATOR_T regulator, const bool enable) {
 
-    iface_i2c& i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C0);
+    iface_i2c& i2c = InterfaceManager::getInterface<iface_i2c>(BUS_I2C0);
 
     if(enable) {
       LOG(DEBUG) << "Powering up " << regulator.name();
@@ -242,7 +242,7 @@ namespace caribou {
     setDACVoltage(source.dacaddress(), source.dacoutput(), (current * CAR_VREF_4P0) / 1000);
 
     // set polarisation
-    iface_i2c& i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C0);
+    iface_i2c& i2c = InterfaceManager::getInterface<iface_i2c>(BUS_I2C0);
     auto mask = i2c.read(ADDR_IOEXP, 0x02, 1)[0];
 
     if(polarity == CURRENT_SOURCE_POLARITY_T::PULL) {
@@ -277,7 +277,7 @@ namespace caribou {
     // All DAC voltage regulators on the CaR board are on the BUS_I2C3:
     LOG(DEBUG) << "Setting voltage " << voltage << "V "
                << "on DAC7678 at " << to_hex_string(device) << " channel " << to_hex_string(address);
-    iface_i2c& myi2c = interface_manager::getInterface<iface_i2c>(BUS_I2C3);
+    iface_i2c& myi2c = InterfaceManager::getInterface<iface_i2c>(BUS_I2C3);
 
     // Per default, the internal reference is switched off,
     // with external reference we have: voltage = d_in/4096*v_refin
@@ -307,7 +307,7 @@ namespace caribou {
     // All DAC voltage regulators on the CaR board are on the BUS_I2C3:
     LOG(DEBUG) << "Powering " << (enable ? "up" : "down") << " channel " << to_hex_string(address) << " on DAC7678 at "
                << to_hex_string(device);
-    iface_i2c& myi2c = interface_manager::getInterface<iface_i2c>(BUS_I2C3);
+    iface_i2c& myi2c = InterfaceManager::getInterface<iface_i2c>(BUS_I2C3);
 
     // Set the correct channel bit to be powered up/down:
     uint16_t channel_bits = 2 << address;
@@ -323,7 +323,7 @@ namespace caribou {
   template <typename T> void caribouHAL<T>::configureSI5345(SI5345_REG_T const* const regs, const size_t length) {
     LOG(DEBUG) << "Configuring SI5345";
 
-    iface_i2c& i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C0);
+    iface_i2c& i2c = InterfaceManager::getInterface<iface_i2c>(BUS_I2C0);
     uint8_t page = regs[0].address >> 8; // first page to be used
 
     i2c.write(ADDR_CLKGEN, std::make_pair(0x01, page)); // set first page
@@ -340,7 +340,7 @@ namespace caribou {
   template <typename T> bool caribouHAL<T>::isLockedSI5345() {
     LOG(DEBUG) << "Checking lock status of SI5345";
 
-    iface_i2c& i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C0);
+    iface_i2c& i2c = InterfaceManager::getInterface<iface_i2c>(BUS_I2C0);
     i2c.write(ADDR_CLKGEN, std::make_pair(0x01, 0x00)); // set first page
     std::vector<i2c_t> rx = i2c.read(ADDR_CLKGEN, static_cast<uint8_t>(0x0E));
     if(rx[0] & 0x2) {
@@ -491,7 +491,7 @@ namespace caribou {
   template <typename T> void caribouHAL<T>::setCurrentMonitor(const uint8_t device, const double maxExpectedCurrent) {
     LOG(DEBUG) << "Setting maxExpectedCurrent " << maxExpectedCurrent << "A "
                << "on INA226 at " << to_hex_string(device);
-    iface_i2c& i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C1);
+    iface_i2c& i2c = InterfaceManager::getInterface<iface_i2c>(BUS_I2C1);
 
     // Set configuration register:
     uint16_t conf = (1 << 14);
@@ -519,7 +519,7 @@ namespace caribou {
 
   template <typename T> double caribouHAL<T>::measureVoltage(const VOLTAGE_REGULATOR_T regulator) {
 
-    iface_i2c& i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C1);
+    iface_i2c& i2c = InterfaceManager::getInterface<iface_i2c>(BUS_I2C1);
     const i2c_address_t device = regulator.pwrmonitor();
 
     LOG(DEBUG) << "Reading bus voltage from INA226 at " << to_hex_string(device);
@@ -531,7 +531,7 @@ namespace caribou {
 
   // FIXME: somtimes it returns dummy values
   template <typename T> double caribouHAL<T>::measureCurrent(const VOLTAGE_REGULATOR_T regulator) {
-    iface_i2c& i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C1);
+    iface_i2c& i2c = InterfaceManager::getInterface<iface_i2c>(BUS_I2C1);
     const i2c_address_t device = regulator.pwrmonitor();
     LOG(DEBUG) << "Reading current from INA226 at " << to_hex_string(device);
 
@@ -548,7 +548,7 @@ namespace caribou {
 
   // FIXME: sometimes it return dummy values
   template <typename T> double caribouHAL<T>::measurePower(const VOLTAGE_REGULATOR_T regulator) {
-    iface_i2c& i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C1);
+    iface_i2c& i2c = InterfaceManager::getInterface<iface_i2c>(BUS_I2C1);
     const i2c_address_t device = regulator.pwrmonitor();
     LOG(DEBUG) << "Reading power from INA226 at " << to_hex_string(device);
 
@@ -564,7 +564,7 @@ namespace caribou {
   }
 
   template <typename T> double caribouHAL<T>::readSlowADC(const SLOW_ADC_CHANNEL_T channel) {
-    iface_i2c& i2c = interface_manager::getInterface<iface_i2c>(BUS_I2C3);
+    iface_i2c& i2c = InterfaceManager::getInterface<iface_i2c>(BUS_I2C3);
 
     LOG(DEBUG) << "Sampling channel " << channel.name() << " on pin " << static_cast<int>(channel.channel())
                << " of ADS7828 at " << to_hex_string(ADDR_ADC);

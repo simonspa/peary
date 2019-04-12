@@ -10,15 +10,15 @@
 
 namespace caribou {
 
-  class interface_manager {
+  class InterfaceManager {
 
   protected:
     // Default constructor: protected for singleton class
-    interface_manager(){};
+    InterfaceManager(){};
 
   private:
     // Static instance of this singleton class
-    static interface_manager instance;
+    static InterfaceManager instance;
 
     // Mutex protecting interface generation
     static std::mutex mutex;
@@ -46,8 +46,8 @@ namespace caribou {
 
     /* Delete unwanted functions from singleton class (C++11)
      */
-    interface_manager(interface_manager const&) = delete;
-    void operator=(interface_manager const&) = delete;
+    InterfaceManager(InterfaceManager const&) = delete;
+    void operator=(InterfaceManager const&) = delete;
   };
 
 } // namespace caribou

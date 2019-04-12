@@ -22,7 +22,7 @@ SET(LIB_SOURCE_FILES
   # HAL base
   "carboard/halbase.cpp"
   # interface manager
-  "interfaces/interface_manager.cpp"
+  "interfaces/InterfaceManager.cpp"
   # utilities
   "utils/log.cpp"
   "utils/utils.cpp"

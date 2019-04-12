@@ -8,7 +8,7 @@
 
 #include "exceptions.hpp"
 #include "interface.hpp"
-#include "interface_manager.hpp"
+#include "InterfaceManager.hpp"
 
 namespace caribou {
 
@@ -18,7 +18,7 @@ namespace caribou {
   class iface_ipsocket : public Interface<ipsocket_port_t, ipsocket_t, ipsocket_t> {
 
   private:
-    // Default constructor: private (only created by interface_manager)
+    // Default constructor: private (only created by InterfaceManager)
     //
     // It can throw DeviceException
     iface_ipsocket(std::string const& ip_address);
@@ -49,7 +49,7 @@ namespace caribou {
     int mysocket_;
 
     // only this function can create the interface
-    friend iface_ipsocket& interface_manager::getInterface<iface_ipsocket>(std::string const&);
+    friend iface_ipsocket& InterfaceManager::getInterface<iface_ipsocket>(std::string const&);
   };
 
 } // namespace caribou

@@ -8,7 +8,7 @@
 
 #include "exceptions.hpp"
 #include "interface.hpp"
-#include "interface_manager.hpp"
+#include "InterfaceManager.hpp"
 
 namespace caribou {
 
@@ -21,7 +21,7 @@ namespace caribou {
   class iface_spi : public Interface<spi_address_t, spi_reg_t, spi_t> {
 
   protected:
-    // Default constructor: private (only created by interface_manager)
+    // Default constructor: private (only created by InterfaceManager)
     // It can throw DeviceException
     iface_spi(std::string const& device_path);
 
@@ -54,7 +54,7 @@ namespace caribou {
     iface_spi() = delete;
 
     // only this function can create the interface
-    friend iface_spi& interface_manager::getInterface<iface_spi>(std::string const&);
+    friend iface_spi& InterfaceManager::getInterface<iface_spi>(std::string const&);
   }; // class iface_spi
 
 } // namespace caribou

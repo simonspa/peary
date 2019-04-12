@@ -8,7 +8,7 @@
 #include "Device.hpp"
 #include "configuration.hpp"
 #include "interface.hpp"
-#include "interface_manager.hpp"
+#include "InterfaceManager.hpp"
 
 #include <string>
 #include <vector>

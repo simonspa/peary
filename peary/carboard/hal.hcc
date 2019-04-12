@@ -8,7 +8,7 @@
 #include <vector>
 
 #include "interface.hpp"
-#include "interface_manager.hpp"
+#include "InterfaceManager.hpp"
 
 namespace caribou {
 

@@ -8,14 +8,14 @@
 
 #include "exceptions.hpp"
 #include "interface.hpp"
-#include "interface_manager.hpp"
+#include "InterfaceManager.hpp"
 
 namespace caribou {
 
   class iface_loopback : public Interface<uint8_t, uint8_t, uint8_t> {
 
   private:
-    /* Default constructor: private (only created by interface_manager)
+    /* Default constructor: private (only created by InterfaceManager)
      *
      * Throws caribou::DeviceException in case no connection can be established
      */
@@ -42,7 +42,7 @@ namespace caribou {
     iface_loopback() = delete;
 
     // only this function can create the interface
-    friend iface_loopback& interface_manager::getInterface<iface_loopback>(std::string const&);
+    friend iface_loopback& InterfaceManager::getInterface<iface_loopback>(std::string const&);
   };
 
 } // namespace caribou

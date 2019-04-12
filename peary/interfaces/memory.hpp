@@ -12,14 +12,14 @@
 #include "datatypes.hpp"
 #include "exceptions.hpp"
 #include "interface.hpp"
-#include "interface_manager.hpp"
+#include "InterfaceManager.hpp"
 
 namespace caribou {
 
   class iface_mem : public Interface<memory_map, size_t, uint32_t> {
 
   private:
-    // Default constructor: private (only created by interface_manager)
+    // Default constructor: private (only created by InterfaceManager)
     //
     // It can throw DeviceException
     iface_mem(std::string const& device_path);
@@ -49,7 +49,7 @@ namespace caribou {
     iface_mem() = delete;
 
     // only this function can create the interface
-    friend iface_mem& interface_manager::getInterface<iface_mem>(std::string const&);
+    friend iface_mem& InterfaceManager::getInterface<iface_mem>(std::string const&);
   };
 
 } // namespace caribou

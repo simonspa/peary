@@ -6,7 +6,7 @@
 
 #include "exceptions.hpp"
 #include "interface.hpp"
-#include "interface_manager.hpp"
+#include "InterfaceManager.hpp"
 
 namespace caribou {
 
@@ -67,7 +67,7 @@ namespace caribou {
     std::vector<i2c_t> wordread(const i2c_address_t& address, const uint16_t reg, const unsigned int length = 1);
 
     // only this function can create the interface
-    friend iface_i2c& interface_manager::getInterface<iface_i2c>(std::string const&);
+    friend iface_i2c& InterfaceManager::getInterface<iface_i2c>(std::string const&);
   };
 
 } // namespace caribou

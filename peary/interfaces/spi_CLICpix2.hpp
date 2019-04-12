@@ -19,7 +19,7 @@ namespace caribou {
   class iface_spi_CLICpix2 : public iface_spi {
 
   protected:
-    // Default constructor: private (only created by interface_manager)
+    // Default constructor: private (only created by InterfaceManager)
     // It can throw DeviceException
     iface_spi_CLICpix2(std::string const& device_path) : iface_spi(device_path){};
 
@@ -35,7 +35,7 @@ namespace caribou {
     iface_spi_CLICpix2() = delete;
 
     // only this function can create the interface
-    friend iface_spi_CLICpix2& interface_manager::getInterface<iface_spi_CLICpix2>(std::string const&);
+    friend iface_spi_CLICpix2& InterfaceManager::getInterface<iface_spi_CLICpix2>(std::string const&);
   }; // class iface_spi_CLICpix2
 
 } // namespace caribou
