@@ -12,7 +12,7 @@
 
 using namespace caribou;
 
-caribou::caribouDeviceMgr* manager;
+caribou::DeviceMgr* manager;
 int my_socket;
 std::ofstream myfile;
 unsigned int framecounter;
@@ -109,7 +109,7 @@ int main(int argc, char* argv[]) {
   Log::addStream(log_file);
 
   // Create new Peary device manager
-  manager = new caribouDeviceMgr();
+  manager = new DeviceMgr();
 
   // Create all Caribou devices instance:
   try {
@@ -131,7 +131,7 @@ int main(int argc, char* argv[]) {
       LOG(INFO) << "Manager returned device ID " << device_id << ", fetching device...";
 
       // Get the device from the manager:
-      caribouDevice* dev = manager->getDevice(device_id);
+      Device* dev = manager->getDevice(device_id);
       // Switch on its power:
       dev->powerOn();
     }
@@ -331,7 +331,7 @@ bool configure(int value, unsigned int configureAttempts) {
   // Fetch all active devices:
   try {
     size_t i = 0;
-    std::vector<caribouDevice*> devs = manager->getDevices();
+    std::vector<Device*> devs = manager->getDevices();
     for(auto d : devs) {
       LOG(INFO) << "Configuring device ID " << i << ": " << d->getName();
       // try to configure the chip ~configureAttempts~ times
@@ -365,7 +365,7 @@ bool start_run(std::string rundir, int run_nr, std::string) {
   // Fetch all active devices:
   try {
     size_t i = 0;
-    std::vector<caribouDevice*> devs = manager->getDevices();
+    std::vector<Device*> devs = manager->getDevices();
     for(auto dev : devs) {
       LOG(INFO) << "Starting run for device ID " << i << ": " << dev->getName();
       // Start the DAQ
@@ -407,7 +407,7 @@ bool stop_run(std::string) {
   // Fetch all active devices:
   try {
     size_t i = 0;
-    std::vector<caribouDevice*> devs = manager->getDevices();
+    std::vector<Device*> devs = manager->getDevices();
     for(auto d : devs) {
       LOG(INFO) << "Stopping run for device ID " << i << ": " << d->getName();
       // Stop the DAQ
@@ -424,7 +424,7 @@ bool stop_run(std::string) {
 
 bool getFrame() {
   LOG(DEBUG) << "getFrame()";
-  std::vector<caribouDevice*> devs = manager->getDevices();
+  std::vector<Device*> devs = manager->getDevices();
   for(auto dev : devs) {
     try {
       // pearydata data;
