@@ -14,7 +14,7 @@ namespace caribou {
 
   /** C3PD Device class definition
    */
-  class C3PDDevice : public pearyDevice<iface_i2c> {
+  class C3PDDevice : public CaribouDevice<iface_i2c> {
 
   public:
     C3PDDevice(const caribou::Configuration config);

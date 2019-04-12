@@ -25,7 +25,7 @@ namespace caribou {
    *  this class implements the required functionality to operate CLICpix2 chips via the
    *  Caribou device class interface.
    */
-  class CLICpix2Device : public pearyDevice<iface_spi_CLICpix2> {
+  class CLICpix2Device : public CaribouDevice<iface_spi_CLICpix2> {
 
   public:
     CLICpix2Device(const caribou::Configuration config);

@@ -8,7 +8,7 @@
 
 using namespace caribou;
 
-CCPDv5Device::CCPDv5Device(const caribou::Configuration config) : pearyDevice(config, "/dev/i2c-8") {
+CCPDv5Device::CCPDv5Device(const caribou::Configuration config) : CaribouDevice(config, "/dev/i2c-8") {
 
   // Set up periphery
   _periphery.add("vddd", PWR_OUT_2);
@@ -22,7 +22,7 @@ void CCPDv5Device::configure() {
   reset();
 
   // Call the base class configuration function:
-  pearyDevice<iface_i2c>::configure();
+  CaribouDevice<iface_i2c>::configure();
 }
 
 void CCPDv5Device::reset() {

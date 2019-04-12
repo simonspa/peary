@@ -11,7 +11,7 @@
 using namespace caribou;
 
 C3PDDevice::C3PDDevice(const caribou::Configuration config)
-    : pearyDevice(config, std::string(DEFAULT_DEVICEPATH), C3PD_DEFAULT_I2C) {
+    : CaribouDevice(config, std::string(DEFAULT_DEVICEPATH), C3PD_DEFAULT_I2C) {
 
   _dispatcher.add("powerStatusLog", &C3PDDevice::powerStatusLog, this);
 
@@ -38,7 +38,7 @@ void C3PDDevice::configure() {
   reset();
 
   // Call the base class configuration function:
-  pearyDevice<iface_i2c>::configure();
+  CaribouDevice<iface_i2c>::configure();
 }
 
 void C3PDDevice::configureMatrix(std::string filename) {

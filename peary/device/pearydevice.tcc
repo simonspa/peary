@@ -18,26 +18,26 @@
 namespace caribou {
 
   template <typename T>
-  pearyDevice<T>::pearyDevice(const caribou::Configuration config, std::string devpath, uint32_t devaddr)
+  CaribouDevice<T>::CaribouDevice(const caribou::Configuration config, std::string devpath, uint32_t devaddr)
       : caribouDevice(config), _hal(nullptr), _config(config), _registers("Registers"), _periphery("Component"),
         _memory("Memory page"), _is_powered(false), _is_configured(false) {
 
     _hal = new caribouHAL<T>(_config.Get("devicepath", devpath), _config.Get("deviceaddress", devaddr));
   }
 
-  template <typename T> pearyDevice<T>::~pearyDevice() { delete _hal; }
+  template <typename T> CaribouDevice<T>::~CaribouDevice() { delete _hal; }
 
-  template <typename T> std::string pearyDevice<T>::getType() { return PEARY_DEVICE_NAME; }
+  template <typename T> std::string CaribouDevice<T>::getType() { return PEARY_DEVICE_NAME; }
 
-  template <typename T> std::string pearyDevice<T>::getFirmwareVersion() { return _hal->getFirmwareVersion(); }
+  template <typename T> std::string CaribouDevice<T>::getFirmwareVersion() { return _hal->getFirmwareVersion(); }
 
-  template <typename T> uint8_t pearyDevice<T>::getCaRBoardID() { return _hal->getCaRBoardID(); }
+  template <typename T> uint8_t CaribouDevice<T>::getCaRBoardID() { return _hal->getCaRBoardID(); }
 
-  template <typename T> uint8_t pearyDevice<T>::getFirmwareID() { return _hal->getFirmwareRegister(ADDR_FW_ID); }
+  template <typename T> uint8_t CaribouDevice<T>::getFirmwareID() { return _hal->getFirmwareRegister(ADDR_FW_ID); }
 
-  template <typename T> std::string pearyDevice<T>::getDeviceName() { return std::string(); }
+  template <typename T> std::string CaribouDevice<T>::getDeviceName() { return std::string(); }
 
-  template <typename T> void pearyDevice<T>::powerOn() {
+  template <typename T> void CaribouDevice<T>::powerOn() {
     if(_is_powered) {
       LOG(WARNING) << "Device " << getName() << " already powered.";
     } else {
@@ -46,7 +46,7 @@ namespace caribou {
     }
   }
 
-  template <typename T> void pearyDevice<T>::powerOff() {
+  template <typename T> void CaribouDevice<T>::powerOff() {
     if(!_is_powered) {
       LOG(WARNING) << "Device " << getName() << " already off.";
     } else {
@@ -56,7 +56,7 @@ namespace caribou {
     }
   }
 
-  template <typename T> void pearyDevice<T>::setVoltage(std::string name, double voltage, double currentlimit) {
+  template <typename T> void CaribouDevice<T>::setVoltage(std::string name, double voltage, double currentlimit) {
 
     // Resolve name against periphery dictionary
     std::shared_ptr<component_t> ptr = _periphery.get<component_t>(name);
@@ -73,7 +73,7 @@ namespace caribou {
     }
   }
 
-  template <typename T> void pearyDevice<T>::switchPeripheryComponent(std::string name, bool enable) {
+  template <typename T> void CaribouDevice<T>::switchPeripheryComponent(std::string name, bool enable) {
 
     // Resolve name against periphery dictionary
     std::shared_ptr<component_t> ptr = _periphery.get<component_t>(name);
@@ -94,7 +94,7 @@ namespace caribou {
     }
   }
 
-  template <typename T> double pearyDevice<T>::getVoltage(std::string name) {
+  template <typename T> double CaribouDevice<T>::getVoltage(std::string name) {
 
     // Resolve name against periphery dictionary
     std::shared_ptr<VOLTAGE_REGULATOR_T> ptr = _periphery.get<VOLTAGE_REGULATOR_T>(name);
@@ -104,7 +104,7 @@ namespace caribou {
     return _hal->measureVoltage(*ptr);
   }
 
-  template <typename T> double pearyDevice<T>::getCurrent(std::string name) {
+  template <typename T> double CaribouDevice<T>::getCurrent(std::string name) {
 
     // Resolve name against periphery dictionary
     std::shared_ptr<VOLTAGE_REGULATOR_T> ptr = _periphery.get<VOLTAGE_REGULATOR_T>(name);
@@ -114,7 +114,7 @@ namespace caribou {
     return _hal->measureCurrent(*ptr);
   }
 
-  template <typename T> double pearyDevice<T>::getPower(std::string name) {
+  template <typename T> double CaribouDevice<T>::getPower(std::string name) {
 
     // Resolve name against periphery dictionary
     std::shared_ptr<VOLTAGE_REGULATOR_T> ptr = _periphery.get<VOLTAGE_REGULATOR_T>(name);
@@ -124,7 +124,7 @@ namespace caribou {
     return _hal->measurePower(*ptr);
   }
 
-  template <typename T> double pearyDevice<T>::getADC(uint8_t channel) {
+  template <typename T> double CaribouDevice<T>::getADC(uint8_t channel) {
     try {
       std::vector<SLOW_ADC_CHANNEL_T> ch{VOL_IN_1, VOL_IN_2, VOL_IN_3, VOL_IN_4, VOL_IN_5, VOL_IN_6, VOL_IN_7, VOL_IN_8};
       LOG(DEBUG) << "Reading slow ADC, channel " << ch.at(channel - 1).name();
@@ -135,7 +135,7 @@ namespace caribou {
     }
   }
 
-  template <typename T> double pearyDevice<T>::getADC(std::string name) {
+  template <typename T> double CaribouDevice<T>::getADC(std::string name) {
 
     // Resolve name against periphery dictionary
     std::shared_ptr<SLOW_ADC_CHANNEL_T> ptr = _periphery.get<SLOW_ADC_CHANNEL_T>(name);
@@ -145,7 +145,7 @@ namespace caribou {
     return _hal->readSlowADC(*ptr);
   }
 
-  template <typename T> void pearyDevice<T>::setCurrent(std::string name, int current, bool polarity) {
+  template <typename T> void CaribouDevice<T>::setCurrent(std::string name, int current, bool polarity) {
 
     // Resolve name against periphery dictionary
     std::shared_ptr<CURRENT_SOURCE_T> ptr = _periphery.get<CURRENT_SOURCE_T>(name);
@@ -157,7 +157,7 @@ namespace caribou {
     _hal->setCurrentSource(*ptr, current, pol);
   }
 
-  template <typename T> void pearyDevice<T>::setRegister(std::string name, uint32_t value) {
+  template <typename T> void CaribouDevice<T>::setRegister(std::string name, uint32_t value) {
 
     // Resolve name against register dictionary:
     register_t<typename T::reg_type, typename T::data_type> reg = _registers.get(name);
@@ -197,7 +197,7 @@ namespace caribou {
     _register_cache[name] = value;
   }
 
-  template <typename T> std::vector<std::pair<std::string, uint32_t>> pearyDevice<T>::getRegisters() {
+  template <typename T> std::vector<std::pair<std::string, uint32_t>> CaribouDevice<T>::getRegisters() {
 
     std::vector<std::pair<std::string, uint32_t>> regvalues;
 
@@ -218,7 +218,7 @@ namespace caribou {
     return regvalues;
   }
 
-  template <typename T> uint32_t pearyDevice<T>::getRegister(std::string name) {
+  template <typename T> uint32_t CaribouDevice<T>::getRegister(std::string name) {
 
     // Resolve name against register dictionary:
     register_t<typename T::reg_type, typename T::data_type> reg = _registers.get(name);
@@ -244,23 +244,23 @@ namespace caribou {
     return static_cast<uint32_t>((regval & reg.mask()) >> reg.shift());
   }
 
-  template <typename T> void pearyDevice<T>::reset() {
+  template <typename T> void CaribouDevice<T>::reset() {
     LOG(FATAL) << "Reset functionality not implemented for this device";
     throw caribou::DeviceImplException("Reset functionality not implemented for this device");
   }
 
   // Data return functions, for raw or decoded data
-  template <typename T> std::vector<uint32_t> pearyDevice<T>::getRawData() {
+  template <typename T> std::vector<uint32_t> CaribouDevice<T>::getRawData() {
     LOG(FATAL) << "Raw data readback not implemented for this device";
     throw caribou::DeviceImplException("Raw data readback not implemented for this device");
   }
 
-  template <typename T> pearydata pearyDevice<T>::getData() {
+  template <typename T> pearydata CaribouDevice<T>::getData() {
     LOG(FATAL) << "Decoded data readback not implemented for this device";
     throw caribou::DeviceImplException("Decoded data readback not implemented for this device");
   }
 
-  template <typename T> void pearyDevice<T>::configure() {
+  template <typename T> void CaribouDevice<T>::configure() {
 
     if(!_is_powered) {
       LOG(ERROR) << "Device " << getName() << " is not powered!";
@@ -283,23 +283,25 @@ namespace caribou {
     _is_configured = true;
   }
 
-  template <typename T> void pearyDevice<T>::setMemory(std::string name, size_t offset, uint32_t value) {
+  template <typename T> void CaribouDevice<T>::setMemory(std::string name, size_t offset, uint32_t value) {
     _hal->writeMemory(_memory.get(name), offset, value);
   }
 
-  template <typename T> void pearyDevice<T>::setMemory(std::string name, uint32_t value) {
+  template <typename T> void CaribouDevice<T>::setMemory(std::string name, uint32_t value) {
     _hal->writeMemory(_memory.get(name), value);
   }
 
-  template <typename T> uint32_t pearyDevice<T>::getMemory(std::string name, size_t offset) {
+  template <typename T> uint32_t CaribouDevice<T>::getMemory(std::string name, size_t offset) {
     return _hal->readMemory(_memory.get(name), offset);
   }
 
-  template <typename T> uint32_t pearyDevice<T>::getMemory(std::string name) { return _hal->readMemory(_memory.get(name)); }
+  template <typename T> uint32_t CaribouDevice<T>::getMemory(std::string name) {
+    return _hal->readMemory(_memory.get(name));
+  }
 
-  template <typename T> std::vector<std::string> pearyDevice<T>::listRegisters() { return _registers.getNames(); }
+  template <typename T> std::vector<std::string> CaribouDevice<T>::listRegisters() { return _registers.getNames(); }
 
-  template <typename T> std::vector<std::pair<std::string, std::string>> pearyDevice<T>::listComponents() {
+  template <typename T> std::vector<std::pair<std::string, std::string>> CaribouDevice<T>::listComponents() {
     std::vector<std::pair<std::string, std::string>> component_list;
     auto component_names = _periphery.getNames();
     for(const auto& name : component_names) {

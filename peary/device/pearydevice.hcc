@@ -29,17 +29,17 @@ namespace caribou {
    *  of interfacing the devices independently via the common set of function alls, e.g.,
    *  from a GUI or a commandline interface.
    */
-  template <typename T> class pearyDevice : public caribouDevice {
+  template <typename T> class CaribouDevice : public caribouDevice {
 
   public:
     /** Default constructor for Caribou devices
      *
      */
-    pearyDevice(const caribou::Configuration config, std::string devpath, uint32_t devaddr = 0);
+    CaribouDevice(const caribou::Configuration config, std::string devpath, uint32_t devaddr = 0);
 
     /** Default destructor for Caribou devices
      */
-    virtual ~pearyDevice();
+    virtual ~CaribouDevice();
 
     /** Return the firmware version string for reference
      */
@@ -210,7 +210,7 @@ namespace caribou {
      */
     void switchPeripheryComponent(std::string name, bool enable);
 
-  }; // class pearyDevice
+  }; // class CaribouDevice
 
 } // namespace caribou
 

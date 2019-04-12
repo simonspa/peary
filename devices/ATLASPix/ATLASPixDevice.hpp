@@ -50,7 +50,7 @@ namespace caribou {
 
   /** ATLASPix Device class definition
    */
-  class ATLASPixDevice : public pearyDevice<iface_i2c> {
+  class ATLASPixDevice : public CaribouDevice<iface_i2c> {
 
   public:
     ATLASPixDevice(const caribou::Configuration config);

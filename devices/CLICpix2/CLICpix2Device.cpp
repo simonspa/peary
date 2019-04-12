@@ -20,7 +20,7 @@ using namespace caribou;
 using namespace clicpix2_utils;
 
 CLICpix2Device::CLICpix2Device(const caribou::Configuration config)
-    : pearyDevice(config, std::string(DEFAULT_DEVICEPATH)), pg_total_length(0) {
+    : CaribouDevice(config, std::string(DEFAULT_DEVICEPATH)), pg_total_length(0) {
 
   // Regsiter device-specific commands:
   _dispatcher.add("configureMatrix", &CLICpix2Device::configureMatrix, this);
@@ -79,7 +79,7 @@ void CLICpix2Device::configure() {
 
   // FIXME set all DACs provided with config
   // Call the base class configuration function:
-  pearyDevice<iface_spi_CLICpix2>::configure();
+  CaribouDevice<iface_spi_CLICpix2>::configure();
 
   // If no matrix was given via the config, set a fully masked matrix:
   if(_config.Get("matrix", "").empty()) {

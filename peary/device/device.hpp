@@ -272,7 +272,7 @@ namespace caribou {
     /**
      * @brief Private static status flag if devices are managed
      *
-     * This is used by the caribou::pearyDevice class to check for other running devices
+     * This is used by the caribou::CaribouDevice class to check for other running devices
      */
     static bool managedDevice;
 

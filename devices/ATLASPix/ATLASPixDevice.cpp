@@ -114,7 +114,7 @@ namespace Color {
 } // namespace Color
 
 ATLASPixDevice::ATLASPixDevice(const caribou::Configuration config)
-    : pearyDevice(config, std::string(DEFAULT_DEVICEPATH), ATLASPix_DEFAULT_I2C), _daqContinue(ATOMIC_FLAG_INIT),
+    : CaribouDevice(config, std::string(DEFAULT_DEVICEPATH), ATLASPix_DEFAULT_I2C), _daqContinue(ATOMIC_FLAG_INIT),
       _output_directory("PEARYDATA") {
 
   // Register custom commands with the dispatcher:
@@ -336,7 +336,7 @@ void ATLASPixDevice::configure() {
   this->setAllTDAC(0);
 
   // Call the base class configuration function:
-  pearyDevice<iface_i2c>::configure();
+  CaribouDevice<iface_i2c>::configure();
 
   // Check lock:
   if(_hal->isLockedSI5345()) {
