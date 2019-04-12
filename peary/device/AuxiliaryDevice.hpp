@@ -6,9 +6,9 @@
 #define CARIBOU_DEVICE_AUXILIARY_H
 
 #include "Device.hpp"
-#include "configuration.hpp"
 #include "Interface.hpp"
 #include "InterfaceManager.hpp"
+#include "configuration.hpp"
 
 #include <string>
 #include <vector>

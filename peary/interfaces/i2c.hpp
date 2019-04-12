@@ -4,9 +4,9 @@
 #include <mutex>
 #include <vector>
 
+#include "Interface.hpp"
 #include "InterfaceManager.hpp"
 #include "exceptions.hpp"
-#include "Interface.hpp"
 
 namespace caribou {
 
