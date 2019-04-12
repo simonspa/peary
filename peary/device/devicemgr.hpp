@@ -20,26 +20,26 @@ namespace caribou {
    *  device library at runtime, the device library is identified
    *  by the device name.
    */
-  class caribouDeviceMgr {
+  class DeviceMgr {
 
   public:
     /** Default constructor
      */
-    caribouDeviceMgr();
+    DeviceMgr();
 
     /** Destructor
      */
-    ~caribouDeviceMgr();
+    ~DeviceMgr();
 
-    /** Method to get the caribouDevice instance.
+    /** Method to get the Device instance.
      */
-    caribouDevice* getDevice(size_t id);
+    Device* getDevice(size_t id);
 
-    /** Method returning the full list of caribouDevices
+    /** Method returning the full list of Devices
      */
-    std::vector<caribouDevice*> getDevices();
+    std::vector<Device*> getDevices();
 
-    /** Method to add a new caribouDevice instance.
+    /** Method to add a new Device instance.
      *  The input parameter is the library name of the device to
      *  be instanciated, the return value is the device ID
      *  assigned by the device manager
@@ -58,9 +58,9 @@ namespace caribou {
     /** List of instanciated devices, the position in the device vector represents
      *  their device ID
      */
-    std::vector<caribouDevice*> _deviceList;
+    std::vector<Device*> _deviceList;
 
-  }; // class caribouDeviceMgr
+  }; // class DeviceMgr
 
 } // namespace caribou
 

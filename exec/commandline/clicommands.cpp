@@ -143,7 +143,7 @@ void pearycli::listUnregisteredCommands() {
   std::cout << "Additional commands registered by individual devices:\n";
   try {
     size_t i = 0;
-    std::vector<caribouDevice*> devs = manager->getDevices();
+    std::vector<Device*> devs = manager->getDevices();
     for(auto d : devs) {
       std::cout << "ID " << i << " - " << d->getName() << ":" << std::endl;
       for(auto& cmd : d->listCommands()) {
@@ -160,7 +160,7 @@ int pearycli::unregisteredCommand(const std::vector<std::string>& input) {
   try {
     if(input.size() <= 1)
       throw caribouException("No device ID provided");
-    caribouDevice* dev = manager->getDevice(std::stoi(input.back()));
+    Device* dev = manager->getDevice(std::stoi(input.back()));
 
     auto commands = dev->listCommands();
 
@@ -188,14 +188,14 @@ std::string pearycli::allDeviceParameters() {
   std::stringstream responses;
   responses << "\n";
 
-  std::vector<caribouDevice*> devs = manager->getDevices();
+  std::vector<Device*> devs = manager->getDevices();
   for(auto d : devs) {
     responses << "# " << d->getName() << ": " << listVector(d->getRegisters()) << "\n";
   }
   return responses.str();
 }
 
-std::string pearycli::getFileHeader(std::string function, caribouDevice* dev) {
+std::string pearycli::getFileHeader(std::string function, Device* dev) {
 
   std::stringstream header;
 
@@ -212,7 +212,7 @@ int pearycli::devices(const std::vector<std::string>&) {
 
   try {
     size_t i = 0;
-    std::vector<caribouDevice*> devs = manager->getDevices();
+    std::vector<Device*> devs = manager->getDevices();
     for(auto d : devs) {
       LOG(INFO) << "ID " << i << ": " << d->getName();
       i++;
@@ -257,7 +257,7 @@ int pearycli::delay(const std::vector<std::string>& input) {
 int pearycli::listCommands(const std::vector<std::string>& input) {
 
   try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
+    Device* dev = manager->getDevice(std::stoi(input.at(1)));
     std::cout << "List of commands available for device ID " << input.at(1) << " - " << dev->getName() << ":" << std::endl;
     for(auto& cmd : dev->listCommands()) {
       std::cout << "\t" << cmd.first << " (args: " << cmd.second << ")" << std::endl;
@@ -272,7 +272,7 @@ int pearycli::listCommands(const std::vector<std::string>& input) {
 int pearycli::listRegisters(const std::vector<std::string>& input) {
 
   try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
+    Device* dev = manager->getDevice(std::stoi(input.at(1)));
     auto registers = dev->listRegisters();
     std::cout << registers.size() << " registers available for device ID " << input.at(1) << " - " << dev->getName() << ":"
               << std::endl;
@@ -289,7 +289,7 @@ int pearycli::listRegisters(const std::vector<std::string>& input) {
 int pearycli::listComponents(const std::vector<std::string>& input) {
 
   try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
+    Device* dev = manager->getDevice(std::stoi(input.at(1)));
     std::cout << "List of periphery components registered by device ID " << input.at(1) << " - " << dev->getName() << ":"
               << std::endl;
     for(auto& cmd : dev->listComponents()) {
@@ -304,7 +304,7 @@ int pearycli::listComponents(const std::vector<std::string>& input) {
 
 int pearycli::version(const std::vector<std::string>& input) {
   try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
+    Device* dev = manager->getDevice(std::stoi(input.at(1)));
     LOG(STATUS) << dev->getVersion();
     LOG(STATUS) << dev->getFirmwareVersion();
   } catch(caribou::caribouException& e) {
@@ -316,7 +316,7 @@ int pearycli::version(const std::vector<std::string>& input) {
 
 int pearycli::getName(const std::vector<std::string>& input) {
   try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
+    Device* dev = manager->getDevice(std::stoi(input.at(1)));
     LOG(STATUS) << dev->getName();
   } catch(caribou::caribouException& e) {
     LOG(ERROR) << e.what();
@@ -327,7 +327,7 @@ int pearycli::getName(const std::vector<std::string>& input) {
 
 int pearycli::getType(const std::vector<std::string>& input) {
   try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
+    Device* dev = manager->getDevice(std::stoi(input.at(1)));
     LOG(STATUS) << dev->getType();
   } catch(caribou::caribouException& e) {
     LOG(ERROR) << e.what();
@@ -338,7 +338,7 @@ int pearycli::getType(const std::vector<std::string>& input) {
 
 int pearycli::configure(const std::vector<std::string>& input) {
   try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
+    Device* dev = manager->getDevice(std::stoi(input.at(1)));
     dev->configure();
   } catch(caribou::caribouException& e) {
     LOG(ERROR) << e.what();
@@ -349,7 +349,7 @@ int pearycli::configure(const std::vector<std::string>& input) {
 
 int pearycli::reset(const std::vector<std::string>& input) {
   try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
+    Device* dev = manager->getDevice(std::stoi(input.at(1)));
     dev->reset();
   } catch(caribou::caribouException& e) {
     LOG(ERROR) << e.what();
@@ -360,7 +360,7 @@ int pearycli::reset(const std::vector<std::string>& input) {
 
 int pearycli::powerOn(const std::vector<std::string>& input) {
   try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
+    Device* dev = manager->getDevice(std::stoi(input.at(1)));
     dev->powerOn();
   } catch(caribou::caribouException& e) {
     LOG(ERROR) << e.what();
@@ -371,7 +371,7 @@ int pearycli::powerOn(const std::vector<std::string>& input) {
 
 int pearycli::powerOff(const std::vector<std::string>& input) {
   try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
+    Device* dev = manager->getDevice(std::stoi(input.at(1)));
     dev->powerOff();
   } catch(caribou::caribouException& e) {
     LOG(ERROR) << e.what();
@@ -382,7 +382,7 @@ int pearycli::powerOff(const std::vector<std::string>& input) {
 
 int pearycli::setVoltage(const std::vector<std::string>& input) {
   try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(3)));
+    Device* dev = manager->getDevice(std::stoi(input.at(3)));
     dev->setVoltage(input.at(1), std::stod(input.at(2)));
   } catch(caribou::caribouException& e) {
     LOG(ERROR) << e.what();
@@ -393,7 +393,7 @@ int pearycli::setVoltage(const std::vector<std::string>& input) {
 
 int pearycli::setBias(const std::vector<std::string>& input) {
   try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(3)));
+    Device* dev = manager->getDevice(std::stoi(input.at(3)));
     dev->setVoltage(input.at(1), std::stod(input.at(2)));
   } catch(caribou::caribouException& e) {
     LOG(ERROR) << e.what();
@@ -404,7 +404,7 @@ int pearycli::setBias(const std::vector<std::string>& input) {
 
 int pearycli::setCurrent(const std::vector<std::string>& input) {
   try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(4)));
+    Device* dev = manager->getDevice(std::stoi(input.at(4)));
     dev->setCurrent(input.at(1), std::stoi(input.at(2)), static_cast<bool>(std::stoi(input.at(3))));
   } catch(caribou::caribouException& e) {
     LOG(ERROR) << e.what();
@@ -415,7 +415,7 @@ int pearycli::setCurrent(const std::vector<std::string>& input) {
 
 int pearycli::getVoltage(const std::vector<std::string>& input) {
   try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(2)));
+    Device* dev = manager->getDevice(std::stoi(input.at(2)));
     LOG(INFO) << "Voltage " << input.at(1) << "=" << dev->getVoltage(input.at(1)) << "V";
   } catch(caribou::caribouException& e) {
     LOG(ERROR) << e.what();
@@ -426,7 +426,7 @@ int pearycli::getVoltage(const std::vector<std::string>& input) {
 
 int pearycli::getCurrent(const std::vector<std::string>& input) {
   try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(2)));
+    Device* dev = manager->getDevice(std::stoi(input.at(2)));
     LOG(INFO) << "Current " << input.at(1) << "=" << dev->getCurrent(input.at(1)) << "A";
   } catch(caribou::caribouException& e) {
     LOG(ERROR) << e.what();
@@ -437,7 +437,7 @@ int pearycli::getCurrent(const std::vector<std::string>& input) {
 
 int pearycli::getPower(const std::vector<std::string>& input) {
   try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(2)));
+    Device* dev = manager->getDevice(std::stoi(input.at(2)));
     LOG(INFO) << "Power " << input.at(1) << "=" << dev->getVoltage(input.at(1)) << "W";
   } catch(caribou::caribouException& e) {
     LOG(ERROR) << e.what();
@@ -448,7 +448,7 @@ int pearycli::getPower(const std::vector<std::string>& input) {
 
 int pearycli::switchOn(const std::vector<std::string>& input) {
   try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(2)));
+    Device* dev = manager->getDevice(std::stoi(input.at(2)));
     dev->switchOn(input.at(1));
   } catch(caribou::caribouException& e) {
     LOG(ERROR) << e.what();
@@ -459,7 +459,7 @@ int pearycli::switchOn(const std::vector<std::string>& input) {
 
 int pearycli::switchOff(const std::vector<std::string>& input) {
   try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(2)));
+    Device* dev = manager->getDevice(std::stoi(input.at(2)));
     dev->switchOff(input.at(1));
   } catch(caribou::caribouException& e) {
     LOG(ERROR) << e.what();
@@ -470,7 +470,7 @@ int pearycli::switchOff(const std::vector<std::string>& input) {
 
 int pearycli::setRegister(const std::vector<std::string>& input) {
   try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(3)));
+    Device* dev = manager->getDevice(std::stoi(input.at(3)));
     dev->setRegister(input.at(1), std::stoi(input.at(2)));
   } catch(caribou::caribouException& e) {
     LOG(ERROR) << e.what();
@@ -481,7 +481,7 @@ int pearycli::setRegister(const std::vector<std::string>& input) {
 
 int pearycli::getRegister(const std::vector<std::string>& input) {
   try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(2)));
+    Device* dev = manager->getDevice(std::stoi(input.at(2)));
     uint32_t value = dev->getRegister(input.at(1));
     LOG(INFO) << input.at(1) << " = " << value;
   } catch(caribou::NoDataAvailable& e) {
@@ -496,7 +496,7 @@ int pearycli::getRegister(const std::vector<std::string>& input) {
 
 int pearycli::getRegisters(const std::vector<std::string>& input) {
   try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
+    Device* dev = manager->getDevice(std::stoi(input.at(1)));
     std::vector<std::pair<std::string, uint32_t>> regvalues = dev->getRegisters();
     for(auto& i : regvalues) {
       LOG(INFO) << i.first << " = " << i.second;
@@ -529,7 +529,7 @@ int pearycli::scanDAC(const std::vector<std::string>& input) {
                                             {"test_cap_1", 14}};
 
   try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(7)));
+    Device* dev = manager->getDevice(std::stoi(input.at(7)));
 
     std::vector<std::pair<int, double>> data;
 
@@ -610,7 +610,7 @@ int pearycli::scanDAC2D(const std::vector<std::string>& input) {
                                             {"test_cap_1_msb", 14}};
 
   try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(10)));
+    Device* dev = manager->getDevice(std::stoi(input.at(10)));
 
     std::vector<std::pair<std::pair<int, int>, double>> data;
 
@@ -685,7 +685,7 @@ int pearycli::scanDAC2D(const std::vector<std::string>& input) {
 
 int pearycli::getADC(const std::vector<std::string>& input) {
   try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(2)));
+    Device* dev = manager->getDevice(std::stoi(input.at(2)));
     LOG(INFO) << "Voltage: " << dev->getADC(std::stoi(input.at(1))) << "V";
   } catch(caribou::ConfigInvalid&) {
     return ReturnCode::Error;
@@ -695,7 +695,7 @@ int pearycli::getADC(const std::vector<std::string>& input) {
 
 int pearycli::daqStart(const std::vector<std::string>& input) {
   try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
+    Device* dev = manager->getDevice(std::stoi(input.at(1)));
     dev->daqStart();
   } catch(caribou::caribouException& e) {
     LOG(ERROR) << e.what();
@@ -706,7 +706,7 @@ int pearycli::daqStart(const std::vector<std::string>& input) {
 
 int pearycli::daqStop(const std::vector<std::string>& input) {
   try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
+    Device* dev = manager->getDevice(std::stoi(input.at(1)));
     dev->daqStop();
   } catch(caribou::caribouException& e) {
     LOG(ERROR) << e.what();
@@ -717,7 +717,7 @@ int pearycli::daqStop(const std::vector<std::string>& input) {
 
 int pearycli::getRawData(const std::vector<std::string>& input) {
   try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
+    Device* dev = manager->getDevice(std::stoi(input.at(1)));
     std::vector<uint32_t> rawdata = dev->getRawData();
     LOG(INFO) << listVector(rawdata, ", ", true);
   } catch(caribou::DataException& e) {
@@ -731,7 +731,7 @@ int pearycli::getRawData(const std::vector<std::string>& input) {
 
 int pearycli::getData(const std::vector<std::string>& input) {
   try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
+    Device* dev = manager->getDevice(std::stoi(input.at(1)));
     pearydata data = dev->getData();
     for(auto& px : data) {
       LOG(INFO) << px.first.first << "|" << px.first.second << " : " << *px.second;
@@ -747,7 +747,7 @@ int pearycli::getData(const std::vector<std::string>& input) {
 
 int pearycli::acquire(const std::vector<std::string>& input) {
   try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(4)));
+    Device* dev = manager->getDevice(std::stoi(input.at(4)));
 
     std::ofstream myfile;
     std::string filename = input.at(3) + ".csv";
@@ -756,7 +756,7 @@ int pearycli::acquire(const std::vector<std::string>& input) {
 
     bool testpulses = false;
     bool tp_status = false;
-    caribouDevice* dev2 = nullptr;
+    Device* dev2 = nullptr;
     // Only with optional arguments provided:
     if(input.size() == 7) {
       dev2 = manager->getDevice(std::stoi(input.at(6)));
@@ -819,7 +819,7 @@ int pearycli::acquire(const std::vector<std::string>& input) {
 
 int pearycli::flushMatrix(const std::vector<std::string>& input) {
   try {
-    caribouDevice* dev = manager->getDevice(std::stoi(input.at(1)));
+    Device* dev = manager->getDevice(std::stoi(input.at(1)));
     pearydata data = dev->getData();
   } catch(caribou::caribouException& e) {
     return ReturnCode::Error;
@@ -843,9 +843,9 @@ int pearycli::scanThreshold(const std::vector<std::string>& input) {
     auto device2 = std::stoi(input.at(9));
     std::string dac2_name;
 
-    caribouDevice* dev1 = manager->getDevice(device1);
-    caribouDevice* dev2 = manager->getDevice(device2);
-    caribouDevice* dev3 = NULL;
+    Device* dev1 = manager->getDevice(device1);
+    Device* dev2 = manager->getDevice(device2);
+    Device* dev3 = NULL;
 
     if(stepsize < 1)
       stepsize = 1;
@@ -938,8 +938,8 @@ int pearycli::scanThreshold(const std::vector<std::string>& input) {
 int pearycli::scanThreshold2D(const std::vector<std::string>& input) {
 
   try {
-    caribouDevice* dev1 = manager->getDevice(std::stoi(input.at(4)));
-    caribouDevice* dev2 = manager->getDevice(std::stoi(input.at(8)));
+    Device* dev1 = manager->getDevice(std::stoi(input.at(4)));
+    Device* dev2 = manager->getDevice(std::stoi(input.at(8)));
 
     std::ofstream myfile;
     std::string filename = input.at(11) + ".csv";

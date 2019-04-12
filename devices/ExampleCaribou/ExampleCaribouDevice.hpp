@@ -13,12 +13,12 @@ namespace caribou {
   /** Example caribou device class definition
    *
    * This class directly implements all purely virtual functions of
-   * `caribou::caribouDevice` without a hardware abstration layer.
+   * `caribou::Device` without a hardware abstration layer.
    * Most functions are noops. Applications can then control this
    * device via the Caribou device class interface by using the device
    * manager to instanciate the device object.
    */
-  class ExampleCaribouDevice final : public caribouDevice {
+  class ExampleCaribouDevice final : public Device {
   public:
     ExampleCaribouDevice(caribou::Configuration config);
     ~ExampleCaribouDevice();

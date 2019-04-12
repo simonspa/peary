@@ -55,11 +55,11 @@ namespace caribou {
   /** Device generator
    *
    *  This generator function is used by the device manager to create instances of
-   *  this device using the abstract caribouDevice class interface. It has to be implemented
-   *  for every class deriving from caribouDevice.
+   *  this device using the abstract Device class interface. It has to be implemented
+   *  for every class deriving from Device.
    */
   extern "C" {
-  caribouDevice* generator(const caribou::Configuration);
+  Device* generator(const caribou::Configuration);
   }
 
 } // namespace caribou

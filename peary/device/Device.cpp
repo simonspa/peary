@@ -1,16 +1,16 @@
-#include "device.hpp"
 #include "config.h"
+#include "device.hpp"
 #include "log.hpp"
 
-bool caribou::caribouDevice::managedDevice = false;
+bool caribou::Device::managedDevice = false;
 
 using namespace caribou;
 
-caribouDevice::caribouDevice(const caribou::Configuration) {
+Device::Device(const caribou::Configuration) {
 
   LOG(STATUS) << "New Caribou device instance, version " << getVersion();
 
-  if(caribouDevice::isManaged()) {
+  if(Device::isManaged()) {
     LOG(STATUS) << "This device is managed through the device manager.";
   } else {
     LOG(STATUS) << "Unmanaged device.";
@@ -27,15 +27,15 @@ caribouDevice::caribouDevice(const caribou::Configuration) {
   }
 }
 
-std::string caribouDevice::getVersion() {
+std::string Device::getVersion() {
   return std::string(PACKAGE_STRING);
 }
 
-std::vector<std::pair<std::string, std::size_t>> caribouDevice::listCommands() {
+std::vector<std::pair<std::string, std::size_t>> Device::listCommands() {
   return _dispatcher.commands();
 }
 
-std::string caribouDevice::command(const std::string& name, const std::vector<std::string>& args) {
+std::string Device::command(const std::string& name, const std::vector<std::string>& args) {
   try {
     return _dispatcher.call(name, args);
   } catch(std::invalid_argument& e) {
@@ -43,6 +43,6 @@ std::string caribouDevice::command(const std::string& name, const std::vector<st
   }
 }
 
-std::string caribouDevice::command(const std::string& name, const std::string& arg) {
+std::string Device::command(const std::string& name, const std::string& arg) {
   return command(name, std::vector<std::string>{arg});
 }

@@ -6,7 +6,7 @@
 
 using namespace caribou;
 
-ExampleCaribouDevice::ExampleCaribouDevice(caribou::Configuration config) : caribouDevice(config) {
+ExampleCaribouDevice::ExampleCaribouDevice(caribou::Configuration config) : Device(config) {
 
   _dispatcher.add("frobicate", &ExampleCaribouDevice::frobicate, this);
   _dispatcher.add("unfrobicate", &ExampleCaribouDevice::unfrobicate, this);

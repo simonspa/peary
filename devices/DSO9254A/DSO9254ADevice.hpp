@@ -19,7 +19,7 @@ namespace caribou {
 
   /** Dso9254a Device class definition
    *
-   *  This class implements all purely virtual functions of caribou::caribouDevice.
+   *  This class implements all purely virtual functions of caribou::Device.
    *  Applications can then control this device via the Caribou device class interface
    *  by using the device manager to instanciate the device object.
    */

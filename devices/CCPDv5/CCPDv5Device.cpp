@@ -52,8 +52,8 @@ void CCPDv5Device::powerStatusLog() {
   LOG(INFO) << " power status:";
 }
 
-caribouDevice* caribou::generator(const caribou::Configuration config) {
+Device* caribou::generator(const caribou::Configuration config) {
   LOG(DEBUG) << "Generator: ";
   CCPDv5Device* mDevice = new CCPDv5Device(config);
-  return dynamic_cast<caribouDevice*>(mDevice);
+  return dynamic_cast<Device*>(mDevice);
 }

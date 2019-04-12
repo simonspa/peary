@@ -23,7 +23,7 @@
 
 using namespace caribou;
 
-caribouDeviceMgr::caribouDeviceMgr() : _deviceList() {
+DeviceMgr::DeviceMgr() : _deviceList() {
   LOG(DEBUG) << "New Caribou device manager";
 
   if(check_flock("pearydev.lock")) {
@@ -35,10 +35,10 @@ caribouDeviceMgr::caribouDeviceMgr() : _deviceList() {
   }
 
   // Mark all instanciated devices as managed:
-  caribou::caribouDevice::managedDevice = true;
+  caribou::Device::managedDevice = true;
 }
 
-caribouDeviceMgr::~caribouDeviceMgr() {
+DeviceMgr::~DeviceMgr() {
   LOG(DEBUG) << "Deleting all Caribou devices.";
 
   clearDevices();
@@ -49,7 +49,7 @@ caribouDeviceMgr::~caribouDeviceMgr() {
   }
 }
 
-caribouDevice* caribouDeviceMgr::getDevice(size_t id) {
+Device* DeviceMgr::getDevice(size_t id) {
 
   if(_deviceList.size() < (id + 1)) {
     throw caribou::DeviceException("Device ID " + std::to_string(id) + " not known!");
@@ -57,13 +57,13 @@ caribouDevice* caribouDeviceMgr::getDevice(size_t id) {
     return _deviceList.at(id);
 }
 
-std::vector<caribouDevice*> caribouDeviceMgr::getDevices() {
+std::vector<Device*> DeviceMgr::getDevices() {
   return _deviceList;
 }
 
-size_t caribouDeviceMgr::addDevice(std::string name, const caribou::Configuration config) {
+size_t DeviceMgr::addDevice(std::string name, const caribou::Configuration config) {
 
-  caribouDevice* deviceptr = nullptr;
+  Device* deviceptr = nullptr;
   size_t device_id = 0;
 
   // Load library for each device. Libraries are named (by convention + CMAKE) libPearyDevice Name.suffix
@@ -98,17 +98,17 @@ size_t caribouDeviceMgr::addDevice(std::string name, const caribou::Configuratio
     if((err = dlerror()) != NULL) {
       // handle error, the symbol wasn't found
       LOG(FATAL) << err;
-      throw caribou::DeviceLibException("Symbol lookup for caribouDevice* failed");
+      throw caribou::DeviceLibException("Symbol lookup for Device* failed");
     } else {
       // symbol found, its value is in "gen"
-      deviceptr = reinterpret_cast<caribouDevice* (*)(const caribou::Configuration)>(gen)(config);
+      deviceptr = reinterpret_cast<Device* (*)(const caribou::Configuration)>(gen)(config);
     }
 
     device_id = _deviceList.size();
     LOG(INFO) << "Appending instance to device list, device ID " << device_id;
     _deviceList.push_back(deviceptr);
   } catch(caribou::DeviceLibException& e) {
-    LOG(FATAL) << "Could not retrieve pointer to caribouDevice object";
+    LOG(FATAL) << "Could not retrieve pointer to Device object";
     LOG(FATAL) << "Is the generator() function included w/o C++ name mangling?";
     throw caribou::DeviceException(e.what());
   }
@@ -116,7 +116,7 @@ size_t caribouDeviceMgr::addDevice(std::string name, const caribou::Configuratio
   return device_id;
 }
 
-void caribouDeviceMgr::clearDevices() {
+void DeviceMgr::clearDevices() {
   // Call the destructor of the device instances
   for(auto it : _deviceList) {
     delete it;

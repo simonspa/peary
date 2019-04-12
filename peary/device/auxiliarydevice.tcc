@@ -16,7 +16,7 @@ namespace caribou {
   template <typename T>
 
   auxiliaryDevice<T>::auxiliaryDevice(const caribou::Configuration config, std::string devpath, uint32_t devaddr)
-      : caribouDevice(config), _devpath(devpath), _devaddress(devaddr), _config(config) {
+      : Device(config), _devpath(devpath), _devaddress(devaddr), _config(config) {
 
     _devpath = config.Get<std::string>("devicepath", devpath);
     T& dev_iface = interface_manager::getInterface<T>(_devpath);

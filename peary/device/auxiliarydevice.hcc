@@ -17,7 +17,7 @@ namespace caribou {
   /** Caribou Auxiliary Device class definition
    *
    */
-  template <typename T> class auxiliaryDevice : public caribouDevice {
+  template <typename T> class auxiliaryDevice : public Device {
 
   public:
     /** Default constructor for Caribou devices

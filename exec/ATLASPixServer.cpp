@@ -23,10 +23,10 @@
 
 using namespace caribou;
 
-caribou::caribouDeviceMgr* manager;
-caribouDevice* devM1;
-caribouDevice* devM1ISO;
-caribouDevice* devM2;
+caribou::DeviceMgr* manager;
+Device* devM1;
+Device* devM1ISO;
+Device* devM2;
 
 int my_socket;
 std::ofstream myfile;
@@ -124,7 +124,7 @@ int main(int argc, char* argv[]) {
   Log::addStream(log_file);
 
   // Create new Peary device manager
-  manager = new caribouDeviceMgr();
+  manager = new DeviceMgr();
 
   caribou::Configuration config = caribou::Configuration();
   size_t device_idM1 = manager->addDevice("ATLASPix", config);

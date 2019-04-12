@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
   }
 
   // Create new Peary device manager
-  caribou::caribouDeviceMgr* manager = new caribouDeviceMgr();
+  caribou::DeviceMgr* manager = new DeviceMgr();
 
   // Create all Caribou devices instance:
   try {
@@ -67,7 +67,7 @@ int main(int argc, char* argv[]) {
         LOG(INFO) << "Manager returned device ID " << device_id << ", fetching device...";
 
         // Get the device from the manager:
-        caribouDevice* dev = manager->getDevice(device_id);
+        Device* dev = manager->getDevice(device_id);
         dev->powerOn();
 
         dev->daqStart();

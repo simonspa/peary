@@ -18,7 +18,7 @@ OPTION(INTERFACE_MEM "Build Caribou Memory interface?" ON)
 SET(LIB_SOURCE_FILES
   # device manager
   "device/devicemgr.cpp"
-  "device/device.cpp"
+  "device/Device.cpp"
   # HAL base
   "carboard/halbase.cpp"
   # interface manager

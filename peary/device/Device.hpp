@@ -23,19 +23,19 @@ namespace caribou {
    * purely virtual member functions which have to be implemented by every device instance. This enables the possibility of
    * interfacing the devices independently via the common set of function alls, e.g., from a GUI or a commandline interface.
    */
-  class caribouDevice {
+  class Device {
 
   public:
     /**
      * @brief Default constructor for Caribou devices
      * @param caribou::Configuration Configuration object
      */
-    caribouDevice(const caribou::Configuration);
+    Device(const caribou::Configuration);
 
     /**
      * @brief Default destructor for Caribou devices
      */
-    virtual ~caribouDevice(){};
+    virtual ~Device(){};
 
     /**
      * @brief Indicator flag for managed devices
@@ -276,9 +276,9 @@ namespace caribou {
      */
     static bool managedDevice;
 
-    // Make the device manager a friend class to allow toggling the caribouDevice::managedDevice flag
-    friend class caribouDeviceMgr;
-  }; // class caribouDevice
+    // Make the device manager a friend class to allow toggling the Device::managedDevice flag
+    friend class DeviceMgr;
+  }; // class Device
 
 } // namespace caribou
 
