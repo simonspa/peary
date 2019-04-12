@@ -20,16 +20,16 @@ namespace caribou {
    *  device library at runtime, the device library is identified
    *  by the device name.
    */
-  class DeviceMgr {
+  class DeviceManager {
 
   public:
     /** Default constructor
      */
-    DeviceMgr();
+    DeviceManager();
 
     /** Destructor
      */
-    ~DeviceMgr();
+    ~DeviceManager();
 
     /** Method to get the Device instance.
      */
@@ -60,7 +60,7 @@ namespace caribou {
      */
     std::vector<Device*> _deviceList;
 
-  }; // class DeviceMgr
+  }; // class DeviceManager
 
 } // namespace caribou
 

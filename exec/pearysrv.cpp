@@ -12,7 +12,7 @@
 
 using namespace caribou;
 
-caribou::DeviceMgr* manager;
+caribou::DeviceManager* manager;
 int my_socket;
 std::ofstream myfile;
 unsigned int framecounter;
@@ -109,7 +109,7 @@ int main(int argc, char* argv[]) {
   Log::addStream(log_file);
 
   // Create new Peary device manager
-  manager = new DeviceMgr();
+  manager = new DeviceManager();
 
   // Create all Caribou devices instance:
   try {

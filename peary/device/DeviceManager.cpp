@@ -23,7 +23,7 @@
 
 using namespace caribou;
 
-DeviceMgr::DeviceMgr() : _deviceList() {
+DeviceManager::DeviceManager() : _deviceList() {
   LOG(DEBUG) << "New Caribou device manager";
 
   if(check_flock("pearydev.lock")) {
@@ -38,7 +38,7 @@ DeviceMgr::DeviceMgr() : _deviceList() {
   caribou::Device::managedDevice = true;
 }
 
-DeviceMgr::~DeviceMgr() {
+DeviceManager::~DeviceManager() {
   LOG(DEBUG) << "Deleting all Caribou devices.";
 
   clearDevices();
@@ -49,7 +49,7 @@ DeviceMgr::~DeviceMgr() {
   }
 }
 
-Device* DeviceMgr::getDevice(size_t id) {
+Device* DeviceManager::getDevice(size_t id) {
 
   if(_deviceList.size() < (id + 1)) {
     throw caribou::DeviceException("Device ID " + std::to_string(id) + " not known!");
@@ -57,11 +57,11 @@ Device* DeviceMgr::getDevice(size_t id) {
     return _deviceList.at(id);
 }
 
-std::vector<Device*> DeviceMgr::getDevices() {
+std::vector<Device*> DeviceManager::getDevices() {
   return _deviceList;
 }
 
-size_t DeviceMgr::addDevice(std::string name, const caribou::Configuration config) {
+size_t DeviceManager::addDevice(std::string name, const caribou::Configuration config) {
 
   Device* deviceptr = nullptr;
   size_t device_id = 0;
@@ -116,7 +116,7 @@ size_t DeviceMgr::addDevice(std::string name, const caribou::Configuration confi
   return device_id;
 }
 
-void DeviceMgr::clearDevices() {
+void DeviceManager::clearDevices() {
   // Call the destructor of the device instances
   for(auto it : _deviceList) {
     delete it;

@@ -10,7 +10,7 @@
 
 using namespace caribou;
 
-caribou::DeviceMgr* pearycli::manager = new DeviceMgr();
+caribou::DeviceManager* pearycli::manager = new DeviceManager();
 
 void termination_handler(int s) {
   std::cout << "\n";

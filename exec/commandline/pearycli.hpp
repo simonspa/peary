@@ -68,7 +68,7 @@ namespace caribou {
     static int flushMatrix(const std::vector<std::string>& input);
 
     // Create new Peary device manager
-    static caribou::DeviceMgr* manager;
+    static caribou::DeviceManager* manager;
 
     // Configuration object
     static caribou::Configuration config;

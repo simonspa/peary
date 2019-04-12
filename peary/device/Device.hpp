@@ -277,7 +277,7 @@ namespace caribou {
     static bool managedDevice;
 
     // Make the device manager a friend class to allow toggling the Device::managedDevice flag
-    friend class DeviceMgr;
+    friend class DeviceManager;
   }; // class Device
 
 } // namespace caribou

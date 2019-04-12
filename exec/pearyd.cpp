@@ -21,7 +21,7 @@
 #include "log.hpp"
 
 using caribou::Device;
-using caribou::DeviceMgr;
+using caribou::DeviceManager;
 using caribou::Log;
 using caribou::LogLevel;
 
@@ -353,7 +353,7 @@ void do_device_switch_off(Device& device, const std::vector<std::string>& args, 
   }
 }
 
-void do_device(DeviceMgr& mgr, const std::string& cmd, const std::vector<std::string>& args, ReplyBuffer& reply) {
+void do_device(DeviceManager& mgr, const std::string& cmd, const std::vector<std::string>& args, ReplyBuffer& reply) {
 
   // command format is device.<command> <device_id> <args...>
 
@@ -432,7 +432,7 @@ void do_device(DeviceMgr& mgr, const std::string& cmd, const std::vector<std::st
 // -----------------------------------------------------------------------------
 // global commands
 
-void do_list_devices(DeviceMgr& mgr, ReplyBuffer& reply) {
+void do_list_devices(DeviceManager& mgr, ReplyBuffer& reply) {
   reply.set_success();
   size_t idx = 0;
   for(Device* dev : mgr.getDevices()) {
@@ -447,7 +447,7 @@ void do_list_devices(DeviceMgr& mgr, ReplyBuffer& reply) {
   }
 }
 
-void do_add_device(DeviceMgr& mgr, const std::vector<std::string>& args, ReplyBuffer& reply) {
+void do_add_device(DeviceManager& mgr, const std::vector<std::string>& args, ReplyBuffer& reply) {
   if(check_num_args(args, 1, reply)) {
     // TODO how to handle configuration
     caribou::Configuration cfg;
@@ -466,7 +466,7 @@ void do_protocol_version(ReplyBuffer& reply) {
 // -----------------------------------------------------------------------------
 // request/reply handling
 
-void process_request(DeviceMgr& mgr, const std::vector<uint8_t>& request, ReplyBuffer& reply) {
+void process_request(DeviceManager& mgr, const std::vector<uint8_t>& request, ReplyBuffer& reply) {
   // request **must** contain at least the header
   if(request.size() < 4) {
     LOG(ERROR) << "Received malformed request, message is too small";
@@ -591,7 +591,7 @@ int main(int argc, char* argv[]) {
   }
 
   // setup peary device manager
-  DeviceMgr mgr;
+  DeviceManager mgr;
 
   // setup server
   struct sockaddr_in server_addr;

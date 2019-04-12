@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
   }
 
   // Create new Peary device manager
-  caribou::DeviceMgr* manager = new DeviceMgr();
+  caribou::DeviceManager* manager = new DeviceManager();
 
   // Create all Caribou devices instance:
   try {
