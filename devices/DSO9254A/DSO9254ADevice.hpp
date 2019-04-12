@@ -8,8 +8,8 @@
 #define DEVICE_DSO9254A_H
 
 #include <vector>
+#include "AuxiliaryDevice.hpp"
 #include "Device.hpp"
-#include "auxiliarydevice.hpp"
 #include "constants.hpp"
 #include "ipsocket.hpp"
 

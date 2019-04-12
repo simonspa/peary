@@ -5,12 +5,6 @@
 #ifndef CARIBOU_DEVICE_AUXILIARY_IMPL
 #define CARIBOU_DEVICE_AUXILIARY_IMPL
 
-#include "Device.hpp"
-#include "auxiliarydevice.hpp"
-#include "log.hpp"
-
-#include <string>
-
 namespace caribou {
 
   template <typename T>

@@ -2,15 +2,16 @@
  * Caribou Auxiliary Device header
  */
 
-#ifndef CARIBOU_DEVICE_AUXILIARY_DEF
-#define CARIBOU_DEVICE_AUXILIARY_DEF
+#ifndef CARIBOU_DEVICE_AUXILIARY_H
+#define CARIBOU_DEVICE_AUXILIARY_H
 
+#include "Device.hpp"
 #include "configuration.hpp"
-#include "device.hpp"
 #include "interface.hpp"
 #include "interface_manager.hpp"
 
 #include <string>
+#include <vector>
 
 namespace caribou {
 
@@ -120,4 +121,6 @@ namespace caribou {
 
 } // namespace caribou
 
-#endif /* CARIBOU_DEVICE_AUXILIARY_DEF */
+#include "AuxiliaryDevice.tcc"
+
+#endif /* CARIBOU_DEVICE_AUXILIARY_H */
