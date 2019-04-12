@@ -20,8 +20,8 @@
 #include "exceptions.hpp"
 #include "log.hpp"
 
-using caribou::caribouDevice;
-using caribou::caribouDeviceMgr;
+using caribou::Device;
+using caribou::DeviceMgr;
 using caribou::Log;
 using caribou::LogLevel;
 
@@ -283,7 +283,7 @@ bool check_num_args(const std::vector<std::string>& args, size_t expected, Reply
 // -----------------------------------------------------------------------------
 // per-device commands
 
-void do_device_list_registers(caribouDevice& device, ReplyBuffer& reply) {
+void do_device_list_registers(Device& device, ReplyBuffer& reply) {
   reply.payload.clear();
   for(const auto& reg : device.getRegisters()) {
     if(!reply.payload.empty()) {
@@ -295,28 +295,28 @@ void do_device_list_registers(caribouDevice& device, ReplyBuffer& reply) {
   reply.set_success();
 }
 
-void do_device_get_register(caribouDevice& device, const std::vector<std::string>& args, ReplyBuffer& reply) {
+void do_device_get_register(Device& device, const std::vector<std::string>& args, ReplyBuffer& reply) {
   if(check_num_args(args, 1, reply)) {
     reply.payload = std::to_string(device.getRegister(args[0]));
     reply.set_success();
   }
 }
 
-void do_device_set_register(caribouDevice& device, const std::vector<std::string>& args, ReplyBuffer& reply) {
+void do_device_set_register(Device& device, const std::vector<std::string>& args, ReplyBuffer& reply) {
   if(check_num_args(args, 2, reply)) {
     device.setRegister(args[0], std::stoul(args[1]));
     reply.set_success();
   }
 }
 
-void do_device_get_current(caribouDevice& device, const std::vector<std::string>& args, ReplyBuffer& reply) {
+void do_device_get_current(Device& device, const std::vector<std::string>& args, ReplyBuffer& reply) {
   if(check_num_args(args, 1, reply)) {
     reply.payload = std::to_string(device.getCurrent(args[0]));
     reply.set_success();
   }
 }
 
-void do_device_set_current(caribouDevice& device, const std::vector<std::string>& args, ReplyBuffer& reply) {
+void do_device_set_current(Device& device, const std::vector<std::string>& args, ReplyBuffer& reply) {
   if(check_num_args(args, 3, reply)) {
     // third argument is polarity
     device.setCurrent(args[0], std::stod(args[1]), std::stoi(args[2]));
@@ -324,14 +324,14 @@ void do_device_set_current(caribouDevice& device, const std::vector<std::string>
   }
 }
 
-void do_device_get_voltage(caribouDevice& device, const std::vector<std::string>& args, ReplyBuffer& reply) {
+void do_device_get_voltage(Device& device, const std::vector<std::string>& args, ReplyBuffer& reply) {
   if(check_num_args(args, 1, reply)) {
     reply.payload = std::to_string(device.getCurrent(args[0]));
     reply.set_success();
   }
 }
 
-void do_device_set_voltage(caribouDevice& device, const std::vector<std::string>& args, ReplyBuffer& reply) {
+void do_device_set_voltage(Device& device, const std::vector<std::string>& args, ReplyBuffer& reply) {
   if(check_num_args(args, 3, reply)) {
     // third argument is current limit
     device.setVoltage(args[0], std::stod(args[1]), std::stod(args[2]));
@@ -339,21 +339,21 @@ void do_device_set_voltage(caribouDevice& device, const std::vector<std::string>
   }
 }
 
-void do_device_switch_on(caribouDevice& device, const std::vector<std::string>& args, ReplyBuffer& reply) {
+void do_device_switch_on(Device& device, const std::vector<std::string>& args, ReplyBuffer& reply) {
   if(check_num_args(args, 1, reply)) {
     device.switchOn(args[0]);
     reply.set_success();
   }
 }
 
-void do_device_switch_off(caribouDevice& device, const std::vector<std::string>& args, ReplyBuffer& reply) {
+void do_device_switch_off(Device& device, const std::vector<std::string>& args, ReplyBuffer& reply) {
   if(check_num_args(args, 1, reply)) {
     device.switchOff(args[0]);
     reply.set_success();
   }
 }
 
-void do_device(caribouDeviceMgr& mgr, const std::string& cmd, const std::vector<std::string>& args, ReplyBuffer& reply) {
+void do_device(DeviceMgr& mgr, const std::string& cmd, const std::vector<std::string>& args, ReplyBuffer& reply) {
 
   // command format is device.<command> <device_id> <args...>
 
@@ -369,7 +369,7 @@ void do_device(caribouDeviceMgr& mgr, const std::string& cmd, const std::vector<
   std::vector<std::string> device_args(args.begin() + 1, args.end());
 
   // find corresponding device
-  caribouDevice* device = nullptr;
+  Device* device = nullptr;
   try {
     device = mgr.getDevice(device_id);
   } catch(const caribou::DeviceException& e) {
@@ -432,10 +432,10 @@ void do_device(caribouDeviceMgr& mgr, const std::string& cmd, const std::vector<
 // -----------------------------------------------------------------------------
 // global commands
 
-void do_list_devices(caribouDeviceMgr& mgr, ReplyBuffer& reply) {
+void do_list_devices(DeviceMgr& mgr, ReplyBuffer& reply) {
   reply.set_success();
   size_t idx = 0;
-  for(caribouDevice* dev : mgr.getDevices()) {
+  for(Device* dev : mgr.getDevices()) {
     // not sure if the vector can contain nullptr?
     if(dev) {
       if(!reply.payload.empty()) {
@@ -447,7 +447,7 @@ void do_list_devices(caribouDeviceMgr& mgr, ReplyBuffer& reply) {
   }
 }
 
-void do_add_device(caribouDeviceMgr& mgr, const std::vector<std::string>& args, ReplyBuffer& reply) {
+void do_add_device(DeviceMgr& mgr, const std::vector<std::string>& args, ReplyBuffer& reply) {
   if(check_num_args(args, 1, reply)) {
     // TODO how to handle configuration
     caribou::Configuration cfg;
@@ -466,7 +466,7 @@ void do_protocol_version(ReplyBuffer& reply) {
 // -----------------------------------------------------------------------------
 // request/reply handling
 
-void process_request(caribouDeviceMgr& mgr, const std::vector<uint8_t>& request, ReplyBuffer& reply) {
+void process_request(DeviceMgr& mgr, const std::vector<uint8_t>& request, ReplyBuffer& reply) {
   // request **must** contain at least the header
   if(request.size() < 4) {
     LOG(ERROR) << "Received malformed request, message is too small";
@@ -591,7 +591,7 @@ int main(int argc, char* argv[]) {
   }
 
   // setup peary device manager
-  caribouDeviceMgr mgr;
+  DeviceMgr mgr;
 
   // setup server
   struct sockaddr_in server_addr;
