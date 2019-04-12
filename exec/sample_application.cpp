@@ -2,7 +2,7 @@
 #include <iostream>
 
 #include "configuration.hpp"
-#include "devicemgr.hpp"
+#include "DeviceManager.hpp"
 #include "exceptions.hpp"
 #include "log.hpp"
 

@@ -7,7 +7,7 @@
 
 #include "Console.hpp"
 #include "configuration.hpp"
-#include "devicemgr.hpp"
+#include "DeviceManager.hpp"
 
 #include <vector>
 

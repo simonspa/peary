@@ -3,7 +3,7 @@
  * @brief Caribou Device Manager class implementation
  */
 
-#include "devicemgr.hpp"
+#include "DeviceManager.hpp"
 #include "Device.hpp"
 #include "exceptions.hpp"
 #include "log.hpp"
