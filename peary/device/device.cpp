@@ -20,7 +20,7 @@ caribouDevice::caribouDevice(const caribou::Configuration) {
       throw caribou::caribouException("Found running device manager instance.");
     }
 
-    // Acquire lock for pearydevice:
+    // Acquire lock for CaribouDevice:
     if(!acquire_flock("pearydev.lock")) {
       throw caribou::caribouException("Found running device instance.");
     }

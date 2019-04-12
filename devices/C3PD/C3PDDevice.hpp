@@ -5,10 +5,10 @@
 #ifndef DEVICE_C3PD_H
 #define DEVICE_C3PD_H
 
+#include "CaribouDevice.hpp"
 #include "c3pd_defaults.hpp"
 #include "device.hpp"
 #include "i2c.hpp"
-#include "pearydevice.hpp"
 
 namespace caribou {
 

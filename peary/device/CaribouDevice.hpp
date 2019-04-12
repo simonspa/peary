@@ -14,7 +14,7 @@
 #include <string>
 #include <vector>
 
-#include "pearydevice.hcc"
-#include "pearydevice.tcc"
+#include "CaribouDevice.hcc"
+#include "CaribouDevice.tcc"
 
 #endif /* CARIBOU_MIDDLEWARE_H */

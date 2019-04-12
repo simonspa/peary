@@ -5,13 +5,13 @@
 #ifndef CARIBOU_MIDDLEWARE_IMPL
 #define CARIBOU_MIDDLEWARE_IMPL
 
+#include "CaribouDevice.hpp"
 #include "carboard.hpp"
 #include "constants.hpp"
 #include "device.hpp"
 #include "dictionary.hpp"
 #include "hal.hpp"
 #include "log.hpp"
-#include "pearydevice.hpp"
 
 #include <string>
 
