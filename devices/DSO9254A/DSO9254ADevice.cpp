@@ -9,7 +9,7 @@
 using namespace caribou;
 
 DSO9254ADevice::DSO9254ADevice(const caribou::Configuration config)
-    : auxiliaryDevice(config, std::string(DEFAULT_DEVICEPATH)) {
+    : AuxiliaryDevice(config, std::string(DEFAULT_DEVICEPATH)) {
   _config = config;
 
   // FIXME dispatcher functions
@@ -19,7 +19,7 @@ DSO9254ADevice::DSO9254ADevice(const caribou::Configuration config)
 
   LOG(DEBUG) << "New scope interface, trying to connect...";
   std::string query = "*IDN?";
-  std::string data = auxiliaryDevice<iface_ipsocket>::receive(query).front();
+  std::string data = AuxiliaryDevice<iface_ipsocket>::receive(query).front();
 
   LOG(DEBUG) << "Connected successfully to " << _devpath;
   LOG(DEBUG) << "Scope identifier: " << data;
@@ -30,11 +30,11 @@ DSO9254ADevice::~DSO9254ADevice() {
 }
 
 void DSO9254ADevice::send(std::string command) {
-  auxiliaryDevice<iface_ipsocket>::send(command);
+  AuxiliaryDevice<iface_ipsocket>::send(command);
 }
 
 std::string DSO9254ADevice::query(const std::string query) {
-  return auxiliaryDevice<iface_ipsocket>::receive(query).front();
+  return AuxiliaryDevice<iface_ipsocket>::receive(query).front();
 }
 
 int DSO9254ADevice::waitForTrigger() {
@@ -44,7 +44,7 @@ int DSO9254ADevice::waitForTrigger() {
   int trigger = 0;
   while(trigger == 0) {
     mDelay(10);
-    trigger = std::stoi(auxiliaryDevice<iface_ipsocket>::receive(query).front());
+    trigger = std::stoi(AuxiliaryDevice<iface_ipsocket>::receive(query).front());
   }
 
   return trigger;
@@ -56,7 +56,7 @@ pearydata DSO9254ADevice::getData() {
 
   LOG(INFO) << "Retrieving data from scope...";
   std::string cmd = "wav:data?";
-  std::vector<std::string> data = auxiliaryDevice<iface_ipsocket>::receive(cmd);
+  std::vector<std::string> data = AuxiliaryDevice<iface_ipsocket>::receive(cmd);
 
   LOG(INFO) << "Crunching numbers...";
 

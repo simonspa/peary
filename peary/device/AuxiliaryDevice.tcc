@@ -9,7 +9,7 @@ namespace caribou {
 
   template <typename T>
 
-  auxiliaryDevice<T>::auxiliaryDevice(const caribou::Configuration config, std::string devpath, uint32_t devaddr)
+  AuxiliaryDevice<T>::AuxiliaryDevice(const caribou::Configuration config, std::string devpath, uint32_t devaddr)
       : Device(config), _devpath(devpath), _devaddress(devaddr), _config(config) {
 
     _devpath = config.Get<std::string>("devicepath", devpath);
@@ -17,43 +17,43 @@ namespace caribou {
     LOG(DEBUG) << "Auxiliary device initialized at " << dev_iface.devicePath();
   }
 
-  template <typename T> auxiliaryDevice<T>::~auxiliaryDevice() {}
+  template <typename T> AuxiliaryDevice<T>::~AuxiliaryDevice() {}
 
-  template <typename T> std::string auxiliaryDevice<T>::getType() { return PEARY_DEVICE_NAME; }
+  template <typename T> std::string AuxiliaryDevice<T>::getType() { return PEARY_DEVICE_NAME; }
 
-  template <typename T> typename T::data_type auxiliaryDevice<T>::send(const typename T::data_type& data) {
+  template <typename T> typename T::data_type AuxiliaryDevice<T>::send(const typename T::data_type& data) {
     return interface_manager::getInterface<T>(_devpath).write(_devaddress, data);
   }
 
   template <typename T>
-  std::vector<typename T::data_type> auxiliaryDevice<T>::send(const std::vector<typename T::data_type>& data) {
+  std::vector<typename T::data_type> AuxiliaryDevice<T>::send(const std::vector<typename T::data_type>& data) {
     return interface_manager::getInterface<T>(_devpath).write(_devaddress, data);
   }
 
   template <typename T>
   std::pair<typename T::reg_type, typename T::data_type>
-  auxiliaryDevice<T>::send(const std::pair<typename T::reg_type, typename T::data_type>& data) {
+  AuxiliaryDevice<T>::send(const std::pair<typename T::reg_type, typename T::data_type>& data) {
     return interface_manager::getInterface<T>(_devpath).write(_devaddress, data);
   }
 
   template <typename T>
-  std::vector<typename T::data_type> auxiliaryDevice<T>::send(const typename T::reg_type& reg,
+  std::vector<typename T::data_type> AuxiliaryDevice<T>::send(const typename T::reg_type& reg,
                                                               const std::vector<typename T::data_type>& data) {
     return interface_manager::getInterface<T>(_devpath).write(_devaddress, reg, data);
   }
 
   template <typename T>
   std::vector<std::pair<typename T::reg_type, typename T::data_type>>
-  auxiliaryDevice<T>::send(const std::vector<std::pair<typename T::reg_type, typename T::data_type>>& data) {
+  AuxiliaryDevice<T>::send(const std::vector<std::pair<typename T::reg_type, typename T::data_type>>& data) {
     return interface_manager::getInterface<T>(_devpath).write(_devaddress, data);
   }
 
-  template <typename T> std::vector<typename T::data_type> auxiliaryDevice<T>::receive(const unsigned int length) {
+  template <typename T> std::vector<typename T::data_type> AuxiliaryDevice<T>::receive(const unsigned int length) {
     return interface_manager::getInterface<T>(_devpath).read(_devaddress, length);
   }
 
   template <typename T>
-  std::vector<typename T::data_type> auxiliaryDevice<T>::receive(const typename T::reg_type reg, const unsigned int length) {
+  std::vector<typename T::data_type> AuxiliaryDevice<T>::receive(const typename T::reg_type reg, const unsigned int length) {
     return interface_manager::getInterface<T>(_devpath).read(_devaddress, reg, length);
   }
 

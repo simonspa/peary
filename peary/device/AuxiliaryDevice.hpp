@@ -18,17 +18,17 @@ namespace caribou {
   /** Caribou Auxiliary Device class definition
    *
    */
-  template <typename T> class auxiliaryDevice : public Device {
+  template <typename T> class AuxiliaryDevice : public Device {
 
   public:
     /** Default constructor for Caribou devices
      *
      */
-    auxiliaryDevice(const caribou::Configuration config, std::string devpath, uint32_t devaddr = 0);
+    AuxiliaryDevice(const caribou::Configuration config, std::string devpath, uint32_t devaddr = 0);
 
     /** Default destructor for Caribou devices
      */
-    virtual ~auxiliaryDevice();
+    virtual ~AuxiliaryDevice();
 
     /** Return the human-readable device name
      */
@@ -117,7 +117,7 @@ namespace caribou {
     /** Device configuration object
      */
     caribou::Configuration _config;
-  }; // class auxiliaryDevice
+  }; // class AuxiliaryDevice
 
 } // namespace caribou
 
