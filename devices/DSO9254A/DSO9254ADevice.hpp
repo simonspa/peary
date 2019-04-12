@@ -8,9 +8,9 @@
 #define DEVICE_DSO9254A_H
 
 #include <vector>
+#include "Device.hpp"
 #include "auxiliarydevice.hpp"
 #include "constants.hpp"
-#include "device.hpp"
 #include "ipsocket.hpp"
 
 #define DEFAULT_DEVICEPATH "127.0.0.1:5000"

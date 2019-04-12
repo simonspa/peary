@@ -14,8 +14,8 @@
 #include <memory>
 #include <utility>
 
+#include "Device.hpp"
 #include "configuration.hpp"
-#include "device.hpp"
 
 #include PEARY_DEVICE_HEADER
 

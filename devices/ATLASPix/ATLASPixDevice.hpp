@@ -14,7 +14,7 @@
 #include <thread>
 
 #include "CaribouDevice.hpp"
-#include "device.hpp"
+#include "Device.hpp"
 #include "i2c.hpp"
 
 #include "ATLASPixMatrix.hpp"

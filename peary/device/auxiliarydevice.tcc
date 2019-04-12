@@ -5,8 +5,8 @@
 #ifndef CARIBOU_DEVICE_AUXILIARY_IMPL
 #define CARIBOU_DEVICE_AUXILIARY_IMPL
 
+#include "Device.hpp"
 #include "auxiliarydevice.hpp"
-#include "device.hpp"
 #include "log.hpp"
 
 #include <string>

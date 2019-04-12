@@ -4,7 +4,7 @@
  */
 
 #include "devicemgr.hpp"
-#include "device.hpp"
+#include "Device.hpp"
 #include "exceptions.hpp"
 #include "log.hpp"
 #include "utils.hpp"

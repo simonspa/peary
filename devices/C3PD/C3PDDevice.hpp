@@ -7,7 +7,6 @@
 
 #include "CaribouDevice.hpp"
 #include "c3pd_defaults.hpp"
-#include "device.hpp"
 #include "i2c.hpp"
 
 namespace caribou {

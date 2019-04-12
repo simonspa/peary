@@ -5,9 +5,9 @@
 #ifndef CARIBOU_MIDDLEWARE_H
 #define CARIBOU_MIDDLEWARE_H
 
+#include "Device.hpp"
 #include "configuration.hpp"
 #include "constants.hpp"
-#include "device.hpp"
 #include "dictionary.hpp"
 
 #include <stdint.h>

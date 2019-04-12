@@ -6,7 +6,7 @@
 #define DEVICE_CCPDV5_H
 
 #include "CaribouDevice.hpp"
-#include "device.hpp"
+#include "Device.hpp"
 #include "i2c.hpp"
 
 namespace caribou {

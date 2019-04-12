@@ -1,5 +1,5 @@
+#include "Device.hpp"
 #include "config.h"
-#include "device.hpp"
 #include "log.hpp"
 
 bool caribou::Device::managedDevice = false;

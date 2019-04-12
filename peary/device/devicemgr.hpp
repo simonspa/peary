@@ -5,7 +5,7 @@
 #ifndef CARIBOU_DEVMGR_H
 #define CARIBOU_DEVMGR_H
 
-#include "device.hpp"
+#include "Device.hpp"
 
 #include <stdint.h>
 #include <string>
