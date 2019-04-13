@@ -5,8 +5,8 @@
 #include <sys/stat.h>
 #include <vector>
 
-#include "configuration.hpp"
 #include "DeviceManager.hpp"
+#include "configuration.hpp"
 #include "exceptions.hpp"
 #include "log.hpp"
 
