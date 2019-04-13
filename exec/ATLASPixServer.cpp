@@ -17,13 +17,13 @@
 #include <vector>
 
 #include "configuration.hpp"
-#include "devicemgr.hpp"
+#include "DeviceManager.hpp"
 #include "exceptions.hpp"
 #include "log.hpp"
 
 using namespace caribou;
 
-caribou::DeviceManager* manager;
+caribou::DeviceMgr* manager;
 Device* devM1;
 Device* devM1ISO;
 Device* devM2;
@@ -124,7 +124,7 @@ int main(int argc, char* argv[]) {
   Log::addStream(log_file);
 
   // Create new Peary device manager
-  manager = new DeviceManager();
+  manager = new DeviceMgr();
 
   caribou::Configuration config = caribou::Configuration();
   size_t device_idM1 = manager->addDevice("ATLASPix", config);
