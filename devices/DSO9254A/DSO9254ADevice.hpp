@@ -11,7 +11,6 @@
 #include "AuxiliaryDevice.hpp"
 #include "Device.hpp"
 #include "constants.hpp"
-#include "ipsocket.hpp"
 
 #define DEFAULT_DEVICEPATH "127.0.0.1:5000"
 

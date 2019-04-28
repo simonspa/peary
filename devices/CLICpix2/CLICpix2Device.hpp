@@ -14,7 +14,6 @@
 #include "clockgenerator/Si5345-RevB-CLICpix2-Registers_freeRunningMode.h"
 #include "configuration.hpp"
 #include "framedecoder/clicpix2_frameDecoder.hpp"
-#include "spi_CLICpix2.hpp"
 
 namespace caribou {
 

@@ -15,7 +15,6 @@
 
 #include "CaribouDevice.hpp"
 #include "Device.hpp"
-#include "i2c.hpp"
 
 #include "ATLASPixMatrix.hpp"
 #include "ATLASPix_defaults.hpp"

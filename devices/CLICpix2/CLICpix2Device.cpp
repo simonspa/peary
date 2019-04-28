@@ -12,7 +12,6 @@
 #include <unistd.h>
 #include "hal.hpp"
 #include "log.hpp"
-#include "spi_CLICpix2.hpp"
 
 #include <math.h>
 
