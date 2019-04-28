@@ -46,6 +46,9 @@ namespace caribou {
 
     // Reset the chip
     void reset();
+
+    void setSpecialRegister(std::string name, uint32_t value);
+    uint32_t getSpecialRegister(std::string name);
   };
 
 } // namespace caribou
