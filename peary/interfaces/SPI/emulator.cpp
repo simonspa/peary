@@ -6,8 +6,8 @@
 #include <cstring>
 #include <utility>
 
+#include "SPI/spi.hpp"
 #include "log.hpp"
-#include "spi.hpp"
 #include "utils.hpp"
 
 using namespace caribou;

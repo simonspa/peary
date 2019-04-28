@@ -1,7 +1,5 @@
 # Add source files for the peary caribou core library
 
-INCLUDE_DIRECTORIES(interfaces)
-
 # Build flag for I2C interface implementation:
 OPTION(INTERFACE_I2C "Build Caribou I2C interface?" ON)
 # Build flag for SPI interface implementation:
@@ -36,12 +34,12 @@ ENDIF()
 IF(INTERFACE_I2C)
   # add I2C source files
   SET(LIB_SOURCE_FILES ${LIB_SOURCE_FILES}
-    "interfaces/i2c.cpp"
+    "interfaces/I2C/i2c.cpp"
     )
   MESSAGE(STATUS "Caribou Interface I2C:\tON")
 ELSE()
   SET(LIB_SOURCE_FILES ${LIB_SOURCE_FILES}
-    "interfaces/emulators/i2c.cpp"
+    "interfaces/I2C/emulator.cpp"
     )
   MESSAGE(STATUS "Caribou Interface I2C:\t(emulated)")
 ENDIF()
@@ -51,12 +49,12 @@ IF(INTERFACE_SPI_CLICpix2)
   SET(INTERFACE_SPI ON)
   # add SPI source files
   SET(LIB_SOURCE_FILES ${LIB_SOURCE_FILES}
-    "interfaces/spi_CLICpix2.cpp"
+    "interfaces/SPI_CLICpix2/spi_CLICpix2.cpp"
     )
   MESSAGE(STATUS "Caribou Interface SPI CPx2:\tON")
 ELSE()
   SET(LIB_SOURCE_FILES ${LIB_SOURCE_FILES}
-    "interfaces/emulators/spi_CLICpix2.cpp"
+    "interfaces/SPI_CLICpix2/emulator.cpp"
     )
   MESSAGE(STATUS "Caribou Interface SPI CPx2:\t(emulated)")
 ENDIF()
@@ -64,12 +62,12 @@ ENDIF()
 IF(INTERFACE_SPI)
   # add SPI source files
   SET(LIB_SOURCE_FILES ${LIB_SOURCE_FILES}
-    "interfaces/spi.cpp"
+    "interfaces/SPI/spi.cpp"
     )
   MESSAGE(STATUS "Caribou Interface SPI:\tON")
 ELSE()
   SET(LIB_SOURCE_FILES ${LIB_SOURCE_FILES}
-    "interfaces/emulators/spi.cpp"
+    "interfaces/SPI/emulator.cpp"
     )
   MESSAGE(STATUS "Caribou Interface SPI:\t(emulated)")
 ENDIF()
@@ -77,7 +75,7 @@ ENDIF()
 IF(INTERFACE_IPSOCK)
   # add IP/Socket source files
   SET(LIB_SOURCE_FILES ${LIB_SOURCE_FILES}
-    "interfaces/ipsocket.cpp"
+    "interfaces/IPSocket/ipsocket.cpp"
     )
   MESSAGE(STATUS "Caribou Interface IP/Socket:\tON")
 ELSE()
@@ -88,7 +86,7 @@ ENDIF()
 IF(INTERFACE_LOOP)
   # add LOOP source files
   SET(LIB_SOURCE_FILES ${LIB_SOURCE_FILES}
-    "interfaces/loopback.cpp"
+    "interfaces/Loopback/loopback.cpp"
     )
   MESSAGE(STATUS "Caribou Interface Loopback:\tON")
 ELSE()
@@ -98,12 +96,12 @@ ENDIF()
 IF(INTERFACE_MEM)
   # add MEM source files
   SET(LIB_SOURCE_FILES ${LIB_SOURCE_FILES}
-    "interfaces/memory.cpp"
+    "interfaces/Memory/memory.cpp"
     )
   MESSAGE(STATUS "Caribou Interface MEM:\tON")
 ELSE()
   SET(LIB_SOURCE_FILES ${LIB_SOURCE_FILES}
-    "interfaces/emulators/memory.cpp"
+    "interfaces/Memory/emulator.cpp"
     )
   MESSAGE(STATUS "Caribou Interface MEM:\t(emulated)")
 ENDIF()

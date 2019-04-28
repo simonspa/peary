@@ -1,18 +1,9 @@
 #ifndef CARIBOU_HAL_SPI_CLICPIX2_H
 #define CARIBOU_HAL_SPI_CLICPIX2_H
 
-#include <cstdint>
-#include <mutex>
-#include <string>
-#include <vector>
-
-#include "spi.hpp"
+#include "SPI/spi.hpp"
 
 namespace caribou {
-
-  typedef uint8_t spi_address_t; // is ignored
-  typedef uint8_t spi_t;
-  typedef uint8_t spi_reg_t;
 
   /* SPI command interface class
    */

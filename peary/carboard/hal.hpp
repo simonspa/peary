@@ -7,9 +7,6 @@
 #include <tuple>
 #include <vector>
 
-#include "Interface.hpp"
-#include "InterfaceManager.hpp"
-
 #include "carboard.hpp"
 #include "constants.hpp"
 #include "exceptions.hpp"
@@ -18,12 +15,6 @@
 
 #include "Interface.hpp"
 #include "InterfaceManager.hpp"
-
-#include "i2c.hpp"
-#include "loopback.hpp"
-#include "memory.hpp"
-#include "spi.hpp"
-#include "spi_CLICpix2.hpp"
 
 #include "hal.hcc"
 #include "hal.tcc"

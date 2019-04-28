@@ -12,8 +12,8 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
+#include "SPI/spi.hpp"
 #include "log.hpp"
-#include "spi.hpp"
 #include "utils.hpp"
 
 using namespace caribou;
