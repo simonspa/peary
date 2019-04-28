@@ -115,17 +115,13 @@ INCLUDE("cmake/clang-cpp-checks.cmake")
 # Define build targets for peary #
 ##################################
 
-# Include directories
-INCLUDE_DIRECTORIES(peary)
-
-# Make devices available:
-INCLUDE_DIRECTORIES(devices)
-
 # Always build main peary library;
+INCLUDE_DIRECTORIES(peary)
 ADD_SUBDIRECTORY(peary)
 SET(PEARY_LIBRARIES ${PEARY_LIBRARIES} peary)
 
-# Include optional device support
+# Include individual device libraries:
+INCLUDE_DIRECTORIES(devices)
 ADD_SUBDIRECTORY(devices)
 
 # Add targets for Doxygen code reference and LaTeX User manual
