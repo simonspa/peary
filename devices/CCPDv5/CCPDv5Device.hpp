@@ -7,7 +7,7 @@
 
 #include "CaribouDevice.hpp"
 #include "Device.hpp"
-#include "i2c.hpp"
+#include "I2C/i2c.hpp"
 
 namespace caribou {
 
