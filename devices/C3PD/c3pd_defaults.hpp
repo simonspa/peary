@@ -1,7 +1,7 @@
 #ifndef DEVICE_C3PD_DEFAULTS_H
 #define DEVICE_C3PD_DEFAULTS_H
 
-#include "carboard/carboard.hpp"
+#include "carboard/Carboard.hpp"
 #include "utils/dictionary.hpp"
 
 namespace caribou {
@@ -43,26 +43,26 @@ namespace caribou {
   const std::size_t C3PD_CONTROL_MAP_SIZE = 4096;
   const std::size_t C3PD_CONTROL_MAP_MASK = C3PD_CONTROL_MAP_SIZE - 1;
 
-/** C3PD Routing
- *
- *  C3PD_VDDD -> SEAF F1/F2 -> (ADDR_MONITOR_U52) -> ADDR_DAC_U50 (VOUTC)
- *  C3PD_VDDA -> SEAF D5/D6 -> (ADDR_MONITOR_U56) -> ADDR_DAC_U50 (VOUTD)
- *
- *  C3PD_REF -> SEAF B1 -> ADDR_DAC_U44 (VOUTC)
- *
- *  C3PD_RSTN -> SEAF G19 -> FMC/CMOS_OUT_7
- *  C3PD_PWRE -> SEAF H18 -> FMC/CMOS_OUT_6
- *  C3PD_TPS -> SEAF H17 -> FMC/CMOS_OUT_5
- *
- *  C3PD_AOUT -> SEAF D18 -> ADDR_ADC (CH1)
- *  C3PD_AIN -> SEAF A3 -> ADDR_DAC_U44 (VOUTA)
- *
- *  C3PD_HV -> SEAF A23 -> LEMO_RA J10
- *  C3PD_PIX0 -> (unconnected on CLICpix2 board)
- *  C3PD_PIX1 -> (unconnected on CLICpix2 board)
- *  C3PD_PIX2 -> (unconnected on CLICpix2 board)
- *  C3PD_PIX3 -> (unconnected on CLICpix2 board)
- */
+  /** C3PD Routing
+   *
+   *  C3PD_VDDD -> SEAF F1/F2 -> (ADDR_MONITOR_U52) -> ADDR_DAC_U50 (VOUTC)
+   *  C3PD_VDDA -> SEAF D5/D6 -> (ADDR_MONITOR_U56) -> ADDR_DAC_U50 (VOUTD)
+   *
+   *  C3PD_REF -> SEAF B1 -> ADDR_DAC_U44 (VOUTC)
+   *
+   *  C3PD_RSTN -> SEAF G19 -> FMC/CMOS_OUT_7
+   *  C3PD_PWRE -> SEAF H18 -> FMC/CMOS_OUT_6
+   *  C3PD_TPS -> SEAF H17 -> FMC/CMOS_OUT_5
+   *
+   *  C3PD_AOUT -> SEAF D18 -> ADDR_ADC (CH1)
+   *  C3PD_AIN -> SEAF A3 -> ADDR_DAC_U44 (VOUTA)
+   *
+   *  C3PD_HV -> SEAF A23 -> LEMO_RA J10
+   *  C3PD_PIX0 -> (unconnected on CLICpix2 board)
+   *  C3PD_PIX1 -> (unconnected on CLICpix2 board)
+   *  C3PD_PIX2 -> (unconnected on CLICpix2 board)
+   *  C3PD_PIX3 -> (unconnected on CLICpix2 board)
+   */
 
 #define C3PD_MEMORY                                                                                                         \
   {                                                                                                                         \

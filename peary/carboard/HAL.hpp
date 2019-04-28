@@ -7,7 +7,7 @@
 #include <tuple>
 #include <vector>
 
-#include "carboard.hpp"
+#include "Carboard.hpp"
 #include "utils/constants.hpp"
 #include "utils/exceptions.hpp"
 #include "utils/log.hpp"
@@ -255,6 +255,6 @@ namespace caribou {
 
 } // namespace caribou
 
-#include "hal.tcc"
+#include "HAL.tcc"
 
 #endif /* CARIBOU_HAL_H */

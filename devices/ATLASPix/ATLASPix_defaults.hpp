@@ -2,7 +2,7 @@
 #define DEVICE_ATLASPix_DEFAULTS_H
 
 #include "ATLASPix_clk_100-FMC_REF.h"
-#include "carboard/carboard.hpp"
+#include "carboard/Carboard.hpp"
 #include "utils/dictionary.hpp"
 
 namespace caribou {

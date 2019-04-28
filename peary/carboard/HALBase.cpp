@@ -1,7 +1,7 @@
 /**
  * Caribou base HAL class implementation
  */
-#include "hal.hpp"
+#include "HAL.hpp"
 
 namespace caribou {
 
