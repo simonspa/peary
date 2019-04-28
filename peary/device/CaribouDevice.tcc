@@ -7,11 +7,11 @@
 
 #include "CaribouDevice.hpp"
 #include "Device.hpp"
-#include "carboard.hpp"
-#include "constants.hpp"
-#include "dictionary.hpp"
-#include "hal.hpp"
-#include "log.hpp"
+#include "carboard/carboard.hpp"
+#include "carboard/hal.hpp"
+#include "utils/constants.hpp"
+#include "utils/dictionary.hpp"
+#include "utils/log.hpp"
 
 #include <string>
 

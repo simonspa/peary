@@ -3,8 +3,7 @@
  */
 
 #include "CCPDv5Device.hpp"
-#include "hal.hpp"
-#include "log.hpp"
+#include "utils/log.hpp"
 
 using namespace caribou;
 

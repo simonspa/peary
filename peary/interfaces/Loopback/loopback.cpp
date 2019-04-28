@@ -2,10 +2,10 @@
  * Caribou Loopback interface class implementation
  */
 
-#include "log.hpp"
-#include "utils.hpp"
+#include "loopback.hpp"
 
-#include "Loopback/loopback.hpp"
+#include "utils/log.hpp"
+#include "utils/utils.hpp"
 
 using namespace caribou;
 

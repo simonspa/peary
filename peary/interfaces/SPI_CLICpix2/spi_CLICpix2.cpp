@@ -12,9 +12,9 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-#include "SPI_CLICpix2/spi_CLICpix2.hpp"
-#include "log.hpp"
-#include "utils.hpp"
+#include "spi_CLICpix2.hpp"
+#include "utils/log.hpp"
+#include "utils/utils.hpp"
 
 using namespace caribou;
 

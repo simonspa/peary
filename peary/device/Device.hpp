@@ -5,10 +5,10 @@
 #ifndef CARIBOU_API_H
 #define CARIBOU_API_H
 
-#include "configuration.hpp"
-#include "constants.hpp"
-#include "datatypes.hpp"
-#include "dispatcher.hpp"
+#include "utils/configuration.hpp"
+#include "utils/constants.hpp"
+#include "utils/datatypes.hpp"
+#include "utils/dispatcher.hpp"
 
 #include <stdint.h>
 #include <string>
@@ -122,17 +122,17 @@ namespace caribou {
     virtual void configure() = 0;
 
     /**
-    * @brief Set register on the device
-    *
-    * The register is identified by its human-readable name using the register dictionary, its value is automatically casted
-    * to the register data type (e.g. 8-bit). The device has to provide a list of valid register names.
-    *
-    * @param name  Name of the register
-    * @param value Value to be programmed
-    * @throws ConfigInvalid if the register name is not valid
-    * @throws RegisterTypeMismatch if the register is not writable
-    * @throws CommunicationError if the device could not be contacted
-    */
+     * @brief Set register on the device
+     *
+     * The register is identified by its human-readable name using the register dictionary, its value is automatically casted
+     * to the register data type (e.g. 8-bit). The device has to provide a list of valid register names.
+     *
+     * @param name  Name of the register
+     * @param value Value to be programmed
+     * @throws ConfigInvalid if the register name is not valid
+     * @throws RegisterTypeMismatch if the register is not writable
+     * @throws CommunicationError if the device could not be contacted
+     */
     virtual void setRegister(std::string name, uint32_t value) = 0;
 
     /**

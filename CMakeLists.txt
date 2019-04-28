@@ -116,10 +116,7 @@ INCLUDE("cmake/clang-cpp-checks.cmake")
 ##################################
 
 # Include directories
-INCLUDE_DIRECTORIES(peary/utils
-  peary/device
-  peary/carboard
-  peary/interfaces)
+INCLUDE_DIRECTORIES(peary)
 
 # Make devices available:
 INCLUDE_DIRECTORIES(devices)

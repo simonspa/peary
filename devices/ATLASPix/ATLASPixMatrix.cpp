@@ -5,8 +5,8 @@
 #include <fstream>
 
 #include "ATLASPix_defaults.hpp"
-#include "log.hpp"
-#include "utils.hpp"
+#include "utils/log.hpp"
+#include "utils/utils.hpp"
 
 using namespace caribou;
 

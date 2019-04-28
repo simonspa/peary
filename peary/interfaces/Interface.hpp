@@ -6,9 +6,9 @@
 #include <utility>
 #include <vector>
 
-#include "exceptions.hpp"
-#include "log.hpp"
-#include "utils.hpp"
+#include "utils/exceptions.hpp"
+#include "utils/log.hpp"
+#include "utils/utils.hpp"
 
 namespace caribou {
 

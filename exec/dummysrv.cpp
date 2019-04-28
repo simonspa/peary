@@ -6,8 +6,9 @@
 #include <sstream>
 #include <sys/socket.h>
 #include <unistd.h>
-#include "exceptions.hpp"
-#include "log.hpp"
+
+#include "utils/exceptions.hpp"
+#include "utils/log.hpp"
 
 using namespace caribou;
 

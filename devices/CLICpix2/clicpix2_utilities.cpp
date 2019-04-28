@@ -1,6 +1,6 @@
 #include "clicpix2_utilities.hpp"
 #include <fstream>
-#include "log.hpp"
+#include "utils/log.hpp"
 
 using namespace caribou;
 

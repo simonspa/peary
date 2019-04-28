@@ -1,7 +1,7 @@
 #ifndef CARIBOU_HAL_SPI_CLICPIX2_H
 #define CARIBOU_HAL_SPI_CLICPIX2_H
 
-#include "SPI/spi.hpp"
+#include "interfaces/SPI/spi.hpp"
 
 namespace caribou {
 

@@ -5,10 +5,10 @@
 #include <sys/stat.h>
 #include <vector>
 
-#include "DeviceManager.hpp"
-#include "configuration.hpp"
-#include "exceptions.hpp"
-#include "log.hpp"
+#include "device/DeviceManager.hpp"
+#include "utils/configuration.hpp"
+#include "utils/exceptions.hpp"
+#include "utils/log.hpp"
 
 using namespace caribou;
 

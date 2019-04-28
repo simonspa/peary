@@ -1,8 +1,8 @@
 #ifndef DEVICE_CLICPIX2_DEFAULTS_H
 #define DEVICE_CLICPIX2_DEFAULTS_H
 
-#include "carboard.hpp"
-#include "dictionary.hpp"
+#include "carboard/carboard.hpp"
+#include "utils/dictionary.hpp"
 
 namespace caribou {
 

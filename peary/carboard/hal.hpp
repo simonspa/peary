@@ -8,13 +8,13 @@
 #include <vector>
 
 #include "carboard.hpp"
-#include "constants.hpp"
-#include "exceptions.hpp"
-#include "log.hpp"
-#include "utils.hpp"
+#include "utils/constants.hpp"
+#include "utils/exceptions.hpp"
+#include "utils/log.hpp"
+#include "utils/utils.hpp"
 
-#include "Interface.hpp"
-#include "InterfaceManager.hpp"
+#include "interfaces/Interface.hpp"
+#include "interfaces/InterfaceManager.hpp"
 
 #include "hal.hcc"
 #include "hal.tcc"

@@ -2,8 +2,8 @@
  * Caribou Memory interface class emulator
  */
 
-#include "log.hpp"
-#include "utils.hpp"
+#include "utils/log.hpp"
+#include "utils/utils.hpp"
 
 #include "memory.hpp"
 

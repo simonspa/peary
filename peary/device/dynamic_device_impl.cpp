@@ -15,7 +15,7 @@
 #include <utility>
 
 #include "Device.hpp"
-#include "configuration.hpp"
+#include "utils/configuration.hpp"
 
 #include PEARY_DEVICE_HEADER
 

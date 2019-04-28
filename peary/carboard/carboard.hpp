@@ -4,7 +4,7 @@
 #ifndef CARIBOU_CARBOARD_H
 #define CARIBOU_CARBOARD_H
 
-#include "datatypes.hpp"
+#include "utils/datatypes.hpp"
 
 #define ADDR_I2CSWTCH 0x74 // PCA9846PW I2C bus switch
 

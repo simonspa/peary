@@ -2,8 +2,8 @@
 #include <iostream>
 
 #include "ExampleCaribou/ExampleCaribouDevice.hpp"
-#include "configuration.hpp"
-#include "log.hpp"
+#include "utils/configuration.hpp"
+#include "utils/log.hpp"
 
 using namespace caribou;
 

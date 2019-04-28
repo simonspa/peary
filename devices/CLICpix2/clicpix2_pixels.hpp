@@ -4,8 +4,8 @@
 #define CLICPIX2_PIXELS_HPP
 
 #include <ostream>
-#include "datatypes.hpp"
-#include "exceptions.hpp"
+#include "utils/datatypes.hpp"
+#include "utils/exceptions.hpp"
 
 namespace caribou {
 

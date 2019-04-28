@@ -7,7 +7,7 @@
 #ifndef EXAMPLE_CARIBOU_DEVICE_H
 #define EXAMPLE_CARIBOU_DEVICE_H
 
-#include "Device.hpp"
+#include "device/Device.hpp"
 
 namespace caribou {
   /** Example caribou device class definition

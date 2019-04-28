@@ -7,11 +7,11 @@
 #include <tuple>
 #include <vector>
 
-#include "Interface.hpp"
-#include "InterfaceManager.hpp"
+#include "interfaces/Interface.hpp"
+#include "interfaces/InterfaceManager.hpp"
 
-#include "I2C/i2c.hpp"
-#include "Memory/memory.hpp"
+#include "interfaces/I2C/i2c.hpp"
+#include "interfaces/Memory/memory.hpp"
 
 namespace caribou {
 

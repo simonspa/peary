@@ -5,9 +5,9 @@
 
 #include "DeviceManager.hpp"
 #include "Device.hpp"
-#include "exceptions.hpp"
-#include "log.hpp"
-#include "utils.hpp"
+#include "utils/exceptions.hpp"
+#include "utils/log.hpp"
+#include "utils/utils.hpp"
 
 #include <algorithm>
 #include <dlfcn.h>

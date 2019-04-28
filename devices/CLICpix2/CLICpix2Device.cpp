@@ -4,16 +4,14 @@
 
 #include "CLICpix2Device.hpp"
 #include "clicpix2_utilities.hpp"
+#include "utils/log.hpp"
 
 #include <chrono>
 #include <fcntl.h>
 #include <fstream>
+#include <math.h>
 #include <sys/mman.h>
 #include <unistd.h>
-#include "hal.hpp"
-#include "log.hpp"
-
-#include <math.h>
 
 using namespace caribou;
 using namespace clicpix2_utils;

@@ -13,8 +13,8 @@
 #include <string>
 #include <thread>
 
-#include "CaribouDevice.hpp"
-#include "I2C/i2c.hpp"
+#include "device/CaribouDevice.hpp"
+#include "interfaces/I2C/i2c.hpp"
 
 #include "ATLASPixMatrix.hpp"
 #include "ATLASPix_defaults.hpp"

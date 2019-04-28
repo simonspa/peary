@@ -6,8 +6,8 @@
 #include "clicpix2_utilities.hpp"
 #include "framedecoder/clicpix2_frameDecoder.hpp"
 
-#include "exceptions.hpp"
-#include "log.hpp"
+#include "utils/exceptions.hpp"
+#include "utils/log.hpp"
 
 using namespace caribou;
 using namespace clicpix2_utils;

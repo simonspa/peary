@@ -7,14 +7,14 @@
 
 #include <string>
 #include <vector>
-#include "CaribouDevice.hpp"
-#include "SPI_CLICpix2/spi_CLICpix2.hpp"
+#include "device/CaribouDevice.hpp"
+#include "interfaces/SPI_CLICpix2/spi_CLICpix2.hpp"
+#include "utils/configuration.hpp"
 
 #include "clicpix2_defaults.hpp"
 #include "clicpix2_pixels.hpp"
 #include "clockgenerator/Si5345-RevB-CLICpix2-Registers.h"
 #include "clockgenerator/Si5345-RevB-CLICpix2-Registers_freeRunningMode.h"
-#include "configuration.hpp"
 #include "framedecoder/clicpix2_frameDecoder.hpp"
 
 namespace caribou {

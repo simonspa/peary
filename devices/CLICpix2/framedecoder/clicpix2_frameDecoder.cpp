@@ -1,10 +1,11 @@
 // Implementation of the CLICpix2 frame decoer
 
 #include "clicpix2_frameDecoder.hpp"
+#include "utils/exceptions.hpp"
+#include "utils/utils.hpp"
+
 #include <cmath>
 #include <iterator>
-#include "exceptions.hpp"
-#include "utils.hpp"
 
 using namespace caribou;
 

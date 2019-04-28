@@ -11,8 +11,8 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 
-#include "log.hpp"
-#include "utils.hpp"
+#include "utils/log.hpp"
+#include "utils/utils.hpp"
 
 #include "ipsocket.hpp"
 

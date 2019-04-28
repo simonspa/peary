@@ -5,8 +5,8 @@
 #ifndef DEVICE_C3PD_H
 #define DEVICE_C3PD_H
 
-#include "CaribouDevice.hpp"
-#include "I2C/i2c.hpp"
+#include "device/CaribouDevice.hpp"
+#include "interfaces/I2C/i2c.hpp"
 
 #include "c3pd_defaults.hpp"
 

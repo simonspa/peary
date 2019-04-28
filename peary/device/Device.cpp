@@ -1,6 +1,6 @@
 #include "Device.hpp"
 #include "config.h"
-#include "log.hpp"
+#include "utils/log.hpp"
 
 bool caribou::Device::managedDevice = false;
 

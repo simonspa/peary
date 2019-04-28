@@ -5,9 +5,8 @@
 #ifndef DEVICE_CCPDV5_H
 #define DEVICE_CCPDV5_H
 
-#include "CaribouDevice.hpp"
-#include "Device.hpp"
-#include "I2C/i2c.hpp"
+#include "device/CaribouDevice.hpp"
+#include "interfaces/I2C/i2c.hpp"
 
 namespace caribou {
 

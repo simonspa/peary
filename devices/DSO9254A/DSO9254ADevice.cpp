@@ -4,7 +4,7 @@
 
 #include "DSO9254ADevice.hpp"
 #include <string>
-#include "log.hpp"
+#include "utils/log.hpp"
 
 using namespace caribou;
 

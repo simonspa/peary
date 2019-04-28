@@ -9,10 +9,10 @@
 #include <sys/mman.h>
 #include <vector>
 
-#include "Interface.hpp"
-#include "InterfaceManager.hpp"
-#include "datatypes.hpp"
-#include "exceptions.hpp"
+#include "interfaces/Interface.hpp"
+#include "interfaces/InterfaceManager.hpp"
+#include "utils/datatypes.hpp"
+#include "utils/exceptions.hpp"
 
 namespace caribou {
 

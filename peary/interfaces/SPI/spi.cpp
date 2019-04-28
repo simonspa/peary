@@ -12,9 +12,9 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-#include "SPI/spi.hpp"
-#include "log.hpp"
-#include "utils.hpp"
+#include "spi.hpp"
+#include "utils/log.hpp"
+#include "utils/utils.hpp"
 
 using namespace caribou;
 

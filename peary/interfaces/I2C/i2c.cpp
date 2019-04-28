@@ -16,8 +16,8 @@
 #include <linux/i2c-dev.h>
 #endif
 
-#include "log.hpp"
-#include "utils.hpp"
+#include "utils/log.hpp"
+#include "utils/utils.hpp"
 
 #include "i2c.hpp"
 

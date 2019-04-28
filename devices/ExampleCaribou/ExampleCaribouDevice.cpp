@@ -2,7 +2,7 @@
  */
 
 #include "ExampleCaribouDevice.hpp"
-#include "log.hpp"
+#include "utils/log.hpp"
 
 using namespace caribou;
 

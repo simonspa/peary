@@ -1,9 +1,9 @@
 #include <fstream>
 #include "Console.hpp"
-#include "configuration.hpp"
-#include "log.hpp"
 #include "pearycli.hpp"
-#include "utils.hpp"
+#include "utils/configuration.hpp"
+#include "utils/log.hpp"
+#include "utils/utils.hpp"
 
 using namespace caribou;
 

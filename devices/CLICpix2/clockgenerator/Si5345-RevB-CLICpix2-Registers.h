@@ -20,7 +20,7 @@
 #ifndef SI5345_REVB_REG_CONFIG_HEADER
 #define SI5345_REVB_REG_CONFIG_HEADER
 
-#include "datatypes.hpp"
+#include "utils/datatypes.hpp"
 using namespace caribou;
 
 #define SI5345_REVB_REG_CONFIG_NUM_REGS 386

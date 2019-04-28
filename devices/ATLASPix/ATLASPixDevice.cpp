@@ -13,8 +13,7 @@
 #include <string>
 #include <thread>
 
-#include "hal.hpp"
-#include "log.hpp"
+#include "utils/log.hpp"
 
 using namespace caribou;
 

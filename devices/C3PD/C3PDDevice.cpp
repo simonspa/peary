@@ -3,8 +3,7 @@
  */
 
 #include "C3PDDevice.hpp"
-#include "hal.hpp"
-#include "log.hpp"
+#include "utils/log.hpp"
 
 #include <fstream>
 

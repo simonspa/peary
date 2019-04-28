@@ -5,8 +5,8 @@
 #include <cerrno>
 #include <cstring>
 
-#include "log.hpp"
-#include "utils.hpp"
+#include "utils/log.hpp"
+#include "utils/utils.hpp"
 
 #include "i2c.hpp"
 
