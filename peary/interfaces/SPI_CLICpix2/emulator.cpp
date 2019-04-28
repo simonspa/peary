@@ -6,9 +6,9 @@
 #include <cstring>
 #include <utility>
 
-#include "log.hpp"
 #include "spi_CLICpix2.hpp"
-#include "utils.hpp"
+#include "utils/log.hpp"
+#include "utils/utils.hpp"
 
 using namespace caribou;
 
