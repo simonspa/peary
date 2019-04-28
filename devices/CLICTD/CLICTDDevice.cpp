@@ -209,3 +209,43 @@ void CLICTDDevice::powerStatusLog() {
   LOG(INFO) << "\tBus current: " << this->getCurrent("sub") << "A";
   LOG(INFO) << "\tBus power  : " << this->getPower("sub") << "W";
 }
+
+pearydata CLICTDDevice::getData() {
+  pearydata decoded;
+
+  auto rawdata = getRawData();
+
+  bool frame_started = false;
+  uint8_t column = 0;
+  for(auto data : rawdata) {
+    // Check for header:
+    if((data << 8) & 0x3FFF) { // FIXME
+      if(data & 0xFF == 0xA8) {
+        LOG(DEBUG) << "Header: Frame start";
+        frame_started = true;
+      } else if(data & 0xFF == 0x94) {
+        LOG(DEBUG) << "Header: Frame end";
+        frame_started = false;
+      } else {
+        column = (data >> 2) & 0xF;
+        LOG(DEBUG) << "Header: Column " << column;
+      }
+
+      // No header but pixel data.
+    }
+    // FRAMESTART header, 22bit
+    // 0x3FFF-A8
+
+    // FRAMEEND header, 22bit
+    // 0x3FFF-94
+
+    // COLUMN header, 22bit
+    // 0x3FFF-?
+  }
+
+  return decoded;
+}
+
+std::vector<uint32_t> CLICTDDevice::getRawData() {
+  return std::vector<uint32_t>();
+}

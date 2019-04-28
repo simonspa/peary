@@ -48,6 +48,9 @@ namespace caribou {
     // Reset the chip
     void reset();
 
+    pearydata getData();
+    std::vector<uint32_t> getRawData();
+
     void setSpecialRegister(std::string name, uint32_t value);
     uint32_t getSpecialRegister(std::string name);
 
