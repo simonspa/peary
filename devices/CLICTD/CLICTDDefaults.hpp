@@ -34,10 +34,12 @@ namespace caribou {
     {"externaldacsel", register_t<>(0x02,0x1F)},		\
     {"oir", register_t<>(0x02, 0x80)},		\
     {"monitordacsel", register_t<>(0x03, 0x1F)},		\
-    {"matrixconfig", register_t<>(0x04)},		\
-    {"configctrl", register_t<>(0x05)},		\
-    {"configstage", register_t<>(0x05, 0x03)},		\
-    {"configsend", register_t<>(0x05, 0x10)},		\
+    {"matrixconfig", register_t<>(0x04, 0x1F)},		\
+    {"photoncnt", register_t<>(0x04, 0x10)},		\
+    {"nocompress", register_t<>(0x04, 0x08)},		\
+    {"longcnt", register_t<>(0x04, 0x04)},		\
+    {"totdiv", register_t<>(0x04, 0x03)},		\
+    {"configctrl", register_t<>(0x05, 0x13, false)},		\
     {"configdata_lsb", register_t<>(0x06)},		\
     {"configdata_msb", register_t<>(0x07)},		\
     {"configdata", register_t<>(0x06, 0xFF, false, true, true)},		\
