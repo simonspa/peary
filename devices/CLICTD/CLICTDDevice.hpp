@@ -51,6 +51,8 @@ namespace caribou {
     void setSpecialRegister(std::string name, uint32_t value);
     uint32_t getSpecialRegister(std::string name);
 
+    void configureMatrix(std::string filename);
+
   private:
     /**
      * Routine to program the pixel matrix

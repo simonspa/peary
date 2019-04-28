@@ -13,6 +13,7 @@ CLICTDDevice::CLICTDDevice(const caribou::Configuration config)
     : CaribouDevice(config, std::string(DEFAULT_DEVICEPATH), CLICTD_DEFAULT_I2C) {
 
   _dispatcher.add("powerStatusLog", &CLICTDDevice::powerStatusLog, this);
+  _dispatcher.add("configureMatrix", &CLICTDDevice::configureMatrix, this);
 
   // Set up periphery
   _periphery.add("vddd", PWR_OUT_2);
@@ -41,6 +42,31 @@ CLICTDDevice::~CLICTDDevice() {
   powerOff();
 }
 
+void CLICTDDevice::configureMatrix(std::string filename) {
+
+  if(!filename.empty()) {
+    LOG(DEBUG) << "Configuring the pixel matrix from file \"" << filename << "\"";
+    // pixelsConfig = readMatrix(filename);
+  }
+
+  // Retry programming matrix:
+  int retry = 0;
+  int retry_max = _config.Get<int>("retry_matrix_config", 3);
+  while(true) {
+    try {
+      programMatrix();
+      LOG(INFO) << "Verified matrix configuration.";
+      break;
+    } catch(caribou::DataException& e) {
+      LOG(ERROR) << e.what();
+      if(++retry == retry_max) {
+        throw CommunicationError("Matrix configuration failed");
+      }
+      LOG(INFO) << "Repeating configuration attempt";
+    }
+  }
+}
+
 void CLICTDDevice::programMatrix() {
   // Follow procedure described in chip manual, section 4.1 to configure the matrix:
   auto bitvalues = [&](size_t row, size_t bit) {
@@ -52,14 +78,17 @@ void CLICTDDevice::programMatrix() {
     return bits;
   };
 
+  LOG(INFO) << "Matrix configuration - Stage 1";
   // Write 0x01 to ’configCtrl’ register (start 1st configuration stage)
   this->setRegister("configctrl", 0x01);
   // For each of the pixels per column, do
   for(size_t row = 0; row < 128; row++) {
     // Read configuration bits for STAGE 1 one by one:
     for(size_t bit = 22; bit > 0; bit--) {
+      auto value = bitvalues(row, bit - 1);
       // Load ’configData’ register with bit 21 of the 1st configuration stage (1 bit per column)
-      this->setRegister("configdata", bitvalues(row, bit - 1));
+      this->setRegister("configdata", value);
+      LOG(DEBUG) << "Row " << row << ", bit " << (bit - 1) << ": " << to_bit_string(value);
       // Write 0x11 to ’configCtrl’ register to shift configuration in the matrix
       this->setRegister("configctrl", 0x11);
       // Write 0x01 to ’configCtrl’ register
@@ -71,14 +100,17 @@ void CLICTDDevice::programMatrix() {
 
   // Read back the applied configuration (optional)
 
+  LOG(INFO) << "Matrix configuration - Stage 2";
   // Write 0x02 to ’configCtrl’ register (start 2nd configuration stage)
   this->setRegister("configctrl", 0x02);
   // For each of the pixels per column, do
   for(size_t row = 0; row < 128; row++) {
     // Read configuration bits for STAGE 1 one by one:
     for(size_t bit = 43; bit > 21; bit--) {
+      auto value = bitvalues(row, bit);
       // Load ’configData’ register with bit 21 of the 2nd configuration stage (1 bit per column)
-      this->setRegister("configdata", bitvalues(row, bit));
+      this->setRegister("configdata", value);
+      LOG(DEBUG) << "Row " << row << ", bit " << (bit - 22) << ": " << to_bit_string(value);
       // Write 0x12 to ’configCtrl’ register to shift configuration in the matrix
       this->setRegister("configctrl", 0x12);
       // Write 0x02 to ’configCtrl’ register
