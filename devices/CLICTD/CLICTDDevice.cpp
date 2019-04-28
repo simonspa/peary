@@ -3,7 +3,6 @@
  */
 
 #include "CLICTDDevice.hpp"
-#include "CLICTDPixels.hpp"
 #include "utils/log.hpp"
 
 #include <fstream>
@@ -44,27 +43,29 @@ CLICTDDevice::~CLICTDDevice() {
 
 void CLICTDDevice::programMatrix() {
   // Follow procedure described in chip manual, section 4.1 to configure the matrix:
+  auto bitvalues = [&](size_t row, size_t bit) {
+    uint16_t bits = 0;
+    for(uint8_t column = 0; column < 16; column++) {
+      bool value = pixelConfiguration[std::make_pair(column, row)].GetBit(bit);
+      bits |= (value << column);
+    }
+    return bits;
+  };
 
   // Write 0x01 to ’configCtrl’ register (start 1st configuration stage)
   this->setRegister("configctrl", 0x01);
-
   // For each of the pixels per column, do
-  for(size_t pixel = 0; pixel < 128; pixel++) {
-    // Read configuration bits one by one:
+  for(size_t row = 0; row < 128; row++) {
+    // Read configuration bits for STAGE 1 one by one:
     for(size_t bit = 22; bit > 0; bit--) {
-
-      // Get the correct bit for each of the columns:
-      uint16_t bitvalues = 0;
-      // Load ’configData’ register with bit 21 of the 1st configuration stage for pixel 0 (1 bit per column)
-      this->setRegister("configdata", bitvalues);
-
+      // Load ’configData’ register with bit 21 of the 1st configuration stage (1 bit per column)
+      this->setRegister("configdata", bitvalues(row, bit - 1));
       // Write 0x11 to ’configCtrl’ register to shift configuration in the matrix
       this->setRegister("configctrl", 0x11);
       // Write 0x01 to ’configCtrl’ register
       this->setRegister("configctrl", 0x01);
     }
   }
-
   // Write 0x00 to ’configCtrl’ register
   this->setRegister("configctrl", 0x00);
 
@@ -72,15 +73,18 @@ void CLICTDDevice::programMatrix() {
 
   // Write 0x02 to ’configCtrl’ register (start 2nd configuration stage)
   this->setRegister("configctrl", 0x02);
-
-  // Load ’configData’ register with bit 21 of the 2nd configuration stage for pixel 0 (1 bit per column)
-  // Write 0x12 to ’configCtrl’ register to shift configuration in the matrix
-  this->setRegister("configctrl", 0x12);
-
-  // Write 0x02 to ’configCtrl’ register
-  this->setRegister("configctrl", 0x02);
-
-  // Move to the next configuration bit and repeat until matrix is loaded
+  // For each of the pixels per column, do
+  for(size_t row = 0; row < 128; row++) {
+    // Read configuration bits for STAGE 1 one by one:
+    for(size_t bit = 43; bit > 21; bit--) {
+      // Load ’configData’ register with bit 21 of the 2nd configuration stage (1 bit per column)
+      this->setRegister("configdata", bitvalues(row, bit));
+      // Write 0x12 to ’configCtrl’ register to shift configuration in the matrix
+      this->setRegister("configctrl", 0x12);
+      // Write 0x02 to ’configCtrl’ register
+      this->setRegister("configctrl", 0x02);
+    }
+  }
   // Write 0x00 to ’configCtrl’ register
   this->setRegister("configctrl", 0x00);
 

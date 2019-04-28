@@ -9,6 +9,7 @@
 #include "interfaces/I2C/i2c.hpp"
 
 #include "CLICTDDefaults.hpp"
+#include "CLICTDPixels.hpp"
 
 namespace caribou {
 
@@ -56,6 +57,10 @@ namespace caribou {
      * This routine produces a bit matrix (using STL vector<bool>) which can directly be sent to the ASIC
      */
     void programMatrix();
+
+    /* Map of pixelConfigs for configuration storage (column, row))
+     */
+    std::map<std::pair<uint8_t, uint8_t>, pixelConfig> pixelConfiguration{};
   };
 
 } // namespace caribou
