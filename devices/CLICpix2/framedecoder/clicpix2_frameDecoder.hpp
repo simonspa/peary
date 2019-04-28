@@ -79,9 +79,6 @@ namespace caribou {
     pearydata getZerosuppressedFrame();
 
     pixelReadout get(const unsigned int row, const unsigned int column) { return matrix[row][column]; };
-    static const uint16_t lfsr13_lut[8191];
-    static const uint8_t lfsr8_lut[255];
-    static const uint8_t lfsr5_lut[31];
 
     /** Overloaded ostream operator for simple printing of pixel data
      */
