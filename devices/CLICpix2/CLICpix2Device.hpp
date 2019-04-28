@@ -8,6 +8,8 @@
 #include <string>
 #include <vector>
 #include "CaribouDevice.hpp"
+#include "SPI_CLICpix2/spi_CLICpix2.hpp"
+
 #include "clicpix2_defaults.hpp"
 #include "clicpix2_pixels.hpp"
 #include "clockgenerator/Si5345-RevB-CLICpix2-Registers.h"

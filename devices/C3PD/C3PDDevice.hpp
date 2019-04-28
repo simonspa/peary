@@ -6,6 +6,8 @@
 #define DEVICE_C3PD_H
 
 #include "CaribouDevice.hpp"
+#include "I2C/i2c.hpp"
+
 #include "c3pd_defaults.hpp"
 
 namespace caribou {

@@ -12,6 +12,8 @@
 #include "Device.hpp"
 #include "constants.hpp"
 
+#include "IPSocket/ipsocket.hpp"
+
 #define DEFAULT_DEVICEPATH "127.0.0.1:5000"
 
 namespace caribou {

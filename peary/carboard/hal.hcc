@@ -11,10 +11,7 @@
 #include "InterfaceManager.hpp"
 
 #include "I2C/i2c.hpp"
-#include "IPSocket/ipsocket.hpp"
 #include "Memory/memory.hpp"
-#include "SPI/spi.hpp"
-#include "SPI_CLICpix2/spi_CLICpix2.hpp"
 
 namespace caribou {
 

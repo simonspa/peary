@@ -9,11 +9,6 @@
 #include "Interface.hpp"
 #include "InterfaceManager.hpp"
 
-#include "I2C/i2c.hpp"
-#include "IPSocket/ipsocket.hpp"
-#include "Memory/memory.hpp"
-#include "SPI/spi.hpp"
-
 #include "configuration.hpp"
 
 #include <string>
