@@ -1,11 +1,17 @@
-#ifndef CARIBOU_HAL_DEF
-#define CARIBOU_HAL_DEF
+#ifndef CARIBOU_HAL_H
+#define CARIBOU_HAL_H
 
 #include <cstdint>
 #include <map>
 #include <string>
 #include <tuple>
 #include <vector>
+
+#include "Carboard.hpp"
+#include "utils/constants.hpp"
+#include "utils/exceptions.hpp"
+#include "utils/log.hpp"
+#include "utils/utils.hpp"
 
 #include "interfaces/Interface.hpp"
 #include "interfaces/InterfaceManager.hpp"
@@ -249,4 +255,6 @@ namespace caribou {
 
 } // namespace caribou
 
-#endif /* CARIBOU_HAL_DEF */
+#include "HAL.tcc"
+
+#endif /* CARIBOU_HAL_H */

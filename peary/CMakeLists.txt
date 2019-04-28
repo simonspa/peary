@@ -18,7 +18,7 @@ SET(LIB_SOURCE_FILES
   "device/DeviceManager.cpp"
   "device/Device.cpp"
   # HAL base
-  "carboard/halbase.cpp"
+  "carboard/HALBase.cpp"
   # interface manager
   "interfaces/InterfaceManager.cpp"
   # utilities

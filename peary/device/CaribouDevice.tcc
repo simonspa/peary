@@ -5,10 +5,9 @@
 #ifndef CARIBOU_MIDDLEWARE_IMPL
 #define CARIBOU_MIDDLEWARE_IMPL
 
-#include "CaribouDevice.hpp"
 #include "Device.hpp"
-#include "carboard/carboard.hpp"
-#include "carboard/hal.hpp"
+#include "carboard/Carboard.hpp"
+#include "carboard/HAL.hpp"
 #include "utils/constants.hpp"
 #include "utils/dictionary.hpp"
 #include "utils/log.hpp"
