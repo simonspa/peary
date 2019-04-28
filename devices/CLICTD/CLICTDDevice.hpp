@@ -49,6 +49,13 @@ namespace caribou {
 
     void setSpecialRegister(std::string name, uint32_t value);
     uint32_t getSpecialRegister(std::string name);
+
+  private:
+    /**
+     * Routine to program the pixel matrix
+     * This routine produces a bit matrix (using STL vector<bool>) which can directly be sent to the ASIC
+     */
+    void programMatrix();
   };
 
 } // namespace caribou

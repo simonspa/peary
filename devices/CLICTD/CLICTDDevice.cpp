@@ -3,6 +3,7 @@
  */
 
 #include "CLICTDDevice.hpp"
+#include "CLICTDPixels.hpp"
 #include "utils/log.hpp"
 
 #include <fstream>
@@ -39,6 +40,53 @@ void CLICTDDevice::reset() {
 CLICTDDevice::~CLICTDDevice() {
   LOG(INFO) << "Shutdown, delete device.";
   powerOff();
+}
+
+void CLICTDDevice::programMatrix() {
+  // Follow procedure described in chip manual, section 4.1 to configure the matrix:
+
+  // Write 0x01 to ’configCtrl’ register (start 1st configuration stage)
+  this->setRegister("configctrl", 0x01);
+
+  // For each of the pixels per column, do
+  for(size_t pixel = 0; pixel < 128; pixel++) {
+    // Read configuration bits one by one:
+    for(size_t bit = 22; bit > 0; bit--) {
+
+      // Get the correct bit for each of the columns:
+      uint16_t bitvalues = 0;
+      // Load ’configData’ register with bit 21 of the 1st configuration stage for pixel 0 (1 bit per column)
+      this->setRegister("configdata", bitvalues);
+
+      // Write 0x11 to ’configCtrl’ register to shift configuration in the matrix
+      this->setRegister("configctrl", 0x11);
+      // Write 0x01 to ’configCtrl’ register
+      this->setRegister("configctrl", 0x01);
+    }
+  }
+
+  // Write 0x00 to ’configCtrl’ register
+  this->setRegister("configctrl", 0x00);
+
+  // Read back the applied configuration (optional)
+
+  // Write 0x02 to ’configCtrl’ register (start 2nd configuration stage)
+  this->setRegister("configctrl", 0x02);
+
+  // Load ’configData’ register with bit 21 of the 2nd configuration stage for pixel 0 (1 bit per column)
+  // Write 0x12 to ’configCtrl’ register to shift configuration in the matrix
+  this->setRegister("configctrl", 0x12);
+
+  // Write 0x02 to ’configCtrl’ register
+  this->setRegister("configctrl", 0x02);
+
+  // Move to the next configuration bit and repeat until matrix is loaded
+  // Write 0x00 to ’configCtrl’ register
+  this->setRegister("configctrl", 0x00);
+
+  // Read back the applied configuration (optional)
+
+  // Configuration is complete
 }
 
 void CLICTDDevice::setSpecialRegister(std::string name, uint32_t value) {
