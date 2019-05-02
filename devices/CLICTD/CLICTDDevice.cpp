@@ -71,10 +71,10 @@ void CLICTDDevice::configureMatrix(std::string filename) {
 
 void CLICTDDevice::programMatrix() {
   // Follow procedure described in chip manual, section 4.1 to configure the matrix:
-  auto bitvalues = [&](size_t row, size_t bit) {
+  auto bitvalues = [](matrixConfig config, size_t row, size_t bit) {
     uint16_t bits = 0;
     for(uint8_t column = 0; column < 16; column++) {
-      bool value = pixelConfiguration[std::make_pair(column, row)].GetBit(bit);
+      bool value = config[std::make_pair(column, row)].GetBit(bit);
       bits |= (value << column);
     }
     return bits;
@@ -87,7 +87,7 @@ void CLICTDDevice::programMatrix() {
   for(size_t row = 0; row < 128; row++) {
     // Read configuration bits for STAGE 1 one by one:
     for(size_t bit = 22; bit > 0; bit--) {
-      auto value = bitvalues(row, bit - 1);
+      auto value = bitvalues(pixelConfiguration, row, bit - 1);
       // Load ’configData’ register with bit 21 of the 1st configuration stage (1 bit per column)
       this->setRegister("configdata", value);
       LOG(DEBUG) << "Row " << row << ", bit " << (bit - 1) << ": " << to_bit_string(value);
@@ -109,7 +109,7 @@ void CLICTDDevice::programMatrix() {
   for(size_t row = 0; row < 128; row++) {
     // Read configuration bits for STAGE 1 one by one:
     for(size_t bit = 43; bit > 21; bit--) {
-      auto value = bitvalues(row, bit);
+      auto value = bitvalues(pixelConfiguration, row, bit);
       // Load ’configData’ register with bit 21 of the 2nd configuration stage (1 bit per column)
       this->setRegister("configdata", value);
       LOG(DEBUG) << "Row " << row << ", bit " << (bit - 22) << ": " << to_bit_string(value);

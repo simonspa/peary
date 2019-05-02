@@ -65,7 +65,8 @@ namespace caribou {
 
     /* Map of pixelConfigs for configuration storage (column, row))
      */
-    std::map<std::pair<uint8_t, uint8_t>, pixelConfig> pixelConfiguration{};
+    using matrixConfig = std::map<std::pair<uint8_t, uint8_t>, pixelConfig>;
+    matrixConfig pixelConfiguration{};
   };
 
 } // namespace caribou
