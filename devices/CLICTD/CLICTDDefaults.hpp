@@ -51,28 +51,28 @@ namespace caribou {
     {"tpulsectrl", register_t<>(0x0A, 0xFF, false, true, true)},		\
     {"vbiasresettransistor", register_t<>(0x10)},		\
     {"vreset", register_t<>(0x11)},		\
-    {"vbiaslevelshift", register_t<>(0x12)},		\
+    {"vbiaslevelshift", register_t<>(0x12, 0x3F)},		\
     {"vanalog1_lsb", register_t<>(0x13)},		\
     {"vanalog1_msb", register_t<>(0x14, 0x01)},		\
     {"vanalog1", register_t<>(0x13, 0xFF, true, true, true)},		\
     {"vanalog2", register_t<>(0x15)},		\
-    {"vbiaspreampn", register_t<>(0x16)},		\
+    {"vbiaspreampn", register_t<>(0x16, 0x3F)},		\
     {"vncasc", register_t<>(0x17)},		\
     {"vpcasc", register_t<>(0x18)},		\
     {"vfbk", register_t<>(0x19)},		\
-    {"vbiasikrum", register_t<>(0x1A)},		\
-    {"vbiasdiscn", register_t<>(0x1B)},		\
-    {"vbiasdiscp", register_t<>(0x1C)},		\
-    {"vbiasdac", register_t<>(0x1D)},		\
+    {"vbiasikrum", register_t<>(0x1A, 0x3F)},		\
+    {"vbiasdiscn", register_t<>(0x1B, 0x3F)},		\
+    {"vbiasdiscp", register_t<>(0x1C, 0x3F)},		\
+    {"vbiasdac", register_t<>(0x1D, 0x3F)},		\
     {"vthreshold_lsb", register_t<>(0x1E)},		\
     {"vthreshold_msb", register_t<>(0x1F, 0x01)},		\
     {"vthreshold", register_t<>(0x1E, 0xFF, true, true, true)},		\
     {"vncasccomp", register_t<>(0x20)},		\
-    {"vbiaslevelshiftstby", register_t<>(0x21)},		\
-    {"vbiaspreampnstby", register_t<>(0x22)},		\
-    {"vbiasdiscnstby", register_t<>(0x23)},		\
-    {"vbiasdiscpstby", register_t<>(0x24)},		\
-    {"vbiasdacstby", register_t<>(0x25)},		\
+    {"vbiaslevelshiftstby", register_t<>(0x21, 0x3F)},		\
+    {"vbiaspreampnstby", register_t<>(0x22, 0x3F)},		\
+    {"vbiasdiscnstby", register_t<>(0x23, 0x3F)},		\
+    {"vbiasdiscpstby", register_t<>(0x24, 0x3F)},		\
+    {"vbiasdacstby", register_t<>(0x25, 0x3F)},		\
     {"vbiasslowbuffer", register_t<>(0x26)},		\
     {"adjustdacrange", register_t<>(0x27)},		\
     {"vlvdsd", register_t<>(0x28, 0x0F)},		\
