@@ -67,6 +67,8 @@ namespace caribou {
      */
     using matrixConfig = std::map<std::pair<uint8_t, uint8_t>, pixelConfig>;
     matrixConfig pixelConfiguration{};
+
+    matrixConfig readMatrix(std::string filename) const;
   };
 
 } // namespace caribou

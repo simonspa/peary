@@ -44,11 +44,57 @@ CLICTDDevice::~CLICTDDevice() {
   powerOff();
 }
 
+CLICTDDevice::matrixConfig CLICTDDevice::readMatrix(std::string filename) const {
+
+  matrixConfig pixelsConfig;
+  size_t masked = 0;
+  LOG(DEBUG) << "Reading pixel matrix file.";
+  std::ifstream pxfile(filename);
+  if(!pxfile.is_open()) {
+    throw ConfigInvalid("Could not open matrix file \"" + filename + "\"");
+  }
+
+  std::string line = "";
+  while(std::getline(pxfile, line)) {
+    if(!line.length() || '#' == line.at(0))
+      continue;
+    std::istringstream pxline(line);
+    int column, row, mask, tp_dig, tp_ana0, tp_ana1, tp_ana2, tp_ana3, tp_ana4, tp_ana5, tp_ana6, tp_ana7;
+    int threshold0, threshold1, threshold2, threshold3, threshold4, threshold5, threshold6, threshold7;
+    if(pxline >> column >> row >> mask >> tp_dig >> tp_ana0 >> tp_ana1 >> tp_ana2 >> tp_ana3 >> tp_ana4 >> tp_ana5 >>
+       tp_ana6 >> tp_ana7 >> threshold0 >> threshold1 >> threshold2 >> threshold3 >> threshold4 >> threshold5 >>
+       threshold6 >> threshold7) {
+
+      // Prepare analog testpulse bits:
+      uint8_t tp_analog = ((tp_ana7 & 0x1) << 7) | ((tp_ana6 & 0x1) << 6) | ((tp_ana5 & 0x1) << 5) | ((tp_ana4 & 0x1) << 4) |
+                          ((tp_ana3 & 0x1) << 3) | ((tp_ana2 & 0x1) << 2) | ((tp_ana1 & 0x1) << 1) | (tp_ana0 & 0x1);
+
+      // Prepare thresholds:
+      std::vector<uint8_t> thresholds;
+      thresholds.push_back(threshold0);
+      thresholds.push_back(threshold1);
+      thresholds.push_back(threshold2);
+      thresholds.push_back(threshold3);
+      thresholds.push_back(threshold4);
+      thresholds.push_back(threshold5);
+      thresholds.push_back(threshold6);
+      thresholds.push_back(threshold7);
+
+      pixelConfig px(mask, tp_dig, tp_analog, thresholds);
+      pixelsConfig[std::make_pair(column, row)] = px;
+      if(mask)
+        masked++;
+    }
+  }
+  LOG(INFO) << pixelsConfig.size() << " pixel configurations cached, " << masked << " of which are masked";
+  return pixelsConfig;
+}
+
 void CLICTDDevice::configureMatrix(std::string filename) {
 
   if(!filename.empty()) {
     LOG(DEBUG) << "Configuring the pixel matrix from file \"" << filename << "\"";
-    // pixelsConfig = readMatrix(filename);
+    pixelConfiguration = readMatrix(filename);
   }
 
   // Retry programming matrix:
