@@ -222,10 +222,10 @@ pearydata CLICTDDevice::getData() {
   for(auto data : rawdata) {
     // Check for header:
     if((data << 8) & 0x3FFF) { // FIXME
-      if(data & 0xFF == 0xA8) {
+      if((data & 0xFF) == 0xA8) {
         LOG(DEBUG) << "Header: Frame start";
         frame_started = true;
-      } else if(data & 0xFF == 0x94) {
+      } else if((data & 0xFF) == 0x94) {
         LOG(DEBUG) << "Header: Frame end";
         frame_started = false;
       } else {
