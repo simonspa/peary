@@ -21,6 +21,8 @@ CLICTDDevice::CLICTDDevice(const caribou::Configuration config)
   _periphery.add("pwell", PWR_OUT_8);
   _periphery.add("sub", PWR_OUT_3);
 
+  _periphery.add("analog_out", VOL_IN_1);
+
   // Add the register definitions to the dictionary for convenient lookup of names:
   _registers.add(CLICTD_REGISTERS);
 }
