@@ -14,7 +14,7 @@ namespace caribou {
   // a 14bit register.
   //
   // The individual values are set via the member functions of a specialized classes
-  class clicpix2_pixel : public virtual pixel {
+  class clicpix2_pixel : public pixel {
   public:
     virtual ~clicpix2_pixel(){};
 
@@ -59,7 +59,7 @@ namespace caribou {
    * a 14bit register. The individual values are set via the member functions
    * and can be retrieved bitwise for convenience.
    */
-  class pixelConfig : public virtual clicpix2_pixel {
+  class pixelConfig : public clicpix2_pixel {
   public:
     /* Default constructor
      *
@@ -129,7 +129,7 @@ namespace caribou {
 
   // CLICpix2 pixel readout class
   // The individual values are set via the member functions
-  class pixelReadout : public virtual clicpix2_pixel {
+  class pixelReadout : public clicpix2_pixel {
   public:
     // Default constructor
     // Disables the pixel
