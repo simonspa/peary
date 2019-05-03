@@ -10,7 +10,7 @@
  * Design ID:                                          CLICpix2
  * Includes Pre/Post Download Control Register Writes: Yes
  * Created By:                                         ClockBuilder Pro v2.32 [2019-04-10]
- * Timestamp:                                          2019-05-03 15:17:37 GMT+02:00
+ * Timestamp:                                          2019-05-03 15:51:19 GMT+02:00
  *
  * A complete design report corresponding to this export is included at the end
  * of this header file.
@@ -20,13 +20,10 @@
 #ifndef SI5345_REVB_REG_CONFIG_HEADER
 #define SI5345_REVB_REG_CONFIG_HEADER
 
+#include "utils/datatypes.hpp"
+using namespace caribou;
+
 #define SI5345_REVB_REG_CONFIG_NUM_REGS 386
-
-typedef struct {
-  unsigned int address; /* 16-bit register address */
-  unsigned char value;  /* 8-bit register data */
-
-} si5345_revb_register_t;
 
 si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_REGS] = {
 
@@ -441,7 +438,7 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
  * Project File: D:\cernbox\Projects\caribou\peary\devices\CLICpix2\clockgenerator\Si5345-RevB-CLICpix2-Project.slabtimeproj
  * Design ID:          CLICpix2
  * Created By:         ClockBuilder Pro v2.32 [2019-04-10]
- * Timestamp:          2019-05-03 15:17:37 GMT+02:00
+ * Timestamp:          2019-05-03 15:51:19 GMT+02:00
  *
  * Design Rule Check
  * =================
@@ -618,28 +615,28 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
  *
  * Revision: B
  * VDD:      1.8 V
- * Ta:       25 °C
- * Theta-JA: 18.3 °C/W
- * Airflow:  2 m/s
+ * Ta:       70 °C
+ * Theta-JA: 22.0 °C/W
+ * Airflow:  0 m/s
  *
- * Total Power: 828 mW, On Chip Power: 798 mW, Tj: 40 °C
+ * Total Power: 875 mW, On Chip Power: 844 mW, Tj: 89 °C
  *
  *         Frequency  Format   Voltage   Current     Power
  *         ---------  ------  --------  --------  --------
- * VDD                           1.8 V  136.2 mA    245 mW
- * VDDA                          3.3 V  116.8 mA    385 mW
+ * VDD                           1.8 V  154.0 mA    277 mW
+ * VDDA                          3.3 V  120.3 mA    397 mW
  * VDDO0      Unused
  * VDDO1      Unused
- * VDDO2     100 MHz  LVDS       2.5 V   15.5 mA     39 mW
+ * VDDO2     100 MHz  LVDS       2.5 V   15.7 mA     39 mW
  * VDDO3      Unused
- * VDDO4     320 MHz  LVDS       2.5 V   16.4 mA     41 mW
+ * VDDO4     320 MHz  LVDS       2.5 V   16.7 mA     42 mW
  * VDDO5      Unused
- * VDDO6     320 MHz  LVDS       2.5 V   16.4 mA     41 mW
+ * VDDO6     320 MHz  LVDS       2.5 V   16.7 mA     42 mW
  * VDDO7      Unused
- * VDDO8     100 MHz  LVDS       2.5 V   15.5 mA     39 mW
- * VDDO9      40 MHz  LVDS       2.5 V   15.2 mA     38 mW
+ * VDDO8     100 MHz  LVDS       2.5 V   15.7 mA     39 mW
+ * VDDO9      40 MHz  LVDS       2.5 V   15.5 mA     39 mW
  *                                      --------  --------
- *                               Total  332.0 mA    828 mW
+ *                               Total  354.6 mA    875 mW
  *
  * Note:
  *
