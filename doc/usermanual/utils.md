@@ -16,7 +16,7 @@
 
 ### General Considerations
 
-* The first effort should go into designing the caribouDevice API with  as much detail as possible. This allows to work independently on the  user-code and the library without the need for reworking code in case of internal design changes.
+* The first effort should go into designing the Device API with  as much detail as possible. This allows to work independently on the  user-code and the library without the need for reworking code in case of internal design changes.
 
 * After the definition of the IP core interfaces for the communication protocols, the HAL elements should be implemented.
 
