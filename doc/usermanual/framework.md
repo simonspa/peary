@@ -99,6 +99,40 @@ void MyDevice::setSpecialRegister(std::string name, uint32_t value) {
 }
 ```
 
+#### Access to FPGA Memory
+
+Registers in the FPGA firmware are accessed via the AXI interface provided by the system.
+In order to ease the access and to avoid having to deal with raw pointer arithmetics, this access is implemented as an independent hardware interface for memory access. Similar to the periphery components, devices can register memory pages in a memory access dictionary in order to read and write values from and to the FPGA registers.
+
+```cpp
+#define MY_MEMORY                     \
+{                                     \
+    {"readout",                       \
+     memory_map(READOUT_BASE_ADDRESS, \
+                READOUT_OFFSET,       \
+                READOUT_MAP_SIZE,     \
+                READOUT_MAP_MASK,     \
+                PROT_READ)}           \
+}
+
+// Add memory pages to the dictionary:
+_memory.add(MY_MEMORY);
+```
+
+A detailed description of the structure of the `memory_map` data type can be found in the [Utilities section](utils.md#memory-maps). After registering the memory pages, they can be accessed using member functions of the Caribou device class as follows:
+
+```cpp
+// Retrieving a value from the memory page named "frame_size"
+unsigned int frameSize = getMemory("frame_size");
+
+// Writing into a memory page called "control":
+setMemory("control", 0x12);
+
+// Writing into a memory page called "events" at different offsets:
+for(size_t reg = 0; reg < patterns.size(); reg++) {
+  setMemory("events", (reg << 2), patterns.at(reg));
+}
+```
 
 ### Auxiliary Devices
 
@@ -124,13 +158,17 @@ By default, these lock files are placed in the system lock directory at `/var/lo
 
 Two lock files distinguish whether an individual device is currently running and blocking the execution of further devices (`pearydev.lock`) or whether a device manager is already running (`pearydevmgr.lock`).
 
-## Car Board Hardware Abstraction Layer
+## CaR Board Hardware Abstraction Layer
 
 ## Hardware Interfaces
 
 ### Interface Manager
 
 ### Interface Emulators
+
+### Interfaces
+
+#### Memory
 
 #### I2C
 

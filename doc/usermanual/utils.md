@@ -38,6 +38,8 @@ where the second parameter is a default value used in case the key is not presen
 
 ## Device Registers
 
+## Memory Maps
+
 ## Dictionaries
 
 ## Logging

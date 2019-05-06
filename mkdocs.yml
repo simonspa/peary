@@ -11,7 +11,7 @@ markdown_extensions:
     - toc:
         permalink: True
 
-pages:
+nav:
     - Introduction: index.md
     - Executables: exec.md
     - Framework: framework.md
