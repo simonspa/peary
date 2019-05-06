@@ -1,6 +1,6 @@
 # The Framework
 
-This section describes the basic structore of the PEary Caribou DAQ framework.
+This section describes the basic structure of the Peary Caribou DAQ framework.
 
 ## Structure of the Source Tree
 
@@ -15,7 +15,7 @@ The code of the framework is structured in the following folders:
 
 ## Caribou Device API
 
-The central device API for every device is defined in `peary/device/Device.hpp`. The API calls exposed there can be called from any exectuable built for Peary. In general, the framework distinguished between two different types of devices:
+The central device API for every device is defined in `peary/device/Device.hpp`. The API calls exposed there can be called from any exectuable built for Peary. In general, the framework distinguished between two different types of devices, Caribou devices and Auxiliary devices, which will be detailed in the following sections.
 
 ### Caribou Devices
 
@@ -47,7 +47,58 @@ The names and pin-outs of the respective components can be found in the CaR boar
 #### Device registers
 
 In order to simplify programming of devices, Peary implements a register dictionary which allows devices to list their registers with name, address, width.
-More information
+More information on the possible configurations of individual registers in the dictionary can be found in the respective paragraph of the [Utilities chapter](utils.md#device-registers).
+
+##### Adding registers to the dictionary
+
+Registers can be added to the dictionary via its `add()` member function, e.g.
+
+```cpp
+register_t<> my_register(0x0A)
+_registers.add("threshold", my_register);
+```
+
+However, it is customary to define all available registers together in a C++ initializer list and adding them to the dictionary together, i.e.
+
+```cpp
+#define MY_REGISTERS	               \
+{									   \
+    {"reset",     register_t<>(0x02)}, \
+    {"threshold", register_t<>(0x04)}  \
+}
+
+_registers.add(MY_REGISTERS);
+```
+in the constructor of the device.
+
+The device class then provides a set of functions to the device to easily set and retrieve register values:
+
+* `setRegister(name, value)` looks up the respective register address from the dictionary, ensures that the register is marked as writable, shifts the value to the correct position if a mask is specified, and writes to the configured address via the standard device interface. If the given register only occupies part of a larger register (i.e. only a single bit from a an 8-bit register), the other bits are preserved by first reading the register, altering the respective bit, and writing the full new value to the device register.
+* `getRegister(name)` looks up the register address from the dictionary, ensures that the respective register is readable, retrieves the value from the device and possibly shifts it back from its internal position. This way, a single bit set in a register with an offset of e.g. 4 bits can still be set and read as 0 and 1 without the necessity to manually shift it to the correct position.
+* `getRegisters()` goes through all registers known to the device, for each register it checks whether it is readable, retrieves the value from the device amd returns a vector with the respective names and values to the caller.
+* `listRegisters()` simply returns a vector of all registers known to this device. This can be used e.g. to automate things in command line scripts.
+
+##### Special registers
+
+Some registers behave in a special way. In order to accommodate for them, they can be marked as "special registers".
+Devices can overload the `setSepcialRegister` and `getSpecialRegister` functions in order to treat them according to their needs.
+If such a register is encountered by the `setRegister` or `getRegister` functions described above, the respective overloaded device member is called with the name and the value provided through the interface.
+
+This functionality allows to e.g. treat two 8-bit registers as a linear 16-bit register without the need to alter the device API - all calls are correctly routed through the respective common register functions, while the device itself can internally take the value and split it for the two separate registers manually:
+
+```cpp
+void MyDevice::setSpecialRegister(std::string name, uint32_t value) {
+  if(name == "threshold") {
+    // 9-bit register, just linearly add:
+    uint8_t lsb = value & 0x00FF;
+    uint8_t msb = (value >> 8) & 0x01;
+    // Set the two values:
+    this->setRegister(name + "_msb", msb);
+    this->setRegister(name + "_lsb", lsb);
+  }
+}
+```
+
 
 ### Auxiliary Devices
 

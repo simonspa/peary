@@ -36,6 +36,8 @@ where the second parameter is a default value used in case the key is not presen
 
 ## Data Types
 
+## Device Registers
+
 ## Dictionaries
 
 ## Logging
