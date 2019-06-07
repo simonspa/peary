@@ -143,6 +143,7 @@ deploy-documentation:
     only:
         - tags
         - mkdocs
+        - master
     dependencies:
         - cmp:usermanual
     # Docker image with tools to deploy to EOS
