@@ -2,32 +2,54 @@
 # CMake file for the peary caribou DAQ
 CMAKE_MINIMUM_REQUIRED(VERSION 3.0 FATAL_ERROR)
 IF(COMMAND CMAKE_POLICY)
-  CMAKE_POLICY(SET CMP0003 NEW)
+  CMAKE_POLICY(SET CMP0003 NEW) # change linker path search behaviour
+  CMAKE_POLICY(SET CMP0048 NEW) # set project version
 ENDIF(COMMAND CMAKE_POLICY)
 ########################################################
 
-# Project name
-PROJECT(peary)
+# Set default version
+SET(PEARY_VERSION "v0.9.2")
 
-# lock dir option must be available globally
-set(PEARY_LOCK_DIR "/var/lock" CACHE PATH "Path to lockfile directory")
+# Set default build type
+IF(NOT CMAKE_BUILD_TYPE)
+  SET(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." FORCE)
+ENDIF(NOT CMAKE_BUILD_TYPE)
 
-# Include peary cmake functions
-INCLUDE("cmake/peary.cmake")
+# Overwrite with the version from git if found
+INCLUDE("cmake/tools.cmake")
+GET_VERSION(PEARY_VERSION)
+
+# Print version
+MESSAGE(STATUS "Building Peary version ${PEARY_VERSION}.")
+MESSAGE(STATUS "Building \"${CMAKE_BUILD_TYPE}\"")
+
+# Gather information about build time:
+STRING(TIMESTAMP BUILD_TIME "%Y-%m-%d, %H:%M:%S UTC" UTC)
+
+# Define the project with the simple version
+STRING(REGEX MATCH "([0-9.]+)+" SIMPLE_VERSION "${PEARY_VERSION}")
+# Set languages to NONE to allow the documentation to be built without CXX compiler:
+PROJECT(peary VERSION ${SIMPLE_VERSION} LANGUAGES CXX)
+# Access the project name (for install locations) in the source
+ADD_DEFINITIONS(-DPEARY_PROJECT_NAME="${CMAKE_PROJECT_NAME}" -DPEARY_PROJECT_VERSION="${PEARY_VERSION}" -DPEARY_BUILD_TIME="${BUILD_TIME}")
+
+# Include a generated configuration file
+# FIXME: this should be combined with the ADD_DEFINITIONS
+CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/cmake/config.cmake.h" "${CMAKE_CURRENT_BINARY_DIR}/config.h" @ONLY)
+INCLUDE_DIRECTORIES("${CMAKE_CURRENT_BINARY_DIR}")
 
 ###############################
 # Setup the build environment #
 ###############################
 
+# lock dir option must be available globally
+SET(PEARY_LOCK_DIR "/var/lock" CACHE PATH "Path to lockfile directory")
+
+# Include peary cmake functions
+INCLUDE("cmake/peary.cmake")
+
 # Additional packages to be searched for by cmake
 LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
-
-# Set the correct build type and allow command line options:
-# Set a default build type if none was specified
-IF(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-  MESSAGE(STATUS "Setting build type to 'RelWithDebInfo' as none was specified.")
-  SET(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING "Choose the type of build." FORCE)
-ENDIF()
 
 # Configure the installation prefix to allow system-wide installation
 SET(INSTALL_PREFIX "${PROJECT_SOURCE_DIR}" CACHE PATH "Prefix prepended to install directories")
@@ -38,66 +60,26 @@ SET(CMAKE_MACOSX_RPATH 1)
 SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
 SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-# Add the automatically determined parts of the RPATH which point to directories outside
-# the build tree to the install RPATH
+
+# Add the automatically determined parts of the RPATH which point to directories outside the build tree to the install RPATH
 SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
 # the RPATH to be used when installing, but only if it's not a system directory
 LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
 IF("${isSystemDir}" STREQUAL "-1")
    SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 ENDIF("${isSystemDir}" STREQUAL "-1")
 
+
+#################################
+# Define build flags for peary  #
+#################################
+
 ADD_DEFINITIONS(-std=c++14)
 INCLUDE(cmake/Platform.cmake)
 
 SET(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 FIND_PACKAGE(Threads REQUIRED)
-
-########################################
-# Figure out the current peary version #
-########################################
-
-# Check if this is a source tarball build
-IF(NOT IS_DIRECTORY ${CMAKE_SOURCE_DIR}/.git)
-  SET(SOURCE_PACKAGE 1)
-ENDIF(NOT IS_DIRECTORY ${CMAKE_SOURCE_DIR}/.git)
-
-# Set package version
-IF(NOT SOURCE_PACKAGE)
-  # Get the version from last git tag plus number of additional commits:
-  FIND_PACKAGE(Git QUIET)
-
-  # Workaround for broken git detection on Yocto Poky
-  IF(NOT GIT_FOUND)
-    set(GIT_EXECUTABLE "/usr/bin/git")
-    set(GIT_FOUND true)
-    MESSAGE("-- Path of git executable forced to /usr/bin/git.")
-  ENDIF(NOT GIT_FOUND)
-
-  IF(GIT_FOUND)
-    EXEC_PROGRAM(git ${CMAKE_CURRENT_SOURCE_DIR} ARGS describe --tags HEAD OUTPUT_VARIABLE PEARY_LIB_VERSION)
-    STRING(REGEX REPLACE "^release-" "" PEARY_LIB_VERSION ${PEARY_LIB_VERSION})
-    STRING(REGEX REPLACE "([v0-9.]+)-([0-9]+)-([A-Za-z0-9]+)" "\\1+\\2~\\3" PEARY_LIB_VERSION ${PEARY_LIB_VERSION})
-    EXEC_PROGRAM(git ARGS status --porcelain ${CMAKE_CURRENT_SOURCE_DIR}/core OUTPUT_VARIABLE PEARY_CORE_STATUS)
-    IF(PEARY_CORE_STATUS STREQUAL "")
-      MESSAGE("-- Git: corelib directory is clean.")
-    ELSE(PEARY_CORE_STATUS STREQUAL "")
-      MESSAGE("-- Git: corelib directory is dirty:\n ${PEARY_CORE_STATUS}.")
-    ENDIF(PEARY_CORE_STATUS STREQUAL "")
-  ELSE(GIT_FOUND)
-    SET(PEARY_LIB_VERSION ${PEARY_VERSION})
-    MESSAGE("-- Git repository present, but could not find git executable.")
-  ENDIF(GIT_FOUND)
-ELSE(NOT SOURCE_PACKAGE)
-  # If we don't have git we take the hard-set version.
-  SET(PEARY_LIB_VERSION ${PEARY_VERSION})
-  MESSAGE("-- Source tarball build - no repository present.")
-ENDIF(NOT SOURCE_PACKAGE)
-MESSAGE("-- Determined pxar corelib API version ${PEARY_LIB_VERSION}.")
-
-CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/cmake/config.cmake.h" "${CMAKE_CURRENT_BINARY_DIR}/config.h" @ONLY)
-INCLUDE_DIRECTORIES("${CMAKE_CURRENT_BINARY_DIR}")
-
 
 ###################################
 # Load cpp format and check tools #
