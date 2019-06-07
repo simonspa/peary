@@ -53,7 +53,18 @@ int main(int argc, char* argv[]) {
       std::cout << "-v verbosity   verbosity level, default INFO" << std::endl;
       std::cout << "-c configfile  configuration file to be used" << std::endl;
       std::cout << "-l logfile     log file to write all console output to" << std::endl;
-      std::cout << "All other arguments are interpreted as devices to be instanciated." << std::endl;
+      std::cout << "All other arguments are interpreted as devices to be instantiated." << std::endl;
+      clean();
+      return 0;
+    } else if(strcmp(argv[i], "--version") == 0) {
+      std::cout << "Peary version " << PEARY_PROJECT_VERSION << std::endl;
+      std::cout << "               built on " << PEARY_BUILD_TIME << std::endl;
+      std::cout << std::endl;
+      std::cout << "Copyright (c) 2017-2018 CERN and the Caribou authors." << std::endl << std::endl;
+      std::cout << "This software is distributed under the terms of the GNU Lesser General Public License." << std::endl;
+      std::cout << "In applying this license, CERN does not waive the privileges and immunities" << std::endl;
+      std::cout << "granted to it by virtue of its status as an Intergovernmental Organization" << std::endl;
+      std::cout << "or submit itself to any jurisdiction." << std::endl;
       clean();
       return 0;
     } else if(!strcmp(argv[i], "-v")) {
