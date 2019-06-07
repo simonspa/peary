@@ -15,7 +15,11 @@ PEARY_DEVICE_INSTALL(${DEVICE_NAME})
 
 ADD_EXECUTABLE(atlaspix_rawdecoder atlaspix_decoder.cpp)
 
-INSTALL(TARGETS atlaspix_rawdecoder
+# Server for ATLASPix
+ADD_EXECUTABLE(ATLASPixServer "ATLASPixServer.cpp")
+TARGET_LINK_LIBRARIES(ATLASPixServer ${PROJECT_NAME})
+
+INSTALL(TARGETS atlaspix_rawdecoder ATLASPixServer
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib)
