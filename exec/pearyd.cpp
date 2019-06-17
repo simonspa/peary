@@ -285,12 +285,36 @@ bool check_num_args(const std::vector<std::string>& args, size_t expected, Reply
 
 void do_device_list_registers(Device& device, ReplyBuffer& reply) {
   reply.payload.clear();
-  for(const auto& reg : device.getRegisters()) {
+  for(const auto& reg : device.listRegisters()) {
     if(!reply.payload.empty()) {
       reply.payload.push_back('\n');
     }
-    // only return the register names
-    reply.payload.append(reg.first);
+    // Return the register name
+    reply.payload.append(reg);
+  }
+  reply.set_success();
+}
+
+void do_device_list_commands(Device& device, ReplyBuffer& reply) {
+  reply.payload.clear();
+  for(const auto& cmd : device.listCommands()) {
+    if(!reply.payload.empty()) {
+      reply.payload.push_back('\n');
+    }
+    // Return the command names only
+    reply.payload.append(cmd.first);
+  }
+  reply.set_success();
+}
+
+void do_device_list_components(Device& device, ReplyBuffer& reply) {
+  reply.payload.clear();
+  for(const auto& cmp : device.listComponents()) {
+    if(!reply.payload.empty()) {
+      reply.payload.push_back('\n');
+    }
+    // Return the command
+    reply.payload.append(cmp.first);
   }
   reply.set_success();
 }
@@ -300,6 +324,18 @@ void do_device_get_register(Device& device, const std::vector<std::string>& args
     reply.payload = std::to_string(device.getRegister(args[0]));
     reply.set_success();
   }
+}
+
+void do_device_get_registers(Device& device, ReplyBuffer& reply) {
+  reply.payload.clear();
+  for(const auto& reg : device.getRegisters()) {
+    if(!reply.payload.empty()) {
+      reply.payload.push_back('\n');
+    }
+    // Return the register and value
+    reply.payload.append(reg.first + ": " + std::to_string(reg.second));
+  }
+  reply.set_success();
 }
 
 void do_device_set_register(Device& device, const std::vector<std::string>& args, ReplyBuffer& reply) {
@@ -372,60 +408,75 @@ void do_device(DeviceManager& mgr, const std::string& cmd, const std::vector<std
   Device* device = nullptr;
   try {
     device = mgr.getDevice(device_id);
+
+    // reset status here
+    reply.set_success();
+
+    // execute per-device command
+    if(device_cmd == "name" || device_cmd == "get_name") {
+      reply.payload = device->getName();
+    } else if(device_cmd == "version" || device_cmd == "get_version") {
+      reply.payload = device->getVersion();
+    } else if(device_cmd == "type" || device_cmd == "get_type") {
+      reply.payload = device->getType();
+    } else if(device_cmd == "firmware_version" || device_cmd == "get_firmware_version") {
+      reply.payload = device->getFirmwareVersion();
+    } else if(device_cmd == "power_on") {
+      device->powerOn();
+    } else if(device_cmd == "power_off") {
+      device->powerOff();
+    } else if(device_cmd == "reset") {
+      device->reset();
+    } else if(device_cmd == "configure") {
+      device->configure();
+    } else if(device_cmd == "daq_start") {
+      device->daqStart();
+    } else if(device_cmd == "daq_stop") {
+      device->daqStop();
+    } else if(device_cmd == "list_registers") {
+      do_device_list_registers(*device, reply);
+    } else if(device_cmd == "list_commands") {
+      do_device_list_commands(*device, reply);
+    } else if(device_cmd == "list_components") {
+      do_device_list_components(*device, reply);
+    } else if(device_cmd == "get_register") {
+      do_device_get_register(*device, device_args, reply);
+    } else if(device_cmd == "get_registers") {
+      do_device_get_registers(*device, reply);
+    } else if(device_cmd == "set_register") {
+      do_device_set_register(*device, device_args, reply);
+    } else if(device_cmd == "get_current") {
+      do_device_get_current(*device, device_args, reply);
+    } else if(device_cmd == "set_current") {
+      do_device_set_current(*device, device_args, reply);
+    } else if(device_cmd == "get_voltage") {
+      do_device_get_voltage(*device, device_args, reply);
+    } else if(device_cmd == "set_voltage") {
+      do_device_set_voltage(*device, device_args, reply);
+    } else if(device_cmd == "switch_on") {
+      do_device_switch_on(*device, device_args, reply);
+    } else if(device_cmd == "switch_off") {
+      do_device_switch_off(*device, device_args, reply);
+    } else {
+      // try command w/ the dynamic dispatcher
+      try {
+        reply.payload = device->command(device_cmd, device_args);
+      } catch(const caribou::ConfigInvalid& e) {
+        LOG(ERROR) << "Unknown command '" << device_cmd << "' for device " << device->getName();
+        reply.set_status(Status::CommandUnknown);
+        reply.payload = e.what();
+      }
+    }
+
   } catch(const caribou::DeviceException& e) {
     LOG(ERROR) << "Invalid device identifier " << device_id;
     reply.set_status(Status::CommandFailure);
     reply.payload = "Invalid device identifier";
     return;
-  }
-
-  // reset status here
-  reply.set_success();
-
-  // execute per-device command
-  if(device_cmd == "name") {
-    reply.payload = device->getName();
-  } else if(device_cmd == "firmware_version") {
-    reply.payload = device->getFirmwareVersion();
-  } else if(device_cmd == "power_on") {
-    device->powerOn();
-  } else if(device_cmd == "power_off") {
-    device->powerOff();
-  } else if(device_cmd == "reset") {
-    device->reset();
-  } else if(device_cmd == "configure") {
-    device->configure();
-  } else if(device_cmd == "daq_start") {
-    device->daqStart();
-  } else if(device_cmd == "daq_stop") {
-    device->daqStop();
-  } else if(device_cmd == "list_registers") {
-    do_device_list_registers(*device, reply);
-  } else if(device_cmd == "get_register") {
-    do_device_get_register(*device, device_args, reply);
-  } else if(device_cmd == "set_register") {
-    do_device_set_register(*device, device_args, reply);
-  } else if(device_cmd == "get_current") {
-    do_device_get_current(*device, device_args, reply);
-  } else if(device_cmd == "set_current") {
-    do_device_set_current(*device, device_args, reply);
-  } else if(device_cmd == "get_voltage") {
-    do_device_get_voltage(*device, device_args, reply);
-  } else if(device_cmd == "set_voltage") {
-    do_device_set_voltage(*device, device_args, reply);
-  } else if(device_cmd == "switch_on") {
-    do_device_switch_on(*device, device_args, reply);
-  } else if(device_cmd == "switch_off") {
-    do_device_switch_off(*device, device_args, reply);
-  } else {
-    // try command w/ the dynamic dispatcher
-    try {
-      reply.payload = device->command(device_cmd, device_args);
-    } catch(const caribou::ConfigInvalid& e) {
-      LOG(ERROR) << "Unknown command '" << device_cmd << "' for device " << device->getName();
-      reply.set_status(Status::CommandUnknown);
-      reply.payload = e.what();
-    }
+  } catch(...) {
+    reply.set_status(Status::CommandFailure);
+    reply.payload = "Command failed";
+    return;
   }
 }
 
