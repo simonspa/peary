@@ -208,6 +208,14 @@ void CLICTDDevice::powerUp() {
   LOG(DEBUG) << " VDDA: " << _config.Get("vdda", CLICTD_VDDA) << "V";
   this->setVoltage("vdda", _config.Get("vdda", CLICTD_VDDA), _config.Get("vdda_current", CLICTD_VDDA_CURRENT));
   this->switchOn("vdda");
+
+  LOG(DEBUG) << " PWELL: " << _config.Get("pwell", CLICTD_PWELL) << "V";
+  this->setVoltage("pwell", _config.Get("pwell", CLICTD_PWELL), _config.Get("pwell_current", CLICTD_PWELL_CURRENT));
+  this->switchOn("pwell");
+
+  LOG(DEBUG) << " SUB: " << _config.Get("sub", CLICTD_SUB) << "V";
+  this->setVoltage("sub", _config.Get("sub", CLICTD_SUB), _config.Get("sub_current", CLICTD_SUB_CURRENT));
+  this->switchOn("sub");
 }
 
 void CLICTDDevice::powerDown() {

@@ -18,6 +18,10 @@ namespace caribou {
 #define CLICTD_VDDD_CURRENT 3
 #define CLICTD_VDDA 1.8
 #define CLICTD_VDDA_CURRENT 3
+#define CLICTD_PWELL 3.054
+#define CLICTD_PWELL_CURRENT 3
+#define CLICTD_SUB 3.057
+#define CLICTD_SUB_CURRENT 3
 
 /** Dictionary for register address/name lookup for CLICTD
  */
