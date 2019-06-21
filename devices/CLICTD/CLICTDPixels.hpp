@@ -125,7 +125,7 @@ namespace caribou {
 
     uint8_t GetThreshold(uint8_t frontend) const {
       if(frontend >= 8) {
-        throw ConfigInvalid("Frontend does not exist: " + frontend);
+        throw ConfigInvalid("Frontend does not exist: " + std::to_string(frontend));
       }
       if(frontend == 0) {
         return (m_latches >> 17) & 0x07;
