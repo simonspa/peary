@@ -1,0 +1,307 @@
+/**
+ * Caribou implementation for the CLICTD
+ */
+
+#include "CLICTDDevice.hpp"
+#include "utils/log.hpp"
+
+#include <fstream>
+
+using namespace caribou;
+
+CLICTDDevice::CLICTDDevice(const caribou::Configuration config)
+    : CaribouDevice(config, std::string(DEFAULT_DEVICEPATH), CLICTD_DEFAULT_I2C) {
+
+  _dispatcher.add("powerStatusLog", &CLICTDDevice::powerStatusLog, this);
+  _dispatcher.add("configureMatrix", &CLICTDDevice::configureMatrix, this);
+
+  // Set up periphery
+  _periphery.add("vddd", PWR_OUT_2);
+  _periphery.add("vdda", PWR_OUT_6);
+  _periphery.add("pwell", PWR_OUT_8);
+  _periphery.add("sub", PWR_OUT_3);
+
+  _periphery.add("analog_out", VOL_IN_1);
+
+  // Add the register definitions to the dictionary for convenient lookup of names:
+  _registers.add(CLICTD_REGISTERS);
+}
+
+void CLICTDDevice::configure() {
+  LOG(INFO) << "Configuring";
+  reset();
+
+  // Call the base class configuration function:
+  CaribouDevice<iface_i2c>::configure();
+}
+
+void CLICTDDevice::reset() {
+  LOG(DEBUG) << "Resetting";
+}
+
+CLICTDDevice::~CLICTDDevice() {
+  LOG(INFO) << "Shutdown, delete device.";
+  powerOff();
+}
+
+CLICTDDevice::matrixConfig CLICTDDevice::readMatrix(std::string filename) const {
+
+  matrixConfig pixelsConfig;
+  size_t masked = 0;
+  LOG(DEBUG) << "Reading pixel matrix file.";
+  std::ifstream pxfile(filename);
+  if(!pxfile.is_open()) {
+    throw ConfigInvalid("Could not open matrix file \"" + filename + "\"");
+  }
+
+  std::string line = "";
+  while(std::getline(pxfile, line)) {
+    if(!line.length() || '#' == line.at(0))
+      continue;
+    std::istringstream pxline(line);
+    int column, row, mask, tp_dig, tp_ana0, tp_ana1, tp_ana2, tp_ana3, tp_ana4, tp_ana5, tp_ana6, tp_ana7;
+    int threshold0, threshold1, threshold2, threshold3, threshold4, threshold5, threshold6, threshold7;
+    if(pxline >> column >> row >> mask >> tp_dig >> tp_ana0 >> tp_ana1 >> tp_ana2 >> tp_ana3 >> tp_ana4 >> tp_ana5 >>
+       tp_ana6 >> tp_ana7 >> threshold0 >> threshold1 >> threshold2 >> threshold3 >> threshold4 >> threshold5 >>
+       threshold6 >> threshold7) {
+
+      // Prepare analog testpulse bits:
+      uint8_t tp_analog = ((tp_ana7 & 0x1) << 7) | ((tp_ana6 & 0x1) << 6) | ((tp_ana5 & 0x1) << 5) | ((tp_ana4 & 0x1) << 4) |
+                          ((tp_ana3 & 0x1) << 3) | ((tp_ana2 & 0x1) << 2) | ((tp_ana1 & 0x1) << 1) | (tp_ana0 & 0x1);
+
+      // Prepare thresholds:
+      std::vector<uint8_t> thresholds;
+      thresholds.push_back(threshold0);
+      thresholds.push_back(threshold1);
+      thresholds.push_back(threshold2);
+      thresholds.push_back(threshold3);
+      thresholds.push_back(threshold4);
+      thresholds.push_back(threshold5);
+      thresholds.push_back(threshold6);
+      thresholds.push_back(threshold7);
+
+      pixelConfig px(mask, tp_dig, tp_analog, thresholds);
+      pixelsConfig[std::make_pair(column, row)] = px;
+      if(mask)
+        masked++;
+    }
+  }
+  LOG(INFO) << pixelsConfig.size() << " pixel configurations cached, " << masked << " of which are masked";
+  return pixelsConfig;
+}
+
+void CLICTDDevice::configureMatrix(std::string filename) {
+
+  if(!filename.empty()) {
+    LOG(DEBUG) << "Configuring the pixel matrix from file \"" << filename << "\"";
+    pixelConfiguration = readMatrix(filename);
+  }
+
+  // Retry programming matrix:
+  int retry = 0;
+  int retry_max = _config.Get<int>("retry_matrix_config", 3);
+  while(true) {
+    try {
+      programMatrix();
+      LOG(INFO) << "Verified matrix configuration.";
+      break;
+    } catch(caribou::DataException& e) {
+      LOG(ERROR) << e.what();
+      if(++retry == retry_max) {
+        throw CommunicationError("Matrix configuration failed");
+      }
+      LOG(INFO) << "Repeating configuration attempt";
+    }
+  }
+}
+
+void CLICTDDevice::programMatrix() {
+  // Follow procedure described in chip manual, section 4.1 to configure the matrix:
+  auto bitvalues = [](matrixConfig config, size_t row, size_t bit) {
+    uint16_t bits = 0;
+    for(uint8_t column = 0; column < 16; column++) {
+      bool value = config[std::make_pair(column, row)].GetBit(bit);
+      bits |= (value << column);
+    }
+    return bits;
+  };
+
+  LOG(INFO) << "Matrix configuration - Stage 1";
+  // Write 0x01 to ’configCtrl’ register (start 1st configuration stage)
+  this->setRegister("configctrl", 0x01);
+  // For each of the pixels per column, do
+  for(size_t row = 0; row < 128; row++) {
+    // Read configuration bits for STAGE 1 one by one:
+    for(size_t bit = 22; bit > 0; bit--) {
+      auto value = bitvalues(pixelConfiguration, row, bit - 1);
+      // Load ’configData’ register with bit 21 of the 1st configuration stage (1 bit per column)
+      this->setRegister("configdata", value);
+      LOG(DEBUG) << "Row " << row << ", bit " << (bit - 1) << ": " << to_bit_string(value);
+      // Write 0x11 to ’configCtrl’ register to shift configuration in the matrix
+      this->setRegister("configctrl", 0x11);
+      // Write 0x01 to ’configCtrl’ register
+      this->setRegister("configctrl", 0x01);
+    }
+  }
+  // Write 0x00 to ’configCtrl’ register
+  this->setRegister("configctrl", 0x00);
+
+  // Read back the applied configuration (optional)
+
+  LOG(INFO) << "Matrix configuration - Stage 2";
+  // Write 0x02 to ’configCtrl’ register (start 2nd configuration stage)
+  this->setRegister("configctrl", 0x02);
+  // For each of the pixels per column, do
+  for(size_t row = 0; row < 128; row++) {
+    // Read configuration bits for STAGE 1 one by one:
+    for(size_t bit = 43; bit > 21; bit--) {
+      auto value = bitvalues(pixelConfiguration, row, bit);
+      // Load ’configData’ register with bit 21 of the 2nd configuration stage (1 bit per column)
+      this->setRegister("configdata", value);
+      LOG(DEBUG) << "Row " << row << ", bit " << (bit - 22) << ": " << to_bit_string(value);
+      // Write 0x12 to ’configCtrl’ register to shift configuration in the matrix
+      this->setRegister("configctrl", 0x12);
+      // Write 0x02 to ’configCtrl’ register
+      this->setRegister("configctrl", 0x02);
+    }
+  }
+  // Write 0x00 to ’configCtrl’ register
+  this->setRegister("configctrl", 0x00);
+
+  // Read back the applied configuration (optional)
+
+  // Configuration is complete
+}
+
+void CLICTDDevice::setSpecialRegister(std::string name, uint32_t value) {
+  if(name == "vanalog1" || name == "vthreshold") {
+    // 9-bit register, just linearly add:
+    uint8_t lsb = value & 0x00FF;
+    uint8_t msb = (value >> 8) & 0x01;
+    // Set the two values:
+    this->setRegister(name + "_msb", msb);
+    this->setRegister(name + "_lsb", lsb);
+  }
+}
+
+uint32_t CLICTDDevice::getSpecialRegister(std::string name) {
+  uint32_t value = 0;
+  if(name == "vanalog1" || name == "vthreshold") {
+    // 9-bit register, just linearly add:
+    auto lsb = this->getRegister(name + "_lsb");
+    auto msb = this->getRegister(name + "_msb");
+    // Cpmbine the two values:
+    value = ((msb & 0x1) << 8) || (lsb & 0xFF);
+  }
+
+  return value;
+}
+
+void CLICTDDevice::powerUp() {
+  LOG(INFO) << "Powering up";
+
+  // Power rails:
+  LOG(DEBUG) << " VDDD: " << _config.Get("vddd", CLICTD_VDDD) << "V";
+  this->setVoltage("vddd", _config.Get("vddd", CLICTD_VDDD), _config.Get("vddd_current", CLICTD_VDDD_CURRENT));
+  this->switchOn("vddd");
+
+  LOG(DEBUG) << " VDDA: " << _config.Get("vdda", CLICTD_VDDA) << "V";
+  this->setVoltage("vdda", _config.Get("vdda", CLICTD_VDDA), _config.Get("vdda_current", CLICTD_VDDA_CURRENT));
+  this->switchOn("vdda");
+
+  LOG(DEBUG) << " PWELL: " << _config.Get("pwell", CLICTD_PWELL) << "V";
+  this->setVoltage("pwell", _config.Get("pwell", CLICTD_PWELL), _config.Get("pwell_current", CLICTD_PWELL_CURRENT));
+  this->switchOn("pwell");
+
+  LOG(DEBUG) << " SUB: " << _config.Get("sub", CLICTD_SUB) << "V";
+  this->setVoltage("sub", _config.Get("sub", CLICTD_SUB), _config.Get("sub_current", CLICTD_SUB_CURRENT));
+  this->switchOn("sub");
+}
+
+void CLICTDDevice::powerDown() {
+  LOG(INFO) << "Power off";
+
+  LOG(DEBUG) << "Power off VDDA";
+  this->switchOff("vdda");
+
+  LOG(DEBUG) << "Power off VDDD";
+  this->switchOff("vddd");
+
+  LOG(DEBUG) << "Turn off PWELL";
+  this->switchOff("pwell");
+
+  LOG(DEBUG) << "Turn off SUB";
+  this->switchOff("sub");
+}
+
+void CLICTDDevice::daqStart() {
+  LOG(INFO) << "DAQ started.";
+}
+
+void CLICTDDevice::daqStop() {
+  LOG(INFO) << "DAQ stopped.";
+}
+
+void CLICTDDevice::powerStatusLog() {
+  LOG(INFO) << "Power status:";
+
+  LOG(INFO) << "VDDD:";
+  LOG(INFO) << "\tBus voltage: " << this->getVoltage("vddd") << "V";
+  LOG(INFO) << "\tBus current: " << this->getCurrent("vddd") << "A";
+  LOG(INFO) << "\tBus power  : " << this->getPower("vddd") << "W";
+
+  LOG(INFO) << "VDDA:";
+  LOG(INFO) << "\tBus voltage: " << this->getVoltage("vdda") << "V";
+  LOG(INFO) << "\tBus current: " << this->getCurrent("vdda") << "A";
+  LOG(INFO) << "\tBus power  : " << this->getPower("vdda") << "W";
+
+  LOG(INFO) << "PWELL:";
+  LOG(INFO) << "\tBus voltage: " << this->getVoltage("pwell") << "V";
+  LOG(INFO) << "\tBus current: " << this->getCurrent("pwell") << "A";
+  LOG(INFO) << "\tBus power  : " << this->getPower("pwell") << "W";
+
+  LOG(INFO) << "SUB:";
+  LOG(INFO) << "\tBus voltage: " << this->getVoltage("sub") << "V";
+  LOG(INFO) << "\tBus current: " << this->getCurrent("sub") << "A";
+  LOG(INFO) << "\tBus power  : " << this->getPower("sub") << "W";
+}
+
+pearydata CLICTDDevice::getData() {
+  pearydata decoded;
+
+  auto rawdata = getRawData();
+
+  bool frame_started = false;
+  uint8_t column = 0;
+  for(auto data : rawdata) {
+    // Check for header:
+    if((data << 8) & 0x3FFF) { // FIXME
+      if((data & 0xFF) == 0xA8) {
+        LOG(DEBUG) << "Header: Frame start";
+        frame_started = true;
+      } else if((data & 0xFF) == 0x94) {
+        LOG(DEBUG) << "Header: Frame end";
+        frame_started = false;
+      } else {
+        column = (data >> 2) & 0xF;
+        LOG(DEBUG) << "Header: Column " << column;
+      }
+
+      // No header but pixel data.
+    }
+    // FRAMESTART header, 22bit
+    // 0x3FFF-A8
+
+    // FRAMEEND header, 22bit
+    // 0x3FFF-94
+
+    // COLUMN header, 22bit
+    // 0x3FFF-?
+  }
+
+  return decoded;
+}
+
+std::vector<uint32_t> CLICTDDevice::getRawData() {
+  return std::vector<uint32_t>();
+}

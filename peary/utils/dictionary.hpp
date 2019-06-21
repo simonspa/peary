@@ -16,8 +16,8 @@
 namespace caribou {
 
   /**
-  * @brief Dictionary class for storing elements for lookup
-  */
+   * @brief Dictionary class for storing elements for lookup
+   */
   template <class T> class dictionary {
   public:
     dictionary(const std::string& title) : _title(title){};
@@ -81,7 +81,7 @@ namespace caribou {
 
   private:
     /** Map fo human-readable names for periphery components
-    */
+     */
     std::map<std::string, std::shared_ptr<T>> _elements;
     std::string _title;
   };
