@@ -1,6 +1,6 @@
+#include <csignal>
 #include <fstream>
 #include <iostream>
-#include <signal.h>
 
 #include "pearycli.hpp"
 
@@ -10,13 +10,33 @@
 
 using namespace caribou;
 
+void clean();
+void abort_handler(int);
+void interrupt_handler(int);
 caribou::DeviceManager* pearycli::manager = new DeviceManager();
 
-void termination_handler(int s) {
-  std::cout << "\n";
-  LOG(INFO) << "Caught user signal \"" << s << "\", ending processes.";
+/**
+ * @brief Handle user abort (CTRL+\) which should stop the framework immediately
+ * @note This handler is actually not fully reliable (but otherwise crashing is okay...)
+ */
+void abort_handler(int) {
+  // Output interrupt message and clean
+  LOG(FATAL) << "Aborting!";
+  clean();
+
+  // Ignore any segmentation fault that may arise after this
+  std::signal(SIGSEGV, SIG_IGN); // NOLINT
+  std::abort();
+}
+
+/**
+ * @brief Handle termination request (CTRL+C) as soon as possible while keeping the program flow
+ */
+void interrupt_handler(int s) {
+  LOG(STATUS) << "Interrupted! Shutting down devices...";
   delete pearycli::manager;
-  exit(1);
+  clean();
+  exit(s);
 }
 
 /**
@@ -31,13 +51,14 @@ int main(int argc, char* argv[]) {
   Log::addStream(std::cout);
   Log::setReportingLevel(LogLevel::INFO);
 
-  struct sigaction sigIntHandler;
+  // Install abort handler (CTRL+\)
+  std::signal(SIGQUIT, abort_handler);
 
-  sigIntHandler.sa_handler = termination_handler;
-  sigemptyset(&sigIntHandler.sa_mask);
-  sigIntHandler.sa_flags = 0;
+  // Install interrupt handler (CTRL+C)
+  std::signal(SIGINT, interrupt_handler);
 
-  sigaction(SIGINT, &sigIntHandler, NULL);
+  // Install termination handler (e.g. from "kill"). Gracefully exit, finish last event and quit
+  std::signal(SIGTERM, interrupt_handler);
 
   std::vector<std::string> devices;
   std::string configfile = "", execfile = "";
@@ -53,7 +74,18 @@ int main(int argc, char* argv[]) {
       std::cout << "-v verbosity   verbosity level, default INFO" << std::endl;
       std::cout << "-c configfile  configuration file to be used" << std::endl;
       std::cout << "-l logfile     log file to write all console output to" << std::endl;
-      std::cout << "All other arguments are interpreted as devices to be instanciated." << std::endl;
+      std::cout << "All other arguments are interpreted as devices to be instantiated." << std::endl;
+      clean();
+      return 0;
+    } else if(strcmp(argv[i], "--version") == 0) {
+      std::cout << "Peary version " << PEARY_PROJECT_VERSION << std::endl;
+      std::cout << "               built on " << PEARY_BUILD_TIME << std::endl;
+      std::cout << std::endl;
+      std::cout << "Copyright (c) 2017-2018 CERN and the Caribou authors." << std::endl << std::endl;
+      std::cout << "This software is distributed under the terms of the GNU Lesser General Public License." << std::endl;
+      std::cout << "In applying this license, CERN does not waive the privileges and immunities" << std::endl;
+      std::cout << "granted to it by virtue of its status as an Intergovernmental Organization" << std::endl;
+      std::cout << "or submit itself to any jurisdiction." << std::endl;
       clean();
       return 0;
     } else if(!strcmp(argv[i], "-v")) {
@@ -135,6 +167,7 @@ int main(int argc, char* argv[]) {
         ;
     }
 
+    delete c.manager;
     LOG(INFO) << "Done. And thanks for all the fish.";
   } catch(caribouException& e) {
     LOG(FATAL) << "This went wrong: " << e.what();

@@ -272,6 +272,7 @@ namespace caribou {
    *  - FIXME: INJ_CTRL_X signals from FPGA!
    */
   class INJBIAS_REGULATOR_T : public component_dac_t {
+  public:
     INJBIAS_REGULATOR_T(std::string name, uint8_t dacaddr, uint8_t dacout) : component_dac_t(name, dacaddr, dacout){};
     ~INJBIAS_REGULATOR_T(){};
   };

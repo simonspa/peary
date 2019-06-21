@@ -16,7 +16,7 @@
 
 ### General Considerations
 
-* The first effort should go into designing the caribouDevice API with  as much detail as possible. This allows to work independently on the  user-code and the library without the need for reworking code in case of internal design changes.
+* The first effort should go into designing the Device API with  as much detail as possible. This allows to work independently on the  user-code and the library without the need for reworking code in case of internal design changes.
 
 * After the definition of the IP core interfaces for the communication protocols, the HAL elements should be implemented.
 
@@ -35,6 +35,10 @@ uint64_t myvar = _config.Get("key_of_myvar",1234);
 where the second parameter is a default value used in case the key is not present in the provided file. In device implementations, all default configuration parameters should be collected in a header file as demonstrated for [the example device](devices/example/example_defaults.hpp). This avoids scattering hard-coded values across the code while still always providing sane defaults whenever the device is operated.
 
 ## Data Types
+
+## Device Registers
+
+## Memory Maps
 
 ## Dictionaries
 
