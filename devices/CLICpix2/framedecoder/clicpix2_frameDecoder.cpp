@@ -2,6 +2,7 @@
 
 #include "clicpix2_frameDecoder.hpp"
 #include "utils/exceptions.hpp"
+#include "utils/lfsr.hpp"
 #include "utils/utils.hpp"
 
 #include <cmath>
@@ -266,10 +267,10 @@ void clicpix2_frameDecoder::decodeCounter() {
       }
 
       if(counter_config[r][c]) {
-        matrix[r][c].SetCounter(lfsr13_lut[matrix[r][c].GetLatches() & 0x1fff]);
+        matrix[r][c].SetCounter(LFSR::LUT13(matrix[r][c].GetLatches() & 0x1fff));
       } else {
-        matrix[r][c].SetTOT(lfsr5_lut[(matrix[r][c].GetLatches() >> 8) & 0x1f]);
-        matrix[r][c].SetTOA(lfsr8_lut[matrix[r][c].GetLatches() & 0xff]);
+        matrix[r][c].SetTOT(LFSR::LUT5((matrix[r][c].GetLatches() >> 8) & 0x1f));
+        matrix[r][c].SetTOA(LFSR::LUT8(matrix[r][c].GetLatches() & 0xff));
       }
     }
   }
