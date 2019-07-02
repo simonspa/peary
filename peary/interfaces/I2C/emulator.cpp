@@ -27,7 +27,7 @@ i2c_t iface_i2c::write(const i2c_t& address, const i2c_t& data) {
 
   setAddress(address);
 
-  LOG(TRACE) << "I2C (" << devicePath() << ") address " << to_hex_string(address) << ": Writing data \""
+  LOG(TRACE) << "I2C/emu (" << devicePath() << ") address " << to_hex_string(address) << ": Writing data \""
              << to_hex_string(data) << "\"";
 
   return 0;
@@ -39,7 +39,7 @@ std::pair<i2c_reg_t, i2c_t> iface_i2c::write(const i2c_t& address, const std::pa
 
   setAddress(address);
 
-  LOG(TRACE) << "I2C (" << devicePath() << ") address " << to_hex_string(address) << ": Register "
+  LOG(TRACE) << "I2C/emu (" << devicePath() << ") address " << to_hex_string(address) << ": Register "
              << to_hex_string(data.first) << " Writing data \"" << to_hex_string(data.second) << "\"";
 
   return std::make_pair(0, 0);
@@ -51,7 +51,7 @@ std::vector<i2c_t> iface_i2c::write(const i2c_t& address, const i2c_t& reg, cons
 
   setAddress(address);
 
-  LOG(TRACE) << "I2C (" << devicePath() << ") address " << to_hex_string(address) << ": Register " << to_hex_string(reg)
+  LOG(TRACE) << "I2C/emu (" << devicePath() << ") address " << to_hex_string(address) << ": Register " << to_hex_string(reg)
              << "\n\t Writing block data: \"" << listVector(data, ", ", true) << "\"";
 
   return std::vector<i2c_t>();
@@ -68,7 +68,7 @@ std::vector<i2c_t> iface_i2c::read(const i2c_t& address, const unsigned int leng
 
   data.resize(1);
 
-  LOG(TRACE) << "I2C (" << devicePath() << ") address " << to_hex_string(address) << ": Read data \""
+  LOG(TRACE) << "I2C/emu (" << devicePath() << ") address " << to_hex_string(address) << ": Read data \""
              << to_hex_string(data[0]) << "\"";
 
   return data;
@@ -83,7 +83,7 @@ std::vector<i2c_t> iface_i2c::read(const i2c_t& address, const i2c_t reg, const 
 
   data.resize(length);
 
-  LOG(TRACE) << "I2C (" << devicePath() << ") address " << to_hex_string(address) << ": Register " << to_hex_string(reg)
+  LOG(TRACE) << "I2C/emu (" << devicePath() << ") address " << to_hex_string(address) << ": Register " << to_hex_string(reg)
              << "\n\t Read block data \"" << listVector(data, ", ", true) << "\"";
 
   return data;
