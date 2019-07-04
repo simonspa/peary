@@ -181,6 +181,5 @@ int main(int argc, char* argv[]) {
     return -1;
   }
 
-  clean();
   return 0;
 }
