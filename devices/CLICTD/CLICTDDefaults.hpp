@@ -23,6 +23,24 @@ namespace caribou {
 #define CLICTD_SUB 3.057
 #define CLICTD_SUB_CURRENT 3
 
+  // CLIcpix2 control
+  const std::intptr_t CLICPIX2_CONTROL_BASE_ADDRESS = 0x43C20000;
+  const std::intptr_t CLICPIX2_RESET_OFFSET = 0;
+  const uint32_t CLICPIX2_CONTROL_RESET_MASK = 0x1;
+  const std::size_t CLICPIX2_CONTROL_MAP_SIZE = 4096;
+  const std::size_t CLICPIX2_CONTROL_MAP_MASK = CLICPIX2_CONTROL_MAP_SIZE - 1;
+
+#define CLICPIX2_MEMORY                                                                                                     \
+  {                                                                                                                         \
+    {                                                                                                                       \
+      "reset", memory_map(CLICPIX2_CONTROL_BASE_ADDRESS,                                                                    \
+                          CLICPIX2_RESET_OFFSET,                                                                            \
+                          CLICPIX2_CONTROL_MAP_SIZE,                                                                        \
+                          CLICPIX2_CONTROL_MAP_MASK,                                                                        \
+                          PROT_READ | PROT_WRITE)                                                                           \
+    }                                                                                                                       \
+  }
+
 /** Dictionary for register address/name lookup for CLICTD
  */
 // clang-format off

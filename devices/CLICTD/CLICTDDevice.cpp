@@ -25,6 +25,12 @@ CLICTDDevice::CLICTDDevice(const caribou::Configuration config)
 
   // Add the register definitions to the dictionary for convenient lookup of names:
   _registers.add(CLICTD_REGISTERS);
+
+  // Add memory pages to the dictionary:
+  _memory.add(CLICPIX2_MEMORY);
+
+  // set default CLICpix2 control
+  setMemory("reset", 0);
 }
 
 void CLICTDDevice::configure() {
@@ -37,6 +43,12 @@ void CLICTDDevice::configure() {
 
 void CLICTDDevice::reset() {
   LOG(DEBUG) << "Resetting";
+
+  // assert reset:
+  setMemory("reset", getMemory("reset") & ~(CLICPIX2_CONTROL_RESET_MASK));
+  usleep(1);
+  // deny reset:
+  setMemory("reset", getMemory("reset") | CLICPIX2_CONTROL_RESET_MASK);
 }
 
 CLICTDDevice::~CLICTDDevice() {
