@@ -169,6 +169,7 @@ int main(int argc, char* argv[]) {
 
     delete c.manager;
     LOG(INFO) << "Done. And thanks for all the fish.";
+    return 0;
   } catch(caribouException& e) {
     LOG(FATAL) << "This went wrong: " << e.what();
     delete c.manager;
@@ -180,6 +181,4 @@ int main(int argc, char* argv[]) {
     clean();
     return -1;
   }
-
-  return 0;
 }
