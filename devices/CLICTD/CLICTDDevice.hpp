@@ -56,6 +56,11 @@ namespace caribou {
 
     void configureMatrix(std::string filename);
 
+    /**
+     * @brief Set correct channel for output multiplexer
+     */
+    void setOutputMultiplexer(std::string name);
+
   private:
     /**
      * Routine to program the pixel matrix

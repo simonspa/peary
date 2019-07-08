@@ -14,6 +14,7 @@ CLICTDDevice::CLICTDDevice(const caribou::Configuration config)
 
   _dispatcher.add("powerStatusLog", &CLICTDDevice::powerStatusLog, this);
   _dispatcher.add("configureMatrix", &CLICTDDevice::configureMatrix, this);
+  _dispatcher.add("setOutputMultiplexer", &CLICTDDevice::setOutputMultiplexer, this);
 
   // Set up periphery
   _periphery.add("vddd", PWR_OUT_2);
@@ -22,6 +23,7 @@ CLICTDDevice::CLICTDDevice(const caribou::Configuration config)
   _periphery.add("sub", PWR_OUT_3);
 
   _periphery.add("analog_out", VOL_IN_1);
+  _periphery.add("dac_out", VOL_IN_1);
 
   // Add the register definitions to the dictionary for convenient lookup of names:
   _registers.add(CLICTD_REGISTERS);
@@ -316,4 +318,35 @@ pearydata CLICTDDevice::getData() {
 
 std::vector<uint32_t> CLICTDDevice::getRawData() {
   return std::vector<uint32_t>();
+}
+
+void CLICTDDevice::setOutputMultiplexer(std::string name) {
+  std::map<std::string, int> monitordacsel{{"vbiasresettransistor", 1},
+                                           {"vreset", 2},
+                                           {"vbiaslevelshift", 3},
+                                           {"vanalog1", 4},
+                                           {"vanalog1_lsb", 4},
+                                           {"vanalog1_msb", 4},
+                                           {"vanalog2", 5},
+                                           {"vbiaspreampn", 6},
+                                           {"vncasc", 7},
+                                           {"vpcasc", 8},
+                                           {"vfbk", 9},
+                                           {"vbiasikrum", 10},
+                                           {"vbiasdiscn", 11},
+                                           {"vbiasdiscp", 12},
+                                           {"vbiasdac", 13},
+                                           {"vthreshold", 14},
+                                           {"vthreshold_lsb", 14},
+                                           {"vthreshold_msb", 14},
+                                           {"vncasccomp", 15},
+                                           {"vbiaslevelshiftstby", 16},
+                                           {"vbiaspreampnstby", 17},
+                                           {"vbiasdiscnstby", 18},
+                                           {"vbiasdiscpstby", 19},
+                                           {"vbiasdacstby", 20},
+                                           {"vinternalbandgap", 21}};
+
+  std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+  this->setRegister("monitordacsel", monitordacsel[name]);
 }
