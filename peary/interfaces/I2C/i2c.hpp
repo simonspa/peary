@@ -53,6 +53,7 @@ namespace caribou {
     // caribouHAL is allowed to access private members for reading and writing
     template <typename T> friend class caribouHAL;
 
+  public:
     i2c_t write(const i2c_address_t& address, const i2c_t& data);
     std::pair<i2c_reg_t, i2c_t> write(const i2c_address_t& address, const std::pair<i2c_reg_t, i2c_t>& data);
     std::vector<i2c_t> write(const i2c_address_t& address, const i2c_reg_t& reg, const std::vector<i2c_t>& data);
@@ -62,6 +63,7 @@ namespace caribou {
     // length must be 32
     std::vector<i2c_t> read(const i2c_address_t& address, const i2c_reg_t reg, const unsigned int length = 32);
 
+  private:
     // Special functions to read/write to devices with up to 16bit register
     std::vector<i2c_t> wordwrite(const i2c_address_t& address, const uint16_t& reg, const std::vector<i2c_t>& data);
     std::vector<i2c_t> wordread(const i2c_address_t& address, const uint16_t reg, const unsigned int length = 1);
