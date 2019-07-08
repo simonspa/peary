@@ -27,6 +27,7 @@ CLICpix2Device::CLICpix2Device(const caribou::Configuration config)
   _dispatcher.add("triggerPatternGenerator", &CLICpix2Device::triggerPatternGenerator, this);
   _dispatcher.add("configureClock", &CLICpix2Device::configureClock, this);
   _dispatcher.add("clearTimestamps", &CLICpix2Device::clearTimestamps, this);
+  _dispatcher.add("setOutputMultiplexer", &CLICpix2Device::setOutputMultiplexer, this);
 
   // Set up periphery
   _periphery.add("vddd", PWR_OUT_1);
@@ -590,4 +591,28 @@ std::vector<uint32_t> CLICpix2Device::getTimestamps() {
   LOG(DEBUG) << "Received " << timestamps.size() / 2 << " timestamps: " << listVector(timestamps, ",", false);
 
   return timestamps;
+}
+
+void CLICpix2Device::setOutputMultiplexer(std::string name) {
+  std::map<std::string, int> output_mux_DAC{{"bias_disc_n", 1},
+                                            {"bias_disc_p", 2},
+                                            {"bias_thadj_dac", 3},
+                                            {"bias_preamp_casc", 4},
+                                            {"ikrum", 5},
+                                            {"bias_preamp", 6},
+                                            {"bias_buffers_1st", 7},
+                                            {"bias_buffers_2st", 8},
+                                            {"bias_thadj_casc", 9},
+                                            {"bias_mirror_casc", 10},
+                                            {"vfbk", 11},
+                                            {"threshold", 12},
+                                            {"threshold_lsb", 12},
+                                            {"threshold_msb", 12},
+                                            {"test_cap_2", 13},
+                                            {"test_cap_1_lsb", 14},
+                                            {"test_cap_1_msb", 14},
+                                            {"test_cap_1", 14}};
+
+  std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+  this->setRegister("output_mux_DAC", output_mux_DAC[name]);
 }

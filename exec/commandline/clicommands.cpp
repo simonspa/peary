@@ -509,34 +509,14 @@ int pearycli::getRegisters(const std::vector<std::string>& input) {
 }
 
 int pearycli::scanDAC(const std::vector<std::string>& input) {
-  std::map<std::string, int> output_mux_DAC{{"bias_disc_n", 1},
-                                            {"bias_disc_p", 2},
-                                            {"bias_thadj_dac", 3},
-                                            {"bias_preamp_casc", 4},
-                                            {"ikrum", 5},
-                                            {"bias_preamp", 6},
-                                            {"bias_buffers_1st", 7},
-                                            {"bias_buffers_2st", 8},
-                                            {"bias_thadj_casc", 9},
-                                            {"bias_mirror_casc", 10},
-                                            {"vfbk", 11},
-                                            {"threshold", 12},
-                                            {"threshold_lsb", 12},
-                                            {"threshold_msb", 12},
-                                            {"test_cap_2", 13},
-                                            {"test_cap_1_lsb", 14},
-                                            {"test_cap_1_msb", 14},
-                                            {"test_cap_1", 14}};
 
   try {
     Device* dev = manager->getDevice(std::stoi(input.at(7)));
 
     std::vector<std::pair<int, double>> data;
 
-    // Set the register in output_mux_DAC:
-    std::string dacname = input.at(1);
-    std::transform(dacname.begin(), dacname.end(), dacname.begin(), ::tolower);
-    dev->setRegister("output_mux_DAC", output_mux_DAC[dacname]);
+    // Configure the output multiplexer to deliver the correct DAC voltage:
+    dev->command("setOutputMultiplexer", input.at(1));
 
     if(std::stoi(input.at(2)) > std::stoi(input.at(3))) {
       LOG(ERROR) << "Range invalid";
@@ -591,33 +571,14 @@ int pearycli::scanDAC(const std::vector<std::string>& input) {
 }
 
 int pearycli::scanDAC2D(const std::vector<std::string>& input) {
-  std::map<std::string, int> output_mux_DAC{{"bias_disc_n", 1},
-                                            {"bias_disc_p", 2},
-                                            {"bias_thadj_dac", 3},
-                                            {"bias_preamp_casc", 4},
-                                            {"ikrum", 5},
-                                            {"bias_preamp", 6},
-                                            {"bias_buffers_1st", 7},
-                                            {"bias_buffers_2st", 8},
-                                            {"bias_thadj_casc", 9},
-                                            {"bias_mirror_casc", 10},
-                                            {"vfbk", 11},
-                                            {"threshold", 12},
-                                            {"threshold_lsb", 12},
-                                            {"threshold_msb", 12},
-                                            {"test_cap_2", 13},
-                                            {"test_cap_1_lsb", 14},
-                                            {"test_cap_1_msb", 14}};
 
   try {
     Device* dev = manager->getDevice(std::stoi(input.at(10)));
 
     std::vector<std::pair<std::pair<int, int>, double>> data;
 
-    // Set the register in output_mux_DAC:
-    std::string dacname = input.at(1);
-    std::transform(dacname.begin(), dacname.end(), dacname.begin(), ::tolower);
-    dev->setRegister("output_mux_DAC", output_mux_DAC[dacname]);
+    // Configure the output multiplexer to deliver the correct DAC voltage:
+    dev->command("setOutputMultiplexer", input.at(1));
 
     if(std::stoi(input.at(2)) > std::stoi(input.at(3)) || std::stoi(input.at(5)) > std::stoi(input.at(6))) {
       LOG(ERROR) << "Range invalid";
