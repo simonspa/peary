@@ -2,7 +2,8 @@
 #define DEVICE_ATLASPix_DEFAULTS_H
 
 #include "carboard/Carboard.hpp"
-#include "clockgenerator/clk_6-100_8-100_ref-0FMC.h"
+//#include "clockgenerator/clk_6-100_8-100_ref-0FMC.h"
+#include "clockgenerator/clk_6-125_8-125_ref-0FMC.h"
 #include "utils/dictionary.hpp"
 
 namespace caribou {
