@@ -15,6 +15,7 @@ CLICTDDevice::CLICTDDevice(const caribou::Configuration config)
   _dispatcher.add("powerStatusLog", &CLICTDDevice::powerStatusLog, this);
   _dispatcher.add("configureMatrix", &CLICTDDevice::configureMatrix, this);
   _dispatcher.add("setOutputMultiplexer", &CLICTDDevice::setOutputMultiplexer, this);
+  _dispatcher.add("configureClock", &CLICTDDevice::configureClock, this);
 
   // Set up periphery
   _periphery.add("vddd", PWR_OUT_2);
@@ -37,7 +38,9 @@ CLICTDDevice::CLICTDDevice(const caribou::Configuration config)
 
 void CLICTDDevice::configure() {
   LOG(INFO) << "Configuring";
+  configureClock(_config.Get<bool>("clock_internal", true));
   reset();
+  mDelay(10);
 
   // Call the base class configuration function:
   CaribouDevice<iface_i2c>::configure();
@@ -56,6 +59,25 @@ void CLICTDDevice::reset() {
 CLICTDDevice::~CLICTDDevice() {
   LOG(INFO) << "Shutdown, delete device.";
   powerOff();
+}
+
+void CLICTDDevice::configureClock(bool internal) {
+
+  LOG(DEBUG) << "Configuring Si5345 clock source";
+  _hal->configureSI5345((SI5345_REG_T const* const)si5345_revb_registers, SI5345_REVB_REG_CONFIG_NUM_REGS);
+  mDelay(100); // let the PLL lock
+
+  // If required, check whether we are locked to external clock:
+  if(!internal) {
+    LOG(DEBUG) << "Waiting for clock to lock...";
+    // Try for a limited time to lock, otherwise abort:
+    std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+    while(!_hal->isLockedSI5345()) {
+      auto dur = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - start);
+      if(dur.count() > 3)
+        throw DeviceException("Cannot lock to external clock.");
+    }
+  }
 }
 
 CLICTDDevice::matrixConfig CLICTDDevice::readMatrix(std::string filename) const {

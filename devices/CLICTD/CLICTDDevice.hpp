@@ -8,6 +8,8 @@
 #include "device/CaribouDevice.hpp"
 #include "interfaces/I2C/i2c.hpp"
 
+#include "clockgenerator/Si5345-RevB-CLICTD-Registers.h"
+
 #include "CLICTDDefaults.hpp"
 #include "CLICTDPixels.hpp"
 
@@ -55,6 +57,8 @@ namespace caribou {
     uint32_t getSpecialRegister(std::string name);
 
     void configureMatrix(std::string filename);
+
+    void configureClock(bool internal = 1);
 
     /**
      * @brief Set correct channel for output multiplexer
