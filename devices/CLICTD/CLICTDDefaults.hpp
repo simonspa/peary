@@ -23,21 +23,41 @@ namespace caribou {
 #define CLICTD_SUB 3.057
 #define CLICTD_SUB_CURRENT 3
 
-  // CLIcpix2 control
-  const std::intptr_t CLICPIX2_CONTROL_BASE_ADDRESS = 0x43C20000;
-  const std::intptr_t CLICPIX2_RESET_OFFSET = 0;
-  const uint32_t CLICPIX2_CONTROL_RESET_MASK = 0x1;
-  const std::size_t CLICPIX2_CONTROL_MAP_SIZE = 4096;
-  const std::size_t CLICPIX2_CONTROL_MAP_MASK = CLICPIX2_CONTROL_MAP_SIZE - 1;
+  // CLICTD readout
+  const std::intptr_t CLICTD_READOUT_BASE_ADDRESS = 0x43C70000;
+  const std::intptr_t CLICTD_READOUT_RDFIFO_OFFSET = 0;
+  const std::intptr_t CLICTD_READOUT_RDSTATUS_OFFSET = 4;
+  const std::intptr_t CLICTD_READOUT_RDCONTROL_OFFSET = 8;
+  const std::intptr_t CLICTD_READOUT_CHIPCONTROL_OFFSET = 16;
+  const std::size_t CLICTD_READOUT_MAP_SIZE = 4096;
+  const std::size_t CLICTD_READOUT_MAP_MASK = CLICTD_READOUT_MAP_SIZE - 1;
 
-#define CLICPIX2_MEMORY                                                                                                     \
+#define CLICTD_MEMORY                                                                                                       \
   {                                                                                                                         \
+    {"rdfifo",                                                                                                              \
+     memory_map(CLICTD_READOUT_BASE_ADDRESS,                                                                                \
+                CLICTD_READOUT_RDFIFO_OFFSET,                                                                               \
+                CLICTD_READOUT_MAP_SIZE,                                                                                    \
+                CLICTD_READOUT_MAP_MASK,                                                                                    \
+                PROT_READ | PROT_WRITE)},                                                                                   \
+      {"rdstatus",                                                                                                          \
+       memory_map(CLICTD_READOUT_BASE_ADDRESS,                                                                              \
+                  CLICTD_READOUT_RDSTATUS_OFFSET,                                                                           \
+                  CLICTD_READOUT_MAP_SIZE,                                                                                  \
+                  CLICTD_READOUT_MAP_MASK,                                                                                  \
+                  PROT_READ | PROT_WRITE)},                                                                                 \
+      {"rdcontrol",                                                                                                         \
+       memory_map(CLICTD_READOUT_BASE_ADDRESS,                                                                              \
+                  CLICTD_READOUT_RDCONTROL_OFFSET,                                                                          \
+                  CLICTD_READOUT_MAP_SIZE,                                                                                  \
+                  CLICTD_READOUT_MAP_MASK,                                                                                  \
+                  PROT_READ | PROT_WRITE)},                                                                                 \
     {                                                                                                                       \
-      "reset", memory_map(CLICPIX2_CONTROL_BASE_ADDRESS,                                                                    \
-                          CLICPIX2_RESET_OFFSET,                                                                            \
-                          CLICPIX2_CONTROL_MAP_SIZE,                                                                        \
-                          CLICPIX2_CONTROL_MAP_MASK,                                                                        \
-                          PROT_READ | PROT_WRITE)                                                                           \
+      "chipcontrol", memory_map(CLICTD_READOUT_BASE_ADDRESS,                                                                \
+                                CLICTD_READOUT_CHIPCONTROL_OFFSET,                                                          \
+                                CLICTD_READOUT_MAP_SIZE,                                                                    \
+                                CLICTD_READOUT_MAP_MASK,                                                                    \
+                                PROT_READ | PROT_WRITE)                                                                     \
     }                                                                                                                       \
   }
 
