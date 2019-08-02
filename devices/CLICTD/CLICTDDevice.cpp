@@ -50,10 +50,10 @@ void CLICTDDevice::reset() {
   LOG(DEBUG) << "Resetting";
 
   // assert reset:
-  setMemory("reset", getMemory("reset") & ~(CLICPIX2_CONTROL_RESET_MASK));
-  usleep(1);
+  setMemory("chipcontrol", 0b100000);
+  usleep(5);
   // deny reset:
-  setMemory("reset", getMemory("reset") | CLICPIX2_CONTROL_RESET_MASK);
+  setMemory("chipcontrol", 0);
 }
 
 CLICTDDevice::~CLICTDDevice() {
