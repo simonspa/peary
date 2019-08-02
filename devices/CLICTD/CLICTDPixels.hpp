@@ -73,7 +73,6 @@ namespace caribou {
      * Initializes the pixel configuration with bit 21 always set to '1'
      */
     pixelConfig() : clictd_pixel(0x00200000){};
-    pixelConfig(uint32_t latches) : clictd_pixel(latches){};
   };
 
   /* CLICTD Stage1 pixel configuration class
@@ -112,7 +111,7 @@ namespace caribou {
     }
 
     // By default, instantiated as masked
-    pixelConfigStage1() : pixelConfig(0x002001FE){};
+    pixelConfigStage1() : pixelConfig() { setLatches(0x002001FE); }
 
   private:
     /* Mask setting of the sub-pixels
@@ -222,6 +221,77 @@ namespace caribou {
     /** Overloaded print function for ostream operator
      */
     void print(std::ostream& out) const { out << "px [/|/-//|xx" << listVector(this->GetThresholds()) << "]"; }
+  };
+
+  // CLICTD pixel readout class
+  // The individual values are set via the member functions
+  class pixelReadout : public clictd_pixel {
+  public:
+    // Default constructor
+    pixelReadout() : clictd_pixel(0x0){};
+    pixelReadout(bool flag, uint8_t tot, uint8_t toa, uint8_t hits) : pixelReadout() {
+      SetFlag(flag);
+      SetTOT(tot);
+      SetTOA(toa);
+      SetHits(hits);
+    }
+
+    // Flag setting of the pixel
+    void SetFlag(bool flag) {
+      if(flag)
+        m_latches |= (1 << 21);
+      else
+        m_latches &= ~(1 << 21);
+    }
+    bool GetFlag() const { return (m_latches >> 21) & 0x1; }
+
+    // TOT setting of the pixel (5bit)
+    void SetTOT(uint8_t tot) { m_latches = (m_latches & 0xffe0ffff) | ((tot & 0x1f) << 16); }
+    uint8_t GetTOT() const {
+      if(longflag)
+        throw WrongDataFormat("LongCnt set, no TOT available.");
+      else
+        return (m_latches >> 16) & 0x1f;
+    };
+
+    // TOA setting of the pixel (13bit)
+    void SetTOA(uint16_t toa) {
+      m_latches = (m_latches & 0xffe000ff) | ((toa & 0x1fff) << 8);
+      longflag = true;
+    }
+    // TOA setting of the pixel (8bit)
+    void SetTOA(uint8_t toa) {
+      m_latches = (m_latches & 0xffff00ff) | ((toa & 0x00ff) << 8);
+      longflag = false;
+    }
+    uint16_t GetTOA() const {
+      if(longflag)
+        return (m_latches >> 8) & 0x1fff;
+      else
+        return (m_latches >> 8) & 0x00ff;
+    };
+
+    // Counter
+    void SetCounter(uint16_t cnt) { return SetTOA(cnt); }
+    void SetCounter(uint8_t cnt) { return SetTOA(cnt); }
+    uint16_t GetCounter() const { return GetTOA(); }
+
+    // Hit bits (8bit)
+    void SetHits(uint8_t hits) { m_latches = (m_latches & 0xffffff00) | (hits & 0xff); }
+    uint8_t GetHits() const { return m_latches & 0x000000ff; };
+
+    /** Overloaded print function for ostream operator
+     */
+    void print(std::ostream& out) const {
+      out << this->GetFlag();
+      if(!longflag) {
+        out << "," << static_cast<int>(this->GetTOT());
+      }
+      out << "," << static_cast<int>(this->GetTOA());
+    }
+
+  private:
+    bool longflag;
   };
 } // namespace caribou
 
