@@ -30,7 +30,7 @@ CLICTDDevice::CLICTDDevice(const caribou::Configuration config)
   _registers.add(CLICTD_REGISTERS);
 
   // Add memory pages to the dictionary:
-  _memory.add(CLICPIX2_MEMORY);
+  _memory.add(CLICTD_MEMORY);
 
   // set default CLICpix2 control
   setMemory("reset", 0);
