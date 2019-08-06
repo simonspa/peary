@@ -34,8 +34,8 @@ iface_mem::~iface_mem() {
 }
 
 std::pair<size_t, uint32_t> iface_mem::write(const memory_map& mem, const std::pair<size_t, uint32_t>& dest) {
-  LOG(TRACE) << "Writing to mapped memory at " << std::hex << mem.getBaseAddress() << ", offset " << dest.first << std::dec
-             << ": " << dest.second;
+  LOG(TRACE) << "Writing to mapped memory at 0x" << std::hex << mem.getBaseAddress() << "+" << mem.getOffset() << ", offset "
+             << dest.first << std::dec << ": " << dest.second;
   volatile uint32_t* reg =
     reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(mapMemory(mem)) + mem.getOffset() + dest.first);
   *reg = dest.second;
@@ -46,8 +46,8 @@ uint32_t iface_mem::readWord(const memory_map& mem, const size_t offset) {
   volatile uint32_t* reg =
     reinterpret_cast<volatile uint32_t*>(reinterpret_cast<std::intptr_t>(mapMemory(mem)) + mem.getOffset() + offset);
   uint32_t value = *reg;
-  LOG(TRACE) << "Reading from mapped memory at " << std::hex << mem.getBaseAddress() << ", offset " << offset << std::dec
-             << ": " << value;
+  LOG(TRACE) << "Reading from mapped memory at 0x" << std::hex << mem.getBaseAddress() << "+" << mem.getOffset()
+             << ", offset " << offset << std::dec << ": " << value;
   return value;
 }
 
@@ -62,7 +62,7 @@ std::vector<uint32_t> iface_mem::read(const memory_map& mem, const size_t offset
 void* iface_mem::mapMemory(const memory_map& page) {
 
   // Check if this memory page is already mapped and return the pointer:
-  LOG(TRACE) << "Returning mapped memory at " << std::hex << page.getBaseAddress() << std::dec;
+  LOG(TRACE) << "Returning mapped memory at 0x" << std::hex << page.getBaseAddress() << "+" << page.getOffset() << std::dec;
   try {
     return _mappedMemory.at(page);
   }
