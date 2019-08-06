@@ -32,38 +32,39 @@ namespace caribou {
   const std::size_t CLICTD_READOUT_MAP_SIZE = 4096;
   const std::size_t CLICTD_READOUT_MAP_MASK = CLICTD_READOUT_MAP_SIZE - 1;
 
-#define CLICTD_MEMORY                                                                                                       \
-  {                                                                                                                         \
-    {"rdfifo",                                                                                                              \
-     memory_map(CLICTD_READOUT_BASE_ADDRESS,                                                                                \
-                CLICTD_READOUT_RDFIFO_OFFSET,                                                                               \
-                CLICTD_READOUT_MAP_SIZE,                                                                                    \
-                CLICTD_READOUT_MAP_MASK,                                                                                    \
-                PROT_READ)},                                                                                                \
-      {"rdstatus",                                                                                                          \
-       memory_map(CLICTD_READOUT_BASE_ADDRESS,                                                                              \
-                  CLICTD_READOUT_RDSTATUS_OFFSET,                                                                           \
-                  CLICTD_READOUT_MAP_SIZE,                                                                                  \
-                  CLICTD_READOUT_MAP_MASK,                                                                                  \
-                  PROT_READ)},                                                                                              \
-      {"rdcontrol",                                                                                                         \
-       memory_map(CLICTD_READOUT_BASE_ADDRESS,                                                                              \
-                  CLICTD_READOUT_RDCONTROL_OFFSET,                                                                          \
-                  CLICTD_READOUT_MAP_SIZE,                                                                                  \
-                  CLICTD_READOUT_MAP_MASK,                                                                                  \
-                  PROT_READ | PROT_WRITE)},                                                                                 \
-    {                                                                                                                       \
-      "chipcontrol", memory_map(CLICTD_READOUT_BASE_ADDRESS,                                                                \
-                                CLICTD_READOUT_CHIPCONTROL_OFFSET,                                                          \
-                                CLICTD_READOUT_MAP_SIZE,                                                                    \
-                                CLICTD_READOUT_MAP_MASK,                                                                    \
-                                PROT_READ | PROT_WRITE)                                                                     \
-    }                                                                                                                       \
+// clang-format off
+
+#define CLICTD_MEMORY                                                         \
+  {                                                                           \
+    {"rdfifo",                                                                \
+        memory_map(CLICTD_READOUT_BASE_ADDRESS,                               \
+                   CLICTD_READOUT_RDFIFO_OFFSET,                              \
+                   CLICTD_READOUT_MAP_SIZE,                                   \
+                   CLICTD_READOUT_MAP_MASK,                                   \
+                   PROT_READ)},                                               \
+    {"rdstatus",                                                              \
+        memory_map(CLICTD_READOUT_BASE_ADDRESS,                               \
+                   CLICTD_READOUT_RDSTATUS_OFFSET,                            \
+                   CLICTD_READOUT_MAP_SIZE,                                   \
+                   CLICTD_READOUT_MAP_MASK,                                   \
+                   PROT_READ)},                                               \
+    {"rdcontrol",                                                             \
+        memory_map(CLICTD_READOUT_BASE_ADDRESS,                               \
+                   CLICTD_READOUT_RDCONTROL_OFFSET,                           \
+                   CLICTD_READOUT_MAP_SIZE,                                   \
+                   CLICTD_READOUT_MAP_MASK,                                   \
+                   PROT_READ | PROT_WRITE)},                                  \
+    {"chipcontrol",                                                           \
+        memory_map(CLICTD_READOUT_BASE_ADDRESS,                               \
+                   CLICTD_READOUT_CHIPCONTROL_OFFSET,                         \
+                   CLICTD_READOUT_MAP_SIZE,                                   \
+                   CLICTD_READOUT_MAP_MASK,                                   \
+                   PROT_READ | PROT_WRITE)}                                   \
   }
 
 /** Dictionary for register address/name lookup for CLICTD
  */
-// clang-format off
+
 #define CLICTD_REGISTERS				\
   {						\
     {"globalconfig", register_t<>(0x00, 0x07)},		\
