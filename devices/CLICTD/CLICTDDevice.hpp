@@ -60,6 +60,8 @@ namespace caribou {
 
     void configureClock(bool internal = 1);
 
+    void getMem(std::string);
+    void setMem(std::string, uint32_t value);
     /**
      * @brief Set correct channel for output multiplexer
      */
