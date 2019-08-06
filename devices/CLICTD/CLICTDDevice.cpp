@@ -95,10 +95,10 @@ void CLICTDDevice::configureClock(bool internal) {
 bool CLICTDDevice::storeFrame() {
 
   LOG(DEBUG) << "Frame readout requested";
-  this->setMem("rdcontrol", 1);
+  setMemory("rdcontrol", 1);
   uint32_t frameSize = 0;
   uint32_t attempts = 0;
-  while((this->getMem("rdcontrol")) & 0b1) {
+  while((getMemory("rdcontrol")) & 0b1) {
     usleep(100);
     if(attempts++ >= 16384) {
       LOG(ERROR) << "Frame readout timeout";
@@ -110,9 +110,9 @@ bool CLICTDDevice::storeFrame() {
   disk.open("data.bin", std::ios::out | std::ios::binary);
 
   // Poll data until there is something left
-  while((this->getMem("rdstatus")) & 0b1) {
+  while((getMemory("rdstatus")) & 0b1) {
     frameSize++;
-    uint32_t data = getMem("rdfifo");
+    uint32_t data = getMemory("rdfifo");
     disk.write((char*)&data, sizeof(uint32_t));
   }
   LOG(DEBUG) << "Read " << frameSize << " 32bit words from FIFO.";
