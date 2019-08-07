@@ -290,6 +290,8 @@ namespace caribou {
       out << "," << static_cast<int>(this->GetTOA());
     }
 
+    void setLongFlag(bool flag) { longflag = flag; }
+
   private:
     bool longflag;
   };
