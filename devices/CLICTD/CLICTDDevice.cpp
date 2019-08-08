@@ -199,17 +199,29 @@ void CLICTDDevice::programMatrix() {
     return bits;
   };
 
+  LOG(INFO) << "Resetting matrix...";
+  getRawData();
+
   LOG(INFO) << "Matrix configuration - Stage 1";
   // Write 0x01 to ’configCtrl’ register (start 1st configuration stage)
   this->setRegister("configctrl", 0x01);
+
+  size_t calls = 0;
+
   // For each of the pixels per column, do
-  for(size_t row = 0; row < 128; row++) {
+  for(size_t row = 0; row < 200; row++) {
     // Read configuration bits for STAGE 1 one by one:
     for(size_t bit = 22; bit > 0; bit--) {
-      auto value = bitvalues(pixelConfiguration, true, row, bit - 1);
+      // auto value = bitvalues(pixelConfiguration, true, row, bit - 1);
       // Load ’configData’ register with bit 21 of the 1st configuration stage (1 bit per column)
-      this->setRegister("configdata", value);
-      LOG(DEBUG) << "Row " << row << ", bit " << (bit - 1) << ": " << to_bit_string(value);
+      // this->setRegister("configdata", value);
+      this->setRegister("configdata", 0xFFFF);
+      if(this->getRegister("configdata") != 0xFFFF) {
+        LOG(ERROR) << "Weird";
+      }
+
+      calls++;
+      // LOG(DEBUG) << "Row " << row << ", bit " << (bit - 1) << ": " << to_bit_string(value);
       // Write 0x11 to ’configCtrl’ register to shift configuration in the matrix
       this->setRegister("configctrl", 0x11);
       // Write 0x01 to ’configCtrl’ register
@@ -219,11 +231,36 @@ void CLICTDDevice::programMatrix() {
   // Write 0x00 to ’configCtrl’ register
   this->setRegister("configctrl", 0x00);
 
+  LOG(INFO) << "Calls: " << calls;
+  // Make sure to clear the FPGA FIFO
+  setMemory("rdcontrol", 2);
+  usleep(10);
   auto rawdata = getRawData();
   LOG(INFO) << "Matrix Stage 1";
   for(auto& d : rawdata) {
     LOG(INFO) << to_bit_string(d);
   }
+
+  // bool configurationError = false;
+  // // Read back the applied configuration (optional)
+  // auto readback = getData();
+  // for(const auto& px_cfg : pixelConfiguration) {
+  //   auto address = px_cfg.first;
+  //   auto pixel = px_cfg.second.first;
+  //   auto reading = *static_cast<clictd_pixel>(readback[address]);
+  //
+  //   // Compare with value read from the matrix:
+  //   if(pixel != reading) {
+  //     LOG(ERROR) << "Matrix configuration of pixel " << static_cast<int>(address.first) << ","
+  //                << static_cast<int>(address.second) << " does not match:";
+  //     LOG(ERROR) << to_bit_string(pixel.GetLatches()) << " != " << to_bit_string(reading.GetLatches());
+  //     configurationError = true;
+  //   }
+  // }
+  //
+  // if(configurationError) {
+  //   throw DataException("Matrix configuration mismatch");
+  // }
 
   LOG(INFO) << "Matrix configuration - Stage 2";
   // Write 0x02 to ’configCtrl’ register (start 2nd configuration stage)
@@ -235,6 +272,10 @@ void CLICTDDevice::programMatrix() {
       auto value = bitvalues(pixelConfiguration, false, row, bit - 1);
       // Load ’configData’ register with bit 21 of the 2nd configuration stage (1 bit per column)
       this->setRegister("configdata", value);
+      if(this->getRegister("configdata") != value) {
+        LOG(ERROR) << "Weird";
+      }
+
       LOG(DEBUG) << "Row " << row << ", bit " << (bit - 1) << ": " << to_bit_string(value);
       // Write 0x12 to ’configCtrl’ register to shift configuration in the matrix
       this->setRegister("configctrl", 0x12);
@@ -252,6 +293,7 @@ void CLICTDDevice::programMatrix() {
     LOG(INFO) << to_bit_string(d);
   }
 
+  LOG(INFO) << "Verified matrix configuration.";
   // Configuration is complete
 }
 
