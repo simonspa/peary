@@ -202,14 +202,26 @@ void CLICTDDevice::programMatrix() {
   LOG(INFO) << "Resetting matrix...";
   getRawData();
 
+  LOG(INFO) << "Reading empty matrix:";
+  auto zeros = getRawData();
+  for(auto& d : zeros) {
+    LOG(INFO) << to_bit_string(d);
+  }
+
   LOG(INFO) << "Matrix configuration - Stage 1";
   // Write 0x01 to ’configCtrl’ register (start 1st configuration stage)
   this->setRegister("configctrl", 0x01);
 
+  LOG(STATUS) << "Sleeping for 10sec";
+  usleep(5000000);
+  LOG(WARNING) << "Hurry up!";
+  usleep(5000000);
+  LOG(STATUS) << "Time's up!";
+
   size_t calls = 0;
 
   // For each of the pixels per column, do
-  for(size_t row = 0; row < 200; row++) {
+  for(size_t row = 0; row < 128; row++) {
     // Read configuration bits for STAGE 1 one by one:
     for(size_t bit = 22; bit > 0; bit--) {
       // auto value = bitvalues(pixelConfiguration, true, row, bit - 1);
@@ -224,10 +236,19 @@ void CLICTDDevice::programMatrix() {
       // LOG(DEBUG) << "Row " << row << ", bit " << (bit - 1) << ": " << to_bit_string(value);
       // Write 0x11 to ’configCtrl’ register to shift configuration in the matrix
       this->setRegister("configctrl", 0x11);
+      usleep(10000);
       // Write 0x01 to ’configCtrl’ register
       this->setRegister("configctrl", 0x01);
+      usleep(10000);
     }
   }
+
+  LOG(STATUS) << "Sleeping for 10sec";
+  usleep(5000000);
+  LOG(WARNING) << "Hurry up!";
+  usleep(5000000);
+  LOG(STATUS) << "Time's up!";
+
   // Write 0x00 to ’configCtrl’ register
   this->setRegister("configctrl", 0x00);
 
@@ -279,8 +300,11 @@ void CLICTDDevice::programMatrix() {
       LOG(DEBUG) << "Row " << row << ", bit " << (bit - 1) << ": " << to_bit_string(value);
       // Write 0x12 to ’configCtrl’ register to shift configuration in the matrix
       this->setRegister("configctrl", 0x12);
+      usleep(10000);
+
       // Write 0x02 to ’configCtrl’ register
       this->setRegister("configctrl", 0x02);
+      usleep(10000);
     }
   }
   // Write 0x00 to ’configCtrl’ register
