@@ -18,7 +18,6 @@ CLICTDDevice::CLICTDDevice(const caribou::Configuration config)
   _dispatcher.add("configureClock", &CLICTDDevice::configureClock, this);
   _dispatcher.add("getMemory", &CLICTDDevice::getMem, this);
   _dispatcher.add("setMemory", &CLICTDDevice::setMem, this);
-  _dispatcher.add("storeFrame", &CLICTDDevice::storeFrame, this);
 
   // Set up periphery
   _periphery.add("vddd", PWR_OUT_2);
@@ -92,7 +91,7 @@ void CLICTDDevice::configureClock(bool internal) {
   }
 }
 
-bool CLICTDDevice::storeFrame() {
+std::vector<uint32_t> CLICTDDevice::getRawData() {
 
   LOG(DEBUG) << "Frame readout requested";
   setMemory("rdcontrol", 1);
@@ -106,19 +105,14 @@ bool CLICTDDevice::storeFrame() {
     }
   }
 
-  std::ofstream disk;
-  disk.open("data.bin", std::ios::out | std::ios::binary);
-
   // Poll data until there is something left
+  std::vector<uint32_t> rawdata;
   while((getMemory("rdstatus")) & 0b1) {
-    frameSize++;
     uint32_t data = getMemory("rdfifo");
-    disk.write((char*)&data, sizeof(uint32_t));
+    rawdata.push_back(data);
   }
-  LOG(DEBUG) << "Read " << frameSize << " 32bit words from FIFO.";
-  disk.flush();
-  disk.close();
-  return true;
+  LOG(DEBUG) << "Read " << rawdata.size() << " 32bit words from FIFO.";
+  return rawdata;
 }
 
 CLICTDDevice::matrixConfig CLICTDDevice::readMatrix(std::string filename) const {
@@ -229,6 +223,7 @@ void CLICTDDevice::programMatrix() {
   this->setRegister("configctrl", 0x00);
 
   // Read back the applied configuration (optional)
+  storeFrame();
 
   LOG(INFO) << "Matrix configuration - Stage 2";
   // Write 0x02 to ’configCtrl’ register (start 2nd configuration stage)
@@ -382,10 +377,6 @@ pearydata CLICTDDevice::getData() {
   }
 
   return decoded;
-}
-
-std::vector<uint32_t> CLICTDDevice::getRawData() {
-  return std::vector<uint32_t>();
 }
 
 void CLICTDDevice::setOutputMultiplexer(std::string name) {

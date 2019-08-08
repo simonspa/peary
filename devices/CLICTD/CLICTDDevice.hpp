@@ -63,7 +63,6 @@ namespace caribou {
     void getMem(std::string);
     void setMem(std::string, uint32_t value);
 
-    bool storeFrame();
     /**
      * @brief Set correct channel for output multiplexer
      */
