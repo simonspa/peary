@@ -172,7 +172,6 @@ void CLICTDDevice::configureMatrix(std::string filename) {
   while(true) {
     try {
       programMatrix();
-      LOG(INFO) << "Verified matrix configuration.";
       break;
     } catch(caribou::DataException& e) {
       LOG(ERROR) << e.what();
@@ -264,6 +263,13 @@ void CLICTDDevice::setSpecialRegister(std::string name, uint32_t value) {
     // Set the two values:
     this->setRegister(name + "_msb", msb);
     this->setRegister(name + "_lsb", lsb);
+  } else if(name == "configdata") {
+    // 16-bit register, just linearly add:
+    uint8_t lsb = value & 0x00FF;
+    uint8_t msb = (value >> 8) & 0xFF;
+    // Set the two values:
+    this->setRegister(name + "_msb", msb);
+    this->setRegister(name + "_lsb", lsb);
   }
 }
 
@@ -272,11 +278,16 @@ uint32_t CLICTDDevice::getSpecialRegister(std::string name) {
   if(name == "vanalog1" || name == "vthreshold") {
     // 9-bit register, just linearly add:
     auto lsb = this->getRegister(name + "_lsb");
-    auto msb = this->getRegister(name + "_msb");
+    uint32_t msb = this->getRegister(name + "_msb");
     // Cpmbine the two values:
-    value = ((msb & 0x1) << 8) || (lsb & 0xFF);
+    value = ((msb & 0x1) << 8) | (lsb & 0xFF);
+  } else if(name == "configdata") {
+    // 16-bit register, just linearly add:
+    auto lsb = this->getRegister(name + "_lsb");
+    uint32_t msb = this->getRegister(name + "_msb");
+    // Cpmbine the two values:
+    value = ((msb & 0xFF) << 8) | (lsb & 0xFF);
   }
-
   return value;
 }
 

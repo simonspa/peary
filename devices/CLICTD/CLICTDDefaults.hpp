@@ -85,7 +85,7 @@ namespace caribou {
     {"configctrl", register_t<>(0x05, 0x13, false)},		\
     {"configdata_lsb", register_t<>(0x06)},		\
     {"configdata_msb", register_t<>(0x07)},		\
-    {"configdata", register_t<>(0x06, 0xFF, false, true, true)},		\
+    {"configdata", register_t<>(0x06, 0xFF, true, true, true)},		\
     {"readoutctrl", register_t<>(0x08, 0x03)},		\
     {"roint", register_t<>(0x08, 0x01)},		\
     {"roexten", register_t<>(0x08, 0x02)},		\
