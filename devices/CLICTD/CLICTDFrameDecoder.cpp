@@ -1,6 +1,8 @@
-#include "clictd_frame.hpp"
+#include "CLICTDFrameDecoder.hpp"
 
-uint32_t clictd_framedecoder::getNextPixel(const std::vector<uint32_t>& rawFrame, unsigned* word, unsigned* bit) {
+using namespace caribou;
+
+uint32_t CLICTDFrameDecoder::getNextPixel(const std::vector<uint32_t>& rawFrame, unsigned& word, unsigned& bit) {
 
   // out of range
   if(word >= rawFrame.size()) {
@@ -38,7 +40,7 @@ uint32_t clictd_framedecoder::getNextPixel(const std::vector<uint32_t>& rawFrame
                         "incomplete frame?";
           return 0;
         }
-        pixeldata |= (rawFrame.at(word) >> (32 - mising));
+        pixeldata |= (rawFrame.at(word) >> (32 - missing));
         bit = 31 - missing;
       }
       // bit pointer is 21
@@ -55,41 +57,39 @@ uint32_t clictd_framedecoder::getNextPixel(const std::vector<uint32_t>& rawFrame
   }
 }
 
-pearydata clictd_framedecoder::decodeFrame(const std::vector<uint32_t>& rawFrame, const bool longcnt) {
+pearydata CLICTDFrameDecoder::decodeFrame(const std::vector<uint32_t>& rawFrame) {
   unsigned wrd = 0;
   unsigned bit = 31;
   pearydata data;
 
-  if ((getNextPixel(rawFrame, &wrd, &bit) != CLICTD_FRAME_START) {
+  if(getNextPixel(rawFrame, wrd, bit) != CLICTD_FRAME_START) {
     LOG(ERROR) << "The first word does not match the frame start pattern.";
-    return pearydata;
+    return data;
   }
 
-  for (uint8_t col = 0; col < CLICTD_COLUMNS; col++) {
+  for(uint8_t col = 0; col < CLICTD_COLUMNS; col++) {
     // start of column
-    uint32_t bits_of_data = getNextPixel(rawFrame, &wrd, &bit);
+    uint32_t bits_of_data = getNextPixel(rawFrame, wrd, bit);
     if((bits_of_data & ~CLICTD_COLUMN_ID_MASK) != CLICTD_COLUMN_ID) {
       LOG(ERROR) << "Column " << col << " header does not match the pattern.";
-      return pearydata;
+      return data;
     }
     if(((bits_of_data & CLICTD_COLUMN_ID_MASK) >> CLICTD_COLUMN_ID_MASK_SHIFT) != col) {
       LOG(ERROR) << "Column " << col << " header does not match the expected column number.";
-      return pearydata;
+      return data;
     }
     // row data
     for(uint8_t row = 0; row < CLICTD_ROWS; row++) {
       // get data
-      bits_of_data = getNextPixel(rawFrame, &wrd, &bit);
-      data[std::make_pair(col, row)] = std::make_unique<CLICTDDevice::pixelReadout>();
-      data[std::make_pair(col, row)]->setLatches(bits_of_data);
-      data[std::make_pair(col, row)]->setLongFlag(longcnt);
+      bits_of_data = getNextPixel(rawFrame, wrd, bit);
+      data[std::make_pair(col, row)] = std::make_unique<CLICTDPixelReadout>(bits_of_data, longcnt);
     }
   }
-  if ((getNextPixel(rawFrame, &wrd, &bit) != CLICTD_FRAME_END) {
+  if(getNextPixel(rawFrame, wrd, bit) != CLICTD_FRAME_END) {
     LOG(ERROR) << "The last word does not match the frame end pattern.";
-    return pearydata;
+    return data;
   }
-  return pearydata;
+  return data;
 }
 
 /*

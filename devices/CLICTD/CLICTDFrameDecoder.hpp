@@ -3,6 +3,12 @@
 
 #include <vector>
 
+#include "utils/datatypes.hpp"
+#include "utils/log.hpp"
+#include "utils/utils.hpp"
+
+#include "CLICTDPixels.hpp"
+
 #define CLICTD_FRAME_START 0b1111111111111110101000
 #define CLICTD_FRAME_END 0b1111111111111110010100
 #define CLICTD_COLUMN_ID 0b1111111111111101000000
@@ -13,16 +19,16 @@
 #define CLICTD_ROWS 128
 
 namespace caribou {
-  class clictd_framedecoder {
+  class CLICTDFrameDecoder {
   public:
-    clictd_framedecoder(bool long_counter) : longcnt(long_counter){};
+    CLICTDFrameDecoder(bool long_counter) : longcnt(long_counter){};
 
     pearydata decodeFrame(const std::vector<uint32_t>& rawFrame);
 
   private:
-    uint32_t getNextPixel(const std::vector<uint32_t>& rawFrame, unsigned* word, unsigned* bit);
+    uint32_t getNextPixel(const std::vector<uint32_t>& rawFrame, unsigned& word, unsigned& bit);
     bool longcnt{};
-  }
+  };
 }
 
 #endif
