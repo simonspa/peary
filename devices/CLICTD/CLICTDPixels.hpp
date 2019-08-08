@@ -66,13 +66,13 @@ namespace caribou {
    * Layout Stage 1:
    * ( 1 tDAC1[1] tDAC0[3] tpEnA[8] mask[8] tpEnD[1] )
    */
-  class pixelConfig : public virtual clictd_pixel {
+  class CLICTDPixelConfig : public virtual clictd_pixel {
   public:
     /* Default constructor
      *
      * Initializes the pixel configuration with bit 21 always set to '1'
      */
-    pixelConfig() : clictd_pixel(0x00200000){};
+    CLICTDPixelConfig() : clictd_pixel(0x00200000){};
   };
 
   /* CLICTD Stage1 pixel configuration class
@@ -88,7 +88,7 @@ namespace caribou {
    * Layout Stage 1:
    * ( 1 tDAC1[1] tDAC0[3] tpEnA[8] mask[8] tpEnD[1] )
    */
-  class pixelConfigStage1 : public pixelConfig {
+  class pixelConfigStage1 : public CLICTDPixelConfig {
   public:
     /**
      * Constructor for a stage 1 configuration data object:
@@ -97,7 +97,8 @@ namespace caribou {
      * @param tp_analog  Test pulse enable bits for analog front-ends
      * @param thresholds Threshold tuning DAC settings for channels 0-7 (front-ends 2-7 are ignored)
      */
-    pixelConfigStage1(uint8_t mask, bool tp_digital, uint8_t tp_analog, std::vector<uint8_t> thresholds) : pixelConfig() {
+    pixelConfigStage1(uint8_t mask, bool tp_digital, uint8_t tp_analog, std::vector<uint8_t> thresholds)
+        : CLICTDPixelConfig() {
       SetMask(mask);
       EnableTestpulseDigital(tp_digital);
       EnableTestpulseAnalog(tp_analog);
@@ -111,7 +112,7 @@ namespace caribou {
     }
 
     // By default, instantiated as masked
-    pixelConfigStage1() : pixelConfig() { setLatches(0x002001FE); }
+    pixelConfigStage1() : CLICTDPixelConfig() { setLatches(0x002001FE); }
 
   private:
     /* Mask setting of the sub-pixels
@@ -170,13 +171,13 @@ namespace caribou {
    * Layout Stage 2:
    * ( 1 tDAC7[3] tDAC6[3] tDAC5[3] tDAC4[3] tDAC3[3] tDAC2[3] tDAC1[2] 0 )
    */
-  class pixelConfigStage2 : public pixelConfig {
+  class pixelConfigStage2 : public CLICTDPixelConfig {
   public:
     /**
      * Constructor for a stage 2 configuration data object:
      * @param thresholds Threshold tuning DAC settings for channels 0-7 (front-end 0 is ignored)
      */
-    pixelConfigStage2(std::vector<uint8_t> thresholds) : pixelConfig() {
+    pixelConfigStage2(std::vector<uint8_t> thresholds) : CLICTDPixelConfig() {
       if(thresholds.size() < 7 || thresholds.size() > 8) {
         throw ConfigInvalid("Wrong number of threshold adjustment settings");
       }
@@ -187,7 +188,7 @@ namespace caribou {
       }
     };
 
-    pixelConfigStage2() : pixelConfig(){};
+    pixelConfigStage2() : CLICTDPixelConfig(){};
 
   private:
     void SetThreshold(uint8_t frontend, uint8_t threshold) {
@@ -225,11 +226,12 @@ namespace caribou {
 
   // CLICTD pixel readout class
   // The individual values are set via the member functions
-  class pixelReadout : public clictd_pixel {
+  class CLICTDPixelReadout : public clictd_pixel {
   public:
     // Default constructor
-    pixelReadout() : clictd_pixel(0x0){};
-    pixelReadout(bool flag, uint8_t tot, uint8_t toa, uint8_t hits) : pixelReadout() {
+    CLICTDPixelReadout() : clictd_pixel(0x0){};
+    CLICTDPixelReadout(uint32_t latches, bool longcnt) : clictd_pixel(latches), longflag(longcnt){};
+    CLICTDPixelReadout(bool flag, uint8_t tot, uint8_t toa, uint8_t hits) : CLICTDPixelReadout() {
       SetFlag(flag);
       SetTOT(tot);
       SetTOA(toa);
