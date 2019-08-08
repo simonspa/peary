@@ -220,8 +220,11 @@ void CLICTDDevice::programMatrix() {
   // Write 0x00 to ’configCtrl’ register
   this->setRegister("configctrl", 0x00);
 
-  // Read back the applied configuration (optional)
-  auto data = getRawData();
+  auto rawdata = getRawData();
+  LOG(INFO) << "Matrix Stage 1";
+  for(auto& d : rawdata) {
+    LOG(INFO) << to_bit_string(d);
+  }
 
   LOG(INFO) << "Matrix configuration - Stage 2";
   // Write 0x02 to ’configCtrl’ register (start 2nd configuration stage)
@@ -244,6 +247,11 @@ void CLICTDDevice::programMatrix() {
   this->setRegister("configctrl", 0x00);
 
   // Read back the applied configuration (optional)
+  auto rawdata2 = getRawData();
+  LOG(INFO) << "Matrix Stage 2";
+  for(auto& d : rawdata2) {
+    LOG(INFO) << to_bit_string(d);
+  }
 
   // Configuration is complete
 }
