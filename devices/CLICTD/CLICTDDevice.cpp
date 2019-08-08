@@ -131,15 +131,10 @@ CLICTDDevice::matrixConfig CLICTDDevice::readMatrix(std::string filename) const 
     if(!line.length() || '#' == line.at(0))
       continue;
     std::istringstream pxline(line);
-    int column, row, mask, tp_dig, tp_ana0, tp_ana1, tp_ana2, tp_ana3, tp_ana4, tp_ana5, tp_ana6, tp_ana7;
+    int column, row, mask, tp_dig, tp_analog;
     int threshold0, threshold1, threshold2, threshold3, threshold4, threshold5, threshold6, threshold7;
-    if(pxline >> column >> row >> mask >> tp_dig >> tp_ana0 >> tp_ana1 >> tp_ana2 >> tp_ana3 >> tp_ana4 >> tp_ana5 >>
-       tp_ana6 >> tp_ana7 >> threshold0 >> threshold1 >> threshold2 >> threshold3 >> threshold4 >> threshold5 >>
-       threshold6 >> threshold7) {
-
-      // Prepare analog testpulse bits:
-      uint8_t tp_analog = ((tp_ana7 & 0x1) << 7) | ((tp_ana6 & 0x1) << 6) | ((tp_ana5 & 0x1) << 5) | ((tp_ana4 & 0x1) << 4) |
-                          ((tp_ana3 & 0x1) << 3) | ((tp_ana2 & 0x1) << 2) | ((tp_ana1 & 0x1) << 1) | (tp_ana0 & 0x1);
+    if(pxline >> column >> row >> mask >> tp_dig >> tp_analog >> threshold0 >> threshold1 >> threshold2 >> threshold3 >>
+       threshold4 >> threshold5 >> threshold6 >> threshold7) {
 
       // Prepare thresholds:
       std::vector<uint8_t> thresholds;
@@ -153,12 +148,14 @@ CLICTDDevice::matrixConfig CLICTDDevice::readMatrix(std::string filename) const 
       thresholds.push_back(threshold7);
 
       pixelsConfig[std::make_pair(column, row)] =
-        std::make_pair(pixelConfigStage1(mask, tp_dig, tp_analog, thresholds), pixelConfigStage2(thresholds));
-      if(mask)
+        std::make_pair(pixelConfigStage1(static_cast<uint8_t>(mask), tp_dig, static_cast<uint8_t>(tp_analog), thresholds),
+                       pixelConfigStage2(thresholds));
+      if(mask > 0)
         masked++;
     }
   }
-  LOG(INFO) << pixelsConfig.size() << " pixel configurations cached, " << masked << " of which are masked";
+  LOG(INFO) << pixelsConfig.size() << " superpixel configurations cached, " << masked
+            << " of which are at least partly masked";
   return pixelsConfig;
 }
 
