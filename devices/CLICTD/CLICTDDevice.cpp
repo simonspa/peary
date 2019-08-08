@@ -93,6 +93,8 @@ void CLICTDDevice::configureClock(bool internal) {
 
 std::vector<uint32_t> CLICTDDevice::getRawData() {
 
+  std::vector<uint32_t> rawdata;
+
   LOG(DEBUG) << "Frame readout requested";
   setMemory("rdcontrol", 1);
   uint32_t frameSize = 0;
@@ -101,12 +103,11 @@ std::vector<uint32_t> CLICTDDevice::getRawData() {
     usleep(100);
     if(attempts++ >= 16384) {
       LOG(ERROR) << "Frame readout timeout";
-      return false;
+      return rawdata;
     }
   }
 
   // Poll data until there is something left
-  std::vector<uint32_t> rawdata;
   while((getMemory("rdstatus")) & 0b1) {
     uint32_t data = getMemory("rdfifo");
     rawdata.push_back(data);
@@ -223,7 +224,7 @@ void CLICTDDevice::programMatrix() {
   this->setRegister("configctrl", 0x00);
 
   // Read back the applied configuration (optional)
-  storeFrame();
+  auto data = getRawData();
 
   LOG(INFO) << "Matrix configuration - Stage 2";
   // Write 0x02 to ’configCtrl’ register (start 2nd configuration stage)
