@@ -12,8 +12,17 @@
 #define CLICTD_COLUMNS 16
 #define CLICTD_ROWS 128
 
-uint32_t getNextPixel(const std::vector<uint32_t>& rawFrame, unsigned* word, unsigned* bit);
+namespace caribou {
+  class clictd_framedecoder {
+  public:
+    clictd_framedecoder(bool long_counter) : longcnt(long_counter){};
 
-pearydata decodeFrame(const std::vector<uint32_t>& rawFrame, const bool longcnt);
+    pearydata decodeFrame(const std::vector<uint32_t>& rawFrame);
+
+  private:
+    uint32_t getNextPixel(const std::vector<uint32_t>& rawFrame, unsigned* word, unsigned* bit);
+    bool longcnt{};
+  }
+}
 
 #endif

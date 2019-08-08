@@ -1,6 +1,6 @@
 #include "clictd_frame.hpp"
 
-uint32_t getNextPixel(const std::vector<uint32_t>& rawFrame, unsigned* word, unsigned* bit) {
+uint32_t clictd_framedecoder::getNextPixel(const std::vector<uint32_t>& rawFrame, unsigned* word, unsigned* bit) {
 
   // out of range
   if(word >= rawFrame.size()) {
@@ -55,7 +55,7 @@ uint32_t getNextPixel(const std::vector<uint32_t>& rawFrame, unsigned* word, uns
   }
 }
 
-pearydata decodeFrame(const std::vector<uint32_t>& rawFrame, const bool longcnt) {
+pearydata clictd_framedecoder::decodeFrame(const std::vector<uint32_t>& rawFrame, const bool longcnt) {
   unsigned wrd = 0;
   unsigned bit = 31;
   pearydata data;
