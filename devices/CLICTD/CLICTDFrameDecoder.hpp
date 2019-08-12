@@ -24,6 +24,7 @@ namespace caribou {
     CLICTDFrameDecoder(bool long_counter) : longcnt(long_counter){};
 
     pearydata decodeFrame(const std::vector<uint32_t>& rawFrame);
+    std::vector<uint32_t> splitFrame(const std::vector<uint32_t>& rawFrame);
 
   private:
     uint32_t getNextPixel(const std::vector<uint32_t>& rawFrame, unsigned& word, unsigned& bit);
