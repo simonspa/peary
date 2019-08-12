@@ -23,6 +23,8 @@ namespace caribou {
 #define CLICTD_SUB 3.057
 #define CLICTD_SUB_CURRENT 3
 
+#define CLICTD_MAX_CONF_RETRY 15
+
   // CLICTD readout
   const std::intptr_t CLICTD_READOUT_BASE_ADDRESS = 0x43C70000;
   const std::intptr_t CLICTD_READOUT_RDFIFO_OFFSET = 0;

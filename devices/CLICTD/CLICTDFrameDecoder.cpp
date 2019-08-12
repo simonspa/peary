@@ -92,6 +92,28 @@ pearydata CLICTDFrameDecoder::decodeFrame(const std::vector<uint32_t>& rawFrame)
   return data;
 }
 
+std::vector<uint32_t> CLICTDFrameDecoder::splitFrame(const std::vector<uint32_t>& rawFrame) {
+  unsigned wrd = 0;
+  unsigned bit = 31;
+  std::vector<uint32_t> data;
+
+  data.push_back(getNextPixel(rawFrame, wrd, bit));
+
+  for(uint8_t col = 0; col < CLICTD_COLUMNS; col++) {
+    // start of column
+    data.push_back(getNextPixel(rawFrame, wrd, bit));
+
+    // row data
+    for(uint8_t row = 0; row < CLICTD_ROWS; row++) {
+      // get data
+      data.push_back(getNextPixel(rawFrame, wrd, bit));
+    }
+  }
+  data.push_back(getNextPixel(rawFrame, wrd, bit));
+
+  return data;
+}
+
 /*
 for(auto& px : data) {
   LOG(DEBUG) << px;

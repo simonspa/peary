@@ -11,6 +11,7 @@
 #include "clockgenerator/Si5345-RevB-CLICTD-Registers.h"
 
 #include "CLICTDDefaults.hpp"
+#include "CLICTDFrameDecoder.hpp"
 #include "CLICTDPixels.hpp"
 
 namespace caribou {
