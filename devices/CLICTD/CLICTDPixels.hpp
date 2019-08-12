@@ -195,8 +195,7 @@ namespace caribou {
       // Strip everything but three bits:
       auto value = threshold & 0x07;
       if(frontend == 1) {
-        uint64_t bit_mask = (0x06 << 1);
-        m_latches = (m_latches & (~bit_mask)) | ((value & 0x06) << 1);
+        m_latches = (m_latches & (~0x06)) | (value & 0x06);
       } else {
         size_t shift = (frontend - 1) * 3;
         uint64_t bit_mask = (0x07 << shift);
