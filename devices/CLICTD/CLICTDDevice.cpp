@@ -97,7 +97,6 @@ std::vector<uint32_t> CLICTDDevice::getRawData() {
 
   LOG(DEBUG) << "Frame readout requested";
   setMemory("rdcontrol", 1);
-  uint32_t frameSize = 0;
   uint32_t attempts = 0;
   while((getMemory("rdcontrol")) & 0b1) {
     usleep(100);
@@ -199,8 +198,8 @@ void CLICTDDevice::programMatrix() {
     return bits;
   };
 
-  bool chceck_clk_stopped = []() {
-    // check if clock is running
+  auto check_clk_stopped = [this]() {
+    // check if readout clock is running
     int retry = 0;
     while(!(getMemory("rdstatus") & 0x10)) {
       if(++retry > 3) {
@@ -211,8 +210,8 @@ void CLICTDDevice::programMatrix() {
     return true;
   };
 
-  bool chceck_clk_running = []() {
-    // check if clock is stopped
+  auto check_clk_running = [this]() {
+    // check if readout clock is stopped
     int retry = 0;
     while(getMemory("rdstatus") & 0x10) {
       if(++retry > 3) {
@@ -223,35 +222,41 @@ void CLICTDDevice::programMatrix() {
     return true;
   };
 
-  auto shift_bits_to_matrix = [](uint16_t value, bool stage1) {
-    int retry = 0;
-    while(retry <= CLICTD_MAX_CONF_RETRY) {
-      // Write the value to ’configData’ register
-      this->setRegister("configdata", value);
-      // Write 0x11/0x12 to ’configCtrl’ register to shift configuration in the matrix
-      this->setRegister("configctrl", 0x10 & (stage1 ? 0x01 : 0x02));
-      // Write 0x01/0x02 to ’configCtrl’ register
-      this->setRegister("configctrl", 0x00 & (stage1 ? 0x01 : 0x02));
-      // Repeat until the clock pulse was generated
-      if((getMemory("rdstatus") & 0x6) == 0x6) {
-        break;
-      }
-      retry++;
-    }
-    if(retry > 0) {
-      if(retry > CLICTD_MAX_CONF_RETRY) {
-        // Too many attempts was made, We gave up.
-        LOG(ERROR) << "Could not generate matrix write clock pulse at configuration stage " << stage1 ? "1"
-                                                                                                      : "2"
-                                                                                                          << " for row "
-                                                                                                          << row << ", bit "
-                                                                                                          << bit << " after "
-                                                                                                          << retry
-                                                                                                          << " attempts.";
-      } else {
-        LOG(DEBUG)) << "Needed to repeat matrix write clock pulse at configuration stage "<< stage1 ? "1" : "2" << " for row " << row << ", bit " << bit << ". Number of repetitions: " << retry;
-      }
-    }
+  auto configure_stage = [this, bitvalues](bool first_stage) {
+    // For each of the pixels per column, do
+    for(size_t row = 0; row < 128; row++) {
+      // Read configuration bits for STAGE 1 one by one:
+      for(size_t bit = 22; bit > 0; bit--) {
+        // Load ’configData’ register with bit 21 of the 1st configuration stage (1 bit per column)
+        auto value = bitvalues(pixelConfiguration, first_stage, row, bit - 1);
+        int retry = 0;
+        while(retry <= CLICTD_MAX_CONF_RETRY) {
+          // Write the value to ’configData’ register
+          this->setRegister("configdata", value);
+          // Write 0x11/0x12 to ’configCtrl’ register to shift configuration in the matrix
+          this->setRegister("configctrl", 0x10 & (first_stage ? 0x01 : 0x02));
+          // Write 0x01/0x02 to ’configCtrl’ register
+          this->setRegister("configctrl", 0x00 & (first_stage ? 0x01 : 0x02));
+          // Repeat until the clock pulse was generated
+          if((getMemory("rdstatus") & 0x6) == 0x6) {
+            break;
+          }
+          retry++;
+        }
+        if(retry > 0) {
+          if(retry > CLICTD_MAX_CONF_RETRY) {
+            // Too many attempts was made, We gave up.
+            LOG(ERROR) << "Could not generate matrix write clock pulse at configuration stage "
+                       << std::to_string(first_stage ? 1 : 2) << " for row " << row << ", bit " << bit << " after " << retry
+                       << " attempts.";
+          } else {
+            LOG(DEBUG) << "Needed to repeat matrix write clock pulse at configuration stage "
+                       << std::to_string(first_stage ? 1 : 2) << " for row " << row << ", bit " << bit
+                       << ". Number of repetitions: " << retry;
+          }
+        }
+      } // bit loop
+    }   // row loop
   };
 
   LOG(INFO) << "Resetting matrix...";
@@ -263,27 +268,18 @@ void CLICTDDevice::programMatrix() {
   // Write 0x01 to ’configCtrl’ register (start 1st configuration stage)
   this->setRegister("configctrl", 0x01);
   // Check if clock is stopped and also clear readout/clock status register by reading it
-  chceck_clk_stopped();
-
-  // For each of the pixels per column, do
-  for(size_t row = 0; row < 128; row++) {
-    // Read configuration bits for STAGE 1 one by one:
-    for(size_t bit = 22; bit > 0; bit--) {
-      // Load ’configData’ register with bit 21 of the 1st configuration stage (1 bit per column)
-      auto value = bitvalues(pixelConfiguration, true, row, bit - 1);
-      shift_bits_to_matrix(value, true);
-    }
-  }
-
+  check_clk_stopped();
+  // Configure stage 1
+  configure_stage(true);
   // Write 0x00 to ’configCtrl’ register - switch back to readout mode.
   this->setRegister("configctrl", 0x00);
   // Check if the clock was restarted
-  chceck_clk_running();
+  check_clk_running();
 
   // Reset the readout FSM and clear the FPGA FIFO
   setMemory("rdcontrol", 2);
   usleep(10);
-  retry = 0;
+  int retry = 0;
   while(getMemory("rdcontrol") & 2) {
     if(++retry > 3) {
       LOG(ERROR) << "Could not finish FPGA readout reset.";
@@ -324,21 +320,13 @@ void CLICTDDevice::programMatrix() {
   // Write 0x02 to ’configCtrl’ register (start 2nd configuration stage)
   this->setRegister("configctrl", 0x02);
   // Check if clock is stopped and also clear readout/clock status register by reading it
-  chceck_clk_stopped();
-
-  // For each of the pixels per column, do
-  for(size_t row = 0; row < 128; row++) {
-    // Read configuration bits for STAGE 1 one by one:
-    for(size_t bit = 22; bit > 0; bit--) {
-      auto value = bitvalues(pixelConfiguration, false, row, bit - 1);
-      shift_bits_to_matrix(value, false);
-    }
-  }
-
-  // Write 0x00 to ’configCtrl’ register
+  check_clk_stopped();
+  // Configure stage 2
+  configure_stage(false);
+  // Write 0x00 to ’configCtrl’ register - switch back to readout mode.
   this->setRegister("configctrl", 0x00);
   // Check if the clock was restarted
-  chceck_clk_running();
+  check_clk_running();
 
   // Reset the readout FSM and clear the FPGA FIFO
   setMemory("rdcontrol", 2);
