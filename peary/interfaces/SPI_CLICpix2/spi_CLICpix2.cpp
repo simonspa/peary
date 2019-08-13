@@ -88,7 +88,7 @@ std::vector<std::pair<spi_reg_t, spi_t>> iface_spi_CLICpix2::write(const spi_add
     if(ioctl(spiDesc,
              SPI_IOC_MESSAGE(data.size() % static_cast<int>(2 << 7)),
              &tr[data.size() / static_cast<int>(2 << 7) * static_cast<int>((2 << 7))]) <
-       data.size() % static_cast<int>(2 << 7))
+       static_cast<int>(data.size()) % static_cast<int>(2 << 7))
       throw CommunicationError("Failed to access device " + devicePath() + ": " + std::strerror(errno));
 
   // unpack
