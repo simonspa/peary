@@ -62,7 +62,7 @@ namespace caribou {
                    CLICTD_READOUT_CHIPCONTROL_OFFSET,                         \
                    CLICTD_READOUT_MAP_SIZE,                                   \
                    CLICTD_READOUT_MAP_MASK,                                   \
-                   PROT_READ | PROT_WRITE)}                                   \
+                   PROT_READ | PROT_WRITE)},                                  \
     {"shuttertimeout",                                                        \
         memory_map(CLICTD_READOUT_BASE_ADDRESS,                               \
                    CLICTD_READOUT_SHUTTERTIMEOUT_OFFSET,                      \
