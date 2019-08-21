@@ -31,6 +31,7 @@ namespace caribou {
   const std::intptr_t CLICTD_READOUT_RDSTATUS_OFFSET = 4;
   const std::intptr_t CLICTD_READOUT_RDCONTROL_OFFSET = 8;
   const std::intptr_t CLICTD_READOUT_CHIPCONTROL_OFFSET = 12;
+  const std::intptr_t CLICTD_READOUT_SHUTTERTIMEOUT_OFFSET = 16;
   const std::size_t CLICTD_READOUT_MAP_SIZE = 4096;
   const std::size_t CLICTD_READOUT_MAP_MASK = CLICTD_READOUT_MAP_SIZE - 1;
 
@@ -59,6 +60,12 @@ namespace caribou {
     {"chipcontrol",                                                           \
         memory_map(CLICTD_READOUT_BASE_ADDRESS,                               \
                    CLICTD_READOUT_CHIPCONTROL_OFFSET,                         \
+                   CLICTD_READOUT_MAP_SIZE,                                   \
+                   CLICTD_READOUT_MAP_MASK,                                   \
+                   PROT_READ | PROT_WRITE)}                                   \
+    {"shuttertimeout",                                                        \
+        memory_map(CLICTD_READOUT_BASE_ADDRESS,                               \
+                   CLICTD_READOUT_SHUTTERTIMEOUT_OFFSET,                      \
                    CLICTD_READOUT_MAP_SIZE,                                   \
                    CLICTD_READOUT_MAP_MASK,                                   \
                    PROT_READ | PROT_WRITE)}                                   \
