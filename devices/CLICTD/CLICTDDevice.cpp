@@ -509,26 +509,6 @@ void CLICTDDevice::powerStatusLog() {
 
 pearydata CLICTDDevice::getData() {
   auto rawdata = getFrame();
-
-  bool frame_started = false;
-  uint8_t column = 0;
-  for(auto data : rawdata) {
-    // Check for header:
-    if((data << 8) & 0x3FFF) { // FIXME
-      if((data & 0xFF) == 0xA8) {
-        LOG(DEBUG) << "Header: Frame start";
-        frame_started = true;
-      } else if((data & 0xFF) == 0x94) {
-        LOG(DEBUG) << "Header: Frame end";
-        frame_started = false;
-      } else {
-        column = (data >> 2) & 0xF;
-        LOG(DEBUG) << "Header: Column " << column;
-      }
-      // No header but pixel data.
-    }
-  }
-
   return frame_decoder_.decodeFrame(rawdata);
 }
 
