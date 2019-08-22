@@ -171,6 +171,14 @@ namespace caribou {
       return;
     }
 
+    process_register(reg, name, value);
+  }
+
+  template <typename T>
+  void CaribouDevice<T>::process_register(register_t<typename T::reg_type, typename T::data_type> reg,
+                                          std::string name,
+                                          uint32_t value) {
+
     typename T::data_type regval = static_cast<typename T::data_type>(value);
     LOG(DEBUG) << "Register to be set: " << name << " (" << to_hex_string(reg.address()) << ")";
 

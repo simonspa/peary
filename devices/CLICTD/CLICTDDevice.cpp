@@ -367,7 +367,10 @@ void CLICTDDevice::setSpecialRegister(std::string name, uint32_t value) {
   } else if(name == "longcnt") {
     // Reconfiguring the frame decoder with the new setting:
     frame_decoder_.setLongCounter(static_cast<bool>(value));
-    this->setRegister(name, value);
+
+    // Resolve name against register dictionary:
+    auto reg = _registers.get(name);
+    this->process_register(reg, name, value);
   }
 }
 
