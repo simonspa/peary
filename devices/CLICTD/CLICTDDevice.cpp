@@ -262,8 +262,6 @@ void CLICTDDevice::programMatrix() {
   LOG(INFO) << "Resetting matrix...";
   getRawData();
 
-  CLICTDFrameDecoder frDecode(false);
-
   LOG(INFO) << "Matrix configuration - Stage 1";
   // Write 0x01 to ’configCtrl’ register (start 1st configuration stage)
   this->setRegister("configctrl", 0x01);
@@ -290,7 +288,7 @@ void CLICTDDevice::programMatrix() {
   // Read back the applied configuration (optional)
   auto rawdata = getRawData();
   LOG(INFO) << "Matrix Stage 1";
-  auto pdata = frDecode.splitFrame(rawdata);
+  auto pdata = frame_decoder_.splitFrame(rawdata);
   for(auto& d : pdata) {
     LOG(INFO) << to_bit_string(d);
   }
@@ -342,7 +340,7 @@ void CLICTDDevice::programMatrix() {
   // Read back the applied configuration (optional)
   auto rawdata2 = getRawData();
   LOG(INFO) << "Matrix Stage 2";
-  pdata = frDecode.splitFrame(rawdata2);
+  pdata = frame_decoder_.splitFrame(rawdata2);
   for(auto& d : pdata) {
     LOG(INFO) << to_bit_string(d);
   }

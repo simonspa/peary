@@ -81,6 +81,8 @@ namespace caribou {
     using matrixConfig = std::map<std::pair<uint8_t, uint8_t>, std::pair<pixelConfigStage1, pixelConfigStage2>>;
     matrixConfig pixelConfiguration{};
 
+    CLICTDFrameDecoder frame_decoder_;
+
     matrixConfig readMatrix(std::string filename) const;
   };
 
