@@ -462,8 +462,6 @@ void CLICTDDevice::powerStatusLog() {
 }
 
 pearydata CLICTDDevice::getData() {
-  pearydata decoded;
-
   auto rawdata = getRawData();
 
   bool frame_started = false;
@@ -481,20 +479,11 @@ pearydata CLICTDDevice::getData() {
         column = (data >> 2) & 0xF;
         LOG(DEBUG) << "Header: Column " << column;
       }
-
       // No header but pixel data.
     }
-    // FRAMESTART header, 22bit
-    // 0x3FFF-A8
-
-    // FRAMEEND header, 22bit
-    // 0x3FFF-94
-
-    // COLUMN header, 22bit
-    // 0x3FFF-?
   }
 
-  return decoded;
+  return frame_decoder_.decodeFrame(rawdata);
 }
 
 void CLICTDDevice::setOutputMultiplexer(std::string name) {
