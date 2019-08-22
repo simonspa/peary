@@ -69,12 +69,16 @@ namespace caribou {
      */
     void setOutputMultiplexer(std::string name);
 
+    void triggerPatternGenerator(bool sleep);
+
   private:
     /**
      * Routine to program the pixel matrix
      * This routine produces a bit matrix (using STL vector<bool>) which can directly be sent to the ASIC
      */
     void programMatrix();
+
+    std::vector<uint32_t> getFrame();
 
     /* Map of pixelConfigs for configuration storage (column, row))
      */

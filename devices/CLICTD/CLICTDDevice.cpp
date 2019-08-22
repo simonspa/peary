@@ -18,6 +18,7 @@ CLICTDDevice::CLICTDDevice(const caribou::Configuration config)
   _dispatcher.add("configureClock", &CLICTDDevice::configureClock, this);
   _dispatcher.add("getMemory", &CLICTDDevice::getMem, this);
   _dispatcher.add("setMemory", &CLICTDDevice::setMem, this);
+  _dispatcher.add("triggerPatternGenerator", &CLICTDDevice::triggerPatternGenerator, this);
 
   // Set up periphery
   _periphery.add("vddd", PWR_OUT_2);
@@ -92,6 +93,13 @@ void CLICTDDevice::configureClock(bool internal) {
 }
 
 std::vector<uint32_t> CLICTDDevice::getRawData() {
+  triggerPatternGenerator(true);
+
+  // Get the frame:
+  return getFrame();
+}
+
+std::vector<uint32_t> CLICTDDevice::getFrame() {
 
   std::vector<uint32_t> rawdata;
 
@@ -261,7 +269,7 @@ void CLICTDDevice::programMatrix() {
   };
 
   LOG(INFO) << "Resetting matrix...";
-  getRawData();
+  getFrame();
 
   LOG(INFO) << "Matrix configuration - Stage 1";
   // Write 0x01 to ’configCtrl’ register (start 1st configuration stage)
@@ -287,7 +295,7 @@ void CLICTDDevice::programMatrix() {
   }
 
   // Read back the applied configuration (optional)
-  auto rawdata = getRawData();
+  auto rawdata = getFrame();
   LOG(INFO) << "Matrix Stage 1";
   auto pdata = frame_decoder_.splitFrame(rawdata);
   for(auto& d : pdata) {
@@ -339,7 +347,7 @@ void CLICTDDevice::programMatrix() {
   }
 
   // Read back the applied configuration (optional)
-  auto rawdata2 = getRawData();
+  auto rawdata2 = getFrame();
   LOG(INFO) << "Matrix Stage 2";
   pdata = frame_decoder_.splitFrame(rawdata2);
   for(auto& d : pdata) {
@@ -466,7 +474,7 @@ void CLICTDDevice::powerStatusLog() {
 }
 
 pearydata CLICTDDevice::getData() {
-  auto rawdata = getRawData();
+  auto rawdata = getFrame();
 
   bool frame_started = false;
   uint8_t column = 0;
@@ -519,4 +527,16 @@ void CLICTDDevice::setOutputMultiplexer(std::string name) {
 
   std::transform(name.begin(), name.end(), name.begin(), ::tolower);
   this->setRegister("monitordacsel", monitordacsel[name]);
+}
+
+void CLICTDDevice::triggerPatternGenerator(bool sleep) {
+
+  LOG(DEBUG) << "Triggering pattern generator once.";
+
+  // Manually open the shutter
+  setMemory("rdcontrol", 4);
+
+  // Wait for its length before returning:
+  if(sleep)
+    usleep(4000);
 }
