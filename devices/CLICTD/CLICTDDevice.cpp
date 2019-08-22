@@ -273,6 +273,46 @@ void CLICTDDevice::programMatrix() {
     }   // row loop
   };
 
+  auto check_configuration = [this](bool first_stage) {
+    bool configurationError = false;
+    // Read back the applied configuration (optional)
+    auto rawdata = getFrame();
+
+    IFLOG(DEBUG) {
+      LOG(DEBUG) << "Matrix Stage " << (first_stage ? "1" : "2");
+      for(auto& d : frame_decoder_.splitFrame(rawdata)) {
+        LOG(DEBUG) << to_bit_string(d);
+      }
+    }
+
+    auto data = frame_decoder_.decodeFrame(rawdata, false);
+    for(const auto& px_cfg : pixelConfiguration) {
+      auto address = px_cfg.first;
+      auto reading = dynamic_cast<clictd_pixel*>(data[address].get());
+
+      // Compare with value read from the matrix:
+      if(first_stage) {
+        if(px_cfg.second.first != *reading) {
+          LOG(ERROR) << "Matrix configuration (stage 1) of pixel " << static_cast<int>(address.first) << ","
+                     << static_cast<int>(address.second) << " does not match:";
+          LOG(ERROR) << to_bit_string(px_cfg.second.first.GetLatches()) << " != " << to_bit_string(reading->GetLatches());
+          configurationError = true;
+        }
+      } else {
+        if(px_cfg.second.second != *reading) {
+          LOG(ERROR) << "Matrix configuration (stage 2) of pixel " << static_cast<int>(address.first) << ","
+                     << static_cast<int>(address.second) << " does not match:";
+          LOG(ERROR) << to_bit_string(px_cfg.second.second.GetLatches()) << " != " << to_bit_string(reading->GetLatches());
+          configurationError = true;
+        }
+      }
+    }
+
+    if(configurationError) {
+      throw DataException("Matrix configuration mismatch");
+    }
+  };
+
   LOG(INFO) << "Resetting matrix...";
   getFrame();
 
@@ -298,35 +338,7 @@ void CLICTDDevice::programMatrix() {
       break;
     }
   }
-
-  // Read back the applied configuration (optional)
-  auto rawdata = getFrame();
-  LOG(INFO) << "Matrix Stage 1";
-  auto pdata = frame_decoder_.splitFrame(rawdata);
-  for(auto& d : pdata) {
-    LOG(INFO) << to_bit_string(d);
-  }
-
-  // bool configurationError = false;
-  // // Read back the applied configuration (optional)
-  // auto readback = getData();
-  // for(const auto& px_cfg : pixelConfiguration) {
-  //   auto address = px_cfg.first;
-  //   auto pixel = px_cfg.second.first;
-  //   auto reading = *static_cast<clictd_pixel>(readback[address]);
-  //
-  //   // Compare with value read from the matrix:
-  //   if(pixel != reading) {
-  //     LOG(ERROR) << "Matrix configuration of pixel " << static_cast<int>(address.first) << ","
-  //                << static_cast<int>(address.second) << " does not match:";
-  //     LOG(ERROR) << to_bit_string(pixel.GetLatches()) << " != " << to_bit_string(reading.GetLatches());
-  //     configurationError = true;
-  //   }
-  // }
-  //
-  // if(configurationError) {
-  //   throw DataException("Matrix configuration mismatch");
-  // }
+  check_configuration(true);
 
   LOG(INFO) << "Matrix configuration - Stage 2";
   // Write 0x02 to ’configCtrl’ register (start 2nd configuration stage)
@@ -351,14 +363,7 @@ void CLICTDDevice::programMatrix() {
     }
   }
 
-  // Read back the applied configuration (optional)
-  auto rawdata2 = getFrame();
-  LOG(INFO) << "Matrix Stage 2";
-  pdata = frame_decoder_.splitFrame(rawdata2);
-  for(auto& d : pdata) {
-    LOG(INFO) << to_bit_string(d);
-  }
-
+  check_configuration(false);
   LOG(INFO) << "Verified matrix configuration.";
   // Configuration is complete
 
