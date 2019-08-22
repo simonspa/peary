@@ -235,6 +235,14 @@ namespace caribou {
       SetTOT(tot);
       SetTOA(toa);
       SetHits(hits);
+      longflag = false;
+    }
+
+    CLICTDPixelReadout(bool flag, uint16_t toa, uint8_t hits) : CLICTDPixelReadout() {
+      SetFlag(flag);
+      SetTOA(toa);
+      SetHits(hits);
+      longflag = true;
     }
 
     // Flag setting of the pixel
