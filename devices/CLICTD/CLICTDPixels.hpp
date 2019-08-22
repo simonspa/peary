@@ -297,7 +297,7 @@ namespace caribou {
         out << "," << static_cast<int>(this->GetTOT());
       }
       out << "," << static_cast<int>(this->GetTOA());
-      out << "," << static_cast<int>(this->GetHits());
+      out << "," << to_bit_string(this->GetHits());
     }
 
     void setLongFlag(bool flag) { longflag = flag; }
