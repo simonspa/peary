@@ -99,6 +99,10 @@ namespace caribou {
      */
     pixelConfigStage1(uint8_t mask, bool tp_digital, uint8_t tp_analog, std::vector<uint8_t> thresholds)
         : CLICTDPixelConfig() {
+
+      // set global hitflag
+      setLatches(0x00200000);
+
       SetMask(mask);
       EnableTestpulseDigital(tp_digital);
       EnableTestpulseAnalog(tp_analog);
@@ -182,13 +186,16 @@ namespace caribou {
         throw ConfigInvalid("Wrong number of threshold adjustment settings");
       }
 
+      // set global hitflag
+      setLatches(0x00200000);
+
       // Ignore the very first entry if all eicht are shipped:
       for(size_t frontend = 1; frontend < thresholds.size(); frontend++) {
         SetThreshold(frontend, thresholds.at(frontend));
       }
     };
 
-    pixelConfigStage2() : CLICTDPixelConfig(){};
+    pixelConfigStage2() : CLICTDPixelConfig() { setLatches(0x00200000); };
 
   private:
     void SetThreshold(uint8_t frontend, uint8_t threshold) {

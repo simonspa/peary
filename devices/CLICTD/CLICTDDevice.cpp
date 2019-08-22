@@ -243,6 +243,7 @@ void CLICTDDevice::programMatrix() {
       for(size_t bit = 22; bit > 0; bit--) {
         // Load ’configData’ register with bit 21 of the 1st configuration stage (1 bit per column)
         auto value = bitvalues(pixelConfiguration, first_stage, row, bit - 1);
+        LOG(DEBUG) << "row: " << row << ", bit: " << bit << ", data: " << value;
         int retry = 0;
         while(retry <= CLICTD_MAX_CONF_RETRY) {
           // Write the value to ’configData’ register
