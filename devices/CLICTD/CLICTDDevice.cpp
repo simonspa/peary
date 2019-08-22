@@ -364,6 +364,10 @@ void CLICTDDevice::setSpecialRegister(std::string name, uint32_t value) {
     // Set the two values:
     this->setRegister(name + "_msb", msb);
     this->setRegister(name + "_lsb", lsb);
+  } else if(name == "longcnt") {
+    // Reconfiguring the frame decoder with the new setting:
+    frame_decoder_.setLongCounter(static_cast<bool>(value));
+    this->setRegister(name, value);
   }
 }
 
@@ -381,6 +385,9 @@ uint32_t CLICTDDevice::getSpecialRegister(std::string name) {
     uint32_t msb = this->getRegister(name + "_msb");
     // Cpmbine the two values:
     value = ((msb & 0xFF) << 8) | (lsb & 0xFF);
+  } else {
+    // Well, otherwise just read the register:
+    value = this->getRegister(name);
   }
   return value;
 }
