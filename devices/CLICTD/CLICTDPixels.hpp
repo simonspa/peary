@@ -49,7 +49,7 @@ namespace caribou {
   protected:
     // Set default 1-bits:
     clictd_pixel(){};
-    clictd_pixel(uint32_t m_latches) : m_latches(m_latches){};
+    clictd_pixel(uint32_t latches) : m_latches(latches){};
     uint32_t m_latches;
   };
 
