@@ -183,20 +183,6 @@ void CLICTDDevice::configureMatrix(std::string filename) {
 }
 
 void CLICTDDevice::programMatrix() {
-  // Follow procedure described in chip manual, section 4.1 to configure the matrix:
-  auto bitvalues = [](matrixConfig config, bool stage1, size_t row, size_t bit) {
-    uint16_t bits = 0;
-    for(uint8_t column = 0; column < 16; column++) {
-      bool value;
-      if(stage1) {
-        value = config[std::make_pair(column, row)].first.GetBit(bit);
-      } else {
-        value = config[std::make_pair(column, row)].second.GetBit(bit);
-      }
-      bits |= (value << column);
-    }
-    return bits;
-  };
 
   auto check_clk_stopped = [this]() {
     // check if readout clock is running
@@ -222,7 +208,22 @@ void CLICTDDevice::programMatrix() {
     return true;
   };
 
-  auto configure_stage = [this, bitvalues](bool first_stage) {
+  auto configure_stage = [this](bool first_stage) {
+    // Follow procedure described in chip manual, section 4.1 to configure the matrix:
+    auto bitvalues = [](matrixConfig config, bool stage1, size_t row, size_t bit) {
+      uint16_t bits = 0;
+      for(uint8_t column = 0; column < 16; column++) {
+        bool value;
+        if(stage1) {
+          value = config[std::make_pair(column, row)].first.GetBit(bit);
+        } else {
+          value = config[std::make_pair(column, row)].second.GetBit(bit);
+        }
+        bits |= (value << column);
+      }
+      return bits;
+    };
+
     // For each of the pixels per column, do
     for(size_t row = 0; row < 128; row++) {
       // Read configuration bits for STAGE 1 one by one:
