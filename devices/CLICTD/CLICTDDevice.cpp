@@ -554,6 +554,9 @@ void CLICTDDevice::triggerPatternGenerator(bool sleep) {
   setMemory("rdcontrol", 4);
 
   // Wait for its length before returning:
-  if(sleep)
-    usleep(4000);
+  if(sleep) {
+    while(getMemory("rdstatus") & 0x20)
+      ;
+    usleep(100);
+  }
 }
