@@ -284,11 +284,12 @@ namespace caribou {
     /** Overloaded print function for ostream operator
      */
     void print(std::ostream& out) const {
-      out << this->GetFlag() << "," this->GetHits();
+      out << this->GetFlag();
       if(!longflag) {
         out << "," << static_cast<int>(this->GetTOT());
       }
       out << "," << static_cast<int>(this->GetTOA());
+      out << "," << static_cast<int>(this->GetHits());
     }
 
     void setLongFlag(bool flag) { longflag = flag; }
