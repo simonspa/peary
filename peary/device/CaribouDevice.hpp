@@ -179,10 +179,16 @@ namespace caribou {
   protected:
     /**
      * @brief process registers, ingoring sepcial flags
-     * @param name  Name of the registers
+     * @brief reg Register
      * @param value Value of the register to be set
      */
-    void process_register(register_t<typename T::reg_type, typename T::data_type> reg, std::string name, uint32_t value);
+    void process_register_write(register_t<typename T::reg_type, typename T::data_type> reg, uint32_t value);
+
+    /**
+     * @brief process reading from registers, ingoring sepcial flags
+     * @param reg Register
+     */
+    uint32_t process_register_read(register_t<typename T::reg_type, typename T::data_type> reg);
 
     /** Instance of the Caribou hardware abstraction layer library
      *

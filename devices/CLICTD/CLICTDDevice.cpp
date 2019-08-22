@@ -379,7 +379,7 @@ void CLICTDDevice::setSpecialRegister(std::string name, uint32_t value) {
 
     // Resolve name against register dictionary:
     auto reg = _registers.get(name);
-    this->process_register(reg, name, value);
+    this->process_register_write(reg, value);
   }
 }
 
@@ -399,7 +399,10 @@ uint32_t CLICTDDevice::getSpecialRegister(std::string name) {
     value = ((msb & 0xFF) << 8) | (lsb & 0xFF);
   } else {
     // Well, otherwise just read the register:
-    value = this->getRegister(name);
+
+    // Resolve name against register dictionary:
+    auto reg = _registers.get(name);
+    value = this->process_register_read(reg);
   }
   return value;
 }
