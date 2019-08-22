@@ -25,7 +25,7 @@ namespace caribou {
 
     void setLongCounter(bool value) { longcnt = value; };
 
-    pearydata decodeFrame(const std::vector<uint32_t>& rawFrame);
+    pearydata decodeFrame(const std::vector<uint32_t>& rawFrame, bool decode_lfsr = true);
     std::vector<uint32_t> splitFrame(const std::vector<uint32_t>& rawFrame);
 
   private:

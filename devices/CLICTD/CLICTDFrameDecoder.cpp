@@ -59,7 +59,7 @@ uint32_t CLICTDFrameDecoder::getNextPixel(const std::vector<uint32_t>& rawFrame,
   }
 }
 
-pearydata CLICTDFrameDecoder::decodeFrame(const std::vector<uint32_t>& rawFrame) {
+pearydata CLICTDFrameDecoder::decodeFrame(const std::vector<uint32_t>& rawFrame, bool decode_lfsr) {
   unsigned wrd = 0;
   unsigned bit = 31;
   pearydata data;
@@ -90,16 +90,20 @@ pearydata CLICTDFrameDecoder::decodeFrame(const std::vector<uint32_t>& rawFrame)
         continue;
       }
 
-      auto tot = static_cast<uint8_t>(LFSR::LUT5((bits_of_data >> 16) & 0x1f));
-      auto toa = (longcnt ? static_cast<uint16_t>(LFSR::LUT13((bits_of_data >> 8) & 0x1fff))
-                          : static_cast<uint8_t>(LFSR::LUT8((bits_of_data >> 8) & 0xff)));
-      auto hits = static_cast<uint8_t>(bits_of_data & 0xff);
+      if(decode_lfsr) {
+        auto tot = static_cast<uint8_t>(LFSR::LUT5((bits_of_data >> 16) & 0x1f));
+        auto toa = (longcnt ? static_cast<uint16_t>(LFSR::LUT13((bits_of_data >> 8) & 0x1fff))
+                            : static_cast<uint8_t>(LFSR::LUT8((bits_of_data >> 8) & 0xff)));
+        auto hits = static_cast<uint8_t>(bits_of_data & 0xff);
 
-      // Create new pixel
-      auto pixel = (longcnt ? std::make_unique<CLICTDPixelReadout>(true, toa, hits)
-                            : std::make_unique<CLICTDPixelReadout>(true, tot, toa, hits));
+        // Create new pixel
+        auto pixel = (longcnt ? std::make_unique<CLICTDPixelReadout>(true, toa, hits)
+                              : std::make_unique<CLICTDPixelReadout>(true, tot, toa, hits));
 
-      data[std::make_pair(col, row)] = std::move(pixel);
+        data[std::make_pair(col, row)] = std::move(pixel);
+      } else {
+        data[std::make_pair(col, row)] = std::make_unique<CLICTDPixelReadout>(bits_of_data, longcnt);
+      }
     }
   }
   if(getNextPixel(rawFrame, wrd, bit) != CLICTD_FRAME_END) {
