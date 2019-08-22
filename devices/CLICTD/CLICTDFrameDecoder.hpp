@@ -21,7 +21,7 @@
 namespace caribou {
   class CLICTDFrameDecoder {
   public:
-    CLICTDFrameDecoder(bool long_counter) : longcnt(long_counter){};
+    CLICTDFrameDecoder(bool long_counter = false) : longcnt(long_counter){};
 
     pearydata decodeFrame(const std::vector<uint32_t>& rawFrame);
     std::vector<uint32_t> splitFrame(const std::vector<uint32_t>& rawFrame);
