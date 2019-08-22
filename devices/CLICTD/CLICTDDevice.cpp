@@ -192,6 +192,11 @@ void CLICTDDevice::configureMatrix(std::string filename) {
 
 void CLICTDDevice::programMatrix() {
 
+  // Get status of compression:
+  auto compression = getRegister("nocompress");
+  // Switch compression off:
+  setRegister("nocompress", true);
+
   auto check_clk_stopped = [this]() {
     // check if readout clock is running
     int retry = 0;
@@ -356,6 +361,9 @@ void CLICTDDevice::programMatrix() {
 
   LOG(INFO) << "Verified matrix configuration.";
   // Configuration is complete
+
+  // Switch back compression to what it was:
+  setRegister("nocompress", compression);
 }
 
 void CLICTDDevice::setSpecialRegister(std::string name, uint32_t value) {
