@@ -56,6 +56,15 @@ void CLICTDDevice::configure() {
 
   // Call the base class configuration function:
   CaribouDevice<iface_i2c>::configure();
+
+  // Read matrix file from the configuration and program it:
+  std::string matrix = _config.Get("matrix", "");
+  if(!matrix.empty()) {
+    LOG(INFO) << "Found pixel matrix setup in configuration, programming...";
+    configureMatrix(matrix);
+  } else {
+    LOG(INFO) << "No pixel matrix configuration setting found.";
+  }
 }
 
 void CLICTDDevice::reset() {
