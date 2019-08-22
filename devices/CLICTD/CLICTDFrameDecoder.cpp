@@ -85,6 +85,11 @@ pearydata CLICTDFrameDecoder::decodeFrame(const std::vector<uint32_t>& rawFrame)
       // get data
       bits_of_data = getNextPixel(rawFrame, wrd, bit);
 
+      // Suppress empty pixels
+      if(bits_of_data == 0) {
+        continue;
+      }
+
       auto tot = static_cast<uint8_t>(LFSR::LUT5((bits_of_data >> 16) & 0x1f));
       auto toa = (longcnt ? static_cast<uint16_t>(LFSR::LUT13((bits_of_data >> 8) & 0x1fff))
                           : static_cast<uint8_t>(LFSR::LUT8((bits_of_data >> 8) & 0xff)));
