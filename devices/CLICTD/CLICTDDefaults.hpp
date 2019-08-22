@@ -88,7 +88,7 @@ namespace caribou {
     {"monitordacsel", register_t<>(0x03, 0x1F)},		\
     {"matrixconfig", register_t<>(0x04, 0x1F)},		\
     {"photoncnt", register_t<>(0x04, 0x10)},		\
-    {"nocompress", register_t<>(0x04, 0x08)},		\
+    {"nocompress", register_t<>(0x04, 0x08, true, true, true)},		\
     {"longcnt", register_t<>(0x04, 0x04, true, true, true)},		\
     {"totdiv", register_t<>(0x04, 0x03)},		\
     {"configctrl", register_t<>(0x05, 0x13, false)},		\

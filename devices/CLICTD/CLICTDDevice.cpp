@@ -394,6 +394,14 @@ void CLICTDDevice::setSpecialRegister(std::string name, uint32_t value) {
     // Resolve name against register dictionary:
     auto reg = _registers.get(name);
     this->process_register_write(reg, value);
+  } else if(name == "nocompress") {
+    // Resolve name against register dictionary:
+    auto reg = _registers.get(name);
+    this->process_register_write(reg, value);
+
+    // Flush the matrix:
+    LOG(INFO) << "Flushing the matrix to clear hit flags";
+    getFrame();
   }
 }
 
@@ -555,6 +563,7 @@ void CLICTDDevice::triggerPatternGenerator(bool sleep) {
 
   // Wait for its length before returning:
   if(sleep) {
+    LOG(DEBUG) << "Waiting for shutter to close...";
     while(getMemory("rdstatus") & 0x20)
       ;
     usleep(100);
