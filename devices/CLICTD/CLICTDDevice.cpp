@@ -235,9 +235,9 @@ void CLICTDDevice::programMatrix() {
           // Write the value to ’configData’ register
           this->setRegister("configdata", value);
           // Write 0x11/0x12 to ’configCtrl’ register to shift configuration in the matrix
-          this->setRegister("configctrl", 0x10 & (first_stage ? 0x01 : 0x02));
+          this->setRegister("configctrl", 0x10 | (first_stage ? 0x01 : 0x02));
           // Write 0x01/0x02 to ’configCtrl’ register
-          this->setRegister("configctrl", 0x00 & (first_stage ? 0x01 : 0x02));
+          this->setRegister("configctrl", 0x00 | (first_stage ? 0x01 : 0x02));
           // Repeat until the clock pulse was generated
           if((getMemory("rdstatus") & 0x6) == 0x6) {
             break;
