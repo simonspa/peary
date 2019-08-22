@@ -491,9 +491,6 @@ void CLICTDDevice::powerStatusLog() {
 }
 
 pearydata CLICTDDevice::getData() {
-
-  setMemory("rdcontrol", 4);
-
   auto rawdata = getFrame();
 
   bool frame_started = false;
