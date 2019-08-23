@@ -880,12 +880,12 @@ int pearycli::scanThreshold(const std::vector<std::string>& input) {
 
     // Generate range for scan:
     std::vector<int> thresholds(std::max(max - min, min - max) + 1);
-    std::generate(thresholds.begin(), thresholds.end(), [ n = max, stepsize, increment = (max > min) ]() mutable {
+    std::generate(thresholds.begin(), thresholds.end(), [ n = max, stepsize, increment = (min < max) ]() mutable {
       auto now = n;
       if(increment) {
-        n -= stepsize;
-      } else {
         n += stepsize;
+      } else {
+        n -= stepsize;
       }
       return now;
     });
@@ -991,12 +991,12 @@ int pearycli::scanThreshold2D(const std::vector<std::string>& input) {
     std::generate(
       dac1_vec.begin(),
       dac1_vec.end(),
-      [ n = std::stoi(input.at(2)), stepsize = 1, increment = (std::stoi(input.at(2)) > std::stoi(input.at(3))) ]() mutable {
+      [ n = std::stoi(input.at(2)), stepsize = 1, increment = (std::stoi(input.at(2)) < std::stoi(input.at(3))) ]() mutable {
         auto now = n;
         if(increment) {
-          n -= stepsize;
-        } else {
           n += stepsize;
+        } else {
+          n -= stepsize;
         }
         return now;
       });
@@ -1007,12 +1007,12 @@ int pearycli::scanThreshold2D(const std::vector<std::string>& input) {
     std::generate(
       dac2_vec.begin(),
       dac2_vec.end(),
-      [ n = std::stoi(input.at(6)), stepsize = 1, increment = (std::stoi(input.at(6)) > std::stoi(input.at(7))) ]() mutable {
+      [ n = std::stoi(input.at(6)), stepsize = 1, increment = (std::stoi(input.at(6)) < std::stoi(input.at(7))) ]() mutable {
         auto now = n;
         if(increment) {
-          n -= stepsize;
-        } else {
           n += stepsize;
+        } else {
+          n -= stepsize;
         }
         return now;
       });
