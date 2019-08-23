@@ -202,7 +202,7 @@ namespace caribou {
     bool ro_enable;
     bool busy_when_armed;
     uint32_t armduration;
-    bool edge_sel, trigger_enable, trigger_always_armed, t0_enable, send_fpga_ts, trigger_injection, gray_decode;
+    bool edge_sel, trigger_enable, trigger_always_armed, t0_enable, send_fpga_ts, trigger_injection, gray_decode, tlu_clock;
   };
 
 } // namespace caribou

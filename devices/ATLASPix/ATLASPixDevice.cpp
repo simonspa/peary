@@ -469,6 +469,13 @@ void ATLASPixDevice::setSpecialRegister(std::string name, uint32_t value) {
 
       gray_decoding_state = value;
 
+    } else if(name == "tlu_clock") {
+
+      tlu_clock = value;
+      uint32_t fifo_config = getMemory("fifo_config");
+      fifo_config = (fifo_config & 0xFCFF) + ((value << 9) & 0b01000000000);
+      setMemory("fifo_config", fifo_config);
+
     }
     /*
       else if(name == "ext_clk") {
@@ -2461,6 +2468,7 @@ void ATLASPixDevice::WriteFWRegistersAndBias(std::string name) {
   cfg << "filter_weird_data : " << std::left << std::setw(20) << filter_weird_data << std::endl;
   cfg << "trigger_injection : " << std::left << std::setw(20) << trigger_injection << std::endl;
   cfg << "gray_decode : " << std::left << std::setw(20) << gray_decode << std::endl;
+  cfg << "tlu_clock : " << std::left << std::setw(20) << tlu_clock << std::endl;
   cfg << "VSSA : " << std::left << std::setw(20) << _hal->measureVoltage(PWR_OUT_2) << std::endl;
   cfg << "VDDD : " << std::left << std::setw(20) << _hal->measureVoltage(PWR_OUT_4) << std::endl;
   cfg << "VDDA : " << std::left << std::setw(20) << _hal->measureVoltage(PWR_OUT_3) << std::endl;

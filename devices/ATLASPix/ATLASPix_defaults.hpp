@@ -2,7 +2,8 @@
 #define DEVICE_ATLASPix_DEFAULTS_H
 
 #include "carboard/Carboard.hpp"
-#include "clockgenerator/clk_6-100_8-100_ref-0FMC.h"
+//#include "clockgenerator/clk_6-100_8-100_ref-0FMC.h"
+#include "clockgenerator/clk_6-125_8-125_ref-0FMC.h"
 #include "utils/dictionary.hpp"
 
 namespace caribou {
@@ -210,6 +211,7 @@ namespace caribou {
     {"trigger_always_armed", register_t<>(0x26, 0xFF, false, true, true)},		\
     {"t0_enable", register_t<>(0x26, 0xFF, false, true, true)},		\
     {"gray_decode", register_t<>(0x26, 0xFF, false, true, true)},		\
+    {"tlu_clock", register_t<>(0x26, 0xFF, false, true, true)},		\
     {"send_fpga_ts", register_t<>(0x26, 0xFF, false, true, true)},		\
     {"filter_hp", register_t<>(0x26, 0xFF, false, true, true)},		\
     {"hw_masking", register_t<>(0x26, 0xFF, false, true, true)},		\
@@ -220,7 +222,7 @@ namespace caribou {
 
   const std::string AXI_registers[] = {"trigger_mode","ro_enable","armduration","trigger_injection"
 		  ,"edge_sel","edge_sel","trigger_enable","busy_when_armed","trigger_always_armed","t0_enable",
-		  "gray_decode","send_fpga_ts","filter_hp","hw_masking","t0_out_periodic",
+		  "gray_decode","tlu_clock","send_fpga_ts","filter_hp","hw_masking","t0_out_periodic",
       "thpix","blpix"};
 
   // clang-format on
