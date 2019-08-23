@@ -81,19 +81,20 @@ pearycli::pearycli() : Console("# ") {
     "getRegister", getRegister, "Read the value of register REG_NAME on the selected device", 2, "REG_NAME DEVICE_ID");
   registerCommand("getRegisters", getRegisters, "Read the value of all registers on the selected device", 1, "DEVICE_ID");
 
-  registerCommand("scanDAC",
-                  scanDAC,
-                  "Scan DAC DAC_NAME from value MIN to MAX and read the voltage from the ADC after DELAY milliseconds. The "
-                  "sequence is repeated REPEAT times for every DAC setting. Data are saved in the FILE_NAME.csv file",
-                  7,
-                  "DAC_NAME MIN MAX DELAY[ms] REPEAT FILE_NAME DEVICE_ID");
+  registerCommand(
+    "scanDAC",
+    scanDAC,
+    "Scan DAC DAC_NAME from value VAL1 to VAL2 and read the voltage from the ADC after DELAY milliseconds. The "
+    "sequence is repeated REPEAT times for every DAC setting. Data are saved in the FILE_NAME.csv file",
+    7,
+    "DAC_NAME VAL1 VAL2 DELAY[ms] REPEAT FILE_NAME DEVICE_ID");
   registerCommand("scanDAC2D",
                   scanDAC2D,
-                  "For each value of DAC1_NAME between DAC1_MIN and DAC1_MAX, scan DAC DAC2_NAME from value DAC2_MIN to "
-                  "DAC2_MAX and read the voltage from the ADC after DELAY milliseconds. The sequence is repeated REPEAT "
+                  "For each value of DAC1_NAME between DAC1_VAL1 and DAC1_VAL2, scan DAC DAC2_NAME from value DAC2_VAL1 to "
+                  "DAC2_VAL2 and read the voltage from the ADC after DELAY milliseconds. The sequence is repeated REPEAT "
                   "times for every DAC setting. Data are saved in the FILE_NAME.csv file",
                   10,
-                  "DAC1_NAME DAC1_MIN DAC1_MAX DAC2_NAME DAC2_MIN DAC2_MAX DELAY[ms] REPEAT FILE_NAME DEVICE_ID");
+                  "DAC1_NAME DAC1_VAL1 DAC1_VAL2 DAC2_NAME DAC2_VAL1 DAC2_VAL2 DELAY[ms] REPEAT FILE_NAME DEVICE_ID");
   registerCommand(
     "scanThreshold",
     scanThreshold,
@@ -532,8 +533,24 @@ int pearycli::scanDAC(const std::vector<std::string>& input) {
     } catch(caribou::RegisterTypeMismatch&) {
     }
 
+    // Generate range for scan:
+    std::vector<int> dacrange(
+      std::max(std::stoi(input.at(3)) - std::stoi(input.at(2)), std::stoi(input.at(2)) - std::stoi(input.at(3))) + 1);
+    std::generate(
+      dacrange.begin(),
+      dacrange.end(),
+      [ n = std::stoi(input.at(2)), stepsize = 1, increment = (std::stoi(input.at(2)) < std::stoi(input.at(3))) ]() mutable {
+        auto now = n;
+        if(increment) {
+          n += stepsize;
+        } else {
+          n -= stepsize;
+        }
+        return now;
+      });
+
     // Now sample through the DAC range and read the ADC at the "DAC_OUT" pin (VOL_IN_1)
-    for(int i = std::stoi(input.at(2)); i <= std::stoi(input.at(3)); i++) {
+    for(auto& i : dacrange) {
 
       std::stringstream responses;
       responses << input.at(1) << " " << i << " = ";
@@ -599,13 +616,45 @@ int pearycli::scanDAC2D(const std::vector<std::string>& input) {
     } catch(caribou::RegisterTypeMismatch&) {
     }
 
+    // Generate range for scan:
+    std::vector<int> dac1range(
+      std::max(std::stoi(input.at(6)) - std::stoi(input.at(5)), std::stoi(input.at(5)) - std::stoi(input.at(6))) + 1);
+    std::generate(
+      dac1range.begin(),
+      dac1range.end(),
+      [ n = std::stoi(input.at(5)), stepsize = 1, increment = (std::stoi(input.at(5)) < std::stoi(input.at(6))) ]() mutable {
+        auto now = n;
+        if(increment) {
+          n += stepsize;
+        } else {
+          n -= stepsize;
+        }
+        return now;
+      });
+
+    // Generate range for scan:
+    std::vector<int> dac2range(
+      std::max(std::stoi(input.at(3)) - std::stoi(input.at(2)), std::stoi(input.at(2)) - std::stoi(input.at(3))) + 1);
+    std::generate(
+      dac2range.begin(),
+      dac2range.end(),
+      [ n = std::stoi(input.at(2)), stepsize = 1, increment = (std::stoi(input.at(2)) < std::stoi(input.at(3))) ]() mutable {
+        auto now = n;
+        if(increment) {
+          n += stepsize;
+        } else {
+          n -= stepsize;
+        }
+        return now;
+      });
+
     // Sample through DAC1
-    for(int j = std::stoi(input.at(5)); j <= std::stoi(input.at(6)); j++) {
+    for(auto& j : dac1range) {
       LOG(INFO) << input.at(4) << ": " << j;
       dev->setRegister(input.at(4), j);
 
       // Now sample through the DAC2 range and read the ADC at the "DAC_OUT" pin (VOL_IN_1)
-      for(int i = std::stoi(input.at(2)); i <= std::stoi(input.at(3)); i++) {
+      for(auto& i : dac2range) {
         dev->setRegister(input.at(1), i);
 
         std::stringstream responses;
