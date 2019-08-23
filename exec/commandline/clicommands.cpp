@@ -880,7 +880,7 @@ int pearycli::scanThreshold(const std::vector<std::string>& input) {
 
     // Generate range for scan:
     std::vector<int> thresholds(std::max(max - min, min - max) + 1);
-    std::generate(thresholds.begin(), thresholds.end(), [ n = max, stepsize, increment = (min < max) ]() mutable {
+    std::generate(thresholds.begin(), thresholds.end(), [ n = max, stepsize, increment = (max < min) ]() mutable {
       auto now = n;
       if(increment) {
         n += stepsize;
