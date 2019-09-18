@@ -8,7 +8,10 @@
 #include "device/CaribouDevice.hpp"
 #include "interfaces/I2C/i2c.hpp"
 
+#include "clockgenerator/Si5345-RevB-CLICTD-Registers.h"
+
 #include "CLICTDDefaults.hpp"
+#include "CLICTDFrameDecoder.hpp"
 #include "CLICTDPixels.hpp"
 
 namespace caribou {
@@ -56,10 +59,17 @@ namespace caribou {
 
     void configureMatrix(std::string filename);
 
+    void configureClock(bool internal = 1);
+
+    void getMem(std::string);
+    void setMem(std::string, uint32_t value);
+
     /**
      * @brief Set correct channel for output multiplexer
      */
     void setOutputMultiplexer(std::string name);
+
+    void triggerPatternGenerator(bool sleep);
 
   private:
     /**
@@ -68,10 +78,14 @@ namespace caribou {
      */
     void programMatrix();
 
+    std::vector<uint32_t> getFrame();
+
     /* Map of pixelConfigs for configuration storage (column, row))
      */
-    using matrixConfig = std::map<std::pair<uint8_t, uint8_t>, pixelConfig>;
+    using matrixConfig = std::map<std::pair<uint8_t, uint8_t>, std::pair<pixelConfigStage1, pixelConfigStage2>>;
     matrixConfig pixelConfiguration{};
+
+    CLICTDFrameDecoder frame_decoder_;
 
     matrixConfig readMatrix(std::string filename) const;
   };

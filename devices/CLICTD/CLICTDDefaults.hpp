@@ -23,27 +23,57 @@ namespace caribou {
 #define CLICTD_SUB 3.057
 #define CLICTD_SUB_CURRENT 3
 
-  // CLIcpix2 control
-  const std::intptr_t CLICPIX2_CONTROL_BASE_ADDRESS = 0x43C20000;
-  const std::intptr_t CLICPIX2_RESET_OFFSET = 0;
-  const uint32_t CLICPIX2_CONTROL_RESET_MASK = 0x1;
-  const std::size_t CLICPIX2_CONTROL_MAP_SIZE = 4096;
-  const std::size_t CLICPIX2_CONTROL_MAP_MASK = CLICPIX2_CONTROL_MAP_SIZE - 1;
+#define CLICTD_MAX_CONF_RETRY 15
 
-#define CLICPIX2_MEMORY                                                                                                     \
-  {                                                                                                                         \
-    {                                                                                                                       \
-      "reset", memory_map(CLICPIX2_CONTROL_BASE_ADDRESS,                                                                    \
-                          CLICPIX2_RESET_OFFSET,                                                                            \
-                          CLICPIX2_CONTROL_MAP_SIZE,                                                                        \
-                          CLICPIX2_CONTROL_MAP_MASK,                                                                        \
-                          PROT_READ | PROT_WRITE)                                                                           \
-    }                                                                                                                       \
+  // CLICTD readout
+  const std::intptr_t CLICTD_READOUT_BASE_ADDRESS = 0x43C70000;
+  const std::intptr_t CLICTD_READOUT_RDFIFO_OFFSET = 0;
+  const std::intptr_t CLICTD_READOUT_RDSTATUS_OFFSET = 4;
+  const std::intptr_t CLICTD_READOUT_RDCONTROL_OFFSET = 8;
+  const std::intptr_t CLICTD_READOUT_CHIPCONTROL_OFFSET = 12;
+  const std::intptr_t CLICTD_READOUT_SHUTTERTIMEOUT_OFFSET = 16;
+  const std::size_t CLICTD_READOUT_MAP_SIZE = 4096;
+  const std::size_t CLICTD_READOUT_MAP_MASK = CLICTD_READOUT_MAP_SIZE - 1;
+
+// clang-format off
+
+#define CLICTD_MEMORY                                                         \
+  {                                                                           \
+    {"rdfifo",                                                                \
+        memory_map(CLICTD_READOUT_BASE_ADDRESS,                               \
+                   CLICTD_READOUT_RDFIFO_OFFSET,                              \
+                   CLICTD_READOUT_MAP_SIZE,                                   \
+                   CLICTD_READOUT_MAP_MASK,                                   \
+                   PROT_READ)},                                               \
+    {"rdstatus",                                                              \
+        memory_map(CLICTD_READOUT_BASE_ADDRESS,                               \
+                   CLICTD_READOUT_RDSTATUS_OFFSET,                            \
+                   CLICTD_READOUT_MAP_SIZE,                                   \
+                   CLICTD_READOUT_MAP_MASK,                                   \
+                   PROT_READ)},                                               \
+    {"rdcontrol",                                                             \
+        memory_map(CLICTD_READOUT_BASE_ADDRESS,                               \
+                   CLICTD_READOUT_RDCONTROL_OFFSET,                           \
+                   CLICTD_READOUT_MAP_SIZE,                                   \
+                   CLICTD_READOUT_MAP_MASK,                                   \
+                   PROT_READ | PROT_WRITE)},                                  \
+    {"chipcontrol",                                                           \
+        memory_map(CLICTD_READOUT_BASE_ADDRESS,                               \
+                   CLICTD_READOUT_CHIPCONTROL_OFFSET,                         \
+                   CLICTD_READOUT_MAP_SIZE,                                   \
+                   CLICTD_READOUT_MAP_MASK,                                   \
+                   PROT_READ | PROT_WRITE)},                                  \
+    {"shuttertimeout",                                                        \
+        memory_map(CLICTD_READOUT_BASE_ADDRESS,                               \
+                   CLICTD_READOUT_SHUTTERTIMEOUT_OFFSET,                      \
+                   CLICTD_READOUT_MAP_SIZE,                                   \
+                   CLICTD_READOUT_MAP_MASK,                                   \
+                   PROT_READ | PROT_WRITE)}                                   \
   }
 
 /** Dictionary for register address/name lookup for CLICTD
  */
-// clang-format off
+
 #define CLICTD_REGISTERS				\
   {						\
     {"globalconfig", register_t<>(0x00, 0x07)},		\
@@ -58,13 +88,13 @@ namespace caribou {
     {"monitordacsel", register_t<>(0x03, 0x1F)},		\
     {"matrixconfig", register_t<>(0x04, 0x1F)},		\
     {"photoncnt", register_t<>(0x04, 0x10)},		\
-    {"nocompress", register_t<>(0x04, 0x08)},		\
-    {"longcnt", register_t<>(0x04, 0x04)},		\
+    {"nocompress", register_t<>(0x04, 0x08, true, true, true)},		\
+    {"longcnt", register_t<>(0x04, 0x04, true, true, true)},		\
     {"totdiv", register_t<>(0x04, 0x03)},		\
     {"configctrl", register_t<>(0x05, 0x13, false)},		\
     {"configdata_lsb", register_t<>(0x06)},		\
     {"configdata_msb", register_t<>(0x07)},		\
-    {"configdata", register_t<>(0x06, 0xFF, false, true, true)},		\
+    {"configdata", register_t<>(0x06, 0xFF, true, true, true)},		\
     {"readoutctrl", register_t<>(0x08, 0x03)},		\
     {"roint", register_t<>(0x08, 0x01)},		\
     {"roexten", register_t<>(0x08, 0x02)},		\

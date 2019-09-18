@@ -99,6 +99,12 @@ namespace caribou {
     virtual void configure();
 
     // Controlling the device
+
+    /**
+     * @brief Set a register on this device
+     * @param name  Name of the register
+     * @param value Value to be set
+     */
     void setRegister(std::string name, uint32_t value);
     virtual void setSpecialRegister(std::string, uint32_t){};
     virtual uint32_t getSpecialRegister(std::string) { return 0; };
@@ -171,6 +177,19 @@ namespace caribou {
     uint32_t getMemory(std::string name);
 
   protected:
+    /**
+     * @brief process registers, ingoring sepcial flags
+     * @brief reg Register
+     * @param value Value of the register to be set
+     */
+    void process_register_write(register_t<typename T::reg_type, typename T::data_type> reg, uint32_t value);
+
+    /**
+     * @brief process reading from registers, ingoring sepcial flags
+     * @param reg Register
+     */
+    uint32_t process_register_read(register_t<typename T::reg_type, typename T::data_type> reg);
+
     /** Instance of the Caribou hardware abstraction layer library
      *
      *  All register and hardware access should go through this interface.

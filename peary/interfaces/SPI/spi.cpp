@@ -109,7 +109,7 @@ std::vector<std::pair<spi_reg_t, spi_t>> iface_spi::write(const spi_address_t&,
     tr[loop.i].bits_per_word = (sizeof(spi_reg_t) + sizeof(spi_t)) * CHAR_BIT;
   }
 
-  if(ioctl(spiDesc, SPI_IOC_MESSAGE(data.size()), tr.get()) < data.size()) {
+  if(ioctl(spiDesc, SPI_IOC_MESSAGE(data.size()), tr.get()) < static_cast<int>(data.size())) {
     throw CommunicationError("Failed to access device " + devicePath() + ": " + std::strerror(errno));
   }
 

@@ -171,8 +171,18 @@ namespace caribou {
       return;
     }
 
-    typename T::data_type regval = static_cast<typename T::data_type>(value);
     LOG(DEBUG) << "Register to be set: " << name << " (" << to_hex_string(reg.address()) << ")";
+    process_register_write(reg, value);
+
+    // Cache the current value of this register:
+    _register_cache[name] = value;
+  }
+
+  template <typename T>
+  void CaribouDevice<T>::process_register_write(register_t<typename T::reg_type, typename T::data_type> reg,
+                                                uint32_t value) {
+
+    typename T::data_type regval = static_cast<typename T::data_type>(value);
 
     // Obey the mask:
     if(reg.mask() < std::numeric_limits<typename T::data_type>::max()) {
@@ -191,9 +201,6 @@ namespace caribou {
 
     LOG(DEBUG) << "Register value to be set: " << to_hex_string(regval);
     _hal->send(std::make_pair(reg.address(), regval));
-
-    // Cache the current value of this register:
-    _register_cache[name] = value;
   }
 
   template <typename T> std::vector<std::pair<std::string, uint32_t>> CaribouDevice<T>::getRegisters() {
@@ -233,6 +240,11 @@ namespace caribou {
     }
 
     LOG(DEBUG) << "Register to be read: " << name << " (" << to_hex_string(reg.address()) << ")";
+    return process_register_read(reg);
+  }
+
+  template <typename T>
+  uint32_t CaribouDevice<T>::process_register_read(register_t<typename T::reg_type, typename T::data_type> reg) {
 
     typename T::data_type regval = _hal->receive(reg.address()).front();
     LOG(DEBUG) << "raw value  = " << to_bit_string(regval);

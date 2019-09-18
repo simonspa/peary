@@ -134,20 +134,37 @@ namespace caribou {
     return elems;
   }
 
-  /** Return the binary representation of a char as std::string
+  /** Return the binary representation of the parameter as std::string
    */
-  template <typename T> std::string to_bit_string(const T data) {
+  template <typename T> std::string to_bit_string(const T data, int length = -1, bool baseprefix = false) {
     std::ostringstream stream;
-    for(int i = std::numeric_limits<T>::digits - 1; i >= 0; i--) {
-      stream << ((data >> i) & 1);
+    // if length is not defined, use a standard (full) one
+    if(length < 0) {
+      length = std::numeric_limits<T>::digits;
+      // std::numeric_limits<T>::digits does not include sign bits
+      if(std::numeric_limits<T>::is_signed) {
+        length++;
+      }
+    }
+    if(baseprefix) {
+      stream << "0b";
+    }
+    while(--length >= 0) {
+      stream << ((data >> length) & 1);
     }
     return stream.str();
   }
 
-  template <typename T> std::string to_hex_string(const T i) {
+  template <typename T> std::string to_hex_string(const T i, int length = -1, bool baseprefix = true) {
     std::ostringstream stream;
-    stream << std::hex << std::showbase << std::setfill('0') << std::setw(std::numeric_limits<T>::digits / 4) << std::hex
-           << static_cast<uint64_t>(i);
+    // if length is not defined, use a standard (full) one
+    if(length < 0) {
+      length = (std::numeric_limits<T>::digits + 1) / 4;
+    }
+    if(baseprefix) {
+      stream << "0x";
+    }
+    stream << std::hex << std::setfill('0') << std::setw(length) << static_cast<uint64_t>(i);
     return stream.str();
   }
 
