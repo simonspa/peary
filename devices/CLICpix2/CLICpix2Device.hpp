@@ -66,6 +66,9 @@ namespace caribou {
     // The functions sets clocks required by CLICpix2 to operate
     void configureClock(bool internal);
 
+    void getMem(std::string);
+    void setMem(std::string, uint32_t value);
+
     /**
      * Reading raw data from CLICpix2. This function returns both the pixel data frame and the frame timestamps from the
      * pattern generator. The first word contains the number of timestamp words to follow. Then, the timestamps are written,
