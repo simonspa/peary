@@ -27,6 +27,7 @@ namespace caribou {
 
   // CLICTD readout
   const std::intptr_t CLICTD_READOUT_BASE_ADDRESS = 0x43C70000;
+  const std::intptr_t CLICTD_READOUT_LSB = 2;
   const std::intptr_t CLICTD_READOUT_RDFIFO_OFFSET = 0;
   const std::intptr_t CLICTD_READOUT_RDSTATUS_OFFSET = 4;
   const std::intptr_t CLICTD_READOUT_RDCONTROL_OFFSET = 8;
@@ -54,6 +55,48 @@ namespace caribou {
     {"rdcontrol",                                                             \
         memory_map(CLICTD_READOUT_BASE_ADDRESS,                               \
                    CLICTD_READOUT_RDCONTROL_OFFSET,                           \
+                   CLICTD_READOUT_MAP_SIZE,                                   \
+                   CLICTD_READOUT_MAP_MASK,                                   \
+                   PROT_READ | PROT_WRITE)},                                  \
+    {"wgcontrol",                                                             \
+        memory_map(CLICTD_READOUT_BASE_ADDRESS,                               \
+                   (5 << CLICTD_READOUT_LSB),                                   \
+                   CLICTD_READOUT_MAP_SIZE,                                   \
+                   CLICTD_READOUT_MAP_MASK,                                   \
+                   PROT_READ | PROT_WRITE)},                                  \
+    {"wgstatus",                                                              \
+        memory_map(CLICTD_READOUT_BASE_ADDRESS,                               \
+                   (6 << CLICTD_READOUT_LSB),                                   \
+                   CLICTD_READOUT_MAP_SIZE,                                   \
+                   CLICTD_READOUT_MAP_MASK,                                   \
+                   PROT_READ)},                                  \
+    {"wgcapacity",                                                            \
+        memory_map(CLICTD_READOUT_BASE_ADDRESS,                               \
+                   (7 << CLICTD_READOUT_LSB),                                   \
+                   CLICTD_READOUT_MAP_SIZE,                                   \
+                   CLICTD_READOUT_MAP_MASK,                                   \
+                   PROT_READ)},                                  \
+    {"wgconfruns",                                                            \
+        memory_map(CLICTD_READOUT_BASE_ADDRESS,                               \
+                   (8 << CLICTD_READOUT_LSB),                                   \
+                   CLICTD_READOUT_MAP_SIZE,                                   \
+                   CLICTD_READOUT_MAP_MASK,                                   \
+                   PROT_READ | PROT_WRITE)},                                  \
+    {"wgpatterntime",                                                         \
+        memory_map(CLICTD_READOUT_BASE_ADDRESS,                               \
+                   (9 << CLICTD_READOUT_LSB),                                   \
+                   CLICTD_READOUT_MAP_SIZE,                                   \
+                   CLICTD_READOUT_MAP_MASK,                                   \
+                   PROT_READ | PROT_WRITE)},                                  \
+    {"wgpatternoutput",                                                       \
+        memory_map(CLICTD_READOUT_BASE_ADDRESS,                               \
+                   (10 << CLICTD_READOUT_LSB),                                  \
+                   CLICTD_READOUT_MAP_SIZE,                                   \
+                   CLICTD_READOUT_MAP_MASK,                                   \
+                   PROT_READ | PROT_WRITE)},                                  \
+    {"wgpatterntriggers",                                                     \
+        memory_map(CLICTD_READOUT_BASE_ADDRESS,                               \
+                   (11 << CLICTD_READOUT_LSB),                                  \
                    CLICTD_READOUT_MAP_SIZE,                                   \
                    CLICTD_READOUT_MAP_MASK,                                   \
                    PROT_READ | PROT_WRITE)},                                  \
