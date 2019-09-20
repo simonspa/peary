@@ -46,7 +46,7 @@ INCLUDE_DIRECTORIES("${CMAKE_CURRENT_BINARY_DIR}")
 SET(PEARY_LOCK_DIR "/var/lock" CACHE PATH "Path to lockfile directory")
 
 # Include peary cmake functions
-INCLUDE("cmake/peary.cmake")
+INCLUDE("cmake/PearyMacros.cmake")
 
 # Additional packages to be searched for by cmake
 LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
