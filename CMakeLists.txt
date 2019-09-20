@@ -115,3 +115,29 @@ ADD_SUBDIRECTORY(doc)
 
 ADD_SUBDIRECTORY(exec)
 ADD_SUBDIRECTORY(etc) # pearyd service files
+
+#######################################
+# Generate CMake Configuration Module #
+#######################################
+
+INCLUDE(CMakePackageConfigHelpers)
+SET(PEARY_INCLUDE_DIR "include")
+SET(PEARY_LIBRARY_DIR "lib")
+CONFIGURE_PACKAGE_CONFIG_FILE(${CMAKE_CURRENT_SOURCE_DIR}/cmake/PearyConfig.cmake.in
+                              ${CMAKE_CURRENT_BINARY_DIR}/PearyConfig.cmake
+                              INSTALL_DESTINATION cmake
+                              PATH_VARS PEARY_INCLUDE_DIR PEARY_LIBRARY_DIR)
+
+WRITE_BASIC_PACKAGE_VERSION_FILE(PearyConfigVersion.cmake
+                                 VERSION ${PROJECT_VERSION}
+                                 COMPATIBILITY AnyNewerVersion)
+INSTALL(FILES
+    ${PROJECT_BINARY_DIR}/PearyConfig.cmake
+    ${PROJECT_BINARY_DIR}/PearyConfigVersion.cmake
+    ${PROJECT_SOURCE_DIR}/cmake/PearyMacros.cmake
+    DESTINATION cmake)
+
+INSTALL(EXPORT Caribou
+    NAMESPACE Caribou::
+    FILE PearyConfigTargets.cmake
+    DESTINATION cmake)
