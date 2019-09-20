@@ -4,6 +4,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.0 FATAL_ERROR)
 IF(COMMAND CMAKE_POLICY)
   CMAKE_POLICY(SET CMP0003 NEW) # change linker path search behaviour
   CMAKE_POLICY(SET CMP0048 NEW) # set project version
+  CMAKE_POLICY(SET CMP0079 NEW) # Allow lookup of linking libraries in other directories
 ENDIF(COMMAND CMAKE_POLICY)
 ########################################################
 
