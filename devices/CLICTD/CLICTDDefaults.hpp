@@ -27,6 +27,7 @@ namespace caribou {
 
   // CLICTD readout
   const std::intptr_t CLICTD_READOUT_BASE_ADDRESS = 0x43C70000;
+  const std::intptr_t CLICTD_READOUT_LSB = 2;
   const std::intptr_t CLICTD_READOUT_RDFIFO_OFFSET = 0;
   const std::intptr_t CLICTD_READOUT_RDSTATUS_OFFSET = 4;
   const std::intptr_t CLICTD_READOUT_RDCONTROL_OFFSET = 8;
@@ -66,6 +67,90 @@ namespace caribou {
     {"shuttertimeout",                                                        \
         memory_map(CLICTD_READOUT_BASE_ADDRESS,                               \
                    CLICTD_READOUT_SHUTTERTIMEOUT_OFFSET,                      \
+                   CLICTD_READOUT_MAP_SIZE,                                   \
+                   CLICTD_READOUT_MAP_MASK,                                   \
+                   PROT_READ | PROT_WRITE)},                                  \
+    {"wgcontrol",                                                             \
+        memory_map(CLICTD_READOUT_BASE_ADDRESS,                               \
+                   (5 << CLICTD_READOUT_LSB),                                 \
+                   CLICTD_READOUT_MAP_SIZE,                                   \
+                   CLICTD_READOUT_MAP_MASK,                                   \
+                   PROT_READ | PROT_WRITE)},                                  \
+    {"wgstatus",                                                              \
+        memory_map(CLICTD_READOUT_BASE_ADDRESS,                               \
+                   (6 << CLICTD_READOUT_LSB),                                 \
+                   CLICTD_READOUT_MAP_SIZE,                                   \
+                   CLICTD_READOUT_MAP_MASK,                                   \
+                   PROT_READ)},                                               \
+    {"wgcapacity",                                                            \
+        memory_map(CLICTD_READOUT_BASE_ADDRESS,                               \
+                   (7 << CLICTD_READOUT_LSB),                                 \
+                   CLICTD_READOUT_MAP_SIZE,                                   \
+                   CLICTD_READOUT_MAP_MASK,                                   \
+                   PROT_READ)},                                               \
+    {"wgconfruns",                                                            \
+        memory_map(CLICTD_READOUT_BASE_ADDRESS,                               \
+                   (8 << CLICTD_READOUT_LSB),                                 \
+                   CLICTD_READOUT_MAP_SIZE,                                   \
+                   CLICTD_READOUT_MAP_MASK,                                   \
+                   PROT_READ | PROT_WRITE)},                                  \
+    {"wgpatterntime",                                                         \
+        memory_map(CLICTD_READOUT_BASE_ADDRESS,                               \
+                   (9 << CLICTD_READOUT_LSB),                                 \
+                   CLICTD_READOUT_MAP_SIZE,                                   \
+                   CLICTD_READOUT_MAP_MASK,                                   \
+                   PROT_READ | PROT_WRITE)},                                  \
+    {"wgpatternoutput",                                                       \
+        memory_map(CLICTD_READOUT_BASE_ADDRESS,                               \
+                   (10 << CLICTD_READOUT_LSB),                                \
+                   CLICTD_READOUT_MAP_SIZE,                                   \
+                   CLICTD_READOUT_MAP_MASK,                                   \
+                   PROT_READ | PROT_WRITE)},                                  \
+    {"wgpatterntriggers",                                                     \
+        memory_map(CLICTD_READOUT_BASE_ADDRESS,                               \
+                   (11 << CLICTD_READOUT_LSB),                                \
+                   CLICTD_READOUT_MAP_SIZE,                                   \
+                   CLICTD_READOUT_MAP_MASK,                                   \
+                   PROT_READ | PROT_WRITE)},                                  \
+    {"tsfifodata_lsb",                                                        \
+        memory_map(CLICTD_READOUT_BASE_ADDRESS,                               \
+                   (12 << CLICTD_READOUT_LSB),                                \
+                   CLICTD_READOUT_MAP_SIZE,                                   \
+                   CLICTD_READOUT_MAP_MASK,                                   \
+                   PROT_READ | PROT_WRITE)},                                  \
+    {"tsfifodata_msb",                                                        \
+        memory_map(CLICTD_READOUT_BASE_ADDRESS,                               \
+                   (13 << CLICTD_READOUT_LSB),                                \
+                   CLICTD_READOUT_MAP_SIZE,                                   \
+                   CLICTD_READOUT_MAP_MASK,                                   \
+                   PROT_READ | PROT_WRITE)},                                  \
+    {"tsstatus",                                                              \
+        memory_map(CLICTD_READOUT_BASE_ADDRESS,                               \
+                   (14 << CLICTD_READOUT_LSB),                                \
+                   CLICTD_READOUT_MAP_SIZE,                                   \
+                   CLICTD_READOUT_MAP_MASK,                                   \
+                   PROT_READ | PROT_WRITE)},                                  \
+    {"tscontrol",                                                             \
+        memory_map(CLICTD_READOUT_BASE_ADDRESS,                               \
+                   (15 << CLICTD_READOUT_LSB),                                \
+                   CLICTD_READOUT_MAP_SIZE,                                   \
+                   CLICTD_READOUT_MAP_MASK,                                   \
+                   PROT_READ | PROT_WRITE)},                                  \
+    {"tsedgeconf",                                                            \
+        memory_map(CLICTD_READOUT_BASE_ADDRESS,                               \
+                   (16 << CLICTD_READOUT_LSB),                                \
+                   CLICTD_READOUT_MAP_SIZE,                                   \
+                   CLICTD_READOUT_MAP_MASK,                                   \
+                   PROT_READ | PROT_WRITE)},                                  \
+    {"tsinittime_lsb",                                                        \
+        memory_map(CLICTD_READOUT_BASE_ADDRESS,                               \
+                   (17 << CLICTD_READOUT_LSB),                                \
+                   CLICTD_READOUT_MAP_SIZE,                                   \
+                   CLICTD_READOUT_MAP_MASK,                                   \
+                   PROT_READ | PROT_WRITE)},                                  \
+    {"tsinittime_msb",                                                        \
+        memory_map(CLICTD_READOUT_BASE_ADDRESS,                               \
+                   (18 << CLICTD_READOUT_LSB),                                \
                    CLICTD_READOUT_MAP_SIZE,                                   \
                    CLICTD_READOUT_MAP_MASK,                                   \
                    PROT_READ | PROT_WRITE)}                                   \

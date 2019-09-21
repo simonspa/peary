@@ -421,7 +421,7 @@ int main(int argc, char* argv[]) {
       } else if(cmd.find("MaskPixel") != std::string::npos) {
         std::vector<std::string> words = split(cmd, ' ');
         std::cout << "Masking Pixel  " << words[1] << " " << words[2] << std::endl;
-        devM1->command("MaskPixel", {words[1], words[2]});
+        devM1->command("MaskPixel", std::vector<std::string>({words[1], words[2]}));
         // memset(buffer, 0, sizeof buffer);
         strcpy(buffer, "[ATLASPixServer] Masking a pixel \n");
       }

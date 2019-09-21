@@ -116,7 +116,7 @@ std::vector<uint32_t> CLICTDDevice::getFrame() {
   LOG(DEBUG) << "Frame readout requested";
   setMemory("rdcontrol", 1);
   uint32_t attempts = 0;
-  while((getMemory("rdcontrol")) & 0b1) {
+  while((getMemory("rdstatus")) & 0x20) {
     usleep(100);
     if(attempts++ >= 16384) {
       LOG(ERROR) << "Frame readout timeout";
@@ -342,13 +342,6 @@ void CLICTDDevice::programMatrix() {
   // Reset the readout FSM and clear the FPGA FIFO
   setMemory("rdcontrol", 2);
   usleep(10);
-  int retry = 0;
-  while(getMemory("rdcontrol") & 2) {
-    if(++retry > 3) {
-      LOG(ERROR) << "Could not finish FPGA readout reset.";
-      break;
-    }
-  }
   check_configuration(true);
 
   LOG(INFO) << "Matrix configuration - Stage 2";
@@ -366,13 +359,6 @@ void CLICTDDevice::programMatrix() {
   // Reset the readout FSM and clear the FPGA FIFO
   setMemory("rdcontrol", 2);
   usleep(10);
-  retry = 0;
-  while(getMemory("rdcontrol") & 2) {
-    if(++retry > 3) {
-      LOG(ERROR) << "Could not finish FPGA readout reset.";
-      break;
-    }
-  }
 
   check_configuration(false);
   LOG(INFO) << "Verified matrix configuration.";
