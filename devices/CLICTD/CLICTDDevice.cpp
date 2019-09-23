@@ -688,17 +688,12 @@ void CLICTDDevice::triggerPatternGenerator(bool sleep) {
 
   LOG(DEBUG) << "Triggering pattern generator once.";
 
-  // reset the FPGA readout
-  setMemory("rdcontrol", 2);
-  usleep(1000);
-
-  // Manually open the shutter
-  setMemory("rdcontrol", 4);
+  setMemory("wgcontrol", 1);
 
   // Wait for its length before returning:
   if(sleep) {
-    LOG(DEBUG) << "Waiting for shutter to close...";
-    while(getMemory("rdstatus") & 0x20) {
+    LOG(DEBUG) << "Waiting for pattern generator to finish...";
+    while(getMemory("wgstatus") & 0x1) {
       usleep(100);
     }
     usleep(100);
