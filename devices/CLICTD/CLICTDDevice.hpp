@@ -71,6 +71,8 @@ namespace caribou {
 
     void triggerPatternGenerator(bool sleep);
 
+    void configurePatternGenerator(std::string filename);
+
   private:
     /**
      * Routine to program the pixel matrix

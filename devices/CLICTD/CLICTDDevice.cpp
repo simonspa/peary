@@ -20,6 +20,7 @@ CLICTDDevice::CLICTDDevice(const caribou::Configuration config)
   _dispatcher.add("getMemory", &CLICTDDevice::getMem, this);
   _dispatcher.add("setMemory", &CLICTDDevice::setMem, this);
   _dispatcher.add("triggerPatternGenerator", &CLICTDDevice::triggerPatternGenerator, this);
+  _dispatcher.add("configurePatternGenerator", &CLICTDDevice::configurePatternGenerator, this);
 
   // Set up periphery
   _periphery.add("vddd", PWR_OUT_2);
@@ -58,6 +59,15 @@ void CLICTDDevice::configure() {
   // Call the base class configuration function:
   CaribouDevice<iface_i2c>::configure();
 
+  // Read pattern generator from the configuration and program it:
+  std::string pg = _config.Get("patterngenerator", "");
+  if(!pg.empty()) {
+    LOG(INFO) << "Found pattern generator in configuration, programming...";
+    configurePatternGenerator(pg);
+  } else {
+    LOG(INFO) << "No pattern generator found in configuration.";
+  }
+
   // Read matrix file from the configuration and program it:
   std::string matrix = _config.Get("matrix", "");
   if(!matrix.empty()) {
@@ -66,6 +76,141 @@ void CLICTDDevice::configure() {
   } else {
     LOG(INFO) << "No pixel matrix configuration setting found.";
   }
+}
+
+template <typename Enumeration> auto as_value(Enumeration const value) -> typename std::underlying_type<Enumeration>::type {
+  return static_cast<typename std::underlying_type<Enumeration>::type>(value);
+}
+
+void CLICTDDevice::configurePatternGenerator(std::string filename) {
+
+  LOG(DEBUG) << "Resetting pattern generator configuration";
+  setMemory("wgcontrol", 0x4);
+
+  LOG(DEBUG) << "Programming pattern generator";
+  std::vector<uint32_t> patterns;
+
+  std::ifstream pgfile(filename);
+  if(!pgfile.is_open()) {
+    LOG(ERROR) << "Could not open pattern generator configuration file \"" << filename << "\"";
+    throw ConfigInvalid("Could not open pattern generator configuration file \"" + filename + "\"");
+  }
+
+  enum class TriggerConditionGlobal : uint8_t {
+    OR = 0b001,
+    NOR = 0b101,
+    AND = 0b011,
+    NAND = 0b111,
+    XOR = 0b010,
+    XNOR = 0b110,
+    TRUE = 0b000
+  };
+
+  enum class TriggerConditionLocal : uint8_t {
+    HIGH = 0b100,
+    LOW = 0b101,
+    RISING = 0b001,
+    FALLING = 0b010,
+    EDGE = 0b011,
+    ALWAYS = 0b111,
+    NEVER = 0b000
+  };
+
+  std::string line = "";
+  while(std::getline(pgfile, line)) {
+    if(!line.length() || '#' == line.at(0))
+      continue;
+    std::istringstream pgline(line);
+    std::string triggerconditions;
+    std::string condition;
+    std::string signals;
+    uint32_t duration;
+    if(pgline >> triggerconditions >> condition >> signals >> duration) {
+
+      uint8_t output = 0;
+      std::stringstream ss(signals);
+      while(ss.good()) {
+        std::string substr;
+        getline(ss, substr, ',');
+        if(substr == "RO") {
+          output |= CLICTD_READOUT_START;
+        } else if(substr == "PWR") {
+          output |= CLICTD_POWER_ENABLE;
+        } else if(substr == "TP") {
+          output |= CLICTD_TESTPULSE;
+        } else if(substr == "SH") {
+          output |= CLICTD_SHUTTER;
+        } else if(substr == "RE") {
+          output |= CLICTD_RESET;
+        } else if(substr == "NONE") {
+        } else {
+          LOG(ERROR) << "Unrecognized pattern for pattern generator: " << substr << " - ignoring.";
+        }
+      }
+
+      uint16_t triggers = 0;
+      if(condition == "OR") {
+        triggers = as_value(TriggerConditionGlobal::OR);
+      } else if(condition == "NOR") {
+        triggers = as_value(TriggerConditionGlobal::NOR);
+      } else if(condition == "AND") {
+        triggers = as_value(TriggerConditionGlobal::AND);
+      } else if(condition == "NAND") {
+        triggers = as_value(TriggerConditionGlobal::NAND);
+      } else if(condition == "XOR") {
+        triggers = as_value(TriggerConditionGlobal::XOR);
+      } else if(condition == "XNOR") {
+        triggers = as_value(TriggerConditionGlobal::XNOR);
+      } else if(condition == "TRUE") {
+        triggers = as_value(TriggerConditionGlobal::TRUE);
+      } else {
+        LOG(ERROR) << "Unrecognized global trigger condition for pattern generator: " << condition;
+        throw ConfigInvalid("Invalid global trigger condition");
+      }
+
+      size_t n_triggers = 0;
+      std::stringstream ss2(triggerconditions);
+      while(ss2.good()) {
+        std::string substr;
+        getline(ss2, substr, ',');
+        if(substr == "HIGH" || substr == "H") {
+          triggers |= (as_value(TriggerConditionLocal::HIGH) << (n_triggers + 1) * 3);
+        } else if(substr == "LOW" || substr == "L") {
+          triggers |= (as_value(TriggerConditionLocal::LOW) << (n_triggers + 1) * 3);
+        } else if(substr == "RISING" || substr == "R") {
+          triggers |= (as_value(TriggerConditionLocal::RISING) << (n_triggers + 1) * 3);
+        } else if(substr == "FALLING" || substr == "F") {
+          triggers |= (as_value(TriggerConditionLocal::FALLING) << (n_triggers + 1) * 3);
+        } else if(substr == "EDGE" || substr == "E") {
+          triggers |= (as_value(TriggerConditionLocal::EDGE) << (n_triggers + 1) * 3);
+        } else if(substr == "ALWAYS" || substr == "A") {
+          triggers |= (as_value(TriggerConditionLocal::ALWAYS) << (n_triggers + 1) * 3);
+        } else if(substr == "NEVER" || substr == "N") {
+          triggers |= (as_value(TriggerConditionLocal::NEVER) << (n_triggers + 1) * 3);
+        } else {
+          LOG(ERROR) << "Unrecognized signal trigger condition for pattern generator: " << substr << " - setting to NEVER.";
+          triggers |= (as_value(TriggerConditionLocal::NEVER) << (n_triggers + 1) * 3);
+        }
+        n_triggers++;
+      }
+      LOG(INFO) << "Found " << n_triggers << " trigger signals";
+
+      LOG(INFO) << "PG: setting duration " << duration << " clk";
+      setMemory("wgpatterntime", duration);
+      LOG(INFO) << "PG: setting output " << to_bit_string(output, 8, true);
+      setMemory("wgpatternoutput", output);
+      LOG(INFO) << "PG: setting trigger conditions " << to_bit_string(triggers, (n_triggers + 1) * 3, true);
+      setMemory("wgpatterntriggers", triggers);
+
+      // Trigger the write:
+      setMemory("wgcontrol", 0x8);
+
+      auto remaining = getMemory("wgcapacity");
+      LOG(INFO) << "PG: " << remaining << " slots remaining";
+    }
+  }
+
+  LOG(DEBUG) << "Done configuring pattern generator.";
 }
 
 void CLICTDDevice::reset() {
