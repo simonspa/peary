@@ -436,8 +436,9 @@ void CLICTDDevice::programMatrix() {
 
   auto check_configuration = [this](bool first_stage) {
     bool configurationError = false;
+
     // Read back the applied configuration (optional)
-    auto rawdata = getFrame();
+    auto rawdata = getFrame(true);
 
     IFLOG(DEBUG) {
       LOG(DEBUG) << "Matrix Stage " << (first_stage ? "1" : "2");
@@ -475,7 +476,7 @@ void CLICTDDevice::programMatrix() {
   };
 
   LOG(INFO) << "Resetting matrix...";
-  getFrame();
+  getFrame(true);
 
   LOG(INFO) << "Matrix configuration - Stage 1";
   // Write 0x01 to ’configCtrl’ register (start 1st configuration stage)
@@ -547,7 +548,7 @@ void CLICTDDevice::setSpecialRegister(std::string name, uint32_t value) {
 
     // Flush the matrix:
     LOG(INFO) << "Flushing the matrix to clear hit flags";
-    getFrame();
+    getFrame(true);
   }
 }
 
