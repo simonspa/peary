@@ -210,6 +210,9 @@ void CLICTDDevice::configurePatternGenerator(std::string filename) {
     }
   }
 
+  LOG(INFO) << "Setting to run PG once";
+  setMemory("wgconfruns", 1);
+
   LOG(DEBUG) << "Done configuring pattern generator.";
 }
 
