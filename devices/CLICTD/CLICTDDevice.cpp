@@ -76,6 +76,33 @@ void CLICTDDevice::configure() {
   } else {
     LOG(INFO) << "No pixel matrix configuration setting found.";
   }
+
+  // Configure, which timestamps we would like to see:
+  std::string ts_trigger_string = _config.Get("timestamp_triggers", "");
+  std::stringstream ss(ts_trigger_string);
+  size_t pos = 0;
+  uint32_t ts_triggers = 0;
+  while(ss.good()) {
+    std::string substr;
+    getline(ss, substr, ',');
+    LOG(DEBUG) << "TS_TRG: Found timestamp trigger " << substr << ", pos " << (pos * 2);
+    uint32_t value = 0;
+    if(substr == "RISING" || substr == "R") {
+      value = (0b01 << (pos * 2));
+    } else if(substr == "FALLING" || substr == "F") {
+      value = (0b10 << (pos * 2));
+    } else if(substr == "EDGE" || substr == "E") {
+      value = (0b11 << (pos * 2));
+    } else if(substr == "NONE" || substr == "N") {
+    } else {
+      LOG(ERROR) << "Unknown timestamp trigger " << substr << " - disabling this signal (0x00)";
+    }
+    LOG(DEBUG) << "TS_TRG: Adding value " << to_bit_string(value, 32, true);
+    ts_triggers |= value;
+    pos++;
+  }
+  LOG(INFO) << "Setting timestamp triggers to " << to_bit_string(ts_triggers, 32, true) << "(" << ts_triggers << ")";
+  setMemory("tsedgeconf", ts_triggers);
 }
 
 template <typename Enumeration> auto as_value(Enumeration const value) -> typename std::underlying_type<Enumeration>::type {
