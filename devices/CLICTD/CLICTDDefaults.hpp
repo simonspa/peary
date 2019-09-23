@@ -36,6 +36,13 @@ namespace caribou {
   const std::size_t CLICTD_READOUT_MAP_SIZE = 4096;
   const std::size_t CLICTD_READOUT_MAP_MASK = CLICTD_READOUT_MAP_SIZE - 1;
 
+// CLICTD output signals
+#define CLICTD_READOUT_START 0x1
+#define CLICTD_POWER_ENABLE 0x2
+#define CLICTD_TESTPULSE 0x4
+#define CLICTD_SHUTTER 0x8
+#define CLICTD_RESET 0x16
+
 // clang-format off
 
 #define CLICTD_MEMORY                                                         \
