@@ -21,6 +21,7 @@ CLICTDDevice::CLICTDDevice(const caribou::Configuration config)
   _dispatcher.add("setMemory", &CLICTDDevice::setMem, this);
   _dispatcher.add("triggerPatternGenerator", &CLICTDDevice::triggerPatternGenerator, this);
   _dispatcher.add("configurePatternGenerator", &CLICTDDevice::configurePatternGenerator, this);
+  _dispatcher.add("clearTimestamps", &CLICTDDevice::clearTimestamps, this);
 
   // Set up periphery
   _periphery.add("vddd", PWR_OUT_2);
@@ -222,11 +223,11 @@ void CLICTDDevice::configurePatternGenerator(std::string filename) {
       }
       LOG(INFO) << "Found " << n_triggers << " trigger signals";
 
-      LOG(INFO) << "PG: setting duration " << duration << " clk";
+      LOG(DEBUG) << "PG: setting duration " << duration << " clk";
       setMemory("wgpatterntime", duration);
-      LOG(INFO) << "PG: setting output " << to_bit_string(output, 8, true);
+      LOG(DEBUG) << "PG: setting output " << to_bit_string(output, 8, true);
       setMemory("wgpatternoutput", output);
-      LOG(INFO) << "PG: setting trigger conditions " << to_bit_string(triggers, (n_triggers + 1) * 3, true);
+      LOG(DEBUG) << "PG: setting trigger conditions " << to_bit_string(triggers, (n_triggers + 1) * 3, true);
       setMemory("wgpatterntriggers", triggers);
 
       // Trigger the write:
@@ -308,6 +309,41 @@ std::vector<uint32_t> CLICTDDevice::getFrame(bool manual_readout) {
   }
   LOG(DEBUG) << "Read " << rawdata.size() << " 32bit words from FIFO.";
   return rawdata;
+}
+
+void CLICTDDevice::clearTimestamps() {
+  // Retrieve all timestamps and throw them away:
+  getTimestamps();
+}
+
+std::vector<uint32_t> CLICTDDevice::getTimestamps() {
+
+  std::vector<uint32_t> timestamps;
+  LOG(DEBUG) << "Requesting timestamps";
+
+  // dummy readout
+  if((getMemory("tsstatus") & 0x1) == 0) {
+    LOG(WARNING) << "Timestamps FIFO is empty";
+    return timestamps;
+  }
+
+  uint32_t ts_lsb;
+  uint32_t ts_msb;
+  do {
+    // Read LSB
+    ts_lsb = getMemory("tsfifodata_lsb");
+
+    // Read MSB and remove top header bits
+    ts_msb = getMemory("tsfifodata_msb");
+
+    timestamps.push_back(ts_msb);
+    timestamps.push_back(ts_lsb);
+    LOG(DEBUG) << ts_msb << " | " << ts_lsb << "\t= " << ((static_cast<uint64_t>(ts_msb) << 32) | ts_lsb);
+  } while(getMemory("tsstatus") & 0x1);
+
+  LOG(DEBUG) << "Received " << timestamps.size() / 2 << " timestamps: " << listVector(timestamps, ",", false);
+
+  return timestamps;
 }
 
 CLICTDDevice::matrixConfig CLICTDDevice::readMatrix(std::string filename) const {

@@ -73,6 +73,8 @@ namespace caribou {
 
     void configurePatternGenerator(std::string filename);
 
+    void clearTimestamps();
+
   private:
     /**
      * Routine to program the pixel matrix
@@ -81,6 +83,8 @@ namespace caribou {
     void programMatrix();
 
     std::vector<uint32_t> getFrame(bool manual_readout = false);
+
+    std::vector<uint32_t> getTimestamps();
 
     /* Map of pixelConfigs for configuration storage (column, row))
      */
