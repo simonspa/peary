@@ -281,8 +281,22 @@ void CLICTDDevice::configureClock(bool internal) {
 std::vector<uint32_t> CLICTDDevice::getRawData() {
   triggerPatternGenerator(true);
 
-  // Get the frame:
-  return getFrame();
+  LOG(DEBUG) << "Preparing raw data packet";
+  std::vector<uint32_t> rawdata;
+
+  // Get the timestamps:
+  auto timestamps = getTimestamps();
+
+  // Read frame data:
+  auto frame = getFrame();
+
+  // Pack data: first data block is number of timestamp words, followed by timestamps and frame data
+  rawdata.push_back(timestamps.size());
+  rawdata.insert(rawdata.end(), timestamps.begin(), timestamps.end());
+  rawdata.insert(rawdata.end(), frame.begin(), frame.end());
+
+  LOG(DEBUG) << "Raw data packet with " << rawdata.size() << " words ready";
+  return rawdata;
 }
 
 std::vector<uint32_t> CLICTDDevice::getFrame(bool manual_readout) {
