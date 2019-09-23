@@ -78,6 +78,10 @@ void CLICTDDevice::configure() {
     LOG(INFO) << "No pixel matrix configuration setting found.";
   }
 
+  // CLICTD signal order (from LSB):
+  //            T0, Reset, Shutter, TP, Pwr, RO_start, RO_active
+  //            1   2      4        8   16   32        64
+  // Stored in topmost 16 bits of 64bit timestamp
   // Configure, which timestamps we would like to see:
   std::string ts_trigger_string = _config.Get("timestamp_triggers", "");
   std::stringstream ss(ts_trigger_string);
@@ -318,9 +322,10 @@ std::vector<uint32_t> CLICTDDevice::getFrame(bool manual_readout) {
     }
   }
 
-  // Poll data until there is something left
+  // Poll data until there nothing something left anymore
   std::vector<uint32_t> rawdata;
   while((getMemory("rdstatus")) & 0b1) {
+    LOG(TRACE) << "Reading word " << rawdata.size() << " from FIFO";
     uint32_t data = getMemory("rdfifo");
     rawdata.push_back(data);
   }
