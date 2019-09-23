@@ -335,23 +335,18 @@ void CLICTDDevice::clearTimestamps() {
 
 std::vector<uint32_t> CLICTDDevice::getTimestamps() {
 
-  std::vector<uint32_t> timestamps;
   LOG(DEBUG) << "Requesting timestamps";
 
-  // dummy readout
   if((getMemory("tsstatus") & 0x1) == 0) {
     LOG(WARNING) << "Timestamps FIFO is empty";
-    return timestamps;
+    return std::vector<uint32_t>();
   }
 
-  uint32_t ts_lsb;
-  uint32_t ts_msb;
+  std::vector<uint32_t> timestamps;
   do {
-    // Read LSB
-    ts_lsb = getMemory("tsfifodata_lsb");
-
-    // Read MSB and remove top header bits
-    ts_msb = getMemory("tsfifodata_msb");
+    // Read LSB and MSB of timestamp
+    uint32_t ts_lsb = getMemory("tsfifodata_lsb");
+    uint32_t ts_msb = getMemory("tsfifodata_msb");
 
     timestamps.push_back(ts_msb);
     timestamps.push_back(ts_lsb);
