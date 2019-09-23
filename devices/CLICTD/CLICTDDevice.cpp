@@ -104,6 +104,9 @@ void CLICTDDevice::configure() {
   }
   LOG(INFO) << "Setting timestamp triggers to " << to_bit_string(ts_triggers, 32, true) << "(" << ts_triggers << ")";
   setMemory("tsedgeconf", ts_triggers);
+
+  // Enable recording of timestamps:
+  setMemory("tscontrol", 0x3);
 }
 
 template <typename Enumeration> auto as_value(Enumeration const value) -> typename std::underlying_type<Enumeration>::type {
