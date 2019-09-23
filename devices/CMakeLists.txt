@@ -4,6 +4,9 @@ OPTION(BUILD_ALL_DEVICES "Build all devices?" OFF)
 # reset the saved libraries
 SET(PEARY_DEVICE_LIBRARIES "" CACHE INTERNAL "Device libraries")
 
+# Generate an interface library containing all devices:
+ADD_LIBRARY(devices INTERFACE)
+
 # Build all the modules
 FILE(GLOB subdirs RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/*)
 FOREACH(subdir ${subdirs})
@@ -12,6 +15,13 @@ FOREACH(subdir ${subdirs})
         ADD_SUBDIRECTORY(${subdir})
     ENDIF()
 ENDFOREACH()
+
+
+INSTALL(TARGETS devices
+    EXPORT Caribou
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib)
 
 INSTALL(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     DESTINATION include

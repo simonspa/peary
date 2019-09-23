@@ -58,9 +58,17 @@ Create the header or provide the alternative class name as first argument")
     TARGET_COMPILE_DEFINITIONS(${${name}} PRIVATE PEARY_DEVICE_NAME="${_peary_device_name}")
     TARGET_COMPILE_DEFINITIONS(${${name}} PRIVATE PEARY_DEVICE_HEADER="${_peary_device_class}.hpp")
 
+    TARGET_INCLUDE_DIRECTORIES(${${name}}
+                               PUBLIC
+                               $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+                               $<INSTALL_INTERFACE:include/devices/${_peary_device_dir}>)
+
     TARGET_SOURCES(${${name}} PRIVATE "${PROJECT_SOURCE_DIR}/peary/device/dynamic_device_impl.cpp")
     SET_PROPERTY(SOURCE "${PROJECT_SOURCE_DIR}/peary/device/dynamic_device_impl.cpp" APPEND PROPERTY OBJECT_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${_peary_device_class}.hpp")
     SET_PROPERTY(SOURCE "${PROJECT_SOURCE_DIR}/peary/device/device.cpp" APPEND PROPERTY OBJECT_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${_peary_device_class}.hpp")
+
+    # Add to the interface library for devices:
+    TARGET_LINK_LIBRARIES(devices INTERFACE ${${name}})
 ENDMACRO()
 
 # Add sources to the device
@@ -83,6 +91,7 @@ ENDMACRO()
 MACRO(peary_device_install name)
     INSTALL(TARGETS ${name}
         COMPONENT devices
+        EXPORT Caribou
         RUNTIME DESTINATION bin
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib)

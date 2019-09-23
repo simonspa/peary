@@ -4,6 +4,9 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.0 FATAL_ERROR)
 IF(COMMAND CMAKE_POLICY)
   CMAKE_POLICY(SET CMP0003 NEW) # change linker path search behaviour
   CMAKE_POLICY(SET CMP0048 NEW) # set project version
+  IF(${CMAKE_VERSION} VERSION_GREATER "3.13")
+    CMAKE_POLICY(SET CMP0079 NEW) # Allow lookup of linking libraries in other directories
+  ENDIF()
 ENDIF(COMMAND CMAKE_POLICY)
 ########################################################
 
@@ -46,7 +49,7 @@ INCLUDE_DIRECTORIES("${CMAKE_CURRENT_BINARY_DIR}")
 SET(PEARY_LOCK_DIR "/var/lock" CACHE PATH "Path to lockfile directory")
 
 # Include peary cmake functions
-INCLUDE("cmake/peary.cmake")
+INCLUDE("cmake/PearyMacros.cmake")
 
 # Additional packages to be searched for by cmake
 LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
@@ -115,3 +118,30 @@ ADD_SUBDIRECTORY(doc)
 
 ADD_SUBDIRECTORY(exec)
 ADD_SUBDIRECTORY(etc) # pearyd service files
+
+#######################################
+# Generate CMake Configuration Module #
+#######################################
+
+INCLUDE(CMakePackageConfigHelpers)
+SET(PEARY_INCLUDE_DIR "include")
+SET(PEARY_LIBRARY_DIR "lib")
+SET(PEARY_CMAKE_DIR "share/cmake/Modules")
+CONFIGURE_PACKAGE_CONFIG_FILE(${CMAKE_CURRENT_SOURCE_DIR}/cmake/PearyConfig.cmake.in
+                              ${CMAKE_CURRENT_BINARY_DIR}/PearyConfig.cmake
+                              INSTALL_DESTINATION ${PEARY_CMAKE_DIR}
+                              PATH_VARS PEARY_INCLUDE_DIR PEARY_LIBRARY_DIR)
+
+WRITE_BASIC_PACKAGE_VERSION_FILE(PearyConfigVersion.cmake
+                                 VERSION ${PROJECT_VERSION}
+                                 COMPATIBILITY AnyNewerVersion)
+INSTALL(FILES
+    ${PROJECT_BINARY_DIR}/PearyConfig.cmake
+    ${PROJECT_BINARY_DIR}/PearyConfigVersion.cmake
+    ${PROJECT_SOURCE_DIR}/cmake/PearyMacros.cmake
+    DESTINATION ${PEARY_CMAKE_DIR})
+
+INSTALL(EXPORT Caribou
+    NAMESPACE Caribou::
+    FILE PearyConfigTargets.cmake
+    DESTINATION ${PEARY_CMAKE_DIR})

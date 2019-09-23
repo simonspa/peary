@@ -1,0 +1,24 @@
+@PACKAGE_INIT@
+
+SET_AND_CHECK(PEARY_INCLUDE_DIR "@PACKAGE_PEARY_INCLUDE_DIR@")
+SET_AND_CHECK(PEARY_LIBRARY_DIR "@PACKAGE_PEARY_LIBRARY_DIR@")
+
+INCLUDE("${CMAKE_CURRENT_LIST_DIR}/PearyConfigTargets.cmake")
+
+SET(PEARY_DEVICE_EXTERNAL TRUE)
+INCLUDE("${CMAKE_CURRENT_LIST_DIR}/PearyMacros.cmake")
+
+# Check for presence of required components:
+foreach(_comp ${Peary_FIND_COMPONENTS})
+  find_library(Peary_${_comp}_LIBRARY ${_comp} HINTS ${PEARY_LIBRARY_DIR})
+  if(Peary_${_comp}_LIBRARY)
+    mark_as_advanced(Peary_${_comp}_LIBRARY)
+    list(APPEND Peary_LIBRARIES ${Peary_${_comp}_LIBRARY})
+    SET(Peary_${_comp}_FOUND TRUE)
+  endif()
+endforeach()
+if(Peary_LIBRARIES)
+  list(REMOVE_DUPLICATES Peary_LIBRARIES)
+endif()
+
+CHECK_REQUIRED_COMPONENTS(Peary)
