@@ -257,22 +257,24 @@ std::vector<uint32_t> CLICTDDevice::getRawData() {
   return getFrame();
 }
 
-std::vector<uint32_t> CLICTDDevice::getFrame() {
+std::vector<uint32_t> CLICTDDevice::getFrame(bool manual_readout) {
 
-  std::vector<uint32_t> rawdata;
-
-  LOG(DEBUG) << "Frame readout requested";
-  setMemory("rdcontrol", 1);
-  uint32_t attempts = 0;
-  while((getMemory("rdstatus")) & 0x20) {
-    usleep(100);
-    if(attempts++ >= 16384) {
-      LOG(ERROR) << "Frame readout timeout";
-      return rawdata;
+  if(manual_readout) {
+    // Manually trigger readout:
+    LOG(DEBUG) << "Frame readout requested";
+    setMemory("rdcontrol", 1);
+    uint32_t attempts = 0;
+    while((getMemory("rdstatus")) & 0x20) {
+      usleep(100);
+      if(attempts++ >= 16384) {
+        LOG(ERROR) << "Frame readout timeout";
+        return std::vector<uint32_t>();
+      }
     }
   }
 
   // Poll data until there is something left
+  std::vector<uint32_t> rawdata;
   while((getMemory("rdstatus")) & 0b1) {
     uint32_t data = getMemory("rdfifo");
     rawdata.push_back(data);

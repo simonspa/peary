@@ -80,7 +80,7 @@ namespace caribou {
      */
     void programMatrix();
 
-    std::vector<uint32_t> getFrame();
+    std::vector<uint32_t> getFrame(bool manual_readout = false);
 
     /* Map of pixelConfigs for configuration storage (column, row))
      */
