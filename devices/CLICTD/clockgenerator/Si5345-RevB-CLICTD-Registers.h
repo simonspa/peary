@@ -10,7 +10,7 @@
  * Design ID:                                          CLICTD
  * Includes Pre/Post Download Control Register Writes: Yes
  * Created By:                                         ClockBuilder Pro v2.35 [2019-06-18]
- * Timestamp:                                          2019-08-01 15:28:25 GMT+02:00
+ * Timestamp:                                          2019-09-24 11:20:11 GMT+02:00
  *
  * A complete design report corresponding to this export is included at the end
  * of this header file.
@@ -49,9 +49,9 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
   {0x0019, 0xFF},
   {0x001A, 0xDF},
   {0x002B, 0x02},
-  {0x002C, 0x04},
-  {0x002D, 0x10},
-  {0x002E, 0x00},
+  {0x002C, 0x05},
+  {0x002D, 0x11},
+  {0x002E, 0x37},
   {0x002F, 0x00},
   {0x0030, 0x00},
   {0x0031, 0x00},
@@ -59,7 +59,7 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
   {0x0033, 0x00},
   {0x0034, 0x00},
   {0x0035, 0x00},
-  {0x0036, 0x00},
+  {0x0036, 0x37},
   {0x0037, 0x00},
   {0x0038, 0x00},
   {0x0039, 0x00},
@@ -69,34 +69,34 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
   {0x003D, 0x00},
   {0x003F, 0x00},
   {0x0040, 0x04},
-  {0x0041, 0x00},
+  {0x0041, 0x0C},
   {0x0042, 0x00},
   {0x0043, 0x0C},
   {0x0044, 0x00},
   {0x0045, 0x0C},
-  {0x0046, 0x00},
+  {0x0046, 0x32},
   {0x0047, 0x00},
   {0x0048, 0x32},
   {0x0049, 0x00},
-  {0x004A, 0x00},
+  {0x004A, 0x32},
   {0x004B, 0x00},
   {0x004C, 0x32},
   {0x004D, 0x00},
-  {0x004E, 0x00},
+  {0x004E, 0x05},
   {0x004F, 0x05},
-  {0x0050, 0x0B},
-  {0x0051, 0x00},
+  {0x0050, 0x0A},
+  {0x0051, 0x03},
   {0x0052, 0x00},
   {0x0053, 0x03},
   {0x0054, 0x00},
-  {0x0055, 0x00},
+  {0x0055, 0x03},
   {0x0056, 0x00},
   {0x0057, 0x03},
   {0x0058, 0x00},
-  {0x0059, 0x30},
-  {0x005A, 0x00},
-  {0x005B, 0x00},
-  {0x005C, 0x00},
+  {0x0059, 0x33},
+  {0x005A, 0x55},
+  {0x005B, 0x55},
+  {0x005C, 0xD5},
   {0x005D, 0x00},
   {0x005E, 0x00},
   {0x005F, 0x00},
@@ -176,13 +176,13 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
   {0x0204, 0x00},
   {0x0205, 0x00},
   {0x0206, 0x00},
-  {0x0208, 0x00},
+  {0x0208, 0x14},
   {0x0209, 0x00},
   {0x020A, 0x00},
   {0x020B, 0x00},
   {0x020C, 0x00},
   {0x020D, 0x00},
-  {0x020E, 0x00},
+  {0x020E, 0x01},
   {0x020F, 0x00},
   {0x0210, 0x00},
   {0x0211, 0x00},
@@ -389,7 +389,7 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
   {0x051E, 0x00},
   {0x051F, 0x80},
   {0x0521, 0x21},
-  {0x052A, 0x05},
+  {0x052A, 0x04},
   {0x052B, 0x00},
   {0x052C, 0x0F},
   {0x052D, 0x03},
@@ -400,25 +400,25 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
   {0x0533, 0x03},
   {0x0534, 0x00},
   {0x0535, 0x00},
-  {0x0536, 0x08},
-  {0x0537, 0x00},
-  {0x0538, 0x00},
-  {0x0539, 0x00},
+  {0x0536, 0x09},
+  {0x0537, 0x50},
+  {0x0538, 0x01},
+  {0x0539, 0x02},
   {0x0802, 0x35},
   {0x0803, 0x05},
   {0x0804, 0x00},
   {0x090E, 0x02},
   {0x0943, 0x01},
-  {0x0949, 0x04},
-  {0x094A, 0x04},
+  {0x0949, 0x05},
+  {0x094A, 0x05},
   {0x0A02, 0x00},
   {0x0A03, 0x01},
   {0x0A04, 0x01},
   {0x0A05, 0x01},
   {0x0B44, 0x2F},
   {0x0B46, 0x00},
-  {0x0B47, 0x0B},
-  {0x0B48, 0x0B},
+  {0x0B47, 0x0A},
+  {0x0B48, 0x0A},
   {0x0B4A, 0x1E},
   /* End configuration registers */
 
@@ -438,10 +438,10 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
  * Overview
  * ========
  * Part:               Si5345ABCD Rev B
- * Project File:       D:\cernbox\Projects\CLICTD\Si5345-RevB-CLICTD-Project.slabtimeproj
+ * Project File: D:\cernbox\Projects\caribou\peary\devices\CLICTD\clockgenerator\Si5345-RevB-CLICTD-Project.slabtimeproj
  * Design ID:          CLICTD
  * Created By:         ClockBuilder Pro v2.35 [2019-06-18]
- * Timestamp:          2019-08-01 15:28:25 GMT+02:00
+ * Timestamp:          2019-09-24 11:20:10 GMT+02:00
  *
  * Design Rule Check
  * =================
@@ -483,7 +483,8 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
  *    48 MHz (XTAL - Crystal)
  *
  * Inputs:
- *     IN0: Unused
+ *     IN0: 40 MHz
+ *          Standard
  *     IN1: Unused
  *     IN2: 40 MHz
  *          Standard
@@ -513,7 +514,7 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
  * Fms0 = 400 MHz
  *
  * P dividers:
- *    P0  = Unused
+ *    P0  = 20
  *    P1  = Unused
  *    P2  = 20
  *    P3  = Unused
@@ -615,12 +616,12 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
  * Theta-JA: 22.0 °C/W
  * Airflow:  0 m/s
  *
- * Total Power: 716 mW, On Chip Power: 697 mW, Tj: 85 °C
+ * Total Power: 722 mW, On Chip Power: 704 mW, Tj: 85 °C
  *
  *         Frequency  Format   Voltage   Current     Power
  *         ---------  ------  --------  --------  --------
- * VDD                           1.8 V  115.7 mA    208 mW
- * VDDA                          3.3 V  118.2 mA    390 mW
+ * VDD                           1.8 V  118.5 mA    213 mW
+ * VDDA                          3.3 V  118.6 mA    391 mW
  * VDDO0      Unused
  * VDDO1      Unused
  * VDDO2     100 MHz  LVDS       2.5 V   15.7 mA     39 mW
@@ -632,7 +633,7 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
  * VDDO8     100 MHz  LVDS       2.5 V   15.7 mA     39 mW
  * VDDO9      Unused
  *                                      --------  --------
- *                               Total  280.8 mA    716 mW
+ *                               Total  284.0 mA    722 mW
  *
  * Note:
  *
@@ -661,54 +662,54 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
  * 0x001A[5]     CAL_INTR_MSK          0                  0x0
  * 0x002B[3]     SPI_3WIRE             0                  0x0
  * 0x002B[5]     AUTO_NDIV_UPDATE      0                  0x0
- * 0x002C[3:0]   LOS_EN                4                  0x4
+ * 0x002C[3:0]   LOS_EN                5                  0x5
  * 0x002C[4]     LOSXAXB_DIS           0                  0x0
- * 0x002D[1:0]   LOS0_VAL_TIME         0                  0x0
+ * 0x002D[1:0]   LOS0_VAL_TIME         1                  0x1
  * 0x002D[3:2]   LOS1_VAL_TIME         0                  0x0
  * 0x002D[5:4]   LOS2_VAL_TIME         1                  0x1
  * 0x002D[7:6]   LOS3_VAL_TIME         0                  0x0
- * 0x002E[15:0]  LOS0_TRG_THR          0                  0x0000
+ * 0x002E[15:0]  LOS0_TRG_THR          55                 0x0037
  * 0x0030[15:0]  LOS1_TRG_THR          0                  0x0000
  * 0x0032[15:0]  LOS2_TRG_THR          55                 0x0037
  * 0x0034[15:0]  LOS3_TRG_THR          0                  0x0000
- * 0x0036[15:0]  LOS0_CLR_THR          0                  0x0000
+ * 0x0036[15:0]  LOS0_CLR_THR          55                 0x0037
  * 0x0038[15:0]  LOS1_CLR_THR          0                  0x0000
  * 0x003A[15:0]  LOS2_CLR_THR          55                 0x0037
  * 0x003C[15:0]  LOS3_CLR_THR          0                  0x0000
  * 0x003F[3:0]   OOF_EN                0                  0x0
  * 0x003F[7:4]   FAST_OOF_EN           0                  0x0
  * 0x0040[2:0]   OOF_REF_SEL           4                  0x4
- * 0x0041[4:0]   OOF0_DIV_SEL          0                  0x00
+ * 0x0041[4:0]   OOF0_DIV_SEL          12                 0x0C
  * 0x0042[4:0]   OOF1_DIV_SEL          0                  0x00
  * 0x0043[4:0]   OOF2_DIV_SEL          12                 0x0C
  * 0x0044[4:0]   OOF3_DIV_SEL          0                  0x00
  * 0x0045[4:0]   OOFXO_DIV_SEL         12                 0x0C
- * 0x0046[7:0]   OOF0_SET_THR          0                  0x00
+ * 0x0046[7:0]   OOF0_SET_THR          50                 0x32
  * 0x0047[7:0]   OOF1_SET_THR          0                  0x00
  * 0x0048[7:0]   OOF2_SET_THR          50                 0x32
  * 0x0049[7:0]   OOF3_SET_THR          0                  0x00
- * 0x004A[7:0]   OOF0_CLR_THR          0                  0x00
+ * 0x004A[7:0]   OOF0_CLR_THR          50                 0x32
  * 0x004B[7:0]   OOF1_CLR_THR          0                  0x00
  * 0x004C[7:0]   OOF2_CLR_THR          50                 0x32
  * 0x004D[7:0]   OOF3_CLR_THR          0                  0x00
- * 0x004E[2:0]   OOF0_DETWIN_SEL       0                  0x0
+ * 0x004E[2:0]   OOF0_DETWIN_SEL       5                  0x5
  * 0x004E[6:4]   OOF1_DETWIN_SEL       0                  0x0
  * 0x004F[2:0]   OOF2_DETWIN_SEL       5                  0x5
  * 0x004F[6:4]   OOF3_DETWIN_SEL       0                  0x0
- * 0x0050[3:0]   OOF_ON_LOS            11                 0xB
- * 0x0051[3:0]   FAST_OOF0_SET_THR     0                  0x0
+ * 0x0050[3:0]   OOF_ON_LOS            10                 0xA
+ * 0x0051[3:0]   FAST_OOF0_SET_THR     3                  0x3
  * 0x0052[3:0]   FAST_OOF1_SET_THR     0                  0x0
  * 0x0053[3:0]   FAST_OOF2_SET_THR     3                  0x3
  * 0x0054[3:0]   FAST_OOF3_SET_THR     0                  0x0
- * 0x0055[3:0]   FAST_OOF0_CLR_THR     0                  0x0
+ * 0x0055[3:0]   FAST_OOF0_CLR_THR     3                  0x3
  * 0x0056[3:0]   FAST_OOF1_CLR_THR     0                  0x0
  * 0x0057[3:0]   FAST_OOF2_CLR_THR     3                  0x3
  * 0x0058[3:0]   FAST_OOF3_CLR_THR     0                  0x0
- * 0x0059[1:0]   FAST_OOF0_DETWIN_SEL  0                  0x0
+ * 0x0059[1:0]   FAST_OOF0_DETWIN_SEL  3                  0x3
  * 0x0059[3:2]   FAST_OOF1_DETWIN_SEL  0                  0x0
  * 0x0059[5:4]   FAST_OOF2_DETWIN_SEL  3                  0x3
  * 0x0059[7:6]   FAST_OOF3_DETWIN_SEL  0                  0x0
- * 0x005A[25:0]  OOF0_RATIO_REF        0                  0x0000000
+ * 0x005A[25:0]  OOF0_RATIO_REF        13981013           0x0D55555
  * 0x005E[25:0]  OOF1_RATIO_REF        0                  0x0000000
  * 0x0062[25:0]  OOF2_RATIO_REF        13981013           0x0D55555
  * 0x0066[25:0]  OOF3_RATIO_REF        0                  0x0000000
@@ -844,8 +845,8 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
  * 0x0142[5]     OUT_DIS_MSK_HOLD      1                  0x1
  * 0x0202[31:0]  XAXB_FREQ_OFFSET      0                  0x00000000
  * 0x0206[1:0]   PXAXB                 0                  0x0
- * 0x0208[47:0]  P0_NUM                0                  0x000000000000
- * 0x020E[31:0]  P0_DEN                0                  0x00000000
+ * 0x0208[47:0]  P0_NUM                20                 0x000000000014
+ * 0x020E[31:0]  P0_DEN                1                  0x00000001
  * 0x0212[47:0]  P1_NUM                0                  0x000000000000
  * 0x0218[31:0]  P1_DEN                0                  0x00000000
  * 0x021C[47:0]  P2_NUM                20                 0x000000000014
@@ -926,7 +927,7 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
  * 0x0521[3:0]   M_FRAC_MODE           1                  0x1
  * 0x0521[4]     M_FRAC_EN             0                  0x0
  * 0x0521[5]     PLL_OUT_RATE_SEL      1                  0x1
- * 0x052A[0]     IN_SEL_REGCTRL        1                  0x1
+ * 0x052A[0]     IN_SEL_REGCTRL        0                  0x0
  * 0x052A[3:1]   IN_SEL                2                  0x2
  * 0x052B[0]     FASTLOCK_AUTO_EN      0                  0x0
  * 0x052B[1]     FASTLOCK_MAN          0                  0x0
@@ -939,22 +940,22 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
  * 0x0531[4:0]   HOLD_REF_COUNT_FRC    0                  0x00
  * 0x0532[23:0]  HOLD_15M_CYC_COUNT    834                0x000342
  * 0x0535[0]     FORCE_HOLD            0                  0x0
- * 0x0536[1:0]   CLK_SWITCH_MODE       0                  0x0
+ * 0x0536[1:0]   CLK_SWITCH_MODE       1                  0x1
  * 0x0536[2]     HSW_EN                0                  0x0
  * 0x0536[3]     HSW_RAMP_BYP          1                  0x1
  * 0x0537[3:0]   IN_LOS_MSK            0                  0x0
- * 0x0537[7:4]   IN_OOF_MSK            0                  0x0
- * 0x0538[2:0]   IN0_PRIORITY          0                  0x0
+ * 0x0537[7:4]   IN_OOF_MSK            5                  0x5
+ * 0x0538[2:0]   IN0_PRIORITY          1                  0x1
  * 0x0538[6:4]   IN1_PRIORITY          0                  0x0
- * 0x0539[2:0]   IN2_PRIORITY          0                  0x0
+ * 0x0539[2:0]   IN2_PRIORITY          2                  0x2
  * 0x0539[6:4]   IN3_PRIORITY          0                  0x0
  * 0x0802[15:0]  FIXREGSA0             1333               0x0535
  * 0x0804[7:0]   FIXREGSD0             0                  0x00
  * 0x090E[0]     XAXB_EXTCLK_EN        0                  0x0
  * 0x0943[0]     IO_VDD_SEL            1                  0x1
- * 0x0949[3:0]   IN_EN                 4                  0x4
+ * 0x0949[3:0]   IN_EN                 5                  0x5
  * 0x0949[7:4]   IN_PULSED_CMOS_EN     0                  0x0
- * 0x094A[3:0]   INX_TO_PFD_EN         4                  0x4
+ * 0x094A[3:0]   INX_TO_PFD_EN         5                  0x5
  * 0x0A02[4:0]   N_ADD_0P5             0                  0x00
  * 0x0A03[4:0]   N_CLK_TO_OUTX_EN      1                  0x01
  * 0x0A04[4:0]   N_PIBYP               1                  0x01
@@ -962,8 +963,8 @@ si5345_revb_register_t const si5345_revb_registers[SI5345_REVB_REG_CONFIG_NUM_RE
  * 0x0B44[3:0]   PDIV_FRACN_CLK_DIS    15                 0xF
  * 0x0B44[5]     FRACN_CLK_DIS_PLL     1                  0x1
  * 0x0B46[3:0]   LOS_CLK_DIS           0                  0x0
- * 0x0B47[4:0]   OOF_CLK_DIS           11                 0x0B
- * 0x0B48[4:0]   OOF_DIV_CLK_DIS       11                 0x0B
+ * 0x0B47[4:0]   OOF_CLK_DIS           10                 0x0A
+ * 0x0B48[4:0]   OOF_DIV_CLK_DIS       10                 0x0A
  * 0x0B4A[4:0]   N_CLK_DIS             30                 0x1E
  *
  *
