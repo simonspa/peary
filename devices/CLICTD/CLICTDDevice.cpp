@@ -40,6 +40,8 @@ CLICTDDevice::CLICTDDevice(const caribou::Configuration config)
 
   // set default CLICpix2 control
   // setMemory("reset", 0);
+
+  matrixConfigured = false;
 }
 
 void CLICTDDevice::getMem(std::string name) {
@@ -69,13 +71,17 @@ void CLICTDDevice::configure() {
     LOG(INFO) << "No pattern generator found in configuration.";
   }
 
-  // Read matrix file from the configuration and program it:
-  std::string matrix = _config.Get("matrix", "");
-  if(!matrix.empty()) {
-    LOG(INFO) << "Found pixel matrix setup in configuration, programming file \"" << matrix << "\"...";
-    configureMatrix(matrix);
+  if(!matrixConfigured) {
+    // Read matrix file from the configuration and program it:
+    std::string matrix = _config.Get("matrix", "");
+    if(!matrix.empty()) {
+      LOG(INFO) << "Found pixel matrix setup in configuration, programming file \"" << matrix << "\"...";
+      configureMatrix(matrix);
+    } else {
+      LOG(INFO) << "No pixel matrix configuration setting found.";
+    }
   } else {
-    LOG(INFO) << "No pixel matrix configuration setting found.";
+    LOG(INFO) << "Matrix was already configured. Skipping.";
   }
 
   // CLICTD signal order (from LSB):
@@ -428,6 +434,7 @@ void CLICTDDevice::configureMatrix(std::string filename) {
       LOG(INFO) << "Repeating configuration attempt";
     }
   }
+  matrixConfigured = true;
 }
 
 void CLICTDDevice::programMatrix() {
@@ -658,6 +665,8 @@ uint32_t CLICTDDevice::getSpecialRegister(std::string name) {
 
 void CLICTDDevice::powerUp() {
   LOG(INFO) << "Powering up";
+
+  matrixConfigured = false;
 
   LOG(DEBUG) << " PWELL: " << _config.Get("pwell", CLICTD_PWELL) << "V";
   this->setVoltage("pwell", _config.Get("pwell", CLICTD_PWELL), _config.Get("pwell_current", CLICTD_PWELL_CURRENT));

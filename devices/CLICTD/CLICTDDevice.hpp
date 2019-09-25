@@ -82,6 +82,8 @@ namespace caribou {
      */
     void programMatrix();
 
+    bool matrixConfigured;
+
     std::vector<uint32_t> getFrame(bool manual_readout = false);
 
     std::vector<uint32_t> getTimestamps();
