@@ -63,7 +63,7 @@ void CLICTDDevice::configure() {
   // Read pattern generator from the configuration and program it:
   std::string pg = _config.Get("patterngenerator", "");
   if(!pg.empty()) {
-    LOG(INFO) << "Found pattern generator in configuration, programming...";
+    LOG(INFO) << "Found pattern generator in configuration, programming file \"" << pg << "\"...";
     configurePatternGenerator(pg);
   } else {
     LOG(INFO) << "No pattern generator found in configuration.";
@@ -72,7 +72,7 @@ void CLICTDDevice::configure() {
   // Read matrix file from the configuration and program it:
   std::string matrix = _config.Get("matrix", "");
   if(!matrix.empty()) {
-    LOG(INFO) << "Found pixel matrix setup in configuration, programming...";
+    LOG(INFO) << "Found pixel matrix setup in configuration, programming file \"" << matrix << "\"...";
     configureMatrix(matrix);
   } else {
     LOG(INFO) << "No pixel matrix configuration setting found.";
@@ -228,7 +228,6 @@ void CLICTDDevice::configurePatternGenerator(std::string filename) {
         }
         n_triggers++;
       }
-      LOG(INFO) << "Found " << n_triggers << " trigger signals";
 
       LOG(DEBUG) << "PG: setting duration " << duration << " clk";
       setMemory("wgpatterntime", duration);
@@ -241,14 +240,15 @@ void CLICTDDevice::configurePatternGenerator(std::string filename) {
       setMemory("wgcontrol", 0x8);
 
       auto remaining = getMemory("wgcapacity");
-      LOG(INFO) << "PG: " << remaining << " slots remaining";
+      LOG(INFO) << "Added slot with " << n_triggers << " trigger signals to pattern generator, " << remaining
+                << " slots remaining";
     }
   }
 
-  LOG(INFO) << "Setting to run PG once";
+  LOG(DEBUG) << "Setting to run PG once";
   setMemory("wgconfruns", 1);
 
-  LOG(DEBUG) << "Done configuring pattern generator.";
+  LOG(INFO) << "Done configuring pattern generator.";
 }
 
 void CLICTDDevice::reset() {
