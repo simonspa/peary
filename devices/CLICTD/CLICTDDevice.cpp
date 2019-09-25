@@ -773,8 +773,14 @@ void CLICTDDevice::triggerPatternGenerator(bool sleep) {
   // Wait for its length before returning:
   if(sleep) {
     LOG(DEBUG) << "Waiting for pattern generator to finish...";
+    size_t total_sleep = 0;
     while(getMemory("wgstatus") & 0x1) {
       usleep(100);
+      total_sleep += 100;
+      // After three seconds, fail:
+      if(total_sleep > 3000000) {
+        throw DataException("Pattern generator failed to return within 3 s");
+      }
     }
     usleep(100);
   }
