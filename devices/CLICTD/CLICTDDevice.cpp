@@ -38,9 +38,7 @@ CLICTDDevice::CLICTDDevice(const caribou::Configuration config)
   // Add memory pages to the dictionary:
   _memory.add(CLICTD_MEMORY);
 
-  // set default CLICpix2 control
-  // setMemory("reset", 0);
-
+  // Matrix not configured yet:
   matrixConfigured = false;
 }
 
@@ -666,8 +664,6 @@ uint32_t CLICTDDevice::getSpecialRegister(std::string name) {
 void CLICTDDevice::powerUp() {
   LOG(INFO) << "Powering up";
 
-  matrixConfigured = false;
-
   LOG(DEBUG) << " PWELL: " << _config.Get("pwell", CLICTD_PWELL) << "V";
   this->setVoltage("pwell", _config.Get("pwell", CLICTD_PWELL), _config.Get("pwell_current", CLICTD_PWELL_CURRENT));
   this->switchOn("pwell");
@@ -703,6 +699,9 @@ void CLICTDDevice::powerDown() {
 
   LOG(DEBUG) << "Turn off SUB";
   this->switchOff("sub");
+
+  // Matrix not configured anymore:
+  matrixConfigured = false;
 }
 
 void CLICTDDevice::daqStart() {
