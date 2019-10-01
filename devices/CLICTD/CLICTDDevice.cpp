@@ -20,6 +20,8 @@ CLICTDDevice::CLICTDDevice(const caribou::Configuration config)
   _dispatcher.add("getMemory", &CLICTDDevice::getMem, this);
   _dispatcher.add("setMemory", &CLICTDDevice::setMem, this);
   _dispatcher.add("triggerPatternGenerator", &CLICTDDevice::triggerPatternGenerator, this);
+  _dispatcher.add("configurePatternGenerator", &CLICTDDevice::configurePatternGenerator, this);
+  _dispatcher.add("clearTimestamps", &CLICTDDevice::clearTimestamps, this);
 
   // Set up periphery
   _periphery.add("vddd", PWR_OUT_2);
@@ -36,8 +38,8 @@ CLICTDDevice::CLICTDDevice(const caribou::Configuration config)
   // Add memory pages to the dictionary:
   _memory.add(CLICTD_MEMORY);
 
-  // set default CLICpix2 control
-  // setMemory("reset", 0);
+  // Matrix not configured yet:
+  matrixConfigured = false;
 }
 
 void CLICTDDevice::getMem(std::string name) {
@@ -58,14 +60,199 @@ void CLICTDDevice::configure() {
   // Call the base class configuration function:
   CaribouDevice<iface_i2c>::configure();
 
-  // Read matrix file from the configuration and program it:
-  std::string matrix = _config.Get("matrix", "");
-  if(!matrix.empty()) {
-    LOG(INFO) << "Found pixel matrix setup in configuration, programming...";
-    configureMatrix(matrix);
+  // Read pattern generator from the configuration and program it:
+  std::string pg = _config.Get("patterngenerator", "");
+  if(!pg.empty()) {
+    LOG(INFO) << "Found pattern generator in configuration, programming file \"" << pg << "\"...";
+    configurePatternGenerator(pg);
   } else {
-    LOG(INFO) << "No pixel matrix configuration setting found.";
+    LOG(INFO) << "No pattern generator found in configuration.";
   }
+
+  if(!matrixConfigured) {
+    // Read matrix file from the configuration and program it:
+    std::string matrix = _config.Get("matrix", "");
+    if(!matrix.empty()) {
+      LOG(INFO) << "Found pixel matrix setup in configuration, programming file \"" << matrix << "\"...";
+      configureMatrix(matrix);
+    } else {
+      LOG(INFO) << "No pixel matrix configuration setting found.";
+    }
+  } else {
+    LOG(INFO) << "Matrix was already configured. Skipping.";
+  }
+
+  // CLICTD signal order (from LSB):
+  //            T0, Reset, Shutter, TP, Pwr, RO_start, RO_active
+  //            1   2      4        8   16   32        64
+  // Stored in topmost 16 bits of 64bit timestamp
+  // Configure, which timestamps we would like to see:
+  std::string ts_trigger_string = _config.Get("timestamp_triggers", "");
+  std::stringstream ss(ts_trigger_string);
+  size_t pos = 0;
+  uint32_t ts_triggers = 0;
+  while(ss.good()) {
+    std::string substr;
+    getline(ss, substr, ',');
+    LOG(DEBUG) << "TS_TRG: Found timestamp trigger " << substr << ", pos " << (pos * 2);
+    uint32_t value = 0;
+    if(substr == "RISING" || substr == "R") {
+      value = (0b01 << (pos * 2));
+    } else if(substr == "FALLING" || substr == "F") {
+      value = (0b10 << (pos * 2));
+    } else if(substr == "EDGE" || substr == "E") {
+      value = (0b11 << (pos * 2));
+    } else if(substr == "NONE" || substr == "N") {
+    } else {
+      LOG(ERROR) << "Unknown timestamp trigger " << substr << " - disabling this signal (0x00)";
+    }
+    LOG(DEBUG) << "TS_TRG: Adding value " << to_bit_string(value, 32, true);
+    ts_triggers |= value;
+    pos++;
+  }
+  LOG(INFO) << "Setting timestamp triggers to " << to_bit_string(ts_triggers, 32, true) << "(" << ts_triggers << ")";
+  setMemory("tsedgeconf", ts_triggers);
+
+  // Enable recording of timestamps:
+  setMemory("tscontrol", 0x3);
+}
+
+template <typename Enumeration> auto as_value(Enumeration const value) -> typename std::underlying_type<Enumeration>::type {
+  return static_cast<typename std::underlying_type<Enumeration>::type>(value);
+}
+
+void CLICTDDevice::configurePatternGenerator(std::string filename) {
+
+  LOG(DEBUG) << "Resetting pattern generator configuration";
+  setMemory("wgcontrol", 0x4);
+
+  LOG(DEBUG) << "Programming pattern generator";
+  std::vector<uint32_t> patterns;
+
+  std::ifstream pgfile(filename);
+  if(!pgfile.is_open()) {
+    LOG(ERROR) << "Could not open pattern generator configuration file \"" << filename << "\"";
+    throw ConfigInvalid("Could not open pattern generator configuration file \"" + filename + "\"");
+  }
+
+  enum class TriggerConditionGlobal : uint8_t {
+    OR = 0b001,
+    NOR = 0b101,
+    AND = 0b011,
+    NAND = 0b111,
+    XOR = 0b010,
+    XNOR = 0b110,
+    TRUE = 0b000
+  };
+
+  enum class TriggerConditionLocal : uint8_t {
+    HIGH = 0b100,
+    LOW = 0b101,
+    RISING = 0b001,
+    FALLING = 0b010,
+    EDGE = 0b011,
+    ALWAYS = 0b111,
+    NEVER = 0b000
+  };
+
+  std::string line = "";
+  while(std::getline(pgfile, line)) {
+    if(!line.length() || '#' == line.at(0))
+      continue;
+    std::istringstream pgline(line);
+    std::string triggerconditions;
+    std::string condition;
+    std::string signals;
+    uint32_t duration;
+    if(pgline >> triggerconditions >> condition >> signals >> duration) {
+
+      uint8_t output = 0;
+      std::stringstream ss(signals);
+      while(ss.good()) {
+        std::string substr;
+        getline(ss, substr, ',');
+        if(substr == "RO") {
+          output |= CLICTD_READOUT_START;
+        } else if(substr == "PWR") {
+          output |= CLICTD_POWER_ENABLE;
+        } else if(substr == "TP") {
+          output |= CLICTD_TESTPULSE;
+        } else if(substr == "SH") {
+          output |= CLICTD_SHUTTER;
+        } else if(substr == "RE") {
+          output |= CLICTD_RESET;
+        } else if(substr == "NONE") {
+        } else {
+          LOG(ERROR) << "Unrecognized pattern for pattern generator: " << substr << " - ignoring.";
+        }
+      }
+
+      uint16_t triggers = 0;
+      if(condition == "OR") {
+        triggers = as_value(TriggerConditionGlobal::OR);
+      } else if(condition == "NOR") {
+        triggers = as_value(TriggerConditionGlobal::NOR);
+      } else if(condition == "AND") {
+        triggers = as_value(TriggerConditionGlobal::AND);
+      } else if(condition == "NAND") {
+        triggers = as_value(TriggerConditionGlobal::NAND);
+      } else if(condition == "XOR") {
+        triggers = as_value(TriggerConditionGlobal::XOR);
+      } else if(condition == "XNOR") {
+        triggers = as_value(TriggerConditionGlobal::XNOR);
+      } else if(condition == "TRUE") {
+        triggers = as_value(TriggerConditionGlobal::TRUE);
+      } else {
+        LOG(ERROR) << "Unrecognized global trigger condition for pattern generator: " << condition;
+        throw ConfigInvalid("Invalid global trigger condition");
+      }
+
+      size_t n_triggers = 0;
+      std::stringstream ss2(triggerconditions);
+      while(ss2.good()) {
+        std::string substr;
+        getline(ss2, substr, ',');
+        if(substr == "HIGH" || substr == "H") {
+          triggers |= (as_value(TriggerConditionLocal::HIGH) << (n_triggers + 1) * 3);
+        } else if(substr == "LOW" || substr == "L") {
+          triggers |= (as_value(TriggerConditionLocal::LOW) << (n_triggers + 1) * 3);
+        } else if(substr == "RISING" || substr == "R") {
+          triggers |= (as_value(TriggerConditionLocal::RISING) << (n_triggers + 1) * 3);
+        } else if(substr == "FALLING" || substr == "F") {
+          triggers |= (as_value(TriggerConditionLocal::FALLING) << (n_triggers + 1) * 3);
+        } else if(substr == "EDGE" || substr == "E") {
+          triggers |= (as_value(TriggerConditionLocal::EDGE) << (n_triggers + 1) * 3);
+        } else if(substr == "ALWAYS" || substr == "A") {
+          triggers |= (as_value(TriggerConditionLocal::ALWAYS) << (n_triggers + 1) * 3);
+        } else if(substr == "NEVER" || substr == "N") {
+          triggers |= (as_value(TriggerConditionLocal::NEVER) << (n_triggers + 1) * 3);
+        } else {
+          LOG(ERROR) << "Unrecognized signal trigger condition for pattern generator: " << substr << " - setting to NEVER.";
+          triggers |= (as_value(TriggerConditionLocal::NEVER) << (n_triggers + 1) * 3);
+        }
+        n_triggers++;
+      }
+
+      LOG(DEBUG) << "PG: setting duration " << duration << " clk";
+      setMemory("wgpatterntime", duration);
+      LOG(DEBUG) << "PG: setting output " << to_bit_string(output, 8, true);
+      setMemory("wgpatternoutput", output);
+      LOG(DEBUG) << "PG: setting trigger conditions " << to_bit_string(triggers, (n_triggers + 1) * 3, true);
+      setMemory("wgpatterntriggers", triggers);
+
+      // Trigger the write:
+      setMemory("wgcontrol", 0x8);
+
+      auto remaining = getMemory("wgcapacity");
+      LOG(INFO) << "Added slot with " << n_triggers << " trigger signals to pattern generator, " << remaining
+                << " slots remaining";
+    }
+  }
+
+  LOG(DEBUG) << "Setting to run PG once";
+  setMemory("wgconfruns", 1);
+
+  LOG(INFO) << "Done configuring pattern generator.";
 }
 
 void CLICTDDevice::reset() {
@@ -105,32 +292,79 @@ void CLICTDDevice::configureClock(bool internal) {
 std::vector<uint32_t> CLICTDDevice::getRawData() {
   triggerPatternGenerator(true);
 
-  // Get the frame:
-  return getFrame();
-}
-
-std::vector<uint32_t> CLICTDDevice::getFrame() {
-
+  LOG(DEBUG) << "Preparing raw data packet";
   std::vector<uint32_t> rawdata;
 
-  LOG(DEBUG) << "Frame readout requested";
-  setMemory("rdcontrol", 1);
-  uint32_t attempts = 0;
-  while((getMemory("rdcontrol")) & 0b1) {
-    usleep(100);
-    if(attempts++ >= 16384) {
-      LOG(ERROR) << "Frame readout timeout";
-      return rawdata;
+  // Get the timestamps:
+  auto timestamps = getTimestamps();
+
+  // Read frame data:
+  auto frame = getFrame();
+
+  // Pack data: first data block is number of timestamp words, followed by timestamps and frame data
+  rawdata.push_back(timestamps.size());
+  rawdata.insert(rawdata.end(), timestamps.begin(), timestamps.end());
+  rawdata.insert(rawdata.end(), frame.begin(), frame.end());
+
+  LOG(DEBUG) << "Raw data packet with " << rawdata.size() << " words ready";
+  return rawdata;
+}
+
+std::vector<uint32_t> CLICTDDevice::getFrame(bool manual_readout) {
+
+  if(manual_readout) {
+    // Manually trigger readout:
+    LOG(DEBUG) << "Frame readout requested";
+    setMemory("rdcontrol", 1);
+    uint32_t attempts = 0;
+    while((getMemory("rdstatus")) & 0x20) {
+      usleep(100);
+      if(attempts++ >= 16384) {
+        LOG(ERROR) << "Frame readout timeout";
+        return std::vector<uint32_t>();
+      }
     }
   }
 
-  // Poll data until there is something left
+  // Poll data until there nothing something left anymore
+  std::vector<uint32_t> rawdata;
   while((getMemory("rdstatus")) & 0b1) {
+    LOG(TRACE) << "Reading word " << rawdata.size() << " from FIFO";
     uint32_t data = getMemory("rdfifo");
     rawdata.push_back(data);
   }
   LOG(DEBUG) << "Read " << rawdata.size() << " 32bit words from FIFO.";
   return rawdata;
+}
+
+void CLICTDDevice::clearTimestamps() {
+  // Retrieve all timestamps and throw them away:
+  getTimestamps();
+}
+
+std::vector<uint32_t> CLICTDDevice::getTimestamps() {
+
+  LOG(DEBUG) << "Requesting timestamps";
+
+  if((getMemory("tsstatus") & 0x1) == 0) {
+    LOG(WARNING) << "Timestamps FIFO is empty";
+    return std::vector<uint32_t>();
+  }
+
+  std::vector<uint32_t> timestamps;
+  do {
+    // Read LSB and MSB of timestamp
+    uint32_t ts_lsb = getMemory("tsfifodata_lsb");
+    uint32_t ts_msb = getMemory("tsfifodata_msb");
+
+    timestamps.push_back(ts_msb);
+    timestamps.push_back(ts_lsb);
+    LOG(DEBUG) << ts_msb << " | " << ts_lsb << "\t= " << ((static_cast<uint64_t>(ts_msb) << 32) | ts_lsb);
+  } while(getMemory("tsstatus") & 0x1);
+
+  LOG(DEBUG) << "Received " << timestamps.size() / 2 << " timestamps: " << listVector(timestamps, ",", false);
+
+  return timestamps;
 }
 
 CLICTDDevice::matrixConfig CLICTDDevice::readMatrix(std::string filename) const {
@@ -198,6 +432,7 @@ void CLICTDDevice::configureMatrix(std::string filename) {
       LOG(INFO) << "Repeating configuration attempt";
     }
   }
+  matrixConfigured = true;
 }
 
 void CLICTDDevice::programMatrix() {
@@ -286,8 +521,9 @@ void CLICTDDevice::programMatrix() {
 
   auto check_configuration = [this](bool first_stage) {
     bool configurationError = false;
+
     // Read back the applied configuration (optional)
-    auto rawdata = getFrame();
+    auto rawdata = getFrame(true);
 
     IFLOG(DEBUG) {
       LOG(DEBUG) << "Matrix Stage " << (first_stage ? "1" : "2");
@@ -325,7 +561,7 @@ void CLICTDDevice::programMatrix() {
   };
 
   LOG(INFO) << "Resetting matrix...";
-  getFrame();
+  getFrame(true);
 
   LOG(INFO) << "Matrix configuration - Stage 1";
   // Write 0x01 to ’configCtrl’ register (start 1st configuration stage)
@@ -342,13 +578,6 @@ void CLICTDDevice::programMatrix() {
   // Reset the readout FSM and clear the FPGA FIFO
   setMemory("rdcontrol", 2);
   usleep(10);
-  int retry = 0;
-  while(getMemory("rdcontrol") & 2) {
-    if(++retry > 3) {
-      LOG(ERROR) << "Could not finish FPGA readout reset.";
-      break;
-    }
-  }
   check_configuration(true);
 
   LOG(INFO) << "Matrix configuration - Stage 2";
@@ -366,13 +595,6 @@ void CLICTDDevice::programMatrix() {
   // Reset the readout FSM and clear the FPGA FIFO
   setMemory("rdcontrol", 2);
   usleep(10);
-  retry = 0;
-  while(getMemory("rdcontrol") & 2) {
-    if(++retry > 3) {
-      LOG(ERROR) << "Could not finish FPGA readout reset.";
-      break;
-    }
-  }
 
   check_configuration(false);
   LOG(INFO) << "Verified matrix configuration.";
@@ -411,7 +633,7 @@ void CLICTDDevice::setSpecialRegister(std::string name, uint32_t value) {
 
     // Flush the matrix:
     LOG(INFO) << "Flushing the matrix to clear hit flags";
-    getFrame();
+    getFrame(true);
   }
 }
 
@@ -477,6 +699,9 @@ void CLICTDDevice::powerDown() {
 
   LOG(DEBUG) << "Turn off SUB";
   this->switchOff("sub");
+
+  // Matrix not configured anymore:
+  matrixConfigured = false;
 }
 
 void CLICTDDevice::daqStart() {
@@ -551,18 +776,19 @@ void CLICTDDevice::triggerPatternGenerator(bool sleep) {
 
   LOG(DEBUG) << "Triggering pattern generator once.";
 
-  // reset the FPGA readout
-  setMemory("rdcontrol", 2);
-  usleep(1000);
-
-  // Manually open the shutter
-  setMemory("rdcontrol", 4);
+  setMemory("wgcontrol", 1);
 
   // Wait for its length before returning:
   if(sleep) {
-    LOG(DEBUG) << "Waiting for shutter to close...";
-    while(getMemory("rdstatus") & 0x20) {
+    LOG(DEBUG) << "Waiting for pattern generator to finish...";
+    size_t total_sleep = 0;
+    while(getMemory("wgstatus") & 0x1) {
       usleep(100);
+      total_sleep += 100;
+      // After three seconds, fail:
+      if(total_sleep > 3000000) {
+        throw DataException("Pattern generator failed to return within 3 s");
+      }
     }
     usleep(100);
   }

@@ -295,6 +295,7 @@ namespace caribou {
     // Hit bits (8bit)
     void SetHits(uint8_t hits) { m_latches = (m_latches & 0xffffff00) | (hits & 0xff); }
     uint8_t GetHits() const { return m_latches & 0x000000ff; };
+    bool isHit(uint8_t subpixel) { return (GetHits() & (0x1 << subpixel)); };
 
     /** Overloaded print function for ostream operator
      */

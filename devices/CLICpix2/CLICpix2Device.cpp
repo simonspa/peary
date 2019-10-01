@@ -28,6 +28,8 @@ CLICpix2Device::CLICpix2Device(const caribou::Configuration config)
   _dispatcher.add("configureClock", &CLICpix2Device::configureClock, this);
   _dispatcher.add("clearTimestamps", &CLICpix2Device::clearTimestamps, this);
   _dispatcher.add("setOutputMultiplexer", &CLICpix2Device::setOutputMultiplexer, this);
+  _dispatcher.add("getMemory", &CLICpix2Device::getMem, this);
+  _dispatcher.add("setMemory", &CLICpix2Device::setMem, this);
 
   // Set up periphery
   _periphery.add("vddd", PWR_OUT_1);
@@ -49,6 +51,15 @@ CLICpix2Device::CLICpix2Device(const caribou::Configuration config)
 
   // set default CLICpix2 control
   setMemory("reset", 0);
+}
+
+void CLICpix2Device::getMem(std::string name) {
+  auto value = getMemory(name);
+  LOG(INFO) << name << " = 0x" << to_hex_string(value);
+}
+
+void CLICpix2Device::setMem(std::string name, uint32_t value) {
+  setMemory(name, value);
 }
 
 void CLICpix2Device::configure() {
