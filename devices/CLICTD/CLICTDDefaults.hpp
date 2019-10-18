@@ -160,6 +160,36 @@ namespace caribou {
                    (18 << CLICTD_READOUT_LSB),                                \
                    CLICTD_READOUT_MAP_SIZE,                                   \
                    CLICTD_READOUT_MAP_MASK,                                   \
+                   PROT_READ | PROT_WRITE)},                                  \
+    {"chipsignal_enable",                                                     \
+        memory_map(CLICTD_READOUT_BASE_ADDRESS,                               \
+                   (19 << CLICTD_READOUT_LSB),                                \
+                   CLICTD_READOUT_MAP_SIZE,                                   \
+                   CLICTD_READOUT_MAP_MASK,                                   \
+                   PROT_READ | PROT_WRITE)},                                  \
+    {"pulser_periods",                                                        \
+        memory_map(CLICTD_READOUT_BASE_ADDRESS,                               \
+                   (20 << CLICTD_READOUT_LSB),                                \
+                   CLICTD_READOUT_MAP_SIZE,                                   \
+                   CLICTD_READOUT_MAP_MASK,                                   \
+                   PROT_READ | PROT_WRITE)},                                  \
+    {"pulser_time_high",                                                      \
+        memory_map(CLICTD_READOUT_BASE_ADDRESS,                               \
+                   (21 << CLICTD_READOUT_LSB),                                \
+                   CLICTD_READOUT_MAP_SIZE,                                   \
+                   CLICTD_READOUT_MAP_MASK,                                   \
+                   PROT_READ | PROT_WRITE)},                                  \
+    {"pulser_time_low",                                                       \
+        memory_map(CLICTD_READOUT_BASE_ADDRESS,                               \
+                   (22 << CLICTD_READOUT_LSB),                                \
+                   CLICTD_READOUT_MAP_SIZE,                                   \
+                   CLICTD_READOUT_MAP_MASK,                                   \
+                   PROT_READ | PROT_WRITE)},                                  \
+    {"pulser_control",                                                        \
+        memory_map(CLICTD_READOUT_BASE_ADDRESS,                               \
+                   (23 << CLICTD_READOUT_LSB),                                \
+                   CLICTD_READOUT_MAP_SIZE,                                   \
+                   CLICTD_READOUT_MAP_MASK,                                   \
                    PROT_READ | PROT_WRITE)}                                   \
   }
 
