@@ -181,7 +181,7 @@ void CLICTDDevice::configurePatternGenerator(std::string filename) {
           output |= CLICTD_SHUTTER;
         } else if(substr == "RE") {
           output |= CLICTD_RESET;
-        } else if(substr == "PULSER") {
+        } else if(substr == "PLS") {
           output |= CLICTD_PULSER;
         } else if(substr == "NONE") {
         } else {
