@@ -41,8 +41,8 @@ namespace caribou {
 #define CLICTD_POWER_ENABLE 0x2
 #define CLICTD_TESTPULSE 0x4
 #define CLICTD_SHUTTER 0x8
-#define CLICTD_RESET 0x16
-#define CLICTD_PULSER 0x32
+#define CLICTD_RESET 0x10
+#define CLICTD_PULSER 0x20
 
 // clang-format off
 
