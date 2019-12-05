@@ -181,6 +181,8 @@ void CLICTDDevice::configurePatternGenerator(std::string filename) {
           output |= CLICTD_SHUTTER;
         } else if(substr == "RE") {
           output |= CLICTD_RESET;
+        } else if(substr == "PLS") {
+          output |= CLICTD_PULSER;
         } else if(substr == "NONE") {
         } else {
           LOG(ERROR) << "Unrecognized pattern for pattern generator: " << substr << " - ignoring.";
