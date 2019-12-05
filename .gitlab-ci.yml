@@ -39,6 +39,7 @@ cmp:centos7-gcc:
     - docker
   image: clicdp/cc7-base
   before_script:
+    - rpm --rebuilddb
     - yum install -y readline readline-devel
   script:
     - export COMPILER_TYPE="gcc"
@@ -61,6 +62,7 @@ cmp:centos7-llvm:
     - docker
   image: clicdp/cc7-base
   before_script:
+    - rpm --rebuilddb
     - yum install -y readline readline-devel
   script:
     - export COMPILER_TYPE="llvm"
