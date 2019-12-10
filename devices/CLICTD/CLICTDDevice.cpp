@@ -29,6 +29,9 @@ CLICTDDevice::CLICTDDevice(const caribou::Configuration config)
   _periphery.add("pwell", PWR_OUT_8);
   _periphery.add("sub", PWR_OUT_3);
 
+  _periphery.add("analog_in", BIAS_1);
+  _periphery.add("ref", BIAS_2);
+
   _periphery.add("analog_out", VOL_IN_1);
   _periphery.add("dac_out", VOL_IN_1);
 
